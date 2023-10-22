@@ -2,6 +2,9 @@
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
+https://developer.wordpress.org/plugins/
+https://wpmudev.com/blog/wordpress-admin-tables/
+
 ## Description
 A Basic WordPress Plugin to explore the WP_List_Table class for an accompanying article.
 

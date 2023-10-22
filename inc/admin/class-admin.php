@@ -50,6 +50,16 @@ class Admin
     private $plugin_text_domain;
 
     /**
+     * WP_List_Table object
+     *
+     * @since    1.0.0
+     * @access   private
+     * @var      admin_table_list    $admin_list_table
+     */
+    private $admin_table_list;
+
+
+    /**
      * Initialize the class and set its properties.
      *
      * @param string $plugin_name The name of this plugin.
@@ -60,6 +70,7 @@ class Admin
     public function __construct($plugin_name, $version, $plugin_text_domain)
     {
         // Instantiate your custom table
+        /*
         if ('POST' === $_SERVER['REQUEST_METHOD']) {
             $action = common::inputGetString('action');
             if(str_contains($action, 'customtables-')) {
@@ -72,6 +83,7 @@ class Admin
                 $list_table->tableSave();
             }
         }
+        */
 
         $this->plugin_name = $plugin_name;
         $this->version = $version;
@@ -79,7 +91,6 @@ class Admin
 
         ///add_action( 'plugins_loaded', 'my_plugin_load_textdomain' );
         add_action('init', array($this, 'my_load_plugin_textdomain'));
-
     }
 
     function my_load_plugin_textdomain()
@@ -130,7 +141,7 @@ class Admin
         //add_menu_page( string $page_title, string $menu_title, string $capability, string $menu_slug, callable $callback = '', string $icon_url = '', int|float $position = null )
         add_menu_page('Custom Tables - Dashboard', 'Custom Tables', 'manage_options', 'customtables', array($this, 'load_customtablesAdminDashboard'), $icon);
         add_submenu_page('customtables', 'Custom Tables - Dashboard', 'Dashboard', 'manage_options', 'customtables', array($this, 'load_customtablesAdminDashboard'), 1);
-        add_submenu_page('customtables', 'Custom Tables - Tables', 'Tables', 'manage_options', 'customtables-tables', array($this, 'load_customtablesAdminTables'), 2);
+        add_submenu_page('customtables', 'Custom Tables - Tables', 'Tables', 'manage_options', 'customtables-tables', array($this, 'load_admin_table_list'), 2);
         add_submenu_page('customtables', 'Custom Tables - Layouts', 'Layouts', 'manage_options', 'customtables-layouts', array($this, 'load_customtablesAdminLayouts'), 3);
         add_submenu_page('customtables', 'Custom Tables - Database Schema', 'Database Schema', 'manage_options', 'customtables-databasecheck', array($this, 'load_customtablesAdminSchema'), 4);
         add_submenu_page('customtables', 'Custom Tables - Documentation', 'Documentation', 'manage_options', 'customtables-documentation', array($this, 'load_customtablesAdminDocumentation'), 5);
@@ -154,8 +165,89 @@ class Admin
          * The callback below will be called when the respective page is loaded
          *
          */
-        //add_action('load-' . $page_hook, array($this, 'load_user_list_table_screen_options'));
+
+        /*
+        $page_hook = add_users_page(
+            __( 'WP List Table Demo', $this->plugin_text_domain ), //page title
+            __( 'WP List Table Demo', $this->plugin_text_domain ), //menu title
+            'manage_options', //capability
+            $this->plugin_name, //menu_slug,
+            array( $this, 'load_admin_table_list' )
+        );
+        */
+
+        /*
+         * The $page_hook_suffix can be combined with the load-($page_hook) action hook
+         * https://codex.wordpress.org/Plugin_API/Action_Reference/load-(page)
+         *
+         * The callback below will be called when the respective page is loaded
+         *
+         */
+        //add_action('load-' . $page_hook, array($this, 'load_table_list_screen_options'));
+
+        $page_hook = add_users_page(
+            __( 'WP List Table Demo', $this->plugin_text_domain ), //page title
+            __( 'WP List Table Demo', $this->plugin_text_domain ), //menu title
+            'manage_options', //capability
+            'customtables-tables', //menu_slug,
+            array( $this, 'load_user_list_table' )
+        );
+
+        /*
+         * The $page_hook_suffix can be combined with the load-($page_hook) action hook
+         * https://codex.wordpress.org/Plugin_API/Action_Reference/load-(page)
+         *
+         * The callback below will be called when the respective page is loaded
+         *
+         */
+        add_action( 'load-'.$page_hook, array( $this, 'load_user_list_table_screen_options' ) );
     }
+
+    /**
+     * Screen options for the List Table
+     *
+     * Callback for the load-($page_hook_suffix)
+     * Called when the plugin page is loaded
+     *
+     * @since    1.0.0
+     */
+
+
+
+    public function load_user_list_table_screen_options() {
+
+        /*
+        $arguments	=	array(
+            'label'		=>	__( 'Users Per Page', $this->plugin_text_domain ),
+            'default'	=>	5,
+            'option'	=>	'users_per_page'
+        );
+
+        add_screen_option( 'per_page', $arguments );
+        */
+
+        // instantiate the User List Table
+        $this->user_list_table = new Admin_Table_List( $this->plugin_text_domain );
+
+    }
+
+    /*
+ * Display the User List Table
+ *
+ * Callback for the add_users_page() in the add_plugin_admin_menu() method of this class.
+ *
+ * @since	1.0.0
+ */
+    public function load_user_list_table(){
+
+        // query, filter, and sort the data
+        $this->user_list_table->prepare_items();
+
+
+        // render the List Table
+        include_once( 'views/partials-wp-list-table-demo-display.php' );
+    }
+
 
     protected function getCustomTablesIcon()
     {
@@ -190,9 +282,27 @@ class Admin
         include_once('views' . DIRECTORY_SEPARATOR . 'customtables-dashboard.php');
     }
 
+    /*
     public function load_customtablesAdminTables()
     {
         include_once('views' . DIRECTORY_SEPARATOR . 'customtables-tables.php');
+    }
+    */
+
+    /*
+	 * Display the User List Table
+	 *
+	 * Callback for the add_users_page() in the add_plugin_admin_menu() method of this class.
+	 *
+	 * @since	1.0.0
+	 */
+    public function load_admin_table_list(){
+
+        // query, filter, and sort the data
+        $this->admin_table_list->prepare_items();
+
+        // render the List Table
+        include_once( 'views/partials-wp-list-table-demo-display.php' );
     }
 
     public function load_customtablesAdminTablesEdit()
