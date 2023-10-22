@@ -54,10 +54,10 @@ class Admin
      *
      * @since    1.0.0
      * @access   private
-     * @var      admin_table_list    $admin_list_table
+     * @var      admin_table_list $admin_list_table
      */
     private $admin_table_list;
-
+    private $admin_table_edit;
 
     /**
      * Initialize the class and set its properties.
@@ -69,27 +69,9 @@ class Admin
      */
     public function __construct($plugin_name, $version, $plugin_text_domain)
     {
-        // Instantiate your custom table
-        /*
-        if ('POST' === $_SERVER['REQUEST_METHOD']) {
-            $action = common::inputGetString('action');
-            if(str_contains($action, 'customtables-')) {
-                require_once('views' . DIRECTORY_SEPARATOR . 'customtables-tables-list.php');
-                $list_table = new CustomTableList();
-                $list_table->process_bulk_action();
-            }elseif (isset($_REQUEST['action']) && ('createtable' === $_REQUEST['action'] || 'savetable' === $_REQUEST['action'])) {
-                require_once('views' . DIRECTORY_SEPARATOR . 'customtables-tables-list.php');
-                $list_table = new CustomTableList();
-                $list_table->tableSave();
-            }
-        }
-        */
-
         $this->plugin_name = $plugin_name;
         $this->version = $version;
         $this->plugin_text_domain = $plugin_text_domain;
-
-        ///add_action( 'plugins_loaded', 'my_plugin_load_textdomain' );
         add_action('init', array($this, 'my_load_plugin_textdomain'));
     }
 
@@ -135,119 +117,90 @@ class Admin
      */
     public function add_plugin_admin_menu()
     {
-
+        // Get the custom tables icon
         $icon = $this->getCustomTablesIcon();
 
-        //add_menu_page( string $page_title, string $menu_title, string $capability, string $menu_slug, callable $callback = '', string $icon_url = '', int|float $position = null )
-        add_menu_page('Custom Tables - Dashboard', 'Custom Tables', 'manage_options', 'customtables', array($this, 'load_customtablesAdminDashboard'), $icon);
-        add_submenu_page('customtables', 'Custom Tables - Dashboard', 'Dashboard', 'manage_options', 'customtables', array($this, 'load_customtablesAdminDashboard'), 1);
-        add_submenu_page('customtables', 'Custom Tables - Tables', 'Tables', 'manage_options', 'customtables-tables', array($this, 'load_admin_table_list'), 2);
-        add_submenu_page('customtables', 'Custom Tables - Layouts', 'Layouts', 'manage_options', 'customtables-layouts', array($this, 'load_customtablesAdminLayouts'), 3);
-        add_submenu_page('customtables', 'Custom Tables - Database Schema', 'Database Schema', 'manage_options', 'customtables-databasecheck', array($this, 'load_customtablesAdminSchema'), 4);
-        add_submenu_page('customtables', 'Custom Tables - Documentation', 'Documentation', 'manage_options', 'customtables-documentation', array($this, 'load_customtablesAdminDocumentation'), 5);
-
-        add_submenu_page('customtables', '', '', 'manage_options', 'customtables-tables-edit', array($this, 'load_customtablesAdminTablesEdit'));
-
-        //add_action('admin_menu', 'add_custom_page');
-        /*
-                $page_hook = add_users_page(
-                    __('WP List Table Demo', $this->plugin_text_domain), //page title
-                    __('WP List Table Demo', $this->plugin_text_domain), //menu title
-                    'manage_options', //capability
-                    $this->plugin_name.'-tables',
-                    array($this, 'load_user_list_table')
-                );
-        */
-        /*
-         * The $page_hook_suffix can be combined with the load-($page_hook) action hook
-         * https://codex.wordpress.org/Plugin_API/Action_Reference/load-(page)
-         *
-         * The callback below will be called when the respective page is loaded
-         *
-         */
-
-        /*
-        $page_hook = add_users_page(
-            __( 'WP List Table Demo', $this->plugin_text_domain ), //page title
-            __( 'WP List Table Demo', $this->plugin_text_domain ), //menu title
-            'manage_options', //capability
-            $this->plugin_name, //menu_slug,
-            array( $this, 'load_admin_table_list' )
-        );
-        */
-
-        /*
-         * The $page_hook_suffix can be combined with the load-($page_hook) action hook
-         * https://codex.wordpress.org/Plugin_API/Action_Reference/load-(page)
-         *
-         * The callback below will be called when the respective page is loaded
-         *
-         */
-        //add_action('load-' . $page_hook, array($this, 'load_table_list_screen_options'));
-
-        $page_hook = add_users_page(
-            __( 'WP List Table Demo', $this->plugin_text_domain ), //page title
-            __( 'WP List Table Demo', $this->plugin_text_domain ), //menu title
-            'manage_options', //capability
-            'customtables-tables', //menu_slug,
-            array( $this, 'load_user_list_table' )
+        // Dashboard
+        add_menu_page(
+            'Custom Tables - Dashboard', // Page Title
+            'Custom Tables',             // Menu Title
+            'manage_options',            // Capability
+            'customtables',               // Menu Slug
+            array($this, 'load_customtablesAdminDashboard'), // Callback Function
+            $icon                         // Icon URL
         );
 
-        /*
-         * The $page_hook_suffix can be combined with the load-($page_hook) action hook
-         * https://codex.wordpress.org/Plugin_API/Action_Reference/load-(page)
-         *
-         * The callback below will be called when the respective page is loaded
-         *
-         */
-        add_action( 'load-'.$page_hook, array( $this, 'load_user_list_table_screen_options' ) );
-    }
-
-    /**
-     * Screen options for the List Table
-     *
-     * Callback for the load-($page_hook_suffix)
-     * Called when the plugin page is loaded
-     *
-     * @since    1.0.0
-     */
-
-
-
-    public function load_user_list_table_screen_options() {
-
-        /*
-        $arguments	=	array(
-            'label'		=>	__( 'Users Per Page', $this->plugin_text_domain ),
-            'default'	=>	5,
-            'option'	=>	'users_per_page'
+        // Dashboard Submenu
+        add_submenu_page(
+            'customtables',          // Parent Menu Slug
+            'Custom Tables - Dashboard', // Page Title
+            'Dashboard',              // Menu Title
+            'manage_options',         // Capability
+            'customtables',           // Menu Slug
+            array($this, 'load_customtablesAdminDashboard'), // Callback Function
+            1                          // Position
         );
 
-        add_screen_option( 'per_page', $arguments );
-        */
+        // Tables
+        $page_hook = add_submenu_page(
+            'customtables',                    // Parent Menu Slug
+            __('Tables - Custom Tables', $this->plugin_text_domain), // Page Title
+            __('Tables', $this->plugin_text_domain),                // Menu Title
+            'manage_options',                                      // Capability
+            'customtables-tables',                                 // Menu Slug
+            array($this, 'load_admin_table_list'),                  // Callback Function
+            2                                                      // Position
+        );
+        add_action('load-' . $page_hook, array($this, 'preload_admin_table_list'));
 
-        // instantiate the User List Table
-        $this->user_list_table = new Admin_Table_List( $this->plugin_text_domain );
+        // Layouts
+        add_submenu_page(
+            'customtables',                     // Parent Menu Slug
+            'Custom Tables - Layouts',          // Page Title
+            'Layouts',                          // Menu Title
+            'manage_options',                   // Capability
+            'customtables-layouts',             // Menu Slug
+            array($this, 'load_customtablesAdminLayouts'), // Callback Function
+            3                                   // Position
+        );
 
+        // Database Schema
+        add_submenu_page(
+            'customtables',                      // Parent Menu Slug
+            'Custom Tables - Database Schema',   // Page Title
+            'Database Schema',                   // Menu Title
+            'manage_options',                    // Capability
+            'customtables-databasecheck',        // Menu Slug
+            array($this, 'load_customtablesAdminSchema'), // Callback Function
+            4                                    // Position
+        );
+
+        // Documentation
+        add_submenu_page(
+            'customtables',                       // Parent Menu Slug
+            'Custom Tables - Documentation',       // Page Title
+            'Documentation',                       // Menu Title
+            'manage_options',                      // Capability
+            'customtables-documentation',          // Menu Slug
+            array($this, 'load_customtablesAdminDocumentation'), // Callback Function
+            5                                       // Position
+        );
+
+        // Edit Table Sub Sub Menu
+        $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
+        if ($page === 'customtables-tables-edit') {
+            $page_hook = add_submenu_page(
+                'customtables',                     // Parent Menu Slug
+                __('Edit Table - Custom Tables', $this->plugin_text_domain), // Page Title
+                __(' - Edit', $this->plugin_text_domain),                     // Menu Title
+                'manage_options',                                         // Capability
+                'customtables-tables-edit',                               // Menu Slug
+                array($this, 'load_customtablesAdminTablesEdit'),        // Callback Function
+                2                                                        // Position
+            );
+            add_action('load-' . $page_hook, array($this, 'load_customtablesAdminTablesEdit'));
+        }
     }
-
-    /*
- * Display the User List Table
- *
- * Callback for the add_users_page() in the add_plugin_admin_menu() method of this class.
- *
- * @since	1.0.0
- */
-    public function load_user_list_table(){
-
-        // query, filter, and sort the data
-        $this->user_list_table->prepare_items();
-
-
-        // render the List Table
-        include_once( 'views/partials-wp-list-table-demo-display.php' );
-    }
-
 
     protected function getCustomTablesIcon()
     {
@@ -277,36 +230,54 @@ class Admin
         return 'data:image/svg+xml;base64,' . base64_encode($svg);
     }
 
+    public function preload_admin_table_list()
+    {
+
+        /*
+        $arguments	=	array(
+            'label'		=>	__( 'Users Per Page', $this->plugin_text_domain ),
+            'default'	=>	5,
+            'option'	=>	'users_per_page'
+        );
+
+        add_screen_option( 'per_page', $arguments );
+        */
+
+        // instantiate the Admin Table List
+        $this->admin_table_list = new Admin_Table_List($this->plugin_text_domain);
+        $this->admin_table_list->handle_table_actions();
+    }
+
     public function load_customtablesAdminDashboard()
     {
         include_once('views' . DIRECTORY_SEPARATOR . 'customtables-dashboard.php');
     }
 
     /*
-    public function load_customtablesAdminTables()
-    {
-        include_once('views' . DIRECTORY_SEPARATOR . 'customtables-tables.php');
-    }
-    */
-
-    /*
-	 * Display the User List Table
+	 * Display the Table List
 	 *
-	 * Callback for the add_users_page() in the add_plugin_admin_menu() method of this class.
+	 * Callback for
 	 *
 	 * @since	1.0.0
 	 */
-    public function load_admin_table_list(){
+    public function load_admin_table_list()
+    {
+        {
+            // instantiate the Admin Table List
+            $this->admin_table_list = new Admin_Table_List($this->plugin_text_domain);
 
-        // query, filter, and sort the data
-        $this->admin_table_list->prepare_items();
+            // query, filter, and sort the data
+            $this->admin_table_list->prepare_items();
 
-        // render the List Table
-        include_once( 'views/partials-wp-list-table-demo-display.php' );
+            // render the List Table
+            include_once('views/customtables-tables.php');
+        }
     }
 
     public function load_customtablesAdminTablesEdit()
     {
+        $this->admin_table_edit = new Admin_Table_Edit($this->plugin_text_domain);
+        $this->admin_table_edit->handle_table_actions();
         include_once('views' . DIRECTORY_SEPARATOR . 'customtables-tables-edit.php');
     }
 

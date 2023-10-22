@@ -1,35 +1,38 @@
 <?php
 
 namespace CustomTablesWP\Inc\Admin;
+
 use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\database;
 use CustomTablesWP\Inc\Libraries;
-use CustomTables\listOfTables;
+use CustomTables\ListOfTables;
 use ESTables;
 
 /**
  * Class for displaying registered WordPress Users
- * in a WordPress-like Admin Table with row actions to 
+ * in a WordPress-like Admin Table with row actions to
  * perform user meta operations
- * 
+ *
  *
  * @link       http://nuancedesignstudio.in
  * @since      1.0.0
- * 
+ *
  * @author     Karan NA Gupta
  */
-class Admin_Table_List extends Libraries\WP_List_Table  {
+class Admin_Table_List extends Libraries\WP_List_Table
+{
+    /**
+     * The text domain of this plugin.
+     *
+     * @since    1.0.0
+     * @access   private
+     * @var      string $plugin_text_domain The text domain of this plugin.
+     */
+    public $plugin_text_domain;
+    public CT $ct;
+    public $helperListOfLayout;
 
-	/**
-	 * The text domain of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      string    $plugin_text_domain    The text domain of this plugin.
-	 */
-	protected $plugin_text_domain;
-	
     /*
 	 * Call the parent constructor to override the defaults $args
 	 * 
@@ -37,29 +40,28 @@ class Admin_Table_List extends Libraries\WP_List_Table  {
 	 * 
 	 * @since 1.0.0
 	 */
-	public function __construct( $plugin_text_domain ) {
+    public function __construct($plugin_text_domain)
+    {
+        require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoftables.php');
+        $this->ct = new CT;
+        $this->helperListOfLayout = new \CustomTables\ListOfTables($this->ct);
+        $this->plugin_text_domain = $plugin_text_domain;
+        parent::__construct(array(
+            'plural' => 'users',    // Plural value used for labels and the objects being listed.
+            'singular' => 'user',        // Singular label for an object being listed, e.g. 'post'.
+            'ajax' => false,        // If true, the parent class will call the _js_vars() method in the footer
+        ));
+    }
 
-		$this->plugin_text_domain = $plugin_text_domain;
-    	parent::__construct( array(
-				'plural'	=>	'users',	// Plural value used for labels and the objects being listed.
-				'singular'	=>	'user',		// Singular label for an object being listed, e.g. 'post'.
-				'ajax'		=>	false,		// If true, the parent class will call the _js_vars() method in the footer		
-			) );
-
-	}	
-	
-	/**
-	 * Prepares the list of items for displaying.
-	 * 
-	 * Query, filter data, handle sorting, and pagination, and any other data-manipulation required prior to rendering
-	 * 
-	 * @since   1.0.0
-	 */
+    /**
+     * Prepares the list of items for displaying.
+     *
+     * Query, filter data, handle sorting, and pagination, and any other data-manipulation required prior to rendering
+     *
+     * @since   1.0.0
+     */
     function prepare_items()
     {
-        // check and process any actions such as bulk actions.
-        $this->handle_table_actions();
-
         $data = $this->get_data(); // Fetch your data here
 
         $columns = $this->get_columns();
@@ -90,10 +92,6 @@ class Admin_Table_List extends Libraries\WP_List_Table  {
     function get_data()
     {
         // Fetch and return your data here
-        $ct = new CT;
-        require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoftables.php');
-        $helperListOfLayout = new \CustomTables\listOfTables($ct);
-
         $orderby = common::inputGetCmd('orderby');
         $order = common::inputGetCmd('order');
         $current_status = common::inputGetCMD('status');
@@ -106,23 +104,23 @@ class Admin_Table_List extends Libraries\WP_List_Table  {
         };
 
         $current_status = common::inputGetCMD('status');
-        $query = $helperListOfLayout->getListQuery($published, null, null, $orderby, $order);
+        $query = $this->helperListOfLayout->getListQuery($published, null, null, $orderby, $order);
         $data = database::loadAssocList($query);
         $newData = [];
         foreach ($data as $item) {
             $table_exists = ESTables::checkIfTableExists($item['realtablename']);
 
             if ($item['published'] == -2)
-                $label = '<span>'.$item['tablename'].'</span>';
+                $label = '<span>' . $item['tablename'] . '</span>';
             else
                 $label = '<a class="row-title" href="?page=customtables-tables-edit&action=edit&table=' . $item['id'] . '">' . $item['tablename'] . '</a>'
                     . (($current_status != 'unpublished' and $item['published'] == 0) ? ' — <span class="post-state">Draft</span>' : '');
 
-            $item['tablename'] = '<strong>'.$label.'</strong>';
+            $item['tablename'] = '<strong>' . $label . '</strong>';
 
             $result = '<ul style="list-style: none !important;margin-left:0;padding-left:0;">';
             $moreThanOneLang = false;
-            foreach ($ct->Languages->LanguageList as $lang) {
+            foreach ($this->ct->Languages->LanguageList as $lang) {
                 $tableTitle = 'tabletitle';
                 $tableDescription = 'description';
 
@@ -138,7 +136,7 @@ class Admin_Table_List extends Libraries\WP_List_Table  {
                         Fields::addLanguageField('#__customtables_tables', 'description', $tableDescription);
                     }
                 }
-                $result .= '<li>' . (count($ct->Languages->LanguageList) > 1 ? $lang->title . ': ' : '') . '<b>' . $item[$tableTitle] . '</b></li>';
+                $result .= '<li>' . (count($this->ct->Languages->LanguageList) > 1 ? $lang->title . ': ' : '') . '<b>' . $item[$tableTitle] . '</b></li>';
                 $moreThanOneLang = true; //More than one language installed
             }
 
@@ -160,15 +158,15 @@ class Admin_Table_List extends Libraries\WP_List_Table  {
         }
         return $newData;
     }
-	
-	/**
-	 * Get a list of columns. The format is:
-	 * 'internal-name' => 'Title'
-	 *
-	 * @since 1.0.0
-	 * 
-	 * @return array
-	 */
+
+    /**
+     * Get a list of columns. The format is:
+     * 'internal-name' => 'Title'
+     *
+     * @return array
+     * @since 1.0.0
+     *
+     */
     function get_columns()
     {
         return array(
@@ -181,19 +179,19 @@ class Admin_Table_List extends Libraries\WP_List_Table  {
             'id' => __('Id', $this->plugin_text_domain)
         );
     }
-	
-	/**
-	 * Get a list of sortable columns. The format is:
-	 * 'internal-name' => 'orderby'
-	 * or
-	 * 'internal-name' => array( 'orderby', true )
-	 *
-	 * The second format will make the initial sorting order be descending
-	 *
-	 * @since 1.1.0
-	 * 
-	 * @return array
-	 */
+
+    /**
+     * Get a list of sortable columns. The format is:
+     * 'internal-name' => 'orderby'
+     * or
+     * 'internal-name' => array( 'orderby', true )
+     *
+     * The second format will make the initial sorting order be descending
+     *
+     * @return array
+     * @since 1.1.0
+     *
+     */
     protected function get_sortable_columns()
     {
         $sortable_columns = array(
@@ -208,81 +206,59 @@ class Admin_Table_List extends Libraries\WP_List_Table  {
     {
         $current_status = common::inputGetCMD('status');
         $actions = [];
-        $nonce = wp_create_nonce( 'widgets-access' );
 
         $url = 'admin.php?page=customtables-tables';
         if ($current_status != null)
             $url .= '&status=' . $current_status;
 
         if ($current_status == 'trash') {
-            $actions['restore'] = sprintf('<a href="'.$url.'&action=restore&table=%s&_wpnonce=%s">' . __('Restore', 'customtables') . '</a>', $item['id'],urlencode( $nonce ));
-            $actions['delete'] = sprintf('<a href="'.$url.'&action=delete&table=%s&_wpnonce=%s">' . __('Delete Permanently', 'customtables') . '</a>', $item['id'],urlencode( $nonce ));
+            $actions['restore'] = sprintf('<a href="' . $url . '&action=restore&table=%s&_wpnonce=%s">' . __('Restore', 'customtables') . '</a>',
+                $item['id'], urlencode(wp_create_nonce('restore_nonce')));
+
+            $actions['delete'] = sprintf('<a href="' . $url . '&action=delete&table=%s&_wpnonce=%s">' . __('Delete Permanently', 'customtables') . '</a>',
+                $item['id'], urlencode(wp_create_nonce('delete_nonce')));
         } else {
             $actions['edit'] = sprintf('<a href="?page=customtables-tables-edit&action=edit&table=%s">' . __('Edit', 'customtables') . '</a>', $item['id']);
-            $actions['trash'] = sprintf('<a href="'.$url.'&action=trash&table=%s&_wpnonce=%s">' . __('Trash', 'customtables') . '</a>', $item['id'],urlencode( $nonce ));
+            $actions['trash'] = sprintf('<a href="' . $url . '&action=trash&table=%s&_wpnonce=%s">' . __('Trash', 'customtables') . '</a>',
+                $item['id'], urlencode(wp_create_nonce('trash_nonce')));
         }
         return sprintf('%1$s %2$s', $item['tablename'], $this->row_actions($actions));
-/*
-        $admin_page_url =  admin_url( 'admin.php' );
-
-        // row actions to add usermeta.
-        $query_args_add_usermeta = array(
-            'page'		=>  wp_unslash( $_REQUEST['page'] ),
-            'action'	=> 'add_usermeta',
-            'user_id'		=> absint( $item['id']),
-            '_wpnonce'	=> wp_create_nonce( 'add_usermeta_nonce' ),
-        );
-        $add_usermeta_link = esc_url( add_query_arg( $query_args_add_usermeta, $admin_page_url ) );
-        $actions['add_usermeta'] = '<a href="' . $add_usermeta_link . '">' . __( 'Add  Meta', $this->plugin_text_domain ) . '</a>';
-
-
-        $row_value = '<strong>' . $item['tablename'] . '</strong>';
-        return $row_value . $this->row_actions( $actions );
-*/
     }
-	
-	/** 
-	 * Text displayed when no tables found
-	 * 
-	 * @since   1.0.0
-	 * 
-	 * @return void
-	 */
-    public function no_items() {
-        _e( 'No tables found.', $this->plugin_text_domain );
-    }
-
-	
-	/*
-	 * Filter the table data based on the user search key
-	 * 
-	 * @since 1.0.0
-	 * 
-	 * @param array $table_data
-	 * @param string $search_key
-	 * @returns array
-	 */
-	public function filter_table_data( $table_data, $search_key ) {
-		$filtered_table_data = array_values( array_filter( $table_data, function( $row ) use( $search_key ) {
-			foreach( $row as $row_val ) {
-				if( stripos( $row_val, $search_key ) !== false ) {
-					return true;
-				}				
-			}			
-		} ) );
-		
-		return $filtered_table_data;
-		
-	}
 
     /**
-	 * Render a column when no column specific method exists.
-	 *
-	 * @param array $item
-	 * @param string $column_name
-	 *
-	 * @return mixed
-	 */
+     * Text displayed when no tables found
+     *
+     * @return void
+     * @since   1.0.0
+     *
+     */
+    public function no_items()
+    {
+        _e('No tables found.', $this->plugin_text_domain);
+    }
+
+    public function filter_table_data($table_data, $search_key)
+    {
+        $filtered_table_data = array_values(array_filter($table_data, function ($row) use ($search_key) {
+            foreach ($row as $row_val) {
+                if (stripos($row_val, $search_key) !== false) {
+                    return true;
+                }
+            }
+        }));
+
+        return $filtered_table_data;
+
+    }
+
+    /**
+     * Render a column when no column specific method exists.
+     *
+     * @param array $item
+     * @param string $column_name
+     *
+     * @return mixed
+     */
     function column_default($item, $column_name)
     {
         switch ($column_name) {
@@ -303,15 +279,14 @@ class Admin_Table_List extends Libraries\WP_List_Table  {
         }
     }
 
-	
-	/**
-	 * Get value for checkbox column.
-	 *
-	 * The special 'cb' column
-	 *
-	 * @param object $item A row's data
-	 * @return string Text to be placed inside the column <td>.
-	 */
+    /**
+     * Get value for checkbox column.
+     *
+     * The special 'cb' column
+     *
+     * @param object $item A row's data
+     * @return string Text to be placed inside the column <td>.
+     */
     function column_cb($item)
     {
         return sprintf(
@@ -360,22 +335,23 @@ class Admin_Table_List extends Libraries\WP_List_Table  {
         return $views;
     }
 
-	/**
-	 * Returns an associative array containing the bulk action
-	 *
-	 * @since    1.0.0
-	 * 
-	 * @return array
-	 */
-	public function get_bulk_actions() {
+    /**
+     * Returns an associative array containing the bulk action
+     *
+     * @return array
+     * @since    1.0.0
+     *
+     */
+    public function get_bulk_actions()
+    {
 
-		/*
-		 * on hitting apply in bulk actions the url params are set as
-		 * ?action=action&table=1
-		 * 
-		 * action and action2 are set based on the triggers above or below the table
-		 * 		    
-		 */
+        /*
+         * on hitting apply in bulk actions the url params are set as
+         * ?action=action&table=1
+         *
+         * action and action2 are set based on the triggers above or below the table
+         *
+         */
 
         $current_status = common::inputGetCMD('status');
         $actions = [];
@@ -399,218 +375,176 @@ class Admin_Table_List extends Libraries\WP_List_Table  {
             $actions['customtables-tables-delete'] = __('Delete Permanently', 'customtables');
         }
         return $actions;
-	}
-
-
-    function process_bulk_action()
-    {
-        // Check if a bulk action is selected
-        $action = $this->current_action();
-        $action_found = false;
-
-        if ($action === 'customtables-tables-edit') {
-            // Assuming $_POST['table'] contains the selected items
-            $table_id = (int)(isset($_POST['table']) ? $_POST['table'][0] : '');
-
-            // Redirect to the edit page with the appropriate parameters
-            wp_redirect(admin_url('admin.php?page=customtables-tables-edit&action=edit&table=' . $table_id));
-            exit();
-        }
-
-        if ($action === 'customtables-tables-publish') {
-            $tables = (isset($_POST['table']) ? $_POST['table'] : []);
-            $sets = [];
-            $wheres = [];
-            foreach ($tables as $table) {
-                $sets[] = 'published=1';
-                $wheres[] = 'id=' . (int)$table;
-            }
-
-            database::updateSets('#__customtables_tables', $sets, ['(' . implode(' OR ', $wheres) . ')']);
-            $action_found = true;
-        }
-
-        if ($action === 'customtables-tables-unpublish' or $action === 'customtables-tables-restore') {
-            $tables = (isset($_POST['table']) ? $_POST['table'] : []);
-            $sets = [];
-            $wheres = [];
-            foreach ($tables as $table) {
-                $sets[] = 'published=0';
-                $wheres[] = 'id=' . (int)$table;
-            }
-
-            database::updateSets('#__customtables_tables', $sets, ['(' . implode(' OR ', $wheres) . ')']);
-            $action_found = true;
-        }
-
-        if ($action === 'customtables-tables-trash') {
-            $tables = (isset($_POST['table']) ? $_POST['table'] : []);
-            $sets = [];
-            $wheres = [];
-            foreach ($tables as $table) {
-                $sets[] = 'published=-2';
-                $wheres[] = 'id=' . (int)$table;
-            }
-
-            database::updateSets('#__customtables_tables', $sets, ['(' . implode(' OR ', $wheres) . ')']);
-            $action_found = true;
-        }
-
-        if ($action === 'customtables-tables-delete') {
-            $tables = (isset($_POST['table']) ? $_POST['table'] : []);
-
-            $ct = new CT;
-            require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoftables.php');
-            $helperListOfLayout = new CustomTables\listOfTables($ct);
-
-            foreach ($tables as $tableId)
-                $helperListOfLayout->deleteTable($tableId);
-
-            $action_found = true;
-        }
-
-        if($action_found ) {
-            // Redirect to the edit page with the appropriate parameters
-            $current_status = common::inputGetCMD('status');
-            $url = 'admin.php?page=customtables-tables';
-            if ($current_status != null)
-                $url .= '&status=' . $current_status;
-
-            wp_redirect(admin_url($url));
-            exit();
-        }
     }
 
     /**
-	 * Process actions triggered by the user
-	 *
-	 * @since    1.0.0
-	 * 
-	 */	
-	function handle_table_actions() {
-		
-		/*
-		 * Note: Table bulk_actions can be identified by checking $_REQUEST['action'] and $_REQUEST['action2']
-		 * 
-		 * action - is set if checkbox from top-most select-all is set, otherwise returns -1
-		 * action2 - is set if checkbox the bottom-most select-all checkbox is set, otherwise returns -1
-		 */
+     * Process actions triggered by the user
+     *
+     * @since    1.0.0
+     *
+     */
+    function handle_table_actions()
+    {
 
-		// check for individual row actions
-		$the_table_action = $this->current_action();
-        
-		if ( 'view_usermeta' === $the_table_action ) {
-			$nonce = wp_unslash( $_REQUEST['_wpnonce'] );
-			// verify the nonce.
-			if ( ! wp_verify_nonce( $nonce, 'view_usermeta_nonce' ) ) {
-				$this->invalid_nonce_redirect();
-			}
-			else {                    
-				$this->page_view_usermeta( absint( $_REQUEST['user_id']) );
-				$this->graceful_exit();
-			}
-		}
-		
-		if ( 'add_usermeta' === $the_table_action ) {
-			$nonce = wp_unslash( $_REQUEST['_wpnonce'] );
-			// verify the nonce.
-			if ( ! wp_verify_nonce( $nonce, 'add_usermeta_nonce' ) ) {
-				$this->invalid_nonce_redirect();
-			}
-			else {                    
-				$this->page_add_usermeta( absint( $_REQUEST['user_id']) );
-				$this->graceful_exit();
-			}
-		}
-		
-		// check for table bulk actions
-		if ( ( isset( $_REQUEST['action'] ) && $_REQUEST['action'] === 'bulk-download' ) || ( isset( $_REQUEST['action2'] ) && $_REQUEST['action2'] === 'bulk-download' ) ) {
-			
-			$nonce = wp_unslash( $_REQUEST['_wpnonce'] );
-			// verify the nonce.
-			/*
-			 * Note: the nonce field is set by the parent class
-			 * wp_nonce_field( 'bulk-' . $this->_args['plural'] );
-			 * 
-			 */
-			if ( ! wp_verify_nonce( $nonce, 'bulk-users' ) ) {
-				$this->invalid_nonce_redirect();
-			}
-			else {
-				$this->page_bulk_download( $_REQUEST['users']);
-				$this->graceful_exit();
-			}
-		}
-		
-	}
-	
-	/**
-	 * View a user's meta information.
-	 *
-	 * @since   1.0.0
-	 * 
-	 * @param int $user_id  user's ID	 
-	 */
-    /*
-	public function page_view_usermeta( $user_id ) {
-		
-		$user = get_user_by( 'id', $user_id );		
-		include_once( 'views/partials-wp-list-table-demo-view-usermeta.php' );
-	}*/
-	
-	/**
-	 * Add a meta information for a user.
-	 *
-	 * @since   1.0.0
-	 * 
-	 * @param int $user_id  user's ID	 
-	 */	
-	
-	/*public function page_add_usermeta( $user_id ) {
-		
-		$user = get_user_by( 'id', $user_id );		
-		include_once( 'views/partials-wp-list-table-demo-add-usermeta.php' );
-	}*/
-	
-	/**
-	 * Bulk process users.
-	 *
-	 * @since   1.0.0
-	 * 
-	 * @param array $bulk_user_ids
-	 */		
-	/*public function page_bulk_download( $bulk_user_ids ) {
-				
-		include_once( 'views/partials-wp-list-table-demo-bulk-download.php' );
-	}    */
-	
-	/**
-	 * Stop execution and exit
-	 *
-	 * @since    1.0.0
-	 * 
-	 * @return void
-	 */    
-	 public function graceful_exit() {
-		 exit;
-	 }
-	 
-	/**
-	 * Die when the nonce check fails.
-	 *
-	 * @since    1.0.0
-	 * 
-	 * @return void
-	 */    	 
-	 public function invalid_nonce_redirect() {
-		wp_die( __( 'Invalid Nonce', $this->plugin_text_domain ),
-				__( 'Error', $this->plugin_text_domain ),
-				array( 
-						'response' 	=> 403, 
-						'back_link' =>  esc_url( add_query_arg( array( 'page' => wp_unslash( $_REQUEST['page'] ) ) , admin_url( 'users.php' ) ) ),
-					)
-		);
-	 }
-	
-	
+        /*
+         * Note: Table bulk_actions can be identified by checking $_REQUEST['action'] and $_REQUEST['action2']
+         *
+         * action - is set if checkbox from top-most select-all is set, otherwise returns -1
+         * action2 - is set if checkbox the bottom-most select-all checkbox is set, otherwise returns -1
+         */
+
+        // check for individual row actions
+        $the_table_action = $this->current_action();
+
+        if ('restore' === $the_table_action) {
+            $nonce = wp_unslash($_REQUEST['_wpnonce']);
+            // verify the nonce.
+            if (!wp_verify_nonce($nonce, 'restore_nonce')) {
+                $this->invalid_nonce_redirect();
+            } else {
+                $tableId = common::inputGetInt('table');
+                database::updateSets('#__customtables_tables', ['published=0'], ['id=' . $tableId]);
+                //echo '<div id="message" class="updated notice is-dismissible"><p>1 table restored from the Trash.</p></div>';
+                $this->graceful_redirect();
+            }
+        }
+
+        if ('trash' === $the_table_action) {
+            $nonce = wp_unslash($_REQUEST['_wpnonce']);
+            // verify the nonce.
+            if (!wp_verify_nonce($nonce, 'trash_nonce')) {
+                $this->invalid_nonce_redirect();
+            } else {
+                $tableId = common::inputGetInt('table');
+                database::updateSets('#__customtables_tables', ['published=-2'], ['id=' . $tableId]);
+                //echo '<div id="message" class="updated notice is-dismissible"><p>1 table moved to the Trash.</p></div>';
+                $this->graceful_redirect();
+            }
+        }
+
+        if ('delete' === $the_table_action) {
+            $nonce = wp_unslash($_REQUEST['_wpnonce']);
+            // verify the nonce.
+            if (!wp_verify_nonce($nonce, 'delete_nonce')) {
+                $this->invalid_nonce_redirect();
+            } else {
+                $tableId = common::inputGetInt('table');
+                $this->helperListOfLayout->deleteTable($tableId);
+                //echo '<div id="message" class="updated notice is-dismissible"><p>1 table permanently deleted.</p></div>';
+                $this->graceful_redirect();
+            }
+        }
+
+        // check for table bulk actions
+
+        if ($this->is_table_action('customtables-tables-edit'))
+            $this->handle_table_actions_edit();
+
+        if ($this->is_table_action('customtables-tables-publish'))
+            $this->handle_table_actions_publish(1);
+
+        if ($this->is_table_action('customtables-tables-unpublish') or $this->is_table_action('customtables-tables-restore'))
+            $this->handle_table_actions_publish(0);
+
+        if ($this->is_table_action('customtables-tables-trash'))
+            $this->handle_table_actions_publish(-2);
+
+        if ($this->is_table_action('customtables-tables-delete'))
+            $this->handle_table_actions_delete();
+    }
+
+    /**
+     * Die when the nonce check fails.
+     *
+     * @return void
+     * @since    1.0.0
+     *
+     */
+    public function invalid_nonce_redirect()
+    {
+        wp_die(__('Invalid Nonce', $this->plugin_text_domain),
+            __('Error', $this->plugin_text_domain),
+            array(
+                'response' => 403,
+                'back_link' => esc_url(add_query_arg(array('page' => wp_unslash($_REQUEST['page'])), admin_url('users.php'))),
+            )
+        );
+    }
+
+    /**
+     * Stop execution, redirect and exit
+     *
+     * @param string $url
+     *
+     * @return void
+     * @since    1.0.0
+     *
+     */
+    public function graceful_redirect(?string $url = null)
+    {
+
+        if ($url === null)
+            $url = 'admin.php?page=customtables-tables';
+
+        $current_status = common::inputGetCMD('status');
+        if ($current_status != null)
+            $url .= '&status=' . $current_status;
+
+        ob_start(); // Start output buffering
+        ob_end_clean(); // Discard the output buffer
+        wp_redirect(admin_url($url));
+        exit;
+    }
+
+    function is_table_action($action): bool
+    {
+        if (isset($_REQUEST['action']) && ($_REQUEST['action'] === $action) || (isset($_REQUEST['action2']) && $_REQUEST['action2'] === $action))
+            return true;
+
+        return false;
+    }
+
+    function handle_table_actions_edit()
+    {
+        // Assuming $_POST['table'] contains the selected items
+        $table_id = (int)(isset($_POST['table']) ? $_POST['table'][0] : '');
+
+        // Redirect to the edit page with the appropriate parameters
+        $this->graceful_redirect('admin.php?page=customtables-tables-edit&action=edit&table=' . $table_id);
+    }
+
+    function handle_table_actions_publish(int $state): void
+    {
+        $nonce = wp_unslash($_REQUEST['_wpnonce']);
+        // verify the nonce.
+        if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
+            $this->invalid_nonce_redirect();
+        } else {
+            $tables = (isset($_POST['table']) ? $_POST['table'] : []);
+            $sets = [];
+            $wheres = [];
+            foreach ($tables as $table) {
+                $sets[] = 'published=' . $state;
+                $wheres[] = 'id=' . (int)$table;
+            }
+
+            if (count($sets) > 0) {
+                database::updateSets('#__customtables_tables', $sets, ['(' . implode(' OR ', $wheres) . ')']);
+                $this->graceful_redirect();
+            }
+            echo '<div id="message" class="updated error is-dismissible"><p>Tables not selected.</p></div>';
+        }
+    }
+
+    function handle_table_actions_delete()
+    {
+        $tables = (isset($_POST['table']) ? $_POST['table'] : []);
+        if (count($tables) > 0) {
+            foreach ($tables as $tableId)
+                $this->helperListOfLayout->deleteTable($tableId);
+
+            $this->graceful_redirect();
+        }
+        echo '<div id="message" class="updated error is-dismissible"><p>Tables not selected.</p></div>';
+    }
 }
