@@ -69,7 +69,7 @@ class ListOfTables
         // Filter by published state
         if (is_numeric($published))
             $where [] = 'a.published = ' . (int)$published;
-        elseif (is_null($published) or $published === '')
+        elseif ($published === null or $published === '')
             $where [] = '(a.published = 0 OR a.published = 1)';
 
         // Filter by search.
@@ -83,7 +83,7 @@ class ListOfTables
         }
 
         // Filter by Tableid.
-        if ($category !== null) {
+        if ($category !== null and $category != '' and (int)$category != 0) {
             $where [] = 'a.tablecategory = ' . database::quote((int)$category);
         }
 
@@ -100,6 +100,33 @@ class ListOfTables
             $query .= ' OFFSET ' . $start;
 
         return $query;
+    }
+
+    function deleteTable(int $tableId): bool
+    {
+        $table_row = ESTables::getTableRowByID($tableId);
+
+        if (isset($table_row->tablename) and (!isset($table_row->customtablename) or $table_row->customtablename === null)) // do not delete third-party tables
+        {
+            $realtablename = database::getDBPrefix() . 'customtables_table_' . $table_row->tablename; //not available for custom tablenames
+            $serverType = database::getServerType();
+            if ($serverType == 'postgresql')
+                $query = 'DROP TABLE IF EXISTS ' . $realtablename;
+            else
+                $query = 'DROP TABLE IF EXISTS ' . database::quoteName($realtablename);
+
+            database::setQuery($query);
+            $serverType = database::getServerType();
+
+            if ($serverType == 'postgresql') {
+                $query = 'DROP SEQUENCE IF EXISTS ' . $realtablename . '_seq CASCADE';
+                database::setQuery($query);
+            }
+        }
+        database::setQuery('DELETE FROM #__customtables_tables WHERE id=' . $tableId);
+
+        Fields::deleteTableLessFields();
+        return true;
     }
 
     function save($tableId): array

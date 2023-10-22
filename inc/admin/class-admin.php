@@ -3,7 +3,10 @@
 namespace CustomTablesWP\Inc\Admin;
 
 use CustomTableList;
+use CustomTables\common;
+use CustomTables\CT;
 use const CustomTablesWP\CTWP;
+use CustomTables\listOfTables;
 
 /**
  * The admin-specific functionality of the plugin.
@@ -58,12 +61,17 @@ class Admin
     {
         // Instantiate your custom table
         if ('POST' === $_SERVER['REQUEST_METHOD']) {
-            require_once('views' . DIRECTORY_SEPARATOR . 'customtables-tables-list.php');
-
-            $list_table = new CustomTableList();
-            $list_table->process_bulk_action();
+            $action = common::inputGetString('action');
+            if(str_contains($action, 'customtables-')) {
+                require_once('views' . DIRECTORY_SEPARATOR . 'customtables-tables-list.php');
+                $list_table = new CustomTableList();
+                $list_table->process_bulk_action();
+            }elseif (isset($_REQUEST['action']) && ('createtable' === $_REQUEST['action'] || 'savetable' === $_REQUEST['action'])) {
+                require_once('views' . DIRECTORY_SEPARATOR . 'customtables-tables-list.php');
+                $list_table = new CustomTableList();
+                $list_table->tableSave();
+            }
         }
-
 
         $this->plugin_name = $plugin_name;
         $this->version = $version;
@@ -210,55 +218,4 @@ class Admin
 
         include_once('views' . DIRECTORY_SEPARATOR . 'customtables-documentation.php');
     }
-
-    /**
-     * Screen options for the List Table
-     *
-     * Callback for the load-($page_hook_suffix)
-     * Called when the plugin page is loaded
-     *
-     * @since    1.0.0
-     */
-    /*
-    public function load_user_list_table_screen_options()
-    {
-
-
-        echo '123wwwwwwwwwwwwwww';
-        $arguments = array(
-            'label' => __('Users Per Page', $this->plugin_text_domain),
-            'default' => 5,
-            'option' => 'users_per_page'
-        );
-
-        add_screen_option('per_page', $arguments);
-
-        // instantiate the User List Table
-        $this->user_list_table = new User_List_Table($this->plugin_text_domain);
-
-    }
-
-    /*
-     * Display the User List Table
-     *
-     * Callback for the add_users_page() in the add_plugin_admin_menu() method of this class.
-     *
-     * @since	1.0.0
-     */
-    /*
-    public function load_user_list_table()
-    {
-
-        echo '98798797987987';
-
-
-        // query, filter, and sort the data
-        $this->user_list_table->prepare_items();
-
-        // render the List Table
-        //include_once('views/partials-wp-list-table-demo-display.php');
-    }
-*/
-
-
 }

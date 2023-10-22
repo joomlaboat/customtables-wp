@@ -20,12 +20,16 @@ foreach ($editable_roles as $role => $details) {
 */
 $ct = new CT;
 $tableId = common::inputGetInt('table');
-
+/*
 if (isset($_REQUEST['action']) && ('createtable' === $_REQUEST['action'] || 'savetable' === $_REQUEST['action'])) {
     require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoftables.php');
     $helperListOfLayout = new listOfTables($ct);
     $messages = $helperListOfLayout->save($tableId);
+
+    $url = 'admin.php?page=customtables-tables';
+    wp_redirect(admin_url($url));
 }
+*/
 
 //include ('customtables-tables-edit-help.php');
 
@@ -34,7 +38,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 if (defined('WPINC')) {
     //check_admin_referer('edit', '_wpnonce_edit');
 }
-if($tableId !== 0)
+if($tableId !== null)
     $ct->getTable($tableId);
 
 ?>
