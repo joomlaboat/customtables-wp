@@ -33,6 +33,12 @@ class Admin_Table_List extends Libraries\WP_List_Table
     public CT $ct;
     public $helperListOfLayout;
 
+    protected int $count_all;
+    protected int $count_trashed;
+    protected int $count_published;
+    protected int $count_unpublished;
+    protected ?string $current_status;
+
     /*
 	 * Call the parent constructor to override the defaults $args
 	 * 
@@ -46,6 +52,22 @@ class Admin_Table_List extends Libraries\WP_List_Table
         $this->ct = new CT;
         $this->helperListOfLayout = new \CustomTables\ListOfTables($this->ct);
         $this->plugin_text_domain = $plugin_text_domain;
+
+        $this->count_all = database::loadColumn('SELECT COUNT(id) FROM #__customtables_tables WHERE published!=-2')[0];
+        $this->count_trashed = database::loadColumn('SELECT COUNT(id) FROM #__customtables_tables WHERE published=-2')[0];
+        $this->count_published = database::loadColumn('SELECT COUNT(id) FROM #__customtables_tables WHERE published=1')[0];
+        $this->count_unpublished = $this->count_all - $this->count_published;
+
+        $this->current_status = common::inputGetCMD('status');
+
+        if ($this->current_status !== null and $this->current_status !== 'all') {
+            if ($this->current_status == 'trash' and $this->count_trashed == 0)
+                $this->current_status = null;
+            if ($this->current_status == 'unpublished' and $this->count_unpublished == 0)
+                $this->current_status = null;
+            if ($this->current_status == 'published' and $this->count_published == 0)
+                $this->current_status = null;
+        }
         parent::__construct(array(
             'plural' => 'users',    // Plural value used for labels and the objects being listed.
             'singular' => 'user',        // Singular label for an object being listed, e.g. 'post'.
@@ -92,19 +114,19 @@ class Admin_Table_List extends Libraries\WP_List_Table
     function get_data()
     {
         // Fetch and return your data here
+
+        $search = common::inputGetString('s');
         $orderby = common::inputGetCmd('orderby');
         $order = common::inputGetCmd('order');
-        $current_status = common::inputGetCMD('status');
 
-        $published = match ($current_status) {
+        $published = match ($this->current_status) {
             'published' => 1,
             'unpublished' => 0,
             'trash' => -2,
             default => null
         };
 
-        $current_status = common::inputGetCMD('status');
-        $query = $this->helperListOfLayout->getListQuery($published, null, null, $orderby, $order);
+        $query = $this->helperListOfLayout->getListQuery($published, $search, null, $orderby, $order);
         $data = database::loadAssocList($query);
         $newData = [];
         foreach ($data as $item) {
@@ -114,7 +136,7 @@ class Admin_Table_List extends Libraries\WP_List_Table
                 $label = '<span>' . $item['tablename'] . '</span>';
             else
                 $label = '<a class="row-title" href="?page=customtables-tables-edit&action=edit&table=' . $item['id'] . '">' . $item['tablename'] . '</a>'
-                    . (($current_status != 'unpublished' and $item['published'] == 0) ? ' — <span class="post-state">Draft</span>' : '');
+                    . (($this->current_status != 'unpublished' and $item['published'] == 0) ? ' — <span class="post-state">Draft</span>' : '');
 
             $item['tablename'] = '<strong>' . $label . '</strong>';
 
@@ -204,14 +226,13 @@ class Admin_Table_List extends Libraries\WP_List_Table
 
     function column_tablename($item)
     {
-        $current_status = common::inputGetCMD('status');
         $actions = [];
 
         $url = 'admin.php?page=customtables-tables';
-        if ($current_status != null)
-            $url .= '&status=' . $current_status;
+        if ($this->current_status != null)
+            $url .= '&status=' . $this->current_status;
 
-        if ($current_status == 'trash') {
+        if ($this->current_status == 'trash') {
             $actions['restore'] = sprintf('<a href="' . $url . '&action=restore&table=%s&_wpnonce=%s">' . __('Restore', 'customtables') . '</a>',
                 $item['id'], urlencode(wp_create_nonce('restore_nonce')));
 
@@ -310,27 +331,24 @@ class Admin_Table_List extends Libraries\WP_List_Table
 
     public function get_views()
     {
-        $current_status = common::inputGetCMD('status');
-
-        $count_all = database::loadColumn('SELECT COUNT(id) FROM #__customtables_tables WHERE published!=-2')[0];
-        $count_trashed = database::loadColumn('SELECT COUNT(id) FROM #__customtables_tables WHERE published=-2')[0];
-        $count_published = database::loadColumn('SELECT COUNT(id) FROM #__customtables_tables WHERE published=1')[0];
-        $count_unpublished = $count_all - $count_published;
-
         $link = 'admin.php?page=customtables-tables';
 
         $views = [];
-        if ($count_all > 0)
-            $views['all'] = '<a href="' . admin_url($link) . '" class="' . (($current_status === 'all' or $current_status === null) ? 'current' : '') . '">' . __('All') . ' <span class="count">(' . $count_all . ')</span></a>';
 
-        if ($count_published > 0)
-            $views['published'] = '<a href="' . admin_url($link . '&status=published') . '" class="' . ($current_status === 'published' ? 'current' : '') . '">' . __('Published') . ' <span class="count">(' . $count_published . ')</span></a>';
+        $views['all'] = '<a href="' . admin_url($link) . '" class="' . (($this->current_status === 'all' or $this->current_status === null) ? 'current' : '') . '">'
+            . __('All') . ' <span class="count">(' . $this->count_all . ')</span></a>';
 
-        if ($count_unpublished > 0)
-            $views['unpublished'] = '<a href="' . admin_url($link . '&status=unpublished') . '" class="' . ($current_status === 'unpublished' ? 'current' : '') . '">' . __('Draft') . ' <span class="count">(' . $count_unpublished . ')</span></a>';
+        if ($this->count_published > 0)
+            $views['published'] = '<a href="' . admin_url($link . '&status=published') . '" class="' . ($this->current_status === 'published' ? 'current' : '') . '">'
+                . __('Published') . ' <span class="count">(' . $this->count_published . ')</span></a>';
 
-        if ($count_trashed > 0)
-            $views['trash'] = '<a href="' . admin_url($link . '&status=trash') . '" class="' . ($current_status === 'trash' ? 'current' : '') . '">' . __('Trash') . ' <span class="count">(' . $count_trashed . ')</span></a>';
+        if ($this->count_unpublished > 0)
+            $views['unpublished'] = '<a href="' . admin_url($link . '&status=unpublished') . '" class="' . ($this->current_status === 'unpublished' ? 'current' : '') . '">'
+                . __('Draft') . ' <span class="count">(' . $this->count_unpublished . ')</span></a>';
+
+        if ($this->count_trashed > 0)
+            $views['trash'] = '<a href="' . admin_url($link . '&status=trash') . '" class="' . ($this->current_status === 'trash' ? 'current' : '') . '">' . __('Trash')
+                . ' <span class="count">(' . $this->count_trashed . ')</span></a>';
 
         return $views;
     }
@@ -344,7 +362,6 @@ class Admin_Table_List extends Libraries\WP_List_Table
      */
     public function get_bulk_actions()
     {
-
         /*
          * on hitting apply in bulk actions the url params are set as
          * ?action=action&table=1
@@ -353,24 +370,23 @@ class Admin_Table_List extends Libraries\WP_List_Table
          *
          */
 
-        $current_status = common::inputGetCMD('status');
         $actions = [];
 
-        if ($current_status != 'trash')
+        if ($this->current_status != 'trash')
             $actions['customtables-tables-edit'] = __('Edit', 'customtables');
 
-        if ($current_status == '' or $current_status == 'all') {
+        if ($this->current_status == '' or $this->current_status == 'all') {
             $actions['customtables-tables-publish'] = __('Publish', 'customtables');
             $actions['customtables-tables-unpublish'] = __('Draft', 'customtables');
-        } elseif ($current_status == 'unpublished')
+        } elseif ($this->current_status == 'unpublished')
             $actions['customtables-tables-publish'] = __('Publish', 'customtables');
-        elseif ($current_status == 'published')
+        elseif ($this->current_status == 'published')
             $actions['customtables-tables-unpublish'] = __('Draft', 'customtables');
 
-        if ($current_status != 'trash')
+        if ($this->current_status != 'trash')
             $actions['customtables-tables-trash'] = __('Move to Trash', 'customtables');
 
-        if ($current_status == 'trash') {
+        if ($this->current_status == 'trash') {
             $actions['customtables-tables-restore'] = __('Restore', 'customtables');
             $actions['customtables-tables-delete'] = __('Delete Permanently', 'customtables');
         }
@@ -482,13 +498,11 @@ class Admin_Table_List extends Libraries\WP_List_Table
      */
     public function graceful_redirect(?string $url = null)
     {
-
         if ($url === null)
             $url = 'admin.php?page=customtables-tables';
 
-        $current_status = common::inputGetCMD('status');
-        if ($current_status != null)
-            $url .= '&status=' . $current_status;
+        if ($this->current_status != null)
+            $url .= '&status=' . $this->current_status;
 
         ob_start(); // Start output buffering
         ob_end_clean(); // Discard the output buffer

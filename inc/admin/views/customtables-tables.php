@@ -29,7 +29,7 @@ $result = IntegrityChecks::check($this->admin_table_list->ct, true, false);
             <form id="customtables-admin-table-list-form" method="post">
                 <input type="hidden" name="page" value="<?php echo $page; ?>" />
                 <?php
-                $this->admin_table_list->search_box( __( 'Find', $this->plugin_text_domain ), 'nds-user-find');
+                $this->admin_table_list->search_box( __( 'Find', $this->plugin_text_domain ), 'nds-table-find');
                 $this->admin_table_list->views();
                 $this->admin_table_list->display();
                 ?>
