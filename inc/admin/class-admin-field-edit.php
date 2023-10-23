@@ -55,7 +55,7 @@ class Admin_Field_Edit
     {
         if(isset($_REQUEST['action']) && ('createfield' === $_REQUEST['action'] || 'savefield' === $_REQUEST['action'])) {
             $this->helperListOfFields->save($this->tableId,$this->fieldId);
-            $url = 'admin.php?page=customtables-fields';
+            $url = 'admin.php?page=customtables-fields&table='.$this->tableId;
 
             ob_start(); // Start output buffering
             ob_end_clean(); // Discard the output buffer

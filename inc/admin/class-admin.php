@@ -211,27 +211,43 @@ class Admin
                 break;
 
             case 'customtables-fields':
+
                 $page_hook = add_submenu_page(
                     'customtables',                     // Parent Menu Slug
                     __('Fields - Custom Tables', $this->plugin_text_domain), // Page Title
                     __(' - Fields', $this->plugin_text_domain),                     // Menu Title
                     'manage_options',                                         // Capability
-                    'customtables-fields',                               // Menu Slug
+                    'customtables-fields',                               // Menu Slug 'customtables-fields'
                     array($this, 'load_admin_field_list'),        // Callback Function
                     2                                                        // Position
                 );
+                //$url = add_query_arg(array('table' => $tableId), admin_url('admin.php?page=customtables-fields'));
+                //echo "<script>jQuery(document).ready(function() { jQuery('#toplevel_page_customtables-fields').attr('href', '$url'); });</script>";
                 add_action('load-' . $page_hook, array($this, 'preload_admin_fields_list'));
                 break;
 
             case 'customtables-fields-edit':
+
+                $tableId = common::inputGetInt('table');
+                $page_hook = add_submenu_page(
+                    'customtables',                     // Parent Menu Slug
+                    __('Fields - Custom Tables', $this->plugin_text_domain), // Page Title
+                    __(' - Fields', $this->plugin_text_domain),                     // Menu Title
+                    'manage_options',                                         // Capability
+                    'customtables-fields&table='.$tableId,                               // Menu Slug
+                    array($this, 'load_admin_field_list'),        // Callback Function
+                    2                                                        // Position
+                );
+                //add_action('load-' . $page_hook, array($this, 'preload_admin_fields_list'));
+
                 $page_hook = add_submenu_page(
                     'customtables',                     // Parent Menu Slug
                     __('Edit Field - Custom Tables', $this->plugin_text_domain), // Page Title
-                    __(' - Edit', $this->plugin_text_domain),                     // Menu Title
+                    __(' -- Edit', $this->plugin_text_domain),                     // Menu Title
                     'manage_options',                                         // Capability
                     'customtables-fields-edit',                               // Menu Slug
                     array($this, 'load_customtablesAdminFieldsEdit'),        // Callback Function
-                    2                                                        // Position
+                    3                                                        // Position
                 );
                 add_action('load-' . $page_hook, array($this, 'load_customtablesAdminFieldsEdit'));
                 break;
@@ -301,6 +317,18 @@ class Admin
         // instantiate the Admin Field List
         $this->admin_field_list = new Admin_Field_List($this->plugin_text_domain);
         $this->admin_field_list->handle_field_actions();
+
+        $page = common::inputGetCmd('page');
+        if($page ==  'customtables-fields') {
+            $tableId = common::inputGetInt('table');
+            if($tableId === null) {
+                // Redirect the user to the external URL
+                $url = 'admin.php?page=customtables-tables';
+                wp_redirect($url);
+                exit();
+            }
+        }
+
     }
 
     public function preload_admin_record_list()
