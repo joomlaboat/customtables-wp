@@ -134,7 +134,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
             default => null
         };
 
-        $query = $this->helperListOfFields->getListQuery($published, $search, null, $orderby, $order);
+        $query = $this->helperListOfFields->getListQuery($this->tableId,$published, $search, null, $orderby, $order);
         $data = database::loadAssocList($query);
         $newData = [];
         foreach ($data as $item) {

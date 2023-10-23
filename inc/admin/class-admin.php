@@ -98,6 +98,7 @@ class Admin
     public function enqueue_styles()
     {
         wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/customtables-admin.css', array(), $this->version, 'all');
+        wp_enqueue_style('fieldtypes', plugin_dir_url(__FILE__) . '../../libraries/customtables/media/css/fieldtypes.css', false, '2.7.8');
     }
 
     /**
@@ -112,8 +113,12 @@ class Admin
         wp_enqueue_script('nds_ajax_handle', plugin_dir_url(__FILE__) . 'js/customtables-admin.js', array('jquery'), $this->version, false);
         //wp_localize_script( 'nds_ajax_handle', 'params', $params );
 
-        wp_enqueue_style('fieldtypes', plugin_dir_url(__FILE__) . '../../libraries/customtables/media/css/fieldtypes.css', false, '2.7.8');
 
+        $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
+        if($page == 'customtables-schema') {
+            wp_enqueue_script('customtables-js-raphael', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/raphael.min.js', array('jquery'), $this->version, false);
+            wp_enqueue_script('customtables-js-diagram', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/diagram.js', array('jquery'), $this->version, false);
+        }
     }
 
     /**
@@ -177,7 +182,7 @@ class Admin
             'Custom Tables - Database Schema',   // Page Title
             'Database Schema',                   // Menu Title
             'manage_options',                    // Capability
-            'customtables-databasecheck',        // Menu Slug
+            'customtables-schema',        // Menu Slug
             array($this, 'load_customtablesAdminSchema'), // Callback Function
             4                                    // Position
         );
@@ -328,7 +333,6 @@ class Admin
                 exit();
             }
         }
-
     }
 
     public function preload_admin_record_list()
