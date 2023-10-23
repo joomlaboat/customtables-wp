@@ -5,6 +5,7 @@ namespace CustomTablesWP\Inc\Admin;
 use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\database;
+use CustomTables\Fields;
 use CustomTablesWP\Inc\Libraries;
 use CustomTables\ListOfTables;
 use ESTables;
@@ -20,7 +21,7 @@ use ESTables;
  *
  * @author     Karan NA Gupta
  */
-class Admin_Table_List extends Libraries\WP_List_Table
+class Admin_Field_List extends Libraries\WP_List_Table
 {
     /**
      * The text domain of this plugin.
@@ -31,7 +32,8 @@ class Admin_Table_List extends Libraries\WP_List_Table
      */
     public $plugin_text_domain;
     public CT $ct;
-    public $helperListOfTables;
+    public $helperListOfFields;
+    public ?int $tableId;
 
     protected int $count_all;
     protected int $count_trashed;
@@ -41,21 +43,21 @@ class Admin_Table_List extends Libraries\WP_List_Table
 
     /*
 	 * Call the parent constructor to override the defaults $args
-	 * 
-	 * @param string $plugin_text_domain	Text domain of the plugin.	
-	 * 
+	 *
+	 * @param string $plugin_text_domain	Text domain of the plugin.
+	 *
 	 * @since 1.0.0
 	 */
     public function __construct($plugin_text_domain)
     {
-        require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoftables.php');
+        require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoffields.php');
         $this->ct = new CT;
-        $this->helperListOfTables = new \CustomTables\ListOfTables($this->ct);
+        $this->helperListOfFields = new \CustomTables\ListOfFields($this->ct);
         $this->plugin_text_domain = $plugin_text_domain;
 
-        $this->count_all = database::loadColumn('SELECT COUNT(id) FROM #__customtables_tables WHERE published!=-2')[0];
-        $this->count_trashed = database::loadColumn('SELECT COUNT(id) FROM #__customtables_tables WHERE published=-2')[0];
-        $this->count_published = database::loadColumn('SELECT COUNT(id) FROM #__customtables_tables WHERE published=1')[0];
+        $this->count_all = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE published!=-2')[0];
+        $this->count_trashed = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE published=-2')[0];
+        $this->count_published = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE published=1')[0];
         $this->count_unpublished = $this->count_all - $this->count_published;
 
         $this->current_status = common::inputGetCMD('status');
@@ -73,6 +75,10 @@ class Admin_Table_List extends Libraries\WP_List_Table
             'singular' => 'user',        // Singular label for an object being listed, e.g. 'post'.
             'ajax' => false,        // If true, the parent class will call the _js_vars() method in the footer
         ));
+
+        $this->tableId = common::inputGetInt('table');
+        if ($this->tableId)
+            $this->ct->getTable($this->tableId);
     }
 
     /**
@@ -114,6 +120,8 @@ class Admin_Table_List extends Libraries\WP_List_Table
     function get_data()
     {
         // Fetch and return your data here
+        if($this->tableId === null or $this->ct->Table->tablename === null)
+            return [];
 
         $search = common::inputGetString('s');
         $orderby = common::inputGetCmd('orderby');
@@ -126,63 +134,45 @@ class Admin_Table_List extends Libraries\WP_List_Table
             default => null
         };
 
-        $query = $this->helperListOfTables->getListQuery($published, $search, null, $orderby, $order);
+        $query = $this->helperListOfFields->getListQuery($published, $search, null, $orderby, $order);
         $data = database::loadAssocList($query);
         $newData = [];
         foreach ($data as $item) {
-            $table_exists = ESTables::checkIfTableExists($item['realtablename']);
+            //$field_exists = ESTables::checkIfTableExists($item['realfieldname']);
 
             if ($item['published'] == -2)
-                $label = '<span>' . $item['tablename'] . '</span>';
+                $label = '<span>' . $item['fieldname'] . '</span>';
             else
-                $label = '<a class="row-title" href="?page=customtables-tables-edit&action=edit&table=' . $item['id'] . '">' . $item['tablename'] . '</a>'
+                $label = '<a class="row-title" href="?page=customtables-fields-edit&action=edit&table='.$this->tableId.'&field=' . $item['id'] . '">' . $item['fieldname'] . '</a>'
                     . (($this->current_status != 'unpublished' and $item['published'] == 0) ? ' — <span class="post-state">Draft</span>' : '');
 
-            $item['tablename'] = '<strong>' . $label . '</strong>';
+            $item['fieldname'] = '<strong>' . $label . '</strong>';
 
             $result = '<ul style="list-style: none !important;margin-left:0;padding-left:0;">';
             $moreThanOneLang = false;
             foreach ($this->ct->Languages->LanguageList as $lang) {
-                $tableTitle = 'tabletitle';
-                $tableDescription = 'description';
+                $fieldTitle = 'fieldtitle';
+                $fieldDescription = 'description';
 
                 if ($moreThanOneLang) {
-                    $tableTitle .= '_' . $lang->sef;
-                    $tableDescription .= '_' . $lang->sef;
-
-                    if (!array_key_exists($tableTitle, $item)) {
-                        Fields::addLanguageField('#__customtables_tables', 'tabletitle', $tableTitle);
-                    }
-
-                    if (!array_key_exists($tableTitle, $item)) {
-                        Fields::addLanguageField('#__customtables_tables', 'description', $tableDescription);
-                    }
+                    $fieldTitle .= '_' . $lang->sef;
+                    $fieldDescription .= '_' . $lang->sef;
                 }
-                $result .= '<li>' . (count($this->ct->Languages->LanguageList) > 1 ? $lang->title . ': ' : '') . '<b>' . $item[$tableTitle] . '</b></li>';
+
+                if (!array_key_exists($fieldTitle, $item))
+                    Fields::addLanguageField('#__customtables_fields', 'fieldtitle', $fieldTitle);
+
+                if (!array_key_exists($fieldTitle, $item))
+                    Fields::addLanguageField('#__customtables_fields', 'description', $fieldDescription);
+
+                $result .= '<li>' . (count($this->ct->Languages->LanguageList) > 1 ? $lang->title . ': ' : '') . '<b>' . ($item[$fieldTitle] ?? '') . '</b></li>';
                 $moreThanOneLang = true; //More than one language installed
             }
 
             $result .= '</ul>';
-            $item['tabletitle'] = $result;
-
-
-            $item['fieldcount'] = '<a class="button action" aria-describedby="tip-tablerecords' . $item['id'] . '" href="'
-                . 'admin.php?page=customtables-fields&table=' . $item['id'] . '">'
-                . $item['fieldcount']
-                . ' ' . __('Fields', $this->plugin_text_domain) . '</a>';
-
-
-            if (!$table_exists)
-                $item['recordcount'] = __('No Table', $this->plugin_text_domain);
-            elseif (($item['customtablename'] !== null and $item['customtablename'] != '') and ($item['customidfield'] === null or $item['customidfield'] == ''))
-                $item['recordcount'] = __('No Primary Key', $this->plugin_text_domain);
-            else {
-                $item['recordcount'] = '<a class="button action" aria-describedby="tip-tablerecords' . $item['id'] . '" href="'
-                    . 'admin.php?page=customtables-records&table=' . $item['id'] . '">'
-                    . listOfTables::getNumberOfRecords($item['realtablename'], $item['realidfieldname'])
-                    . ' ' . __('Records', $this->plugin_text_domain) . '</a>';
-            }
-
+            $item['fieldtitle'] = $result;
+            $item['typeparams'] = str_replace('****apos****', "'", str_replace('****quote****', '"', $this->helperListOfFields->escape($item['typeparams'])));
+            $item['table'] = str_replace('****apos****', "'", str_replace('****quote****', '"', $this->helperListOfFields->escape($item['tabletitle'])));
             $newData[] = $item;
         }
         return $newData;
@@ -200,11 +190,12 @@ class Admin_Table_List extends Libraries\WP_List_Table
     {
         return array(
             'cb' => '<input type="checkbox" />',
-            'tablename' => __('Table Name', $this->plugin_text_domain),
-            'tabletitle' => __('Table Title', $this->plugin_text_domain),
-            'fieldcount' => __('Fields', $this->plugin_text_domain),
-            'recordcount' => __('Records', $this->plugin_text_domain),
-            //'published' => __('Status', $this->plugin_text_domain),
+            'fieldname' => __('Field Name', $this->plugin_text_domain),
+            'fieldtitle' => __('Field Title', $this->plugin_text_domain),
+            'type' => __('Field Type', $this->plugin_text_domain),
+            'typeparams' => __('Type Parameters', $this->plugin_text_domain),
+            'isrequired' => __('Required', $this->plugin_text_domain),
+            'table' => __('Table', $this->plugin_text_domain),
             'id' => __('Id', $this->plugin_text_domain)
         );
     }
@@ -224,37 +215,38 @@ class Admin_Table_List extends Libraries\WP_List_Table
     protected function get_sortable_columns()
     {
         $sortable_columns = array(
-            'tablename' => array('tablename', false),
-            //'status' => array('status', false),
+            'fieldname' => array('fieldname', false),
+            'type' => array('type', false),
             'id' => array('id', true)
         );
         return $sortable_columns;
     }
 
-    function column_tablename($item)
+    function column_fieldname($item)
     {
         $actions = [];
 
-        $url = 'admin.php?page=customtables-tables';
+        $url = 'admin.php?page=customtables-fields';
         if ($this->current_status != null)
             $url .= '&status=' . $this->current_status;
 
         if ($this->current_status == 'trash') {
-            $actions['restore'] = sprintf('<a href="' . $url . '&action=restore&table=%s&_wpnonce=%s">' . __('Restore', 'customtables') . '</a>',
-                $item['id'], urlencode(wp_create_nonce('restore_nonce')));
+            $actions['restore'] = sprintf('<a href="' . $url . '&action=restore&table=%s&field=%s&_wpnonce=%s">' . __('Restore', 'customtables') . '</a>',
+                $this->tableId,$item['id'], urlencode(wp_create_nonce('restore_nonce')));
 
-            $actions['delete'] = sprintf('<a href="' . $url . '&action=delete&table=%s&_wpnonce=%s">' . __('Delete Permanently', 'customtables') . '</a>',
-                $item['id'], urlencode(wp_create_nonce('delete_nonce')));
+            $actions['delete'] = sprintf('<a href="' . $url . '&action=delete&table=%s&field=%s&_wpnonce=%s">' . __('Delete Permanently', 'customtables') . '</a>',
+                $this->tableId,$item['id'], urlencode(wp_create_nonce('delete_nonce')));
         } else {
-            $actions['edit'] = sprintf('<a href="?page=customtables-tables-edit&action=edit&table=%s">' . __('Edit', 'customtables') . '</a>', $item['id']);
-            $actions['trash'] = sprintf('<a href="' . $url . '&action=trash&table=%s&_wpnonce=%s">' . __('Trash', 'customtables') . '</a>',
-                $item['id'], urlencode(wp_create_nonce('trash_nonce')));
+            $actions['edit'] = sprintf('<a href="?page=customtables-fields-edit&action=edit&table=%s&field=%s">' . __('Edit', 'customtables') . '</a>',
+                $this->tableId,$item['id']);
+            $actions['trash'] = sprintf('<a href="' . $url . '&action=trash&table=%s&field=%s&_wpnonce=%s">' . __('Trash', 'customtables') . '</a>',
+                $this->tableId,$item['id'], urlencode(wp_create_nonce('trash_nonce')));
         }
-        return sprintf('%1$s %2$s', $item['tablename'], $this->row_actions($actions));
+        return sprintf('%1$s %2$s', $item['fieldname'], $this->row_actions($actions));
     }
 
     /**
-     * Text displayed when no tables found
+     * Text displayed when no fields found
      *
      * @return void
      * @since   1.0.0
@@ -262,9 +254,10 @@ class Admin_Table_List extends Libraries\WP_List_Table
      */
     public function no_items()
     {
-        _e('No tables found.', $this->plugin_text_domain);
+        _e('No fields found.', $this->plugin_text_domain);
     }
 
+    /*
     public function filter_table_data($table_data, $search_key)
     {
         $filtered_table_data = array_values(array_filter($table_data, function ($row) use ($search_key) {
@@ -278,6 +271,7 @@ class Admin_Table_List extends Libraries\WP_List_Table
         return $filtered_table_data;
 
     }
+    */
 
     /**
      * Render a column when no column specific method exists.
@@ -290,15 +284,17 @@ class Admin_Table_List extends Libraries\WP_List_Table
     function column_default($item, $column_name)
     {
         switch ($column_name) {
-            case 'tablename':
+            case 'fieldname':
                 return $item[$column_name];
-            case 'tabletitle':
+            case 'fieldtitle':
                 return $item[$column_name];
-            case 'fieldcount':
+            case 'type':
                 return $item[$column_name];
-            case 'recordcount':
+            case 'typeparams':
                 return $item[$column_name];
-            case 'published':
+            case 'isrequired':
+                return $item[$column_name];
+            case 'table':
                 return $item[$column_name];
             case 'id':
                 return $item[$column_name];
@@ -318,7 +314,7 @@ class Admin_Table_List extends Libraries\WP_List_Table
     function column_cb($item)
     {
         return sprintf(
-            '<input type="checkbox" name="table[]" value="%s" />',
+            '<input type="checkbox" name="field[]" value="%s" />',
             $item['id']
         );
     }
@@ -338,7 +334,7 @@ class Admin_Table_List extends Libraries\WP_List_Table
 
     public function get_views()
     {
-        $link = 'admin.php?page=customtables-tables';
+        $link = 'admin.php?page=customtables-fields&table='.$this->tableId;
 
         $views = [];
 
@@ -371,7 +367,7 @@ class Admin_Table_List extends Libraries\WP_List_Table
     {
         /*
          * on hitting apply in bulk actions the url params are set as
-         * ?action=action&table=1
+         * ?action=action&field=1
          *
          * action and action2 are set based on the triggers above or below the table
          *
@@ -380,22 +376,22 @@ class Admin_Table_List extends Libraries\WP_List_Table
         $actions = [];
 
         if ($this->current_status != 'trash')
-            $actions['customtables-tables-edit'] = __('Edit', 'customtables');
+            $actions['customtables-fields-edit'] = __('Edit', 'customtables');
 
         if ($this->current_status == '' or $this->current_status == 'all') {
-            $actions['customtables-tables-publish'] = __('Publish', 'customtables');
-            $actions['customtables-tables-unpublish'] = __('Draft', 'customtables');
+            $actions['customtables-fields-publish'] = __('Publish', 'customtables');
+            $actions['customtables-fields-unpublish'] = __('Draft', 'customtables');
         } elseif ($this->current_status == 'unpublished')
-            $actions['customtables-tables-publish'] = __('Publish', 'customtables');
+            $actions['customtables-fields-publish'] = __('Publish', 'customtables');
         elseif ($this->current_status == 'published')
-            $actions['customtables-tables-unpublish'] = __('Draft', 'customtables');
+            $actions['customtables-fields-unpublish'] = __('Draft', 'customtables');
 
         if ($this->current_status != 'trash')
-            $actions['customtables-tables-trash'] = __('Move to Trash', 'customtables');
+            $actions['customtables-fields-trash'] = __('Move to Trash', 'customtables');
 
         if ($this->current_status == 'trash') {
-            $actions['customtables-tables-restore'] = __('Restore', 'customtables');
-            $actions['customtables-tables-delete'] = __('Delete Permanently', 'customtables');
+            $actions['customtables-fields-restore'] = __('Restore', 'customtables');
+            $actions['customtables-fields-delete'] = __('Delete Permanently', 'customtables');
         }
         return $actions;
     }
@@ -406,11 +402,10 @@ class Admin_Table_List extends Libraries\WP_List_Table
      * @since    1.0.0
      *
      */
-    function handle_table_actions()
+    function handle_field_actions()
     {
-
         /*
-         * Note: Table bulk_actions can be identified by checking $_REQUEST['action'] and $_REQUEST['action2']
+         * Note: Field bulk_actions can be identified by checking $_REQUEST['action'] and $_REQUEST['action2']
          *
          * action - is set if checkbox from top-most select-all is set, otherwise returns -1
          * action2 - is set if checkbox the bottom-most select-all checkbox is set, otherwise returns -1
@@ -425,9 +420,9 @@ class Admin_Table_List extends Libraries\WP_List_Table
             if (!wp_verify_nonce($nonce, 'restore_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
-                $tableId = common::inputGetInt('table');
-                database::updateSets('#__customtables_tables', ['published=0'], ['id=' . $tableId]);
-                //echo '<div id="message" class="updated notice is-dismissible"><p>1 table restored from the Trash.</p></div>';
+                $fieldId = common::inputGetInt('field');
+                database::updateSets('#__customtables_fields', ['published=0'], ['id=' . $fieldId]);
+                //echo '<div id="message" class="updated notice is-dismissible"><p>1 field restored from the Trash.</p></div>';
                 $this->graceful_redirect();
             }
         }
@@ -438,9 +433,9 @@ class Admin_Table_List extends Libraries\WP_List_Table
             if (!wp_verify_nonce($nonce, 'trash_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
-                $tableId = common::inputGetInt('table');
-                database::updateSets('#__customtables_tables', ['published=-2'], ['id=' . $tableId]);
-                //echo '<div id="message" class="updated notice is-dismissible"><p>1 table moved to the Trash.</p></div>';
+                $fieldId = common::inputGetInt('field');
+                database::updateSets('#__customtables_fields', ['published=-2'], ['id=' . $fieldId]);
+                //echo '<div id="message" class="updated notice is-dismissible"><p>1 field moved to the Trash.</p></div>';
                 $this->graceful_redirect();
             }
         }
@@ -451,28 +446,34 @@ class Admin_Table_List extends Libraries\WP_List_Table
             if (!wp_verify_nonce($nonce, 'delete_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
-                $tableId = common::inputGetInt('table');
-                $this->helperListOfTables->deleteTable($tableId);
-                //echo '<div id="message" class="updated notice is-dismissible"><p>1 table permanently deleted.</p></div>';
-                $this->graceful_redirect();
+                $fieldId = common::inputGetInt('field');
+                if($fieldId !== null) {
+                    Fields::deleteField_byID($this->ct, $fieldId);
+                    //echo '<div id="message" class="updated notice is-dismissible"><p>1 field permanently deleted.</p></div>';
+                    $this->graceful_redirect();
+                }
+                else
+                {
+                    echo '<div id="message" class="updated error is-dismissible"><p>Field not selected.</p></div>';
+                }
             }
         }
 
-        // check for table bulk actions
+        // check for field bulk actions
 
-        if ($this->is_table_action('customtables-tables-edit'))
+        if ($this->is_table_action('customtables-fields-edit'))
             $this->handle_table_actions_edit();
 
-        if ($this->is_table_action('customtables-tables-publish'))
+        if ($this->is_table_action('customtables-fields-publish'))
             $this->handle_table_actions_publish(1);
 
-        if ($this->is_table_action('customtables-tables-unpublish') or $this->is_table_action('customtables-tables-restore'))
+        if ($this->is_table_action('customtables-fields-unpublish') or $this->is_table_action('customtables-fields-restore'))
             $this->handle_table_actions_publish(0);
 
-        if ($this->is_table_action('customtables-tables-trash'))
+        if ($this->is_table_action('customtables-fields-trash'))
             $this->handle_table_actions_publish(-2);
 
-        if ($this->is_table_action('customtables-tables-delete'))
+        if ($this->is_table_action('customtables-fields-delete'))
             $this->handle_table_actions_delete();
     }
 
@@ -506,7 +507,7 @@ class Admin_Table_List extends Libraries\WP_List_Table
     public function graceful_redirect(?string $url = null)
     {
         if ($url === null)
-            $url = 'admin.php?page=customtables-tables';
+            $url = 'admin.php?page=customtables-fields&table='.$this->tableId;
 
         if ($this->current_status != null)
             $url .= '&status=' . $this->current_status;
@@ -527,11 +528,11 @@ class Admin_Table_List extends Libraries\WP_List_Table
 
     function handle_table_actions_edit()
     {
-        // Assuming $_POST['table'] contains the selected items
-        $table_id = (int)(isset($_POST['table']) ? $_POST['table'][0] : '');
+        // Assuming $_POST['field'] contains the selected items
+        $field_id = (int)(isset($_POST['field']) ? $_POST['field'][0] : '');
 
         // Redirect to the edit page with the appropriate parameters
-        $this->graceful_redirect('admin.php?page=customtables-tables-edit&action=edit&table=' . $table_id);
+        $this->graceful_redirect('admin.php?page=customtables-fields-edit&action=edit&table='.$this->tableId.'&field=' . $field_id);
     }
 
     function handle_table_actions_publish(int $state): void
@@ -541,31 +542,31 @@ class Admin_Table_List extends Libraries\WP_List_Table
         if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
             $this->invalid_nonce_redirect();
         } else {
-            $tables = (isset($_POST['table']) ? $_POST['table'] : []);
+            $fields = (isset($_POST['field']) ? $_POST['field'] : []);
             $sets = [];
             $wheres = [];
-            foreach ($tables as $table) {
+            foreach ($fields as $field) {
                 $sets[] = 'published=' . $state;
-                $wheres[] = 'id=' . (int)$table;
+                $wheres[] = 'id=' . (int)$field;
             }
 
             if (count($sets) > 0) {
-                database::updateSets('#__customtables_tables', $sets, ['(' . implode(' OR ', $wheres) . ')']);
+                database::updateSets('#__customtables_fields', $sets, ['(' . implode(' OR ', $wheres) . ')']);
                 $this->graceful_redirect();
             }
-            echo '<div id="message" class="updated error is-dismissible"><p>Tables not selected.</p></div>';
+            echo '<div id="message" class="updated error is-dismissible"><p>Fields not selected.</p></div>';
         }
     }
 
     function handle_table_actions_delete()
     {
-        $tables = (isset($_POST['table']) ? $_POST['table'] : []);
-        if (count($tables) > 0) {
-            foreach ($tables as $tableId)
-                $this->helperListOfTables->deleteTable($tableId);
+        $fields = (isset($_POST['field']) ? $_POST['field'] : []);
+        if (count($fields) > 0) {
+            foreach ($fields as $fieldId)
+                Fields::deleteField_byID($this->ct, $fieldId);
 
             $this->graceful_redirect();
         }
-        echo '<div id="message" class="updated error is-dismissible"><p>Tables not selected.</p></div>';
+        echo '<div id="message" class="updated error is-dismissible"><p>Fields not selected.</p></div>';
     }
 }
