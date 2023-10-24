@@ -121,7 +121,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
     function get_data()
     {
         // Fetch and return your data here
-        if ($this->tableId === null or $this->ct->Table->tablename === null)
+        if ($this->tableId === null or $this->ct->Table == null or $this->ct->Table->tablename === null)
             return [];
 
         $search = common::inputGetString('s');

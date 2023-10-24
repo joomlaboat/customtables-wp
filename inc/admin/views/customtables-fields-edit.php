@@ -75,6 +75,16 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                         _e('Edit field.');
                     ?>
                 </p>
+
+                <script>
+                    <?php
+                    if ($this->admin_field_edit->ct->Env->advancedTagProcessor)
+                        echo 'proversion=true;' . PHP_EOL;
+
+                    echo 'all_tables=' . json_encode($this->admin_field_edit->allTables) . ';' . PHP_EOL;
+                    ?>
+                </script>
+
                 <form method="post" name="createfield" id="createfield" class="validate" novalidate="novalidate">
                     <input name="action" type="hidden" value="createfield"/>
                     <input name="table" type="hidden" value="<?php echo $this->admin_field_edit->tableId; ?>"/>
@@ -143,8 +153,23 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                                 foreach ($this->admin_field_edit->fieldTypes as $type)
                                     $selectBoxOptions[] = '<option value="' . $type['name'] . '">' . $type['label'] . '</option>';
 
-                                echo '<select name="type" id="type">' . implode('', $selectBoxOptions) . '</select>';
+                                echo '<select name="type" id="type" onchange="typeChanged();">' . implode('', $selectBoxOptions) . '</select>';
                                 ?>
+                            </td>
+                        </tr>
+
+                        <!-- Field Type Params Field -->
+                        <tr class="form-field form-required">
+                            <th scope="row">
+                                <label for="typeparams">
+                                    <?php echo __('Type Parameters', $this->plugin_text_domain); ?>
+                                    <span class="description">(<?php echo __('required', $this->plugin_text_domain); ?>)</span>
+                                </label>
+                            </th>
+                            <td>
+                                <div class="typeparams_box" id="typeparams_box"></div>
+                                <br/>
+                                <input type="text" name="typeparams" id="typeparams" value="" class="" readonly="readonly" maxlength="1024">
                             </td>
                         </tr>
                     </table>
@@ -154,6 +179,20 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                     $buttonText = ($this->admin_field_edit->fieldId == 0) ? __('Add New Field') : __('Save Field');
                     submit_button($buttonText, 'primary', 'createfield', true, array('id' => 'createfieldsub'));
                     ?>
+
+                    <script>
+                        updateTypeParams("type", "typeparams", "typeparams_box", "WordPress");
+                        <?php if(!$this->admin_field_edit->ct->Env->advancedTagProcessor): ?>
+                        //disableProField("jform_defaultvalue");
+                        //disableProField("jform_valuerule");
+                        //disableProField("jform_valuerulecaption");
+                        <?php endif; ?>
+                    </script>
+
+                    <div id="ct_fieldtypeeditor_box" style="display: none;"><?php
+                        //$attributes = array('name' => 'ct_fieldtypeeditor', 'id' => 'ct_fieldtypeeditor', 'directory' => 'images', 'recursive' => true, 'label' => 'Select Folder', 'readonly' => false);
+                        //echo CTTypes::getField('folderlist', $attributes, null)->input;
+                        ?></div>
                 </form>
             <?php endif; ?>
         <?php } // End if (current_user_can('install_plugins')) ?>

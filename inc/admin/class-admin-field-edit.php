@@ -7,6 +7,7 @@ use CustomTables\CT;
 use CustomTables\Field;
 use CustomTables\Fields;
 use CustomTables\ListOfFields;
+use CustomTables\Tables;
 
 class Admin_Field_Edit
 {
@@ -23,6 +24,7 @@ class Admin_Field_Edit
     public ?int $fieldId;
     public array $fieldRow;
     public array $fieldTypes;
+    public array $allTables;
     /*
 	 *
 	 *
@@ -52,6 +54,7 @@ class Admin_Field_Edit
         }
 
         $this->fieldTypes = $this->helperListOfFields->getFieldTypesFromXML(true);
+        $this->allTables = Tables::getAllTables();
     }
 
     function handle_field_actions()

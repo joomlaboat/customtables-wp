@@ -5,7 +5,7 @@
  */
 
 include_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-documentation.php');
-$documentation = new \CustomTables\Documentation(true);
+$documentation = new \CustomTables\Documentation(true,true);
 
 ?>
 

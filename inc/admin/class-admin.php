@@ -115,9 +115,16 @@ class Admin
 
 
         $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
-        if($page == 'customtables-schema') {
+        if ($page == 'customtables-schema') {
             wp_enqueue_script('customtables-js-raphael', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/raphael.min.js', array('jquery'), $this->version, false);
             wp_enqueue_script('customtables-js-diagram', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/diagram.js', array('jquery'), $this->version, false);
+        }
+
+        if ($page == 'customtables-fields-edit') {
+            wp_enqueue_script('customtables-js-ajax', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/ajax.js', array(), $this->version, false);
+            wp_enqueue_script('customtables-js-typeparams_common', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/typeparams_common.js', array(), $this->version, false);
+            wp_enqueue_script('customtables-js-typeparams_j4', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/typeparams_j4.js', array(), $this->version, false);
+            //$document->addCustomTag('<link rel="stylesheet" href="' . JURI::root(true) . '/media/system/css/fields/switcher.css">');
         }
     }
 
@@ -202,6 +209,20 @@ class Admin
         $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
 
         switch ($page) {
+            case 'customtables-xml':
+                $file = common::inputGetCmd('xmlfile');
+
+                $xml = 'unknown file';
+                if ($file == 'tags')
+                    $xml = file_get_contents(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR
+                        . 'media' . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . $file . '.xml');
+
+                elseif ($file == 'fieldtypes')
+                    $xml = file_get_contents(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR
+                        . 'media' . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . $file . '.xml');
+
+                die($xml);
+
             case 'customtables-tables-edit':
                 $page_hook = add_submenu_page(
                     'customtables',                     // Parent Menu Slug
@@ -239,7 +260,7 @@ class Admin
                     __('Fields - Custom Tables', $this->plugin_text_domain), // Page Title
                     __(' - Fields', $this->plugin_text_domain),                     // Menu Title
                     'manage_options',                                         // Capability
-                    'customtables-fields&table='.$tableId,                               // Menu Slug
+                    'customtables-fields&table=' . $tableId,                               // Menu Slug
                     array($this, 'load_admin_field_list'),        // Callback Function
                     2                                                        // Position
                 );
@@ -336,9 +357,9 @@ class Admin
         $this->admin_field_list->handle_field_actions();
 
         $page = common::inputGetCmd('page');
-        if($page ==  'customtables-fields') {
+        if ($page == 'customtables-fields') {
             $tableId = common::inputGetInt('table');
-            if($tableId === null) {
+            if ($tableId === null) {
                 // Redirect the user to the external URL
                 $url = 'admin.php?page=customtables-tables';
                 wp_redirect($url);
@@ -462,6 +483,23 @@ class Admin
     {
         $this->admin_field_edit = new Admin_Field_Edit($this->plugin_text_domain);
         $this->admin_field_edit->handle_field_actions();
+
+        $page = common::inputGetCmd('page');
+        if ($page == 'customtables-fields-edit') {
+            $tableId = common::inputGetInt('table');
+            $fieldId = common::inputGetInt('field');
+            if ($fieldId === null) {
+                // Redirect the user to the external URL
+                if ($tableId === null)
+                    $url = 'admin.php?page=customtables-tables';
+                else
+                    $url = 'admin.php?page=customtables-fields&table=' . $tableId;
+
+                wp_redirect($url);
+                exit();
+            }
+        }
+
         include_once('views' . DIRECTORY_SEPARATOR . 'customtables-fields-edit.php');
     }
 
@@ -479,11 +517,12 @@ class Admin
         $this->admin_layout_edit->handle_layout_actions();
         include_once('views' . DIRECTORY_SEPARATOR . 'customtables-layouts-edit.php');
     }
-/*
-    public function load_customtablesAdminLayouts()
-    {
-        include_once('views' . DIRECTORY_SEPARATOR . 'customtables-layouts.php');
-    }*/
+
+    /*
+        public function load_customtablesAdminLayouts()
+        {
+            include_once('views' . DIRECTORY_SEPARATOR . 'customtables-layouts.php');
+        }*/
 
     public function load_customtablesAdminSchema()
     {
