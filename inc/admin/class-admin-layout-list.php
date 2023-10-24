@@ -5,6 +5,7 @@ namespace CustomTablesWP\Inc\Admin;
 use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\database;
+use CustomTables\Layouts;
 use CustomTablesWP\Inc\Libraries;
 
 /**
@@ -127,6 +128,10 @@ class Admin_Layout_List extends Libraries\WP_List_Table
         $query = $this->helperListOfLayouts->getListQuery($published, $search, null, null, $orderby, $order);
         $data = database::loadAssocList($query);
         $newData = [];
+
+        $Layouts = new Layouts($this->ct);
+        $translations = $Layouts->layoutTypeTranslation();
+
         foreach ($data as $item) {
 
             if ($item['published'] == -2)
@@ -136,6 +141,12 @@ class Admin_Layout_List extends Libraries\WP_List_Table
                     . (($this->current_status != 'unpublished' and $item['published'] == 0) ? ' — <span class="post-state">Draft</span>' : '');
 
             $item['layoutname'] = '<strong>' . $label . '</strong>';
+
+            if (isset($translations[$item['layouttype']])) {
+                $item['layouttype'] = $translations[$item['layouttype']];
+            } else {
+                $item['layouttype'] = '<span style="color:red;">NOT SELECTED</span>';
+            }
 
             $newData[] = $item;
         }
@@ -156,7 +167,7 @@ class Admin_Layout_List extends Libraries\WP_List_Table
             'cb' => '<input type="checkbox" />',
             'layoutname' => __('Layout Name', $this->plugin_text_domain),
             'layouttype' => __('Type', $this->plugin_text_domain),
-            'tableid' => __('Table', $this->plugin_text_domain),
+            'tabletitle' => __('Table', $this->plugin_text_domain),
             'layout_size' => __('Size', $this->plugin_text_domain),
             'modifiedby' => __('Modified By', $this->plugin_text_domain),
             'modified' => __('Modified When', $this->plugin_text_domain),
@@ -235,7 +246,7 @@ class Admin_Layout_List extends Libraries\WP_List_Table
                 return $item[$column_name];
             case 'layouttype':
                 return $item[$column_name];
-            case 'tableid':
+            case 'tabletitle':
                 return $item[$column_name];
             case 'layout_size':
                 return $item[$column_name];

@@ -19,6 +19,36 @@ class Forms
         $this->ct = &$ct;
     }
 
+    /**
+     * @throws \Exception
+     */
+    public static function renderHTMLSelectBoxFromDB(string $objectId, string $tableName, array $selects, ?array $where = null, string $orderBy = null): string
+    {
+        $sql = 'SELECT ' . implode(',', $selects) . ' FROM '
+            . $tableName;
+
+        if ($where !== null and count($where) > 0)
+            $sql .= ' WHERE ' . implode(' AND ', $where);
+
+        if ($orderBy !== null)
+            $sql .= ' ORDER BY ' . $orderBy;
+
+        $options = database::loadAssocList($sql);
+
+        $selectBoxOptions = [];
+
+        if (count($options) > 0) {
+            $keys = [];
+            foreach ($options[0] as $key => $opt)
+                $keys[] = $key;
+
+            foreach ($options as $option)
+                $selectBoxOptions[] = '<option value="' . $option[$keys[0]] . '">' . $option[$keys[1]] . '</option>';
+        }
+       
+        return '<select name="' . $objectId . '" id="' . $objectId . '">' . implode('', $selectBoxOptions) . '</select>';
+    }
+
     function renderFieldLabel($field, $allowSortBy = false)
     {
         $OrderingField = null;
