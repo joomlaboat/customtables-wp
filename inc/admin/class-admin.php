@@ -355,6 +355,7 @@ class Admin
         // instantiate the Admin Field List
         $this->admin_field_list = new Admin_Field_List($this->plugin_text_domain);
         $this->admin_field_list->handle_field_actions();
+        $this->admin_field_list->handle_field_tasks();
 
         $page = common::inputGetCmd('page');
         if ($page == 'customtables-fields') {

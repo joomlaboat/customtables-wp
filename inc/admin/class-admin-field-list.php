@@ -54,12 +54,21 @@ class Admin_Field_List extends Libraries\WP_List_Table
         $this->helperListOfFields = new \CustomTables\ListOfFields($this->ct);
         $this->plugin_text_domain = $plugin_text_domain;
 
-        $this->count_all = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE published!=-2')[0];
-        $this->count_trashed = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE published=-2')[0];
-        $this->count_published = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE published=1')[0];
-        $this->count_unpublished = $this->count_all - $this->count_published;
+        $this->tableId = common::inputGetInt('table');
+        if ($this->tableId) {
+            $this->ct->getTable($this->tableId);
 
-        $this->current_status = common::inputGetCMD('status');
+            $this->count_all = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE tableid='.$this->tableId.' AND published!=-2')[0];
+            $this->count_trashed = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE tableid='.$this->tableId.' AND published=-2')[0];
+            $this->count_published = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE tableid='.$this->tableId.' AND published=1')[0];
+        } else {
+            $this->count_all = 0;
+            $this->count_trashed = 0;
+            $this->count_published = 0;
+        }
+
+        $this->count_unpublished = $this->count_all - $this->count_published;
+        $this->current_status = common::inputGetCmd('status');
 
         if ($this->current_status !== null and $this->current_status !== 'all') {
             if ($this->current_status == 'trash' and $this->count_trashed == 0)
@@ -75,9 +84,6 @@ class Admin_Field_List extends Libraries\WP_List_Table
             'ajax' => false,        // If true, the parent class will call the _js_vars() method in the footer
         ));
 
-        $this->tableId = common::inputGetInt('table');
-        if ($this->tableId)
-            $this->ct->getTable($this->tableId);
 
         $this->fieldTypes = $this->helperListOfFields->getFieldTypesFromXML();
     }
@@ -183,7 +189,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
     protected function getFieldTypeLabel($typeName): string
     {
         foreach ($this->fieldTypes as $type)
-            if($type['name'] == $typeName)
+            if ($type['name'] == $typeName)
                 return $type['label'];
 
         return '<span style="color:red">Unknown Type</span>';
@@ -488,6 +494,17 @@ class Admin_Field_List extends Libraries\WP_List_Table
 
         if ($this->is_table_action('customtables-fields-delete'))
             $this->handle_table_actions_delete();
+    }
+
+    /**
+     * Process tasks triggered by the user
+     *
+     * @since    1.0.0
+     *
+     */
+    function handle_field_tasks()
+    {
+
     }
 
     /**

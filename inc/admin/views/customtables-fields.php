@@ -1,5 +1,7 @@
 <?php
 // If this file is called directly, abort.
+use CustomTables\Integrity\IntegrityFields;
+
 if (!defined('WPINC')) {
     die;
 }
@@ -29,6 +31,16 @@ $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
     ?>
 
     <hr class="wp-header-end">
+
+    <?php
+    if ($this->admin_field_list->tableId != 0) {
+        $link = 'admin.php?page=customtables-fields&table=' . $this->admin_field_list->tableId;
+        $result = IntegrityFields::checkFields($this->admin_field_list->ct, $link);
+        if($result !== '')
+            echo '<div id="message" class="updated notice is-dismissible">' . $result . '</div>';
+    }
+    ?>
+
 
     <div id="customtables">
         <div id="customtables-post-body">

@@ -57,7 +57,7 @@ class Admin_Layout_List extends Libraries\WP_List_Table
         $this->count_published = database::loadColumn('SELECT COUNT(id) FROM #__customtables_layouts WHERE published=1')[0];
         $this->count_unpublished = $this->count_all - $this->count_published;
 
-        $this->current_status = common::inputGetCMD('status');
+        $this->current_status = common::inputGetCmd('status');
 
         if ($this->current_status !== null and $this->current_status !== 'all') {
             if ($this->current_status == 'trash' and $this->count_trashed == 0)
