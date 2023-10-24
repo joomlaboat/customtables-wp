@@ -171,7 +171,7 @@ class Admin
             'Layouts',                          // Menu Title
             'manage_options',                   // Capability
             'customtables-layouts',             // Menu Slug
-            array($this, 'load_admin_table_list'), // Callback Function
+            array($this, 'load_admin_layout_list'), // Callback Function
             3                                   // Position
         );
         $page_hook = add_action('load-' . $page_hook, array($this, 'preload_admin_layout_list'));
@@ -256,8 +256,20 @@ class Admin
                 );
                 add_action('load-' . $page_hook, array($this, 'load_customtablesAdminFieldsEdit'));
                 break;
-        }
 
+            case 'customtables-layouts-edit':
+                $page_hook = add_submenu_page(
+                    'customtables',                     // Parent Menu Slug
+                    __('Edit Layout - Custom Tables', $this->plugin_text_domain), // Page Title
+                    __(' - Edit', $this->plugin_text_domain),                     // Menu Title
+                    'manage_options',                                         // Capability
+                    'customtables-layouts-edit',                               // Menu Slug
+                    array($this, 'load_customtablesAdminLayoutsEdit'),        // Callback Function
+                    3                                                        // Position
+                );
+                add_action('load-' . $page_hook, array($this, 'load_customtablesAdminLayoutsEdit'));
+                break;
+        }
     }
 
     protected function getCustomTablesIcon()
@@ -463,6 +475,7 @@ class Admin
     public function load_customtablesAdminLayoutsEdit()
     {
         $this->admin_layout_edit = new Admin_Layout_Edit($this->plugin_text_domain);
+        echo 'sssss ';
         $this->admin_layout_edit->handle_layout_actions();
         include_once('views' . DIRECTORY_SEPARATOR . 'customtables-layouts-edit.php');
     }

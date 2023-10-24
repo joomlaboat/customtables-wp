@@ -1,6 +1,6 @@
 <?php
 /**
- * CustomTables Joomla! 3.x/4.x Native Component
+ * CustomTables Joomla! 3.x/4.x/5.x Native Component and WordPress 6.x Plugin
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
@@ -119,8 +119,11 @@ class Environment
         $this->clean = (bool)common::inputGetInt('clean', 0);
         $this->isModal = (bool)common::inputGetInt('modal', 0);
         $this->frmt = common::inputGetCmd('frmt', 'html');
-        if (common::inputGetCmd('layout', '') == 'json')
-            $this->frmt = 'json';
+
+        if (defined('_JEXEC')) {
+            if (common::inputGetCmd('layout', '') == 'json')
+                $this->frmt = 'json';
+        }
 
         if (defined('_JEXEC')) {
             $mainframe = Factory::getApplication();

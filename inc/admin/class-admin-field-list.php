@@ -222,26 +222,46 @@ class Admin_Field_List extends Libraries\WP_List_Table
         return $sortable_columns;
     }
 
+    /**
+     * Generates clickable tools in the first column "fieldname" like delete, trash, edit.
+     *
+     * @param array $item The table row item.
+     *
+     * @return string The table row with the clickable tools added.
+     */
     function column_fieldname($item)
     {
-        $actions = [];
-
         $url = 'admin.php?page=customtables-fields';
-        if ($this->current_status != null)
+        if ($this->current_status !== null) {
             $url .= '&status=' . $this->current_status;
+        }
 
-        if ($this->current_status == 'trash') {
+        $actions = [];
+        if ($this->current_status === 'trash') {
             $actions['restore'] = sprintf('<a href="' . $url . '&action=restore&table=%s&field=%s&_wpnonce=%s">' . __('Restore', 'customtables') . '</a>',
-                $this->tableId,$item['id'], urlencode(wp_create_nonce('restore_nonce')));
+                $this->tableId,
+                $item['id'],
+                urlencode(wp_create_nonce('restore_nonce'))
+            );
 
             $actions['delete'] = sprintf('<a href="' . $url . '&action=delete&table=%s&field=%s&_wpnonce=%s">' . __('Delete Permanently', 'customtables') . '</a>',
-                $this->tableId,$item['id'], urlencode(wp_create_nonce('delete_nonce')));
+                $this->tableId,
+                $item['id'],
+                urlencode(wp_create_nonce('delete_nonce'))
+            );
         } else {
             $actions['edit'] = sprintf('<a href="?page=customtables-fields-edit&action=edit&table=%s&field=%s">' . __('Edit', 'customtables') . '</a>',
-                $this->tableId,$item['id']);
+                $this->tableId,
+                $item['id']
+            );
+
             $actions['trash'] = sprintf('<a href="' . $url . '&action=trash&table=%s&field=%s&_wpnonce=%s">' . __('Trash', 'customtables') . '</a>',
-                $this->tableId,$item['id'], urlencode(wp_create_nonce('trash_nonce')));
+                $this->tableId,
+                $item['id'],
+                urlencode(wp_create_nonce('trash_nonce'))
+            );
         }
+
         return sprintf('%1$s %2$s', $item['fieldname'], $this->row_actions($actions));
     }
 
@@ -256,22 +276,6 @@ class Admin_Field_List extends Libraries\WP_List_Table
     {
         _e('No fields found.', $this->plugin_text_domain);
     }
-
-    /*
-    public function filter_table_data($table_data, $search_key)
-    {
-        $filtered_table_data = array_values(array_filter($table_data, function ($row) use ($search_key) {
-            foreach ($row as $row_val) {
-                if (stripos($row_val, $search_key) !== false) {
-                    return true;
-                }
-            }
-        }));
-
-        return $filtered_table_data;
-
-    }
-    */
 
     /**
      * Render a column when no column specific method exists.

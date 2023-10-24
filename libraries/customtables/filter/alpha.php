@@ -3,7 +3,7 @@
 use CustomTables\database;
 
 /**
- * CustomTables Joomla! 3.x/4.x Native Component
+ * CustomTables Joomla! 3.x/4.x/5.x Native Component and WordPress 6.x Plugin
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
@@ -26,7 +26,7 @@ class Alpha
 {
 	function getAlphaWhere($alpha,&$wherearr)
 	{
-		$alpha = common::inputGet('alpha','','STRING')
+		$alpha = common::inputGetString('alpha','')
 			
 				if($this->ct->Params->blockExternalVars)
 						return;
@@ -50,7 +50,7 @@ class Alpha
 						$query = 'SELECT familytreestr, optionname '
 								.' FROM #__customtables_options'
 								.' WHERE INSTR(familytree,"-'.$parentid.'-") AND SUBSTRING(title'.$this->ct->Languages->Postfix.',1,1)="'.
-								common::inputGet('alpha','','STRING').'"'
+								common::inputGetString('alpha','').'"'
 								.' ';
 
 						$rows = database::loadAssocList($query);
