@@ -7,8 +7,6 @@ use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\Fields;
 use CustomTablesWP\Inc\Libraries;
-use CustomTables\ListOfTables;
-use ESTables;
 
 /**
  * Class for displaying registered WordPress Users
@@ -34,7 +32,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
     public CT $ct;
     public $helperListOfFields;
     public ?int $tableId;
-
+    public array $fieldTypes;
     protected int $count_all;
     protected int $count_trashed;
     protected int $count_published;
@@ -48,6 +46,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
 	 *
 	 * @since 1.0.0
 	 */
+
     public function __construct($plugin_text_domain)
     {
         require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoffields.php');
@@ -79,6 +78,8 @@ class Admin_Field_List extends Libraries\WP_List_Table
         $this->tableId = common::inputGetInt('table');
         if ($this->tableId)
             $this->ct->getTable($this->tableId);
+
+        $this->fieldTypes = $this->helperListOfFields->getFieldTypesFromXML();
     }
 
     /**
@@ -120,7 +121,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
     function get_data()
     {
         // Fetch and return your data here
-        if($this->tableId === null or $this->ct->Table->tablename === null)
+        if ($this->tableId === null or $this->ct->Table->tablename === null)
             return [];
 
         $search = common::inputGetString('s');
@@ -134,7 +135,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
             default => null
         };
 
-        $query = $this->helperListOfFields->getListQuery($this->tableId,$published, $search, null, $orderby, $order);
+        $query = $this->helperListOfFields->getListQuery($this->tableId, $published, $search, null, $orderby, $order);
         $data = database::loadAssocList($query);
         $newData = [];
         foreach ($data as $item) {
@@ -143,7 +144,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
             if ($item['published'] == -2)
                 $label = '<span>' . $item['fieldname'] . '</span>';
             else
-                $label = '<a class="row-title" href="?page=customtables-fields-edit&action=edit&table='.$this->tableId.'&field=' . $item['id'] . '">' . $item['fieldname'] . '</a>'
+                $label = '<a class="row-title" href="?page=customtables-fields-edit&action=edit&table=' . $this->tableId . '&field=' . $item['id'] . '">' . $item['fieldname'] . '</a>'
                     . (($this->current_status != 'unpublished' and $item['published'] == 0) ? ' — <span class="post-state">Draft</span>' : '');
 
             $item['fieldname'] = '<strong>' . $label . '</strong>';
@@ -173,9 +174,19 @@ class Admin_Field_List extends Libraries\WP_List_Table
             $item['fieldtitle'] = $result;
             $item['typeparams'] = str_replace('****apos****', "'", str_replace('****quote****', '"', $this->helperListOfFields->escape($item['typeparams'])));
             $item['table'] = str_replace('****apos****', "'", str_replace('****quote****', '"', $this->helperListOfFields->escape($item['tabletitle'])));
+            $item['type'] = $this->getFieldTypeLabel($item['type']);
             $newData[] = $item;
         }
         return $newData;
+    }
+
+    protected function getFieldTypeLabel($typeName): string
+    {
+        foreach ($this->fieldTypes as $type)
+            if($type['name'] == $typeName)
+                return $type['label'];
+
+        return '<span style="color:red">Unknown Type</span>';
     }
 
     /**
@@ -338,7 +349,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
 
     public function get_views()
     {
-        $link = 'admin.php?page=customtables-fields&table='.$this->tableId;
+        $link = 'admin.php?page=customtables-fields&table=' . $this->tableId;
 
         $views = [];
 
@@ -451,13 +462,11 @@ class Admin_Field_List extends Libraries\WP_List_Table
                 $this->invalid_nonce_redirect();
             } else {
                 $fieldId = common::inputGetInt('field');
-                if($fieldId !== null) {
+                if ($fieldId !== null) {
                     Fields::deleteField_byID($this->ct, $fieldId);
                     //echo '<div id="message" class="updated notice is-dismissible"><p>1 field permanently deleted.</p></div>';
                     $this->graceful_redirect();
-                }
-                else
-                {
+                } else {
                     echo '<div id="message" class="updated error is-dismissible"><p>Field not selected.</p></div>';
                 }
             }
@@ -511,7 +520,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
     public function graceful_redirect(?string $url = null)
     {
         if ($url === null)
-            $url = 'admin.php?page=customtables-fields&table='.$this->tableId;
+            $url = 'admin.php?page=customtables-fields&table=' . $this->tableId;
 
         if ($this->current_status != null)
             $url .= '&status=' . $this->current_status;
@@ -536,7 +545,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
         $field_id = (int)(isset($_POST['field']) ? $_POST['field'][0] : '');
 
         // Redirect to the edit page with the appropriate parameters
-        $this->graceful_redirect('admin.php?page=customtables-fields-edit&action=edit&table='.$this->tableId.'&field=' . $field_id);
+        $this->graceful_redirect('admin.php?page=customtables-fields-edit&action=edit&table=' . $this->tableId . '&field=' . $field_id);
     }
 
     function handle_table_actions_publish(int $state): void

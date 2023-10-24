@@ -4,7 +4,8 @@
  * The admin area of the plugin to load the User List Table
  */
 
-
+include_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-documentation.php');
+$documentation = new \CustomTables\Documentation(true);
 
 ?>
 

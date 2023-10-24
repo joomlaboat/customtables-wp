@@ -492,10 +492,6 @@ class Admin
 
     public function load_customtablesAdminDocumentation()
     {
-        // render the List Table
-        include_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-documentation.php');
-        $documentation = new \CustomTables\Documentation();
-
         include_once('views' . DIRECTORY_SEPARATOR . 'customtables-documentation.php');
     }
 }

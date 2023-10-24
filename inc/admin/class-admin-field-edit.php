@@ -22,6 +22,7 @@ class Admin_Field_Edit
     public $helperListOfFields;
     public ?int $fieldId;
     public array $fieldRow;
+    public array $fieldTypes;
     /*
 	 *
 	 *
@@ -49,6 +50,8 @@ class Admin_Field_Edit
                     $this->fieldRow = Fields::getFieldRow($this->fieldId,true);
             }
         }
+
+        $this->fieldTypes = $this->helperListOfFields->getFieldTypesFromXML(true);
     }
 
     function handle_field_actions()

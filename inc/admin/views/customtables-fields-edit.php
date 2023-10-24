@@ -91,7 +91,8 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                             </th>
                             <td>
                                 <input name="fieldname" type="text" id="fieldname"
-                                       value="<?php echo esc_attr($this->admin_field_edit->fieldRow['fieldname']); ?>" aria-required="true"
+                                       value="<?php echo esc_attr($this->admin_field_edit->fieldRow['fieldname']); ?>"
+                                       aria-required="true"
                                        autocapitalize="none" autocorrect="off" autocomplete="off" maxlength="60"/>
                             </td>
                         </tr>
@@ -126,6 +127,26 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 
                             <?php $moreThanOneLang = true; ?>
                         <?php endforeach; ?>
+
+                        <!-- Field Type Field -->
+                        <tr class="form-field form-required">
+                            <th scope="row">
+                                <label for="type">
+                                    <?php echo __('Field Type', $this->plugin_text_domain); ?>
+                                    <span class="description">(<?php echo __('required', $this->plugin_text_domain); ?>)</span>
+                                </label>
+                            </th>
+                            <td>
+                                <?php
+                                $selectBoxOptions = [];
+
+                                foreach ($this->admin_field_edit->fieldTypes as $type)
+                                    $selectBoxOptions[] = '<option value="' . $type['name'] . '">' . $type['label'] . '</option>';
+
+                                echo '<select name="type" id="type">' . implode('', $selectBoxOptions) . '</select>';
+                                ?>
+                            </td>
+                        </tr>
                     </table>
 
                     <!-- Submit Button -->
