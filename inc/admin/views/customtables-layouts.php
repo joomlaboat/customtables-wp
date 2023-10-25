@@ -12,7 +12,7 @@ $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
 ?>
 <div class="wrap">
     <h1 class="wp-heading-inline"><?php _e('Custom Tables - Layouts', $this->plugin_text_domain); ?></h1>
-    <a href="admin.php?page=customtables-layouts-edit" class="page-title-action"><?php _e('Add New', $this->plugin_text_domain); ?></a>
+    <a href="admin.php?page=customtables-layouts-edit&layout=0" class="page-title-action"><?php _e('Add New', $this->plugin_text_domain); ?></a>
 
     <div id="customtables">
         <div id="customtables-post-body">

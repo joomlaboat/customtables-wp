@@ -141,7 +141,7 @@ class SaveFieldQuerySet
                         }
 
                     } else
-                        $value = common::inputGet($this->field->comesfieldname, '', 'ALNUM');
+                        $value = common::inputGetAlnum($this->field->comesfieldname, '');
 
                     $value = strtolower($value);
                     $value = str_replace('#', '', $value);
@@ -302,7 +302,7 @@ class SaveFieldQuerySet
                 return ($value === null ? null : $this->field->realfieldname . '=' . database::quote($value));
 
             case 'float':
-                $value = common::inputGet($this->field->comesfieldname, null, 'FLOAT');
+                $value = common::inputGetFloat($this->field->comesfieldname);
 
                 if (isset($value)) {
                     $this->row[$this->field->realfieldname] = $value;

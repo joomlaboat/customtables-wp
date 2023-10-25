@@ -37,6 +37,10 @@ class Admin_layout_Edit
         $this->plugin_text_domain = $plugin_text_domain;
 
         $this->layoutId = common::inputGetInt('layout');
+
+        if($this->layoutId === 0)
+            $this->layoutId = null;
+
         if($this->layoutId !== null) {
             $layout = new Layouts($this->ct);
             $this->layoutRow = $layout->getLayoutRowById($this->layoutId);

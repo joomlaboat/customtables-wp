@@ -224,10 +224,12 @@ class Admin
                 die($xml);
 
             case 'customtables-tables-edit':
+
+                $tableId = common::inputGetInt('table');
                 $page_hook = add_submenu_page(
                     'customtables',                     // Parent Menu Slug
-                    __('Edit Table - Custom Tables', $this->plugin_text_domain), // Page Title
-                    __(' - Edit', $this->plugin_text_domain),                     // Menu Title
+                    __(($tableId === 0 ? 'Add Table' : 'Edit Table') . ' - Custom Tables', $this->plugin_text_domain), // Page Title
+                    __(($tableId === 0 ? ' -- Add' : ' -- Edit'), $this->plugin_text_domain),                     // Menu Title
                     'manage_options',                                         // Capability
                     'customtables-tables-edit',                               // Menu Slug
                     array($this, 'load_customtablesAdminTablesEdit'),        // Callback Function
@@ -255,7 +257,7 @@ class Admin
             case 'customtables-fields-edit':
 
                 $tableId = common::inputGetInt('table');
-                $page_hook = add_submenu_page(
+                add_submenu_page(
                     'customtables',                     // Parent Menu Slug
                     __('Fields - Custom Tables', $this->plugin_text_domain), // Page Title
                     __(' - Fields', $this->plugin_text_domain),                     // Menu Title
@@ -264,12 +266,12 @@ class Admin
                     array($this, 'load_admin_field_list'),        // Callback Function
                     2                                                        // Position
                 );
-                //add_action('load-' . $page_hook, array($this, 'preload_admin_field_list'));
 
+                $fieldId = common::inputGetInt('field');
                 $page_hook = add_submenu_page(
                     'customtables',                     // Parent Menu Slug
-                    __('Edit Field - Custom Tables', $this->plugin_text_domain), // Page Title
-                    __(' -- Edit', $this->plugin_text_domain),                     // Menu Title
+                    __(($fieldId == 0 ? 'Add Field' : 'Edit Field') . ' - Custom Tables', $this->plugin_text_domain), // Page Title
+                    __(($fieldId == 0 ? ' -- Add' : ' -- Edit'), $this->plugin_text_domain),                     // Menu Title
                     'manage_options',                                         // Capability
                     'customtables-fields-edit',                               // Menu Slug
                     array($this, 'load_customtablesAdminFieldsEdit'),        // Callback Function
@@ -277,19 +279,6 @@ class Admin
                 );
                 add_action('load-' . $page_hook, array($this, 'load_customtablesAdminFieldsEdit'));
                 break;
-
-
-
-
-
-
-
-
-
-
-
-
-
 
             case 'customtables-records':
 
@@ -308,7 +297,7 @@ class Admin
             case 'customtables-records-edit':
 
                 $tableId = common::inputGetInt('table');
-                $page_hook = add_submenu_page(
+                add_submenu_page(
                     'customtables',                     // Parent Menu Slug
                     __('Records - Custom Tables', $this->plugin_text_domain), // Page Title
                     __(' - Records', $this->plugin_text_domain),                     // Menu Title
@@ -318,10 +307,11 @@ class Admin
                     2                                                        // Position
                 );
 
+                $id = common::inputGetInt('id');
                 $page_hook = add_submenu_page(
                     'customtables',                     // Parent Menu Slug
-                    __('Edit Record - Custom Tables', $this->plugin_text_domain), // Page Title
-                    __(' -- Edit', $this->plugin_text_domain),                     // Menu Title
+                    __(($id == 0 ? 'Add Record' : 'Edit Record') . ' - Custom Tables', $this->plugin_text_domain), // Page Title
+                    __(($id == 0 ? ' -- Add' : ' -- Edit'), $this->plugin_text_domain),                     // Menu Title
                     'manage_options',                                         // Capability
                     'customtables-records-edit',                               // Menu Slug
                     array($this, 'load_customtablesAdminRecordsEdit'),        // Callback Function
@@ -330,14 +320,13 @@ class Admin
                 add_action('load-' . $page_hook, array($this, 'load_customtablesAdminRecordsEdit'));
                 break;
 
-
-
-
             case 'customtables-layouts-edit':
+
+                $layoutId = common::inputGetInt('layout');
                 $page_hook = add_submenu_page(
                     'customtables',                     // Parent Menu Slug
-                    __('Edit Layout - Custom Tables', $this->plugin_text_domain), // Page Title
-                    __(' - Edit', $this->plugin_text_domain),                     // Menu Title
+                    __(($layoutId == 0 ? 'Add Layout' : 'Edit Layout') . ' - Custom Tables', $this->plugin_text_domain), // Page Title
+                    __(($layoutId == 0 ? ' -- Add' : ' -- Edit'), $this->plugin_text_domain),                     // Menu Title
                     'manage_options',                                         // Capability
                     'customtables-layouts-edit',                               // Menu Slug
                     array($this, 'load_customtablesAdminLayoutsEdit'),        // Callback Function
@@ -532,6 +521,18 @@ class Admin
     {
         $this->admin_table_edit = new Admin_Table_Edit($this->plugin_text_domain);
         $this->admin_table_edit->handle_table_actions();
+
+        $page = common::inputGetCmd('page');
+        if ($page == 'customtables-tables-edit') {
+            $tableId = common::inputGetInt('table');
+
+            if ($tableId === null)
+            {
+                $url = 'admin.php?page=customtables-tables';
+                wp_redirect($url);
+                exit();
+            }
+        }
         include_once('views' . DIRECTORY_SEPARATOR . 'customtables-tables-edit.php');
     }
 

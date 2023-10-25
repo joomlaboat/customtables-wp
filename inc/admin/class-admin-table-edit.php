@@ -34,6 +34,10 @@ class Admin_Table_Edit
         $this->plugin_text_domain = $plugin_text_domain;
 
         $this->tableId = common::inputGetInt('table');
+
+        if($this->tableId === 0)
+            $this->tableId = null;
+
         if($this->tableId !== null)
             $this->ct->getTable($this->tableId);
     }

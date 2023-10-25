@@ -726,6 +726,9 @@ class Fields
 
     public static function saveField(?int $tableId, ?int $fieldId): ?int
     {
+        if ($fieldId == 0)
+            $fieldId = null; // new field
+        
         require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'utilities' . DIRECTORY_SEPARATOR . 'importtables.php');
 
         $ct = new CT;

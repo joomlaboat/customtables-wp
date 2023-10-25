@@ -25,7 +25,7 @@ $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
 
     <?php
     if (isset($this->admin_field_list->ct->Table) and $this->admin_field_list->ct->Table->tablename !== null) {
-        echo '<a href="admin.php?page=customtables-fields-edit&table='.$this->admin_field_list->tableId.'" class="page-title-action">'
+        echo '<a href="admin.php?page=customtables-fields-edit&table='.$this->admin_field_list->tableId.'&field=0" class="page-title-action">'
             . __('Add New', $this->plugin_text_domain) . '</a>';
     }
     ?>

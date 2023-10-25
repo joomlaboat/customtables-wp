@@ -23,7 +23,7 @@ $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
 
     <?php
     if (isset($this->admin_record_list->ct->Table) and $this->admin_record_list->ct->Table->tablename !== null) {
-        echo '<a href="admin.php?page=customtables-records-edit&table='.$this->admin_record_list->tableId.'" class="page-title-action">'
+        echo '<a href="admin.php?page=customtables-records-edit&table='.$this->admin_record_list->tableId.'&id=0" class="page-title-action">'
             . __('Add New', $this->plugin_text_domain) . '</a>';
     }
     ?>

@@ -48,6 +48,10 @@ class Admin_Field_Edit
             $this->ct->getTable($this->tableId);
             if($this->ct->Table->tablename !== null) {
                 $this->fieldId = common::inputGetInt('field');
+
+                if ($this->fieldId === 0)
+                    $this->fieldId = null;
+
                 if ($this->fieldId !== null)
                     $this->fieldRow = Fields::getFieldRow($this->fieldId,true);
             }

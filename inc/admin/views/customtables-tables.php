@@ -14,7 +14,7 @@ $result = IntegrityChecks::check($this->admin_table_list->ct, true, false);
 ?>
 <div class="wrap">
     <h1 class="wp-heading-inline"><?php _e('Custom Tables - Tables', $this->plugin_text_domain); ?></h1>
-    <a href="admin.php?page=customtables-tables-edit" class="page-title-action"><?php _e('Add New', $this->plugin_text_domain); ?></a>
+    <a href="admin.php?page=customtables-tables-edit&table=0" class="page-title-action"><?php _e('Add New', $this->plugin_text_domain); ?></a>
     <hr class="wp-header-end">
 
     <?php if (count($result) > 0): ?>
