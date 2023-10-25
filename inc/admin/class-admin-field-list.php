@@ -481,19 +481,19 @@ class Admin_Field_List extends Libraries\WP_List_Table
         // check for field bulk actions
 
         if ($this->is_table_action('customtables-fields-edit'))
-            $this->handle_table_actions_edit();
+            $this->handle_field_actions_edit();
 
         if ($this->is_table_action('customtables-fields-publish'))
-            $this->handle_table_actions_publish(1);
+            $this->handle_field_actions_publish(1);
 
         if ($this->is_table_action('customtables-fields-unpublish') or $this->is_table_action('customtables-fields-restore'))
-            $this->handle_table_actions_publish(0);
+            $this->handle_field_actions_publish(0);
 
         if ($this->is_table_action('customtables-fields-trash'))
-            $this->handle_table_actions_publish(-2);
+            $this->handle_field_actions_publish(-2);
 
         if ($this->is_table_action('customtables-fields-delete'))
-            $this->handle_table_actions_delete();
+            $this->handle_field_actions_delete();
     }
 
     /**
@@ -556,7 +556,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
         return false;
     }
 
-    function handle_table_actions_edit()
+    function handle_field_actions_edit()
     {
         // Assuming $_POST['field'] contains the selected items
         $field_id = (int)(isset($_POST['field']) ? $_POST['field'][0] : '');
@@ -565,7 +565,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
         $this->graceful_redirect('admin.php?page=customtables-fields-edit&action=edit&table=' . $this->tableId . '&field=' . $field_id);
     }
 
-    function handle_table_actions_publish(int $state): void
+    function handle_field_actions_publish(int $state): void
     {
         $nonce = wp_unslash($_REQUEST['_wpnonce']);
         // verify the nonce.
@@ -574,13 +574,12 @@ class Admin_Field_List extends Libraries\WP_List_Table
         } else {
             $fields = (isset($_POST['field']) ? $_POST['field'] : []);
             $sets = [];
+            $sets[] = 'published=' . $state;
             $wheres = [];
-            foreach ($fields as $field) {
-                $sets[] = 'published=' . $state;
+            foreach ($fields as $field)
                 $wheres[] = 'id=' . (int)$field;
-            }
 
-            if (count($sets) > 0) {
+            if (count($wheres) > 0) {
                 database::updateSets('#__customtables_fields', $sets, ['(' . implode(' OR ', $wheres) . ')']);
                 $this->graceful_redirect();
             }
@@ -588,7 +587,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
         }
     }
 
-    function handle_table_actions_delete()
+    function handle_field_actions_delete()
     {
         $fields = (isset($_POST['field']) ? $_POST['field'] : []);
         if (count($fields) > 0) {

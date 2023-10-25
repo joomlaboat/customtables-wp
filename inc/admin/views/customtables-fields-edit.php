@@ -151,7 +151,10 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                                 $selectBoxOptions = [];
 
                                 foreach ($this->admin_field_edit->fieldTypes as $type)
-                                    $selectBoxOptions[] = '<option value="' . $type['name'] . '">' . $type['label'] . '</option>';
+                                {
+                                    $selected = $this->admin_field_edit->fieldRow['type'] == $type['name'];
+                                    $selectBoxOptions[] = '<option value="' . $type['name'] . '"'.($selected ? 'selected="selected"' : '').'>' . $type['label'] . '</option>';
+                                }
 
                                 echo '<select name="type" id="type" onchange="typeChanged();">' . implode('', $selectBoxOptions) . '</select>';
                                 ?>

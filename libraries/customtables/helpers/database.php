@@ -216,6 +216,9 @@ class database
         return floatval($result[0]['@@version']);
     }
 
+    /**
+     * @throws Exception
+     */
     public static function loadAssocList($query, $limitStart = null, $limit = null)
     {
         if (defined('_JEXEC')) {

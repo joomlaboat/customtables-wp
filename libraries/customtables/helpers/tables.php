@@ -265,7 +265,7 @@ class ESTables
     public static function getTableName($tableid = 0): ?string
     {
         if ($tableid == 0)
-            $tableid = common::inputGet('tableid', 0, 'INT');
+            $tableid = common::inputGetInt('tableid', 0);
 
         $query = 'SELECT tablename FROM #__customtables_tables AS s WHERE id=' . (int)$tableid . ' LIMIT 1';
         $rows = database::loadObjectList($query);

@@ -140,7 +140,7 @@ class CT
         $this->alias_fieldname = null;
     }
 
-    function setFilter($filter_string = '', $showpublished = 0): void
+    function setFilter(string $filter_string = '', int $showpublished = 0): void
     {
         $this->Filter = new Filtering($this, $showpublished);
         if ($filter_string != '')
@@ -180,7 +180,14 @@ class CT
                     if ($this->Table->recordcount < $this->LimitStart or $this->Table->recordcount < $the_limit)
                         $this->LimitStart = 0;
 
-                    $this->Records = database::loadAssocList($query, $this->LimitStart, $the_limit);
+                    try {
+
+                        $this->Records = @database::loadAssocList($query, $this->LimitStart, $the_limit);
+                    } catch (\Exception $e) {
+                        echo $query;
+                        echo $e->getMessage();
+                        return false;
+                    }
                 }
             }
         } else
@@ -251,9 +258,9 @@ class CT
 
     function getRecordsByKeyword(): void
     {
-        $moduleId = common::inputGet('moduleid', 0, 'INT');
+        $moduleId = common::inputGetInt('moduleid', 0);
         if ($moduleId != 0) {
-            $keywordSearch = common::inputGet('eskeysearch_' . $moduleId, '', 'STRING');
+            $keywordSearch = common::inputGetString('eskeysearch_' . $moduleId, '');
             if ($keywordSearch != '') {
                 require_once(JPATH_SITE . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_customtables' . DIRECTORY_SEPARATOR
                     . 'libraries' . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'filter' . DIRECTORY_SEPARATOR . 'keywordsearch.php');

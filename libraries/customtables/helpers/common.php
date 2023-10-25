@@ -172,12 +172,54 @@ class common
         }
     }
 
+    public static function inputGetBase64(string $parameter, $default = null)
+    {
+        if (defined('_JEXEC')) {
+            return Factory::getApplication()->input->get($parameter, $default, 'BASE64');
+        } else {
+            // Allow a-z, 0-9, underscore, dot, dash. Also remove leading dots from result.
+            if (!isset($_REQUEST[$parameter]))
+                return $default;
+
+            // Allow a-z, 0-9, slash, plus, equals.
+            return (string)preg_replace('/[^A-Z0-9\/+=]/i', '', $_REQUEST[$parameter]);
+        }
+    }
+
+    public static function inputGetWord(string $parameter, $default = null)
+    {
+        if (defined('_JEXEC')) {
+            return Factory::getApplication()->input->get($parameter, $default, 'BASE64');
+        } else {
+            // Allow a-z, 0-9, underscore, dot, dash. Also remove leading dots from result.
+            if (!isset($_REQUEST[$parameter]))
+                return $default;
+
+            // Only allow characters a-z, and underscores
+            return (string)preg_replace('/[^A-Z_]/i', '', $_REQUEST[$parameter]);
+        }
+    }
+
+    public static function inputGetAlnum(string $parameter, $default = null)
+    {
+        if (defined('_JEXEC')) {
+            return Factory::getApplication()->input->get($parameter, $default, 'ALNUM');
+        } else {
+            // Allow a-z, 0-9, underscore, dot, dash. Also remove leading dots from result.
+            if (!isset($_REQUEST[$parameter]))
+                return $default;
+
+            // Allow a-z and 0-9 only
+            return (string)preg_replace('/[^A-Z0-9]/i', '', $_REQUEST[$parameter]);
+        }
+    }
+
     public static function inputGet(string $parameter, $default, string $filter)
     {
         if (defined('_JEXEC')) {
             return Factory::getApplication()->input->get($parameter, $default, $filter);
         } else {
-            die('common::inputGet not supported in WordPress');
+            echo 'common::inputGet not supported in WordPress';
         }
     }
 
@@ -186,7 +228,7 @@ class common
         if (defined('_JEXEC')) {
             return Factory::getApplication()->input->post->get($parameter, $default, $filter);
         } else {
-            die('common::inputPost not supported in WordPress');
+            echo 'common::inputPost not supported in WordPress';
         }
     }
 
@@ -195,7 +237,7 @@ class common
         if (defined('_JEXEC')) {
             Factory::getApplication()->input->set($parameter, $value);
         } else {
-            die('common::inputSet not supported in WordPress');
+            echo 'common::inputSet not supported in WordPress';
         }
     }
 
@@ -204,7 +246,7 @@ class common
         if (defined('_JEXEC')) {
             return Factory::getApplication()->input->files->get($fileId);
         } else {
-            die('common::inputFiles not supported in WordPress');
+            echo 'common::inputFiles not supported in WordPress';
         }
     }
 

@@ -543,13 +543,12 @@ class Admin_Table_List extends Libraries\WP_List_Table
         } else {
             $tables = (isset($_POST['table']) ? $_POST['table'] : []);
             $sets = [];
+            $sets[] = 'published=' . $state;
             $wheres = [];
-            foreach ($tables as $table) {
-                $sets[] = 'published=' . $state;
+            foreach ($tables as $table)
                 $wheres[] = 'id=' . (int)$table;
-            }
 
-            if (count($sets) > 0) {
+            if (count($wheres) > 0) {
                 database::updateSets('#__customtables_tables', $sets, ['(' . implode(' OR ', $wheres) . ')']);
                 $this->graceful_redirect();
             }

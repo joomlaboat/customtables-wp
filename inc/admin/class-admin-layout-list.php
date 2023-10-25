@@ -495,13 +495,12 @@ class Admin_Layout_List extends Libraries\WP_List_Table
         } else {
             $layouts = (isset($_POST['layout']) ? $_POST['layout'] : []);
             $sets = [];
+            $sets[] = 'published=' . $state;
             $wheres = [];
-            foreach ($layouts as $layout) {
-                $sets[] = 'published=' . $state;
+            foreach ($layouts as $layout)
                 $wheres[] = 'id=' . (int)$layout;
-            }
 
-            if (count($sets) > 0) {
+            if (count($wheres) > 0) {
                 database::updateSets('#__customtables_layouts', $sets, ['(' . implode(' OR ', $wheres) . ')']);
                 $this->graceful_redirect();
             }
