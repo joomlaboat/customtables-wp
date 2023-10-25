@@ -5,6 +5,7 @@ namespace CustomTablesWP\Inc\Admin;
 use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\database;
+use CustomTables\Fields;
 use CustomTablesWP\Inc\Libraries;
 use CustomTables\ListOfTables;
 use ESTables;
@@ -158,7 +159,7 @@ class Admin_Table_List extends Libraries\WP_List_Table
                         Fields::addLanguageField('#__customtables_tables', 'description', $tableDescription);
                     }
                 }
-                $result .= '<li>' . (count($this->ct->Languages->LanguageList) > 1 ? $lang->title . ': ' : '') . '<b>' . $item[$tableTitle] . '</b></li>';
+                $result .= '<li>' . (count($this->ct->Languages->LanguageList) > 1 ? $lang->title . ': ' : '') . '<b>' . ($item[$tableTitle] ?? '') . '</b></li>';
                 $moreThanOneLang = true; //More than one language installed
             }
 

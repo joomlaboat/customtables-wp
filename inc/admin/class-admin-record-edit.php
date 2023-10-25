@@ -47,7 +47,7 @@ class Admin_Record_Edit
 
                 if($this->listing_id === 0)
                     $this->listing_id = null;
-                
+
                 if ($this->listing_id !== null) {
                     $this->recordRow = $this->ct->Table->loadRecord($this->listing_id);
                 }
