@@ -22,6 +22,7 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Component\ComponentHelper;
 use CustomTablesKeywordSearch;
+use Joomla\Registry\Registry;
 use mysql_xdevapi\Exception;
 use CustomTables\CustomPHP\CleanExecute;
 
@@ -46,7 +47,7 @@ class CT
     var $app;
     var $document;
 
-    function __construct(?\Joomla\Registry\Registry $menuParams = null, $blockExternalVars = true, ?string $ModuleId = null, bool $enablePlugin = true)
+    function __construct(?Registry $menuParams = null, $blockExternalVars = true, ?string $ModuleId = null, bool $enablePlugin = true)
     {
         if (defined('_JEXEC')) {
             $this->app = Factory::getApplication();
@@ -140,7 +141,7 @@ class CT
         $this->alias_fieldname = null;
     }
 
-    function setFilter(string $filter_string = '', int $showpublished = 0): void
+    function setFilter(?string $filter_string = null, int $showpublished = 0): void
     {
         $this->Filter = new Filtering($this, $showpublished);
         if ($filter_string != '')
@@ -491,17 +492,17 @@ class CT
         //Apply default values
         foreach ($this->Table->fields as $fieldRow) {
 
-            if (!$saveField->checkIfFieldAlreadyInTheList($fieldRow['fieldname'])) {
-                $saveFieldSet = $saveField->applyDefaults($fieldRow);
-                if ($saveFieldSet !== null) {
-                    $saveField->saveQuery[] = $saveFieldSet;
-                }
+            if (!$saveField->checkIfFieldAlreadyInTheList($fieldRow['realfieldname'])) {
+                $saveField->applyDefaults($fieldRow);
+                //if ($saveFieldSet !== null) {
+                //$saveField->saveQuery[] = $saveFieldSet;
+                //}
             }
         }
 
-        if (count($saveField->saveQuery) > 0) {
-            $saveField->runUpdateQuery($saveField->saveQuery, $listing_id);
-        }
+        if (count($saveField->row_new) > 0)
+            database::update($this->Table->realtablename, $saveField->row_new, [$this->Table->realidfieldname => $listing_id]);
+
         //End of Apply default values
 
         common::inputSet("listing_id", $listing_id);
@@ -510,7 +511,7 @@ class CT
             CleanExecute::doPHPonChange($this, $row);
 
         //update MD5s
-        $this->updateMD5($saveField, $listing_id);
+        $this->updateMD5($listing_id);
 
         if ($save_log == 1)
             $this->Table->saveLog($listing_id, 10);
@@ -533,10 +534,9 @@ class CT
         return 1;
     }
 
-    protected function updateMD5(SaveFieldQuerySet $saveField, string $listing_id)
+    protected function updateMD5(string $listing_id): void
     {
         //TODO: Use savefield
-        $saveMD5Query = array();
         foreach ($this->Table->fields as $fieldrow) {
             if ($fieldrow['type'] == 'md5') {
                 $fieldsToCount = explode(',', str_replace('"', '', $fieldrow['typeparams']));//only field names, nothing else
@@ -550,10 +550,13 @@ class CT
                     }
                 }
 
-                if (count($fields) > 1)
-                    $saveMD5Query[] = $fieldrow['realfieldname'] . '=md5(CONCAT_WS(' . implode(',', $fields) . '))';
+                if (count($fields) > 1) {
+                    database::setQuery('UPDATE ' . $this->Table->realtablename . ' SET '
+                        . database::quoteName($fieldrow['realfieldname']) . '=MD5(CONCAT_WS(' . implode(',', $fields) . ')) WHERE '
+                        . database::quoteName($this->Table->realidfieldname) . '=' . database::quote($listing_id)
+                    );
+                }
             }
         }
-        $saveField->runUpdateQuery($saveMD5Query, $listing_id);
     }
 }

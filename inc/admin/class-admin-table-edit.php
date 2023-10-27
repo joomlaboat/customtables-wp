@@ -45,7 +45,12 @@ class Admin_Table_Edit
     function handle_table_actions()
     {
         if(isset($_REQUEST['action']) && ('createtable' === $_REQUEST['action'] || 'savetable' === $_REQUEST['action'])) {
-            $this->helperListOfTables->save($this->tableId);
+            $errors=$this->helperListOfTables->save($this->tableId);
+            if(count($errors)>0)
+            {
+                print_r($errors);
+                die;
+            }
             $url = 'admin.php?page=customtables-tables';
 
             ob_start(); // Start output buffering

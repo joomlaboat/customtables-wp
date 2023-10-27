@@ -5,7 +5,6 @@ namespace CustomTablesWP\Inc\Admin;
 use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\database;
-use CustomTables\Fields;
 use CustomTablesWP\Inc\Libraries;
 
 /**
@@ -236,7 +235,7 @@ class Admin_Record_List extends Libraries\WP_List_Table
      *
      */
 
-    protected function get_sortable_columns()
+    protected function get_sortable_columns(): array
     {
         $sortable_columns = [];
 
@@ -264,7 +263,7 @@ class Admin_Record_List extends Libraries\WP_List_Table
      * @return string The table row with the clickable tools added.
      */
 
-    function column_customtables_record_firstfield($item)
+    function column_customtables_record_firstfield(array $item): string
     {
         $url = 'admin.php?page=customtables-records';
         if ($this->current_status !== null) {
@@ -444,7 +443,7 @@ class Admin_Record_List extends Libraries\WP_List_Table
                     $this->invalid_nonce_redirect();
                 } else {
                     $recordId = common::inputGetInt('id');
-                    database::updateSets($this->ct->Table->realtablename, ['published=0'], [$this->ct->Table->realidfieldname . '=' . database::quote($recordId)]);
+                    database::update($this->ct->Table->realtablename, ['published'=>0], [$this->ct->Table->realidfieldname  =>  $recordId]);
                     //echo '<div id="message" class="updated notice is-dismissible"><p>1 record restored from the Trash.</p></div>';
                     $this->graceful_redirect();
                 }
@@ -457,7 +456,7 @@ class Admin_Record_List extends Libraries\WP_List_Table
                     $this->invalid_nonce_redirect();
                 } else {
                     $recordId = common::inputGetInt('id');
-                    database::updateSets($this->ct->Table->realtablename, ['published=-2'], [$this->ct->Table->realidfieldname . '=' . database::quote($recordId)]);
+                    database::update($this->ct->Table->realtablename, ['published' =>-2], [$this->ct->Table->realidfieldname  =>  $recordId]);
                     //echo '<div id="message" class="updated notice is-dismissible"><p>1 record moved to the Trash.</p></div>';
                     $this->graceful_redirect();
                 }
@@ -522,7 +521,7 @@ class Admin_Record_List extends Libraries\WP_List_Table
     /**
      * Stop execution, redirect and exit
      *
-     * @param string $url
+     * @param ?string $url
      *
      * @return void
      * @since    1.0.0
@@ -566,16 +565,12 @@ class Admin_Record_List extends Libraries\WP_List_Table
             $this->invalid_nonce_redirect();
         } else {
             $records = ($_POST['ids'] ?? []);
-            $sets = [];
-            $sets[] = 'published=' . $state;
-            $wheres = [];
             foreach ($records as $recordId)
-                $wheres[] = $this->ct->Table->realidfieldname.'=' . database::quote($recordId);
+                database::update($this->ct->Table->realtablename, ['published' => $state], ['id' => $recordId]);
 
-            if (count($wheres) > 0) {
-                database::updateSets($this->ct->Table->realtablename, $sets, ['(' . implode(' OR ', $wheres) . ')']);
+            if (count($records) > 0)
                 $this->graceful_redirect();
-            }
+
             echo '<div id="message" class="updated error is-dismissible"><p>Records not selected.</p></div>';
         }
     }

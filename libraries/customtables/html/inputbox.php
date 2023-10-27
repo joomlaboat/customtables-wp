@@ -1333,7 +1333,7 @@ class Inputbox
             . 'data-type="filelink"';
 
         if ($value === null) {
-            $value = SaveFieldQuerySet::get_record_type_value($this->ct, $this->field);
+            $value = SaveFieldQuerySet::get_record_type_value($this->field);
             common::inputGetInt($this->ct->Env->field_prefix . $this->field->fieldname);
             if ($value == '')
                 $value = $this->defaultValue;

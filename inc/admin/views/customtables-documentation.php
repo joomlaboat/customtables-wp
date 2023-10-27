@@ -28,7 +28,7 @@ $documentation = new \CustomTables\Documentation(true,true);
             <?php echo $documentation->getLayoutTags(); ?>
         </div>
 
-        <div class="gtab tab-3"><h1>More about Custom Tables</h1>
+        <div class="gtab tab-3"><h1>More about CustomTables</h1>
 
             <a href="https://joomlaboat.com/custom-tables" target="_blank"
                style="color:#51A351;">More</a>

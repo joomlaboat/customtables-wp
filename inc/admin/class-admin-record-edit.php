@@ -4,10 +4,8 @@ namespace CustomTablesWP\Inc\Admin;
 
 use CustomTables\common;
 use CustomTables\CT;
-use CustomTables\Fields;
 use CustomTables\Layouts;
 use CustomTables\record;
-use CustomTables\Tables;
 
 class Admin_Record_Edit
 {
@@ -18,8 +16,9 @@ class Admin_Record_Edit
      * @access   private
      * @var      string $plugin_text_domain The text domain of this plugin.
      */
-    public $plugin_text_domain;
+    public string $plugin_text_domain;
     public CT $ct;
+    public ?int $tableId;
     public ?int $listing_id;
     public ?array $recordRow;
     public string $formLink;
@@ -74,7 +73,7 @@ class Admin_Record_Edit
             $record->editForm->layoutContent = $Layouts->createDefaultLayout_Edit($this->ct->Table->fields, false);
 
             $listing_id = common::inputGetCmd('id');
-            $saved = $record->save($listing_id, false);
+            $record->save($listing_id, false);
 
             //$this->helperListOfFields->save($this->tableId, $this->fieldId);
             $url = 'admin.php?page=customtables-records&table=' . $this->tableId;

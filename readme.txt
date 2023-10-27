@@ -1,7 +1,7 @@
-=== Custom Tables ===
+=== CustomTables ===
 Contributors: @ivankomlev
 Donate link: https://ct4.us/
-Tags: custom tables, custom fields, database, data table, form builder, catalog, forms
+Tags: custom tables, custom fields, database, data table, form builder, catalog, forms, database management, custom data
 Requires at least: 6.0
 Tested up to: 6.3.2
 Stable tag: 1.0
@@ -9,7 +9,7 @@ Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-The Custom Tables plugin allows you to create, manage, and display custom catalogs, forms and tables.
+The CustomTables plugin allows you to create, manage, and display custom catalogs, forms and tables.
 
 == Description ==
 

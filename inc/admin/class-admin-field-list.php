@@ -442,7 +442,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
                 $this->invalid_nonce_redirect();
             } else {
                 $fieldId = common::inputGetInt('field');
-                database::updateSets('#__customtables_fields', ['published=0'], ['id=' . $fieldId]);
+                database::update('#__customtables_fields', ['published'=>0], ['id'=> $fieldId]);
                 //echo '<div id="message" class="updated notice is-dismissible"><p>1 field restored from the Trash.</p></div>';
                 $this->graceful_redirect();
             }
@@ -455,7 +455,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
                 $this->invalid_nonce_redirect();
             } else {
                 $fieldId = common::inputGetInt('field');
-                database::updateSets('#__customtables_fields', ['published=-2'], ['id=' . $fieldId]);
+                database::update('#__customtables_fields', ['published'=>-2], ['id'=> $fieldId]);
                 //echo '<div id="message" class="updated notice is-dismissible"><p>1 field moved to the Trash.</p></div>';
                 $this->graceful_redirect();
             }
@@ -573,16 +573,12 @@ class Admin_Field_List extends Libraries\WP_List_Table
             $this->invalid_nonce_redirect();
         } else {
             $fields = (isset($_POST['field']) ? $_POST['field'] : []);
-            $sets = [];
-            $sets[] = 'published=' . $state;
-            $wheres = [];
             foreach ($fields as $field)
-                $wheres[] = 'id=' . (int)$field;
+                database::update('#__customtables_fields', ['published' => $state], ['id' => (int)$field]);
 
-            if (count($wheres) > 0) {
-                database::updateSets('#__customtables_fields', $sets, ['(' . implode(' OR ', $wheres) . ')']);
+            if (count($fields) > 0)
                 $this->graceful_redirect();
-            }
+
             echo '<div id="message" class="updated error is-dismissible"><p>Fields not selected.</p></div>';
         }
     }

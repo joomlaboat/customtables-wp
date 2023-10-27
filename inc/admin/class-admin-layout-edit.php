@@ -5,9 +5,9 @@ namespace CustomTablesWP\Inc\Admin;
 use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\Layouts;
-use CustomTables\ListOfTables;
+use CustomTables\ListOfLayouts;
 
-class Admin_layout_Edit
+class Admin_Layout_Edit
 {
     /**
      * The text domain of this plugin.
@@ -16,9 +16,9 @@ class Admin_layout_Edit
      * @access   private
      * @var      string $plugin_text_domain The text domain of this plugin.
      */
-    public $plugin_text_domain;
+    public string $plugin_text_domain;
     public CT $ct;
-    public $helperListOfLayouts;
+    public ListOfLayouts $helperListOfLayouts;
     public ?int $layoutId;
     public ?array $layoutRow;
 
@@ -33,7 +33,7 @@ class Admin_layout_Edit
     {
         require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoflayouts.php');
         $this->ct = new CT;
-        $this->helperListOfLayouts = new \CustomTables\ListOfLayouts($this->ct);
+        $this->helperListOfLayouts = new ListOfLayouts($this->ct);
         $this->plugin_text_domain = $plugin_text_domain;
 
         $this->layoutId = common::inputGetInt('layout');
@@ -51,7 +51,7 @@ class Admin_layout_Edit
         }
     }
 
-    function handle_layout_actions()
+    function handle_layout_actions(): void
     {
         if(isset($_REQUEST['action']) && ('createlayout' === $_REQUEST['action'] || 'savelayout' === $_REQUEST['action'])) {
             $this->helperListOfLayouts->save($this->layoutId);

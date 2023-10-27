@@ -1,7 +1,7 @@
 <?php
 /**
  * CustomTables Joomla! 3.x/4.x Native Component
- * @package Custom Tables
+ * @package CustomTables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
  * @copyright (C) 2018-2023 Ivan Komlev

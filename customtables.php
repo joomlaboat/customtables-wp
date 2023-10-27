@@ -5,12 +5,11 @@
  * @package           CustomTables
  *
  * @wordpress-plugin
- * Plugin Name:       Custom Tables
+ * Plugin Name:       CustomTables
  * Plugin URI:        https://ct4.us/
  * Description:       CRUD solution for WordPress.
  * Version:           1.0.0
  * Author:            Ivan Komlev
- * Author URI:        https://ct4.us/
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       customtables
@@ -115,3 +114,9 @@ $min_php = '5.6.0';
 if ( version_compare( PHP_VERSION, $min_php, '>=' ) ) {
     customtables_init();
 }
+
+
+
+$page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
+if ($page == 'customtables-layouts-edit')
+    add_action( 'admin_enqueue_scripts', 'enqueue_codemirror' );

@@ -568,7 +568,7 @@ class fieldObject
     {
         if (!isset($this->field->fieldrow))
             return 'Fields not found';
-        
+
         if (Fields::isVirtualField($this->field->fieldrow))
             return $this->value();
 

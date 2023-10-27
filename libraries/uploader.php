@@ -1,7 +1,7 @@
 <?php
 /**
  * CustomTables Joomla! 3.x/4.x Native Component
- * @package Custom Tables
+ * @package CustomTables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
  * @copyright (C) 2018-2023. Ivan Komlev
@@ -339,7 +339,7 @@ class ESFileUploader
                             return [];
                     }
 
-                    $magicNumber = '<customtablestableexport>';//to prove that this is Custom Tables Structure JSON file.
+                    $magicNumber = '<customtablestableexport>';//to prove that this is CustomTables Structure JSON file.
                     $l = strlen($magicNumber);
                     $file_content = fread($handle, $l);
                     fclose($handle);

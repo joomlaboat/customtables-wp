@@ -30,9 +30,9 @@ class Admin_Table_List extends Libraries\WP_List_Table
      * @access   private
      * @var      string $plugin_text_domain The text domain of this plugin.
      */
-    public $plugin_text_domain;
+    public string $plugin_text_domain;
     public CT $ct;
-    public $helperListOfTables;
+    public ListOfTables $helperListOfTables;
 
     protected int $count_all;
     protected int $count_trashed;
@@ -51,7 +51,7 @@ class Admin_Table_List extends Libraries\WP_List_Table
     {
         require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoftables.php');
         $this->ct = new CT;
-        $this->helperListOfTables = new \CustomTables\ListOfTables($this->ct);
+        $this->helperListOfTables = new ListOfTables($this->ct);
         $this->plugin_text_domain = $plugin_text_domain;
 
         $this->count_all = database::loadColumn('SELECT COUNT(id) FROM #__customtables_tables WHERE published!=-2')[0];
@@ -107,12 +107,9 @@ class Admin_Table_List extends Libraries\WP_List_Table
 
         // Slice the data to display the correct items for the current page
         $this->items = array_slice($data, (($current_page - 1) * $per_page), $per_page);
-
-        // Set up actions
-        $this->process_bulk_action();
     }
 
-    function get_data()
+    function get_data(): array
     {
         // Fetch and return your data here
 
@@ -224,15 +221,14 @@ class Admin_Table_List extends Libraries\WP_List_Table
      */
     protected function get_sortable_columns()
     {
-        $sortable_columns = array(
+        return array(
             'tablename' => array('tablename', false),
             //'status' => array('status', false),
             'id' => array('id', true)
         );
-        return $sortable_columns;
     }
 
-    function column_tablename($item)
+    function column_tablename($item): string
     {
         $actions = [];
 
@@ -261,23 +257,9 @@ class Admin_Table_List extends Libraries\WP_List_Table
      * @since   1.0.0
      *
      */
-    public function no_items()
+    public function no_items(): void
     {
         _e('No tables found.', $this->plugin_text_domain);
-    }
-
-    public function filter_table_data($table_data, $search_key)
-    {
-        $filtered_table_data = array_values(array_filter($table_data, function ($row) use ($search_key) {
-            foreach ($row as $row_val) {
-                if (stripos($row_val, $search_key) !== false) {
-                    return true;
-                }
-            }
-        }));
-
-        return $filtered_table_data;
-
     }
 
     /**
@@ -290,22 +272,10 @@ class Admin_Table_List extends Libraries\WP_List_Table
      */
     function column_default($item, $column_name)
     {
-        switch ($column_name) {
-            case 'tablename':
-                return $item[$column_name];
-            case 'tabletitle':
-                return $item[$column_name];
-            case 'fieldcount':
-                return $item[$column_name];
-            case 'recordcount':
-                return $item[$column_name];
-            case 'published':
-                return $item[$column_name];
-            case 'id':
-                return $item[$column_name];
-            default:
-                return print_r($item, true);
-        }
+        return match ($column_name) {
+            'tablename', 'tabletitle', 'fieldcount', 'recordcount', 'published', 'id' => $item[$column_name],
+            default => print_r($item, true),
+        };
     }
 
     /**
@@ -368,7 +338,7 @@ class Admin_Table_List extends Libraries\WP_List_Table
      * @since    1.0.0
      *
      */
-    public function get_bulk_actions()
+    public function get_bulk_actions(): array
     {
         /*
          * on hitting apply in bulk actions the url params are set as
@@ -427,7 +397,7 @@ class Admin_Table_List extends Libraries\WP_List_Table
                 $this->invalid_nonce_redirect();
             } else {
                 $tableId = common::inputGetInt('table');
-                database::updateSets('#__customtables_tables', ['published=0'], ['id=' . $tableId]);
+                database::update('#__customtables_tables', ['published' => 0], ['id' => $tableId]);
                 //echo '<div id="message" class="updated notice is-dismissible"><p>1 table restored from the Trash.</p></div>';
                 $this->graceful_redirect();
             }
@@ -440,7 +410,7 @@ class Admin_Table_List extends Libraries\WP_List_Table
                 $this->invalid_nonce_redirect();
             } else {
                 $tableId = common::inputGetInt('table');
-                database::updateSets('#__customtables_tables', ['published=-2'], ['id=' . $tableId]);
+                database::update('#__customtables_tables', ['published' => -2], ['id' => $tableId]);
                 //echo '<div id="message" class="updated notice is-dismissible"><p>1 table moved to the Trash.</p></div>';
                 $this->graceful_redirect();
             }
@@ -498,7 +468,7 @@ class Admin_Table_List extends Libraries\WP_List_Table
     /**
      * Stop execution, redirect and exit
      *
-     * @param string $url
+     * @param ?string $url
      *
      * @return void
      * @since    1.0.0
@@ -542,24 +512,21 @@ class Admin_Table_List extends Libraries\WP_List_Table
         if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
             $this->invalid_nonce_redirect();
         } else {
-            $tables = (isset($_POST['table']) ? $_POST['table'] : []);
-            $sets = [];
-            $sets[] = 'published=' . $state;
-            $wheres = [];
-            foreach ($tables as $table)
-                $wheres[] = 'id=' . (int)$table;
+            $tables = ($_POST['table'] ?? []);
 
-            if (count($wheres) > 0) {
-                database::updateSets('#__customtables_tables', $sets, ['(' . implode(' OR ', $wheres) . ')']);
+            foreach ($tables as $table)
+                database::update('#__customtables_tables', ['published' => $state], ['id' => (int)$table]);
+
+            if (count($tables) > 0)
                 $this->graceful_redirect();
-            }
+
             echo '<div id="message" class="updated error is-dismissible"><p>Tables not selected.</p></div>';
         }
     }
 
     function handle_table_actions_delete()
     {
-        $tables = (isset($_POST['table']) ? $_POST['table'] : []);
+        $tables = ($_POST['table'] ?? []);
         if (count($tables) > 0) {
             foreach ($tables as $tableId)
                 $this->helperListOfTables->deleteTable($tableId);

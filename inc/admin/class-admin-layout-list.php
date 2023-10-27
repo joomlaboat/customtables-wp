@@ -6,6 +6,7 @@ use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\Layouts;
+use CustomTables\ListOfLayouts;
 use CustomTablesWP\Inc\Libraries;
 
 /**
@@ -28,9 +29,9 @@ class Admin_Layout_List extends Libraries\WP_List_Table
      * @access   private
      * @var      string $plugin_text_domain The text domain of this plugin.
      */
-    public $plugin_text_domain;
+    public string $plugin_text_domain;
     public CT $ct;
-    public $helperListOfLayouts;
+    public ListOfLayouts $helperListOfLayouts;
 
     protected int $count_all;
     protected int $count_trashed;
@@ -49,7 +50,7 @@ class Admin_Layout_List extends Libraries\WP_List_Table
     {
         require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoflayouts.php');
         $this->ct = new CT;
-        $this->helperListOfLayouts = new \CustomTables\ListOfLayouts($this->ct);
+        $this->helperListOfLayouts = new ListOfLayouts($this->ct);
         $this->plugin_text_domain = $plugin_text_domain;
 
         $this->count_all = database::loadColumn('SELECT COUNT(id) FROM #__customtables_layouts WHERE published!=-2')[0];
@@ -105,15 +106,11 @@ class Admin_Layout_List extends Libraries\WP_List_Table
 
         // Slice the data to display the correct items for the current page
         $this->items = array_slice($data, (($current_page - 1) * $per_page), $per_page);
-
-        // Set up actions
-        $this->process_bulk_action();
     }
 
-    function get_data()
+    function get_data(): array
     {
         // Fetch and return your data here
-
         $search = common::inputGetString('s');
         $orderby = common::inputGetCmd('orderby');
         $order = common::inputGetCmd('order');
@@ -189,14 +186,13 @@ class Admin_Layout_List extends Libraries\WP_List_Table
      */
     protected function get_sortable_columns()
     {
-        $sortable_columns = array(
+        return array(
             'layoutname' => array('layoutname', false),
             'id' => array('id', true)
         );
-        return $sortable_columns;
     }
 
-    function column_layoutname($item)
+    function column_layoutname($item): string
     {
         $actions = [];
 
@@ -225,7 +221,7 @@ class Admin_Layout_List extends Libraries\WP_List_Table
      * @since   1.0.0
      *
      */
-    public function no_items()
+    public function no_items(): void
     {
         _e('No layouts found.', $this->plugin_text_domain);
     }
@@ -241,24 +237,10 @@ class Admin_Layout_List extends Libraries\WP_List_Table
      */
     function column_default($item, $column_name)
     {
-        switch ($column_name) {
-            case 'layoutname':
-                return $item[$column_name];
-            case 'layouttype':
-                return $item[$column_name];
-            case 'tabletitle':
-                return $item[$column_name];
-            case 'layout_size':
-                return $item[$column_name];
-            case 'modifiedby':
-                return $item[$column_name];
-            case 'modified':
-                return $item[$column_name];
-            case 'id':
-                return $item[$column_name];
-            default:
-                return print_r($item, true);
-        }
+        return match ($column_name) {
+            'layoutname', 'layouttype', 'tabletitle', 'layout_size', 'modifiedby', 'modified', 'id' => $item[$column_name],
+            default => print_r($item, true),
+        };
     }
 
     /**
@@ -269,7 +251,7 @@ class Admin_Layout_List extends Libraries\WP_List_Table
      * @param object $item A row's data
      * @return string Text to be placed inside the column <td>.
      */
-    function column_cb($item)
+    function column_cb($item): string
     {
         return sprintf(
             '<input type="checkbox" name="layout[]" value="%s" />',
@@ -290,7 +272,7 @@ class Admin_Layout_List extends Libraries\WP_List_Table
         }
     }
 
-    public function get_views()
+    public function get_views(): array
     {
         $link = 'admin.php?page=customtables-layouts';
         $views = [];
@@ -320,7 +302,7 @@ class Admin_Layout_List extends Libraries\WP_List_Table
      * @since    1.0.0
      *
      */
-    public function get_bulk_actions()
+    public function get_bulk_actions(): array
     {
         /*
          * on hitting apply in bulk actions the url params are set as
@@ -378,7 +360,7 @@ class Admin_Layout_List extends Libraries\WP_List_Table
                 $this->invalid_nonce_redirect();
             } else {
                 $layoutId = common::inputGetInt('layout');
-                database::updateSets('#__customtables_layouts', ['published=0'], ['id=' . $layoutId]);
+                database::update('#__customtables_layouts', ['published' => 0], ['id' => $layoutId]);
                 //echo '<div id="message" class="updated notice is-dismissible"><p>1 layout restored from the Trash.</p></div>';
                 $this->graceful_redirect();
             }
@@ -391,7 +373,7 @@ class Admin_Layout_List extends Libraries\WP_List_Table
                 $this->invalid_nonce_redirect();
             } else {
                 $layoutId = common::inputGetInt('layout');
-                database::updateSets('#__customtables_layouts', ['published=-2'], ['id=' . $layoutId]);
+                database::update('#__customtables_layouts', ['published' => -2], ['id' => $layoutId]);
                 //echo '<div id="message" class="updated notice is-dismissible"><p>1 layout moved to the Trash.</p></div>';
                 $this->graceful_redirect();
             }
@@ -404,7 +386,7 @@ class Admin_Layout_List extends Libraries\WP_List_Table
                 $this->invalid_nonce_redirect();
             } else {
                 $layoutId = common::inputGetInt('layout');
-                $this->helperListOfLayouts->deleteLayout($layoutId);
+                database::setQuery('DELETE FROM #__customtables_layouts WHERE id=' . $layoutId);
                 //echo '<div id="message" class="updated notice is-dismissible"><p>1 layout permanently deleted.</p></div>';
                 $this->graceful_redirect();
             }
@@ -449,7 +431,7 @@ class Admin_Layout_List extends Libraries\WP_List_Table
     /**
      * Stop execution, redirect and exit
      *
-     * @param string $url
+     * @param ?string $url
      *
      * @return void
      * @since    1.0.0
@@ -493,27 +475,23 @@ class Admin_Layout_List extends Libraries\WP_List_Table
         if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
             $this->invalid_nonce_redirect();
         } else {
-            $layouts = (isset($_POST['layout']) ? $_POST['layout'] : []);
-            $sets = [];
-            $sets[] = 'published=' . $state;
-            $wheres = [];
+            $layouts = ($_POST['layout'] ?? []);
             foreach ($layouts as $layout)
-                $wheres[] = 'id=' . (int)$layout;
+                database::update('#__customtables_layouts', ['published' => $state], ['id' => (int)$layout]);
 
-            if (count($wheres) > 0) {
-                database::updateSets('#__customtables_layouts', $sets, ['(' . implode(' OR ', $wheres) . ')']);
+            if (count($layouts) > 0)
                 $this->graceful_redirect();
-            }
+
             echo '<div id="message" class="updated error is-dismissible"><p>Layouts not selected.</p></div>';
         }
     }
 
     function handle_layout_actions_delete()
     {
-        $layouts = (isset($_POST['layout']) ? $_POST['layout'] : []);
+        $layouts = ($_POST['layout'] ?? []);
         if (count($layouts) > 0) {
             foreach ($layouts as $layoutId)
-                $this->helperListOfLayouts->deleteLayout($layoutId);
+                database::setQuery('DELETE FROM #__customtables_layouts WHERE id=' . $layoutId);
 
             $this->graceful_redirect();
         }

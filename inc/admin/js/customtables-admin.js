@@ -27,7 +27,7 @@
 	 * single DOM-ready or window-load handler for a particular page.
 	 * Although scripts in the WordPress core, Plugins and Themes may be
 	 * practising this, we should strive to set a better example in our own work.
-         * 
+         *
          * The file is enqueued from inc/admin/class-admin.php.
 	 */
 
@@ -41,10 +41,57 @@
 			$(tabs).find(tab).addClass("active");
 			jQuery(this).addClass("nav-tab-active");
 		});
+
+		if(document.getElementById('layoutcode')) {
+            joomlaVersion = 6;
+            define_cmLayoutEditor();
+
+            let editors = ['layoutcode', 'layoutmobile', 'layoutcss', 'layoutjs'];
+
+            for (let i = 0; i < editors.length; i++) {
+                codemirror_editors[i] = CodeMirror.fromTextArea(document.getElementById(editors[i]), {
+                    lineNumbers: true,
+                    mode: "layouteditor",
+                    lineWrapping: true,
+                    theme: "eclipse",
+                    extraKeys: {"Ctrl-Space": "autocomplete"}
+                });
+
+                let charWidth = codemirror_editors[i].defaultCharWidth(), basePadding = 4;
+
+                codemirror_editors[i].on("renderLine", function (cm, line, elt) {
+                    let off = CodeMirror.countColumn(line.text, null, cm.getOption("tabSize")) * charWidth;
+                    elt.style.textIndent = "-" + off + "px";
+                    elt.style.paddingLeft = (basePadding + off) + "px";
+                });
+
+                loadTagParams("layouttype", "textareatabid", "WordPress");
+                loadTypes_silent("WordPress");
+
+                languages = [];//' . $languages . '];
+                loadFields("table", "fieldWizardBox", "WordPress");
+                loadLayout(6);
+                addExtraEvents();
+				adjustEditorHeight();
+            }
+
+
+        }
 	});
 
 })( jQuery );
 
+function CustomTablesAdminLayoutsTabClicked(index,id)
+{
+	setTimeout(function () {
+		codemirror_active_index = index;
+		codemirror_active_areatext_id = id;
+		let cm = codemirror_editors[index];
+		cm.refresh();
+		adjustEditorHeight();
+	}, 100);
+	return false;
+}
 
 function readmoreOpenClose(itemid)
 {

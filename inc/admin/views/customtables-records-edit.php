@@ -8,6 +8,8 @@
 
 //include ('customtables-records-edit-help.php');
 
+use CustomTables\Layouts;
+
 require_once ABSPATH . 'wp-admin/admin-header.php';
 
 ?>
@@ -93,6 +95,13 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 
 
                     ?>
+
+
+
+
+
+
+
                     <?php submit_button($buttonText, 'primary', 'createrecord', true, array('id' => 'createrecordsub')); ?>
                 </form>
             <?php endif; ?>

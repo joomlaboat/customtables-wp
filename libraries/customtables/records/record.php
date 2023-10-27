@@ -17,27 +17,10 @@ if (!defined('_JEXEC') and !defined('WPINC')) {
 
 //use CustomTablesImageMethods;
 use Edit;
-use ESTables;
 use Exception;
 use JCaptcha;
-
-//use Joomla\CMS\Component\ComponentHelper;
-
-//use CT_FieldTypeTag_image;
-//use CT_FieldTypeTag_file;
-//use CustomTables\DataTypes\Tree;
-
 use Joomla\CMS\Factory;
-
-//use LayoutProcessor;
-//use tagProcessor_General;
-//use tagProcessor_Item;
-//use tagProcessor_If;
-//use tagProcessor_Page;
-//use tagProcessor_Value;
 use CustomTables\CustomPHP\CleanExecute;
-
-//use JoomlaBasicMisc;
 
 class record
 {
@@ -58,7 +41,6 @@ class record
         $this->listing_id = null;
 
         $this->editForm = new Edit($ct);
-        //$this->editForm->load();
     }
 
     function save(?string $listing_id, bool $isCopy): bool
@@ -99,20 +81,21 @@ class record
 
         foreach ($this->ct->Table->fields as $fieldRow) {
 
-            if (!$saveField->checkIfFieldAlreadyInTheList($fieldRow['fieldname'])) {
+            if (!$saveField->checkIfFieldAlreadyInTheList($fieldRow['realfieldname'])) {
 
                 if (in_array($fieldRow['fieldname'], $fieldsToSave))
-                    $saveFieldSet = $saveField->getSaveFieldSet($fieldRow);
+                    $saveField->getSaveFieldSet($fieldRow);
                 else
-                    $saveFieldSet = $saveField->applyDefaults($fieldRow);
-
-                $this->row_new = $saveField->row;
-                if ($saveFieldSet !== null) {
-                    if (is_array($saveFieldSet))
-                        $saveField->saveQuery = array_merge($saveField->saveQuery, $saveFieldSet);
-                    else
-                        $saveField->saveQuery[] = $saveFieldSet;
-                }
+                    $saveField->applyDefaults($fieldRow);
+                /*
+                                $this->row_new = $saveField->row;
+                                if ($saveFieldValue !== null) {
+                                    if (is_array($saveFieldValue))
+                                        $saveField->saveQuery = array_merge($saveField->saveQuery, $saveFieldValue);
+                                    else
+                                        $saveField->saveQuery[$fieldRow['realfieldname']] = $saveField->row[$fieldRow['realfieldname']];
+                                }
+                                */
             }
 
             if ($fieldRow['type'] == 'phponadd' and ($this->listing_id === null or $isCopy))
@@ -128,15 +111,15 @@ class record
             $isItNewRecords = true;
 
             if ($this->ct->Table->published_field_found)
-                $saveField->saveQuery[] = 'published=' . $this->ct->Params->publishStatus;
+                $saveField->row_new['published'] = $this->ct->Params->publishStatus;
 
-            $this->listing_id = ESTables::insertRecords($this->ct->Table->realtablename, $saveField->saveQuery);
+            $this->listing_id = database::insert($this->ct->Table->realtablename, $saveField->row_new);
         } else {
-            $this->updateLog($saveField, $this->listing_id);
-            $saveField->runUpdateQuery($saveField->saveQuery, $this->listing_id);
+            $this->updateLog($this->listing_id);
+            database::update($this->ct->Table->realtablename, $saveField->row_new, [$this->ct->Table->realidfieldname => $this->listing_id]);
         }
 
-        if (count($saveField->saveQuery) < 1) {
+        if (count($saveField->row_new) < 1) {
             $this->ct->app->enqueueMessage('Nothing to save', 'Warning');
             return false;
         }
@@ -260,7 +243,7 @@ class record
         return false;
     }
 
-    function updateLog($saveField, $listing_id): bool
+    function updateLog($listing_id): bool
     {
         if ($listing_id == 0 or $listing_id == '')
             return false;
@@ -300,17 +283,13 @@ class record
 
         $data = base64_encode(json_encode($rows));
 
-        $saveLogQuery = [];
         foreach ($this->ct->Table->fields as $fieldrow) {
             if ($fieldrow['type'] == 'log') {
                 $value = time() . ',' . $this->ct->Env->user->id . ',' . SaveFieldQuerySet::getUserIP() . ',' . $data . ';';
-                $saveLogQuery[] = $fieldrow['realfieldname'] . '=CONCAT(' . $fieldrow['realfieldname'] . ',"' . $value . '")';
+                database::setQuery('UPDATE ' . $this->ct->Table->realtablename . ' SET '
+                    . database::quoteName($fieldrow['realfieldname']) . '=CONCAT(' . $fieldrow['realfieldname'] . ',' . database::quote($value) . ')');
             }
         }
-
-        if (count($saveLogQuery) > 0)
-            $saveField->runUpdateQuery($saveLogQuery, $listing_id);
-
         return true;
     }
 }
