@@ -4,10 +4,8 @@ namespace CustomTablesWP\Inc\Admin;
 
 use CustomTableList;
 use CustomTables\common;
-use CustomTables\CT;
+use CustomTables\database;
 use CustomTables\Fields;
-use const CustomTablesWP\CTWP;
-use CustomTables\listOfTables;
 
 /**
  * The admin-specific functionality of the plugin.
@@ -269,6 +267,30 @@ class Admin
                 }
                 header('Content-Type: application/json');
                 die(json_encode($result));
+
+            case 'customtables-api-tables':
+                $tablesRows = database::loadAssocList('SELECT id,tablename FROM #__customtables_tables WHERE published=1 ORDER BY tablename');
+                $tables = [];
+                foreach ($tablesRows as $tablesRow)
+                {
+                    $tables[] = ['label' => $tablesRow['tablename'], 'value' => $tablesRow['id']];
+                }
+                header('Content-Type: application/json');
+                die(json_encode($tables));
+
+            case 'customtables-api-layouts':
+                $layoutsRows = database::loadAssocList('SELECT id,layoutname FROM #__customtables_layouts WHERE published=1 ORDER BY layoutname');
+                $layouts = [];
+                foreach ($layoutsRows as $layoutsRow)
+                {
+                    $layouts[] = ['label' => $layoutsRow['layoutname'], 'value' => $layoutsRow['id']];
+                }
+                header('Content-Type: application/json');
+                die(json_encode($layouts));
+
+            case 'customtables-api-preview':
+                //header('Content-Type: application/json');
+                die('preview text');
 
             case 'customtables-tables-edit':
 

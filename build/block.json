@@ -7,14 +7,30 @@
 	"category": "text",
 	"icon": "universal-access-alt",
 	"attributes": {
-		"message": {
+		"table": {
+			"type": "int",
+			"default": 0
+		},
+		"layout": {
+			"type": "int",
+			"default": 0
+		},
+		"filter": {
 			"type": "string",
-			"default": "Hello111 from a dynamic block!"
+			"default": ""
+		},
+		"orderby": {
+			"type": "string",
+			"default": ""
+		},
+		"order": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"example": {
 		"attributes": {
-			"message": "Example22 Dynamic Block"
+
 		}
 	},
 	"supports": {

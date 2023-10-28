@@ -87,27 +87,38 @@ class Layouts
         return true;
     }
 
-    function getLayout(string $layoutName, bool $processLayoutTag = true, bool $checkLayoutFile = true, bool $addHeaderCode = true): string
+    function getLayout(string|int $layoutNameOrId, bool $processLayoutTag = true, bool $checkLayoutFile = true, bool $addHeaderCode = true): string
     {
-        if ($layoutName == '')
-            return '';
+        if (is_int($layoutNameOrId)) {
+            if ($layoutNameOrId == 0)
+                return '';
 
-        if (self::isLayoutContent($layoutName)) {
-            $this->layoutType = 0;
-            return $layoutName;
+            $where = 'id=' . $layoutNameOrId;
+        } else {
+            if ($layoutNameOrId == '')
+                return '';
+
+            if (self::isLayoutContent($layoutNameOrId)) {
+                $this->layoutType = 0;
+                return $layoutNameOrId;
+            }
+
+            $where = 'layoutname=' . database::quote($layoutNameOrId);
         }
+
+
         $serverType = database::getServerType();
         if ($serverType == 'postgresql')
             $query = 'SELECT id, tableid, layoutname, layoutcode, layoutmobile, layoutcss, layoutjs, '
                 . 'CASE WHEN modified IS NULL THEN extract(epoch FROM created) '
                 . 'ELSE extract(epoch FROM modified) AS ts, '
                 . 'layouttype '
-                . 'FROM #__customtables_layouts WHERE layoutname=' . database::quote($layoutName) . ' LIMIT 1';
+                . 'FROM #__customtables_layouts WHERE ' . $where . ' LIMIT 1';
         else
             $query = 'SELECT id, tableid, layoutname, layoutcode, layoutmobile, layoutcss, layoutjs, '
                 . 'IF(modified IS NULL,UNIX_TIMESTAMP(created),UNIX_TIMESTAMP(modified)) AS ts, '
                 . 'layouttype '
-                . 'FROM #__customtables_layouts WHERE layoutname=' . database::quote($layoutName) . ' LIMIT 1';
+                . 'FROM #__customtables_layouts WHERE ' . $where . ' LIMIT 1';
 
         $rows = database::loadAssocList($query);
         if (count($rows) != 1)
@@ -121,8 +132,8 @@ class Layouts
         if ($this->ct->Env->isMobile and trim($row['layoutmobile']) != '') {
 
             $layoutCode = $row['layoutmobile'];
-            if ($checkLayoutFile and $this->ct->Env->folderToSaveLayouts !== null) {
-                $content = $this->getLayoutFileContent($row['id'], $layoutName, $layoutCode, $row['ts'], $layoutName . '_mobile.html', 'layoutmobile');
+            if ($checkLayoutFile and $this->ct->Env->folderToSaveLayouts !== null and is_string($layoutNameOrId)) {
+                $content = $this->getLayoutFileContent($row['id'], $layoutNameOrId, $layoutCode, $row['ts'], $layoutNameOrId . '_mobile.html', 'layoutmobile');
                 if ($content != null)
                     $layoutCode = $content;
             }
@@ -130,8 +141,8 @@ class Layouts
         } else {
 
             $layoutCode = $row['layoutcode'];
-            if ($checkLayoutFile and $this->ct->Env->folderToSaveLayouts !== null) {
-                $content = $this->getLayoutFileContent($row['id'], $layoutName, $layoutCode, $row['ts'], $layoutName . '.html', 'layoutcode');
+            if ($checkLayoutFile and $this->ct->Env->folderToSaveLayouts !== null and is_string($layoutNameOrId)) {
+                $content = $this->getLayoutFileContent($row['id'], $layoutNameOrId, $layoutCode, $row['ts'], $layoutNameOrId . '.html', 'layoutcode');
                 if ($content != null)
                     $layoutCode = $content;
             }
@@ -243,10 +254,12 @@ class Layouts
             $twig = new TwigProcessor($this->ct, $layoutContent, $this->ct->LayoutVariables['getEditFieldNamesOnly'] ?? false);
             $layoutContent = '<style>' . $twig->process($this->ct->Table->record ?? null) . '</style>';
 
-            if ($twig->errorMessage !== null)
-                $this->ct->app->enqueueMessage($twig->errorMessage, 'error');
+            if (defined('_JEXEC')) {
+                if ($twig->errorMessage !== null)
+                    $this->ct->app->enqueueMessage($twig->errorMessage, 'error');
 
-            $this->ct->document->addCustomTag($layoutContent);
+                $this->ct->document->addCustomTag($layoutContent);
+            }
         }
 
         $layoutContent = trim($layoutRow['layoutjs'] ?? '');
@@ -260,10 +273,12 @@ class Layouts
             $twig = new TwigProcessor($this->ct, $layoutContent, $this->ct->LayoutVariables['getEditFieldNamesOnly'] ?? false);
             $layoutContent = $twig->process($this->ct->Table->record);
 
-            if ($twig->errorMessage !== null)
-                $this->ct->app->enqueueMessage($twig->errorMessage, 'error');
+            if (defined('_JEXEC')) {
+                if ($twig->errorMessage !== null)
+                    $this->ct->app->enqueueMessage($twig->errorMessage, 'error');
 
-            $this->ct->document->addCustomTag('<script>' . $layoutContent . '</script>');
+                $this->ct->document->addCustomTag('<script>' . $layoutContent . '</script>');
+            }
         }
     }
 
@@ -287,7 +302,7 @@ class Layouts
         return true;
     }
 
-    function createDefaultLayout_SimpleCatalog($fields, $addToolbar = true): string
+    function createDefaultLayout_SimpleCatalog(array $fields, bool $addToolbar = true): string
     {
         $this->layoutType = 1;
 
@@ -363,7 +378,7 @@ class Layouts
         return $result;
     }
 
-    protected function renderTableHead($fields, $addToolbar, $fieldtypes_to_skip, $fieldTypesWithSearch, $fieldtypes_allowed_to_orderby): string
+    protected function renderTableHead(array $fields, bool $addToolbar, array $fieldtypes_to_skip, array $fieldTypesWithSearch, array $fieldtypes_allowed_to_orderby): string
     {
         $result = '<thead><tr>' . PHP_EOL;
 
@@ -394,7 +409,7 @@ class Layouts
         return $result;
     }
 
-    function renderTableColumnHeader($field, $addToolbar, $fieldtypes_to_skip, $fieldtypesWithSearch, $fieldtypes_allowed_to_orderby): string
+    function renderTableColumnHeader(array $field, bool $addToolbar, array $fieldtypes_to_skip, array $fieldtypesWithSearch, array $fieldtypes_allowed_to_orderby): string
     {
         $result = '';
 
@@ -578,7 +593,7 @@ class Layouts
     function parseRawLayoutContent(string $content, bool $applyContentPlugins = true): string
     {
         if ($this->ct->Env->legacySupport) {
-            require_once(JPATH_SITE . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_customtables' . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . 'layout.php');
+            require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'layout.php');
 
             $LayoutProc = new LayoutProcessor($this->ct);
             $LayoutProc->layout = $content;
