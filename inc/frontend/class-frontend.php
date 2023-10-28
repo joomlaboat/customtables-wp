@@ -41,7 +41,9 @@ class Frontend {
 	 * @access   private
 	 * @var      string    $plugin_text_domain    The text domain of this plugin.
 	 */
-	private $plugin_text_domain;	
+	private $plugin_text_domain;
+
+
 
 	/**
 	 * Initialize the class and set its properties.
@@ -57,7 +59,12 @@ class Frontend {
 		$this->version = $version;
 		$this->plugin_text_domain = $plugin_text_domain;
 
-	}
+
+
+    }
+
+
+
 
 	/**
 	 * Register the stylesheets for the public-facing side of the site.
@@ -78,7 +85,7 @@ class Frontend {
 		 * class.
 		 */
 
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/customtables-frontend.css', array(), $this->version, 'all' );
+		//wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/customtables-frontend.css', array(), $this->version, 'all' );
 
 	}
 
@@ -101,8 +108,10 @@ class Frontend {
 		 * class.
 		 */
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/customtables-frontend.js', array( 'jquery' ), $this->version, false );
+		//wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/customtables-frontend.js', array( 'jquery' ), $this->version, false );
 
 	}
-
 }
+
+
+

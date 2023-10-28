@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "customtables/dynamic-block",
+	"version": "1.0.0",
+	"title": "CustomTables Block",
+	"category": "text",
+	"icon": "universal-access-alt",
+	"attributes": {
+		"message": {
+			"type": "string",
+			"default": "Hello111 from a dynamic block!"
+		}
+	},
+	"example": {
+		"attributes": {
+			"message": "Example22 Dynamic Block"
+		}
+	},
+	"supports": {
+		"html": false
+	},
+	"textdomain": "customtables",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css"
+}

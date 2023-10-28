@@ -14,12 +14,12 @@
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       customtables
  * Domain Path:       /languages
-*/
+ */
 
 namespace CustomTablesWP;
 
 // If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
+if (!defined('WPINC')) {
     die;
 }
 
@@ -27,19 +27,19 @@ if ( ! defined( 'WPINC' ) ) {
  * Define Constants
  */
 
-define( __NAMESPACE__ . '\CTWP', __NAMESPACE__ . '\\' );
+define(__NAMESPACE__ . '\CTWP', __NAMESPACE__ . '\\');
 
-define( CTWP . 'PLUGIN_NAME', 'customtables' );
+define(CTWP . 'PLUGIN_NAME', 'customtables');
 
-define( CTWP . 'PLUGIN_VERSION', '1.0.0' );
+define(CTWP . 'PLUGIN_VERSION', '1.0.0');
 
-define( CTWP . 'PLUGIN_NAME_DIR', plugin_dir_path( __FILE__ ) );
+define(CTWP . 'PLUGIN_NAME_DIR', plugin_dir_path(__FILE__));
 
-define( CTWP . 'PLUGIN_NAME_URL', plugin_dir_url( __FILE__ ) );
+define(CTWP . 'PLUGIN_NAME_URL', plugin_dir_url(__FILE__));
 
-define( CTWP . 'PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+define(CTWP . 'PLUGIN_BASENAME', plugin_basename(__FILE__));
 
-define( CTWP . 'PLUGIN_TEXT_DOMAIN', 'customtables' );
+define(CTWP . 'PLUGIN_TEXT_DOMAIN', 'customtables');
 
 
 /**
@@ -50,21 +50,23 @@ $path = PLUGIN_NAME_DIR . 'libraries' . DIRECTORY_SEPARATOR . 'customtables' . D
 require_once($path . 'loader.php');
 CTLoader(false, true, PLUGIN_NAME_DIR);
 
-require_once( PLUGIN_NAME_DIR . 'inc/libraries/autoloader.php' );
+require_once(PLUGIN_NAME_DIR . 'inc/libraries/autoloader.php');
 
 /**
  * Register Activation and Deactivation Hooks
  * This action is documented in inc/core/class-activator.php
  */
 
-register_activation_hook( __FILE__, array( CTWP . 'Inc\Core\Activator', 'activate' ) );
+register_activation_hook(__FILE__, array(CTWP . 'Inc\Core\Activator', 'activate'));
 
 /**
  * The code that runs during plugin deactivation.
  * This action is documented inc/core/class-deactivator.php
  */
 
-register_deactivation_hook( __FILE__, array( CTWP . 'Inc\Core\Deactivator', 'deactivate' ) );
+register_deactivation_hook(__FILE__, array(CTWP . 'Inc\Core\Deactivator', 'deactivate'));
+
+
 
 
 /**
@@ -74,17 +76,21 @@ register_deactivation_hook( __FILE__, array( CTWP . 'Inc\Core\Deactivator', 'dea
  *
  * @since    1.0.0
  */
-class customtables {
+class customtables
+{
 
     static $init;
+
     /**
      * Loads the plugin
      *
      * @access    public
      */
-    public static function init() {
+    public static function init()
+    {
 
-        if ( null == self::$init ) {
+
+        if (null == self::$init) {
             self::$init = new Inc\Core\Init();
             self::$init->run();
         }
@@ -104,19 +110,72 @@ class customtables {
  * can interact with the plugin's hooks contained within.
  *
  */
-function customtables_init() {
+function customtables_init()
+{
+    //add_action( 'init', 'customtables_dynamic_block_block_init' );
+
+
     return customtables::init();
 }
+
+
+
+
 
 $min_php = '5.6.0';
 
 // Check the minimum required PHP version and run the plugin.
-if ( version_compare( PHP_VERSION, $min_php, '>=' ) ) {
+if (version_compare(PHP_VERSION, $min_php, '>=')) {
     customtables_init();
-}
 
+
+}
 
 
 $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
 if ($page == 'customtables-layouts-edit')
-    add_action( 'admin_enqueue_scripts', 'enqueue_codemirror' );
+    add_action('admin_enqueue_scripts', 'enqueue_codemirror');
+
+//  PLUGIN_NAME_DIR
+//require_once( 'block-widgets/customtables_block_widget.php' );
+//require_once(plugins_url('block-widgets/customtables_block_widget.php', __FILE__));
+
+
+// Function to generate real content based on block attributes
+
+
+
+
+
+
+//-------------------------------------------
+
+
+function customtables_dynamic_block_block_init() {
+    register_block_type(
+        plugin_dir_path( __FILE__ ) . 'build',
+        array(
+            'render_callback' => 'CustomTablesWP\customtables_dynamic_block_render_callback',
+        )
+    );
+}
+add_action( 'init', 'CustomTablesWP\customtables_dynamic_block_block_init' );
+
+
+/**
+ * This function is called when the block is being rendered on the front end of the site
+ *
+ * @param array    $attributes     The array of attributes for this block.
+ * @param string   $content        Rendered block output. ie. <InnerBlocks.Content />.
+ * @param WP_Block $block_instance The instance of the WP_Block class that represents the block being rendered.
+ */
+function customtables_dynamic_block_render_callback( $attributes, $content, $block_instance ) {
+
+    ob_start();
+    /**
+     * Keeping the markup to be returned in a separate file is sometimes better, especially if there is very complicated markup.
+     * All of passed parameters are still accessible in the file.
+     */
+    require plugin_dir_path( __FILE__ ) . 'build/template.php';
+    return ob_get_clean();
+}
