@@ -30,10 +30,13 @@ $onPageLoads = array();
             else
                 _e('Edit Custom Layout');
             ?><div style="display: inline-block;margin-left:20px;"><?php
-            $buttonText = ($this->admin_layout_edit->layoutId == 0) ? __('Add New Layout') : __('Save Layout');
+            $buttonText = ($this->admin_layout_edit->layoutId == 0) ? __('Save New Layout') : __('Save Layout');
             submit_button($buttonText, 'primary', 'ct-savelayout-top', false, array('id' => 'ct-savelayout-top'));
             ?>
+            <input class="button button-primary" type="button" onClick="showModalFieldTagsList();activateTabsWordPress('layouteditor_fields');" value="Field Tags" />
+
             </div>
+
         </h1>
 
 
@@ -75,9 +78,9 @@ $onPageLoads = array();
             <!--<p><?php
 
             if ($this->admin_layout_edit->layoutId === null)
-                _e('Create a brand new custom layout.');
+                _e('Create a new layout.');
             else
-                _e('Edit custom layout.');
+                _e('Edit layout.');
             ?>
             </p>-->
 

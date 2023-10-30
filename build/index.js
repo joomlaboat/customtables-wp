@@ -345,32 +345,32 @@ function CustomTablesRenderBlock(e, i) {
                             className: '2grw-builder-options 2grw-block-options'
                         },
                         el(
+                            TextControl,
+                            {
+                                id: 'customtables_block_loading',
+                                name: 'customtables_block_loading',
+                                value: 0,
+                                /*options: [{label: 'state 0',value: 0},{label: 'state 1',value: 1}],*/
+                                onChange: function (newValue) {
+                                    console.log("on change called");
+                                    props.setAttributes({loading: 0});
+                                    //CustomTablesLoadPreview(props);
+                                },
+                                type: 'hidden'
+                            }
+                        ),el(
                             PanelBody,
                             {
                                 title: __('Table'),
                                 initialOpen: true,
                                 className: '2grw-toggle grw-builder-connect 2grw-connect-business'
                             },
+
                             el(
                                 SelectControl,
                                 {
-                                    id: 'customtables_block_loading',
-                                    name: 'customtables_block_loading',
-                                    value: props.attributes.table,
-                                    options: [{label: 'state 0',value: 0},{label: 'state 1',value: 1}],
-                                    onChange: function (newValue) {
-                                        console.log("on change called");
-                                        props.setAttributes({loading: 0});
-                                        CustomTablesLoadPreview(props);
-                                    },
-                                    style:{visibility: 'hidden'}
-                                }
-                            ),
-                            el(
-                                SelectControl,
-                                {
-                                    id: 'table',
-                                    name: 'table',
+                                    id: 'customtables_block_table',
+                                    name: 'customtables_block_table',
                                     value: props.attributes.table,
                                     options: customtables_tables,
                                     onChange: function (newValue) {
@@ -394,8 +394,8 @@ function CustomTablesRenderBlock(e, i) {
                             el(
                                 SelectControl,
                                 {
-                                    id: 'layout',
-                                    name: 'layout',
+                                    id: 'customtables_block_layout',
+                                    name: 'customtables_block_layout',
                                     value: props.attributes.layout,
                                     options: customtables_layouts,
                                     onChange: function (newValue) {
