@@ -106,3 +106,10 @@ function readmoreOpenClose(itemid)
 
 	obj.className=c;
 }
+
+function showFieldTagModalForm()
+{
+	current_table_id = document.getElementById("table").value;
+	showModalFieldTagsList();
+	activateTabsWordPress('layouteditor_fields');
+}

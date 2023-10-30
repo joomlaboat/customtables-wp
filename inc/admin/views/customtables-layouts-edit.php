@@ -33,7 +33,7 @@ $onPageLoads = array();
             $buttonText = ($this->admin_layout_edit->layoutId == 0) ? __('Save New Layout') : __('Save Layout');
             submit_button($buttonText, 'primary', 'ct-savelayout-top', false, array('id' => 'ct-savelayout-top'));
             ?>
-            <input class="button button-primary" type="button" onClick="showModalFieldTagsList();activateTabsWordPress('layouteditor_fields');" value="Field Tags" />
+            <input class="button button-primary" type="button" onClick="showFieldTagModalForm();" value="Field Tags" />
 
             </div>
 

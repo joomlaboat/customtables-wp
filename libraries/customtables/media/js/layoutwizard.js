@@ -79,7 +79,7 @@ function loadFieldsData(tableid, CMSType) {
             }
 
         }).catch(function (err) {
-            console.log('Fetch Error :-S', err);
+            console.log('Fetch Error :', err);
         });
     } else {
         //for IE
@@ -110,8 +110,6 @@ function updateFieldsBox() {
 }
 
 function renderTabs(tabSetId, tabs) {
-    console.log(typeof wp);
-    console.log(wp.version);
 
     if (typeof wp !== 'undefined') {
         return renderTabsWordPress(tabSetId, tabs);
@@ -164,27 +162,6 @@ function renderTabsWordPress(tabSetId, tabs) {
         divs += '<div class="gtab' + cssclass_divs + ' ' + tab.id + '-tab' + (i + 1) + '" style="margin-left:-20px;">' + tab.content + '</div>';
     }
     return '<h2 class="nav-tab-wrapper wp-clearfix">' + buttons + '</h2><div class="gtabs ' + tabSetId + '">' + divs + '</div>';
-
-    /*
-        return '<h2 class="nav-tab-wrapper wp-clearfix">\n' +
-            '    <button data-toggle="tab" data-tabs=".gtabs.'+tabSetId+'" data-tab=".layoutcode-tab1" class="nav-tab nav-tab-active" >HTML (Desktop)</button>\n' +
-            '    <button data-toggle="tab" data-tabs=".gtabs.'+tabSetId+'" data-tab=".layoutmobile-tab2" class="nav-tab" >HTML (Mobile)</button>\n' +
-            '    <button data-toggle="tab" data-tabs=".gtabs.'+tabSetId+'" data-tab=".layoutcss-tab3" class="nav-tab" >CSS</button>\n' +
-            '    <button data-toggle="tab" data-tabs=".gtabs.'+tabSetId+'" data-tab=".layoutjs-tab4" class="nav-tab" >JavaScript</button>\n' +
-            '</h2>\n' +
-            '\n' +
-            '<div class="gtabs '+tabSetId+'" >\n' +
-            '\n' +
-            '    \n' +
-            '\n' +
-            '    <div class="gtab layoutmobile-tab2" style="margin-left:-20px;">b</div>\n' +
-            '\n' +
-            '    <div class="gtab layoutcss-tab3" style="margin-left:-20px;">c</div>\n' +
-            '\n' +
-            '    <div class="gtab layoutjs-tab4" style="margin-left:-20px;">d</div>\n' +
-            '</div>\n';
-
-     */
 }
 
 function renderTabsJoomla(tabSetId, tabs) {

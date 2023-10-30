@@ -4,7 +4,10 @@
         <!-- Layout Name Field -->
         <th scope="row">
             <label for="layoutname">
-                <?php echo __('Layout Name', $this->plugin_text_domain); ?>
+                <?php use CustomTables\Forms;
+                use CustomTables\Layouts;
+
+                echo __('Layout Name', $this->plugin_text_domain); ?>
                 <span class="description">(<?php echo __('required', $this->plugin_text_domain); ?>)</span>
             </label>
         </th>
@@ -23,18 +26,28 @@
             </label>
         </th>
         <td>
+
+            <?php
+
+            $selectedType = $this->admin_layout_edit->layoutRow['layouttype'];
+            $Layouts = new Layouts($this->admin_layout_edit->ct);
+            $types = $Layouts->layoutTypeTranslation();
+
+            $options = '';
+
+            foreach ($types as $key => $type) {
+                $options .= '<option value="' . $key . '"';
+                if ($key == $selectedType) {
+                    $options .= ' selected';
+                }
+                $options .= '>' . $type . '</option>';
+            }
+            ?>
+
             <select name="layouttype" id="layouttype">
-                <option value="1">Simple Catalog</option>
-                <option value="5">Catalog Page</option>
-                <option value="6">Catalog Item</option>
-                <option value="2">Edit form</option>
-                <option value="4">Details</option>
-                <!--<option value="3">COM_CUSTOMTABLES_LAYOUTS_RECORD_LINK</option>-->
-                <option value="7">Email Message</option>
-                <option value="8">XML File</option>
-                <option value="9">CSV File</option>
-                <option value="10">JSON File</option>
+                <?php echo $options; ?>
             </select>
+
             <?php
             /*
                 * COM_CUSTOMTABLES_LAYOUTS_SIMPLE_CATALOG = "Simple Catalog"
@@ -58,14 +71,12 @@
             </label>
         </th>
         <td>
-            <?php echo \CustomTables\Forms::renderHTMLSelectBoxFromDB('table','#__customtables_tables',
-                ['id','tablename'],['published=1'],'tablename') ?>
+
+            <?php echo Forms::renderHTMLSelectBoxFromDB('table',$this->admin_layout_edit->layoutRow['tableid'], true,'#__customtables_tables',
+                ['id', 'tablename'], ['published=1'], 'tablename',['onchange="loadFieldsUpdate(\'WordPress\');"']) ?>
         </td>
     </tr>
 </table>
-
-
-
 
 
 <hr/>
