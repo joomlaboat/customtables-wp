@@ -4,8 +4,10 @@ namespace CustomTablesWP\Inc\Admin;
 
 use CustomTableList;
 use CustomTables\common;
+use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\Fields;
+use CustomTables\Layouts;
 
 /**
  * The admin-specific functionality of the plugin.
@@ -271,6 +273,7 @@ class Admin
             case 'customtables-api-tables':
                 $tablesRows = database::loadAssocList('SELECT id,tablename FROM #__customtables_tables WHERE published=1 ORDER BY tablename');
                 $tables = [];
+                $tables[] = ['label' => '- Select Table', 'value' => null];
                 foreach ($tablesRows as $tablesRow)
                 {
                     $tables[] = ['label' => $tablesRow['tablename'], 'value' => $tablesRow['id']];
@@ -281,6 +284,7 @@ class Admin
             case 'customtables-api-layouts':
                 $layoutsRows = database::loadAssocList('SELECT id,layoutname FROM #__customtables_layouts WHERE published=1 ORDER BY layoutname');
                 $layouts = [];
+                $layouts[] = ['label' => '- Select Layout', 'value' => null];
                 foreach ($layoutsRows as $layoutsRow)
                 {
                     $layouts[] = ['label' => $layoutsRow['layoutname'], 'value' => $layoutsRow['id']];
@@ -289,8 +293,14 @@ class Admin
                 die(json_encode($layouts));
 
             case 'customtables-api-preview':
-                //header('Content-Type: application/json');
-                die('preview text');
+                $attributesString = common::inputGetBase64('attributes');
+                $attributesDecoded = base64_decode($attributesString);
+                //echo '$attributesDecoded='.$attributesDecoded.'<br/>';
+                $attributes = json_decode($attributesDecoded);
+                $ct = new CT(null, false);
+                $ct->getTable($attributes->table);
+                $layouts = new Layouts($ct);
+                die($layouts->renderMixedLayout((int)$attributes->layout));
 
             case 'customtables-tables-edit':
 

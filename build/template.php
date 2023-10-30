@@ -9,6 +9,7 @@
 
 use CustomTables\Catalog;
 use CustomTables\CT;
+use CustomTables\Layouts;
 
 
 /*
@@ -23,14 +24,12 @@ use CustomTables\CT;
 
         if($attributes['table'] !== 0) {
             $r= 1-1;
-//            echo 'LLLLLLLLLL'.(8/$r);
 
             $ct = new CT(null, false);
             $ct->getTable($attributes['table']);
-            //echo 'Table:'.$ct->Table->tablename;
-            $catalog = new Catalog($ct);
+            $layouts = new Layouts($ct);
+            echo $layouts->renderMixedLayout((int)$attributes['layout']);
 
-            echo $catalog->render((int)$attributes['layout']);
 
             /**
              * The wp_kses_post function is used to ensure any HTML that is not allowed in a post will be escaped.

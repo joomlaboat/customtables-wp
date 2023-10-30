@@ -28,34 +28,18 @@ class Layouts
     var ?int $tableId;
     var ?int $layoutId;
     var ?int $layoutType;
+    var ?string $pageLayoutNameString;
+    var ?string $pageLayoutLink;
+    var ?string $layoutCode;
 
     function __construct(&$ct)
     {
         $this->ct = &$ct;
         $this->tableId = null;
         $this->layoutType = null;
-    }
-
-    function getLayoutRowById(int $layoutId): ?array
-    {
-        $serverType = database::getServerType();
-        if ($serverType == 'postgresql')
-            $query = 'SELECT id, tableid, layoutname, layoutcode, layoutmobile, layoutcss, layoutjs, '
-                . 'CASE WHEN modified IS NULL THEN extract(epoch FROM created) '
-                . 'ELSE extract(epoch FROM modified) AS ts, '
-                . 'layouttype '
-                . 'FROM #__customtables_layouts WHERE id=' . $layoutId . ' LIMIT 1';
-        else
-            $query = 'SELECT id, tableid, layoutname, layoutcode, layoutmobile, layoutcss, layoutjs, '
-                . 'IF(modified IS NULL,UNIX_TIMESTAMP(created),UNIX_TIMESTAMP(modified)) AS ts, '
-                . 'layouttype '
-                . 'FROM #__customtables_layouts WHERE id=' . $layoutId . ' LIMIT 1';
-
-        $rows = database::loadAssocList($query);
-        if (count($rows) != 1)
-            return null;
-
-        return $rows[0];
+        $this->pageLayoutNameString = null;
+        $this->pageLayoutLink = null;
+        $this->layoutCode = null;
     }
 
     function processLayoutTag(string &$htmlresult): bool
@@ -155,6 +139,9 @@ class Layouts
         if ($addHeaderCode)
             $this->addCSSandJSIfNeeded($row, $checkLayoutFile);
 
+        $this->pageLayoutNameString = $row['layoutname'];
+        $this->pageLayoutLink = '/administrator/index.php?option=com_customtables&view=listoflayouts&task=layouts.edit&id=' . $row['id'];
+        $this->layoutCode = $layoutCode;
         return $layoutCode;
     }
 
@@ -302,6 +289,322 @@ class Layouts
         return true;
     }
 
+    function createDefaultLayout_Edit($fields, $addToolbar = true): string
+    {
+        $this->layoutType = 2;
+        $result = '<div class="form-horizontal">';
+
+        $fieldTypes_to_skip = ['log', 'phponview', 'phponchange', 'phponadd', 'md5', 'id', 'server', 'userid', 'viewcount', 'lastviewtime', 'changetime', 'creationtime', 'imagegallery', 'filebox', 'dummy', 'virtual'];
+
+        foreach ($fields as $field) {
+            if (!in_array($field['type'], $fieldTypes_to_skip)) {
+                $result .= '<div class="control-group">';
+                $result .= '<div class="control-label">{{ ' . $field['fieldname'] . '.label }}</div><div class="controls">{{ ' . $field['fieldname'] . '.edit }}</div>';
+                $result .= '</div>';
+            }
+        }
+
+        $result .= '</div>';
+
+        foreach ($fields as $field) {
+            if ($field['type'] === "dummy") {
+                $result .= '<p><span style="color: #FB1E3D; ">*</span> {{ ' . $field['fieldname'] . ' }}</p>
+';
+                break;
+            }
+        }
+
+        if ($addToolbar)
+            $result .= '<div style="text-align:center;">{{ button("save") }} {{ button("saveandclose") }} {{ button("saveascopy") }} {{ button("cancel") }}</div>
+';
+        return $result;
+    }
+
+    function createDefaultLayout_Edit_WP($fields, $addToolbar = true): string
+    {
+        $this->layoutType = 2;
+        $result = '<table class="form-table" role="presentation">';
+
+        $fieldTypes_to_skip = ['log', 'phponview', 'phponchange', 'phponadd', 'md5', 'id', 'server', 'userid', 'viewcount', 'lastviewtime', 'changetime', 'creationtime', 'imagegallery', 'filebox', 'dummy', 'virtual'];
+
+        foreach ($fields as $field) {
+
+            if (!in_array($field['type'], $fieldTypes_to_skip)) {
+
+                $result .= '
+            <tr class="form-field ' . ((int)$field['isrequired'] == 1 ? 'form-required' : 'form') . '">
+                        <th scope="row">
+                            <label for="' . $this->ct->Env->field_input_prefix . $field['fieldname'] . '">'
+                    . '{{ ' . $field['fieldname'] . '.title }}'
+                    . ((int)$field['isrequired'] == 1 ? '<span class="description">(' . __('required', $this->plugin_text_domain) . ')</span>' : '')
+                    . '</label>
+                        </th>
+                        <td>
+                            {{ ' . $field['fieldname'] . '.edit }}
+                        </td>
+                    </tr>
+            ';
+
+            }
+        }
+
+        $result .= '</table>';
+
+
+        if ($addToolbar)
+            $result .= '<div style="text-align:center;">{{ button("save") }} {{ button("saveandclose") }} {{ button("saveascopy") }} {{ button("cancel") }}</div>
+';
+        return $result;
+    }
+
+    public function storeAsFile($data): void
+    {
+        if ($this->ct->Env->folderToSaveLayouts !== null) {
+            $this->storeLayoutAsFile((int)$data['id'], $data['layoutname'], $data['layoutcode'], $data['layoutname'] . '.html');
+            $this->storeLayoutAsFile((int)$data['id'], $data['layoutname'], $data['layoutmobile'], $data['layoutname'] . '_mobile.html');
+            $this->storeLayoutAsFile((int)$data['id'], $data['layoutname'], $data['layoutcss'], $data['layoutname'] . '.css');
+            $this->storeLayoutAsFile((int)$data['id'], $data['layoutname'], $data['layoutjs'], $data['layoutname'] . '.js');
+        }
+    }
+
+    public function layoutTypeTranslation(): array
+    {
+        if (defined('_JEXEC')) {
+            return array(
+                1 => 'COM_CUSTOMTABLES_LAYOUTS_SIMPLE_CATALOG',
+                5 => 'COM_CUSTOMTABLES_LAYOUTS_CATALOG_PAGE',
+                6 => 'COM_CUSTOMTABLES_LAYOUTS_CATALOG_ITEM',
+                2 => 'COM_CUSTOMTABLES_LAYOUTS_EDIT_FORM',
+                4 => 'COM_CUSTOMTABLES_LAYOUTS_DETAILS',
+                3 => 'COM_CUSTOMTABLES_LAYOUTS_RECORD_LINK',
+                7 => 'COM_CUSTOMTABLES_LAYOUTS_EMAIL_MESSAGE',
+                8 => 'COM_CUSTOMTABLES_LAYOUTS_XML',
+                9 => 'COM_CUSTOMTABLES_LAYOUTS_CSV',
+                10 => 'COM_CUSTOMTABLES_LAYOUTS_JSON'
+            );
+        }
+
+        return array(
+            1 => 'Simple Catalog',
+            5 => 'Catalog Page',
+            6 => 'Catalog Item',
+            2 => 'Details',
+            4 => 'Details',
+            3 => 'COM_CUSTOMTABLES_LAYOUTS_DETAILS',
+            7 => 'Email Message',
+            8 => 'XML File',
+            9 => 'CSV File',
+            10 => 'JSON File'
+        );
+    }
+
+    function parseRawLayoutContent(string $content, bool $applyContentPlugins = true): string
+    {
+        if ($this->ct->Env->legacySupport) {
+            require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'layout.php');
+
+            $LayoutProc = new LayoutProcessor($this->ct);
+            $LayoutProc->layout = $content;
+            $content = $LayoutProc->fillLayout($this->ct->Table->record);
+        }
+
+        $twig = new TwigProcessor($this->ct, $content);
+        $content = $twig->process($this->ct->Table->record);
+
+        if ($twig->errorMessage !== null)
+            $this->ct->app->enqueueMessage($twig->errorMessage, 'error');
+
+        if ($applyContentPlugins and $this->ct->Params->allowContentPlugins)
+            $content = JoomlaBasicMisc::applyContentPlugins($content);
+
+        return $content;
+    }
+
+    function renderMixedLayout(int $layoutId): string
+    {
+        $this->getLayout($layoutId);
+        //$this->getLayoutRowById($layoutId);
+
+        if ($this->layoutType === null)
+            return 'CustomTable: Layout "' . $layoutId . '" not found';
+        /*
+         * <option value="1">Simple Catalog</option>
+                <option value="5">Catalog Page</option>
+                <option value="6">Catalog Item</option>
+                <option value="2">Edit form</option>
+                <option value="4">Details</option>
+                <!--<option value="3">COM_CUSTOMTABLES_LAYOUTS_RECORD_LINK</option>-->
+                <option value="7">Email Message</option>
+                <option value="8">XML File</option>
+                <option value="9">CSV File</option>
+                <option value="10">JSON File</option>
+         */
+
+        if ($this->layoutType == 1 or $this->layoutType == 5) {
+            return $this->renderCatalog();
+        }
+        return 'CustomTable: Unknown Layout Type';
+    }
+
+    protected function renderCatalog(): string
+    {
+        if ($this->ct->Env->frmt == 'html')
+            $this->ct->loadJSAndCSS();
+
+        // -------------------- Table
+
+        if ($this->ct->Table === null) {
+            echo 'Load Table';
+            $this->ct->getTable($this->ct->Params->tableName);
+
+            if ($this->ct->Table->tablename === null) {
+                $this->ct->app->enqueueMessage('Catalog View: Table not selected.', 'error');
+                return 'Catalog View: Table not selected.';
+            }
+        }
+
+        // --------------------- Filter
+        $this->ct->setFilter($this->ct->Params->filter, $this->ct->Params->showPublished);
+
+        if (!$this->ct->Params->blockExternalVars) {
+            if (common::inputGetString('filter', '') and is_string(common::inputGetString('filter', '')))
+                $this->ct->Filter->addWhereExpression(common::inputGetString('filter', ''));
+        }
+
+        if (!$this->ct->Params->blockExternalVars)
+            $this->ct->Filter->addQueryWhereFilter();
+
+        // --------------------- Shopping Cart
+        if ($this->ct->Params->showCartItemsOnly) {
+            $cookieValue = common::inputCookieGet($this->ct->Params->showCartItemsPrefix . $this->ct->Table->tablename);
+
+            if (isset($cookieValue)) {
+                if ($cookieValue == '') {
+                    $this->ct->Filter->where[] = $this->ct->Table->realtablename . '.' . $this->ct->Table->tablerow['realidfieldname'] . '=0';
+                } else {
+                    $items = explode(';', $cookieValue);
+                    $arr = array();
+                    foreach ($items as $item) {
+                        $pair = explode(',', $item);
+                        $arr[] = $this->ct->Table->realtablename . '.' . $this->ct->Table->tablerow['realidfieldname'] . '=' . (int)$pair[0];//id must be a number
+                    }
+                    $this->ct->Filter->where[] = '(' . implode(' OR ', $arr) . ')';
+                }
+            } else {
+                //Show only shopping cart items. TODO: check the query
+                $this->ct->Filter->where[] = $this->ct->Table->realtablename . '.' . $this->ct->Table->tablerow['realidfieldname'] . '=0';
+            }
+        }
+
+        if ($this->ct->Params->listing_id !== null)
+            $this->ct->Filter->where[] = $this->ct->Table->realtablename . '.' . $this->ct->Table->tablerow['realidfieldname'] . '=' . database::quote($this->ct->Params->listing_id);
+
+        // --------------------- Sorting
+        $this->ct->Ordering->parseOrderByParam();
+
+        // --------------------- Limit
+        if ($this->ct->Params->listing_id !== null)
+            $this->ct->applyLimits(1);
+        else
+            $this->ct->applyLimits($this->ct->Params->limit);
+
+        $this->ct->LayoutVariables['layout_type'] = $this->layoutType;
+
+        // -------------------- Load Records
+        if (!$this->ct->getRecords()) {
+
+            if (defined('_JEXEC'))
+                $this->ct->app->enqueueMessage(JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_ERROR_TABLE_NOT_FOUND'), 'error');
+
+            return 'CustomTables: Records not loaded.';
+        }
+
+        // -------------------- Parse Layouts
+        if ($this->ct->Env->frmt == 'json') {
+
+            $pathViews = CUSTOMTABLES_LIBRARIES_PATH
+                . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR;
+
+            require_once($pathViews . 'json.php');
+            $jsonOutput = new ViewJSON($this->ct);
+            die($jsonOutput->render($this->layoutCode));
+        }
+
+        $twig = new TwigProcessor($this->ct, $this->layoutCode, false, false, true, $this->pageLayoutNameString, $this->pageLayoutLink);
+        $pageLayout = $twig->process();
+
+        if (defined('_JEXEC')) {
+            if ($twig->errorMessage !== null)
+                $this->ct->app->enqueueMessage($twig->errorMessage, 'error');
+
+            if ($this->ct->Params->allowContentPlugins)
+                $pageLayout = JoomlaBasicMisc::applyContentPlugins($pageLayout);
+        }
+        return $pageLayout;
+    }
+
+    function getLayoutRowById(int $layoutId): ?array
+    {
+        $serverType = database::getServerType();
+        if ($serverType == 'postgresql')
+            $query = 'SELECT id, tableid, layoutname, layoutcode, layoutmobile, layoutcss, layoutjs, '
+                . 'CASE WHEN modified IS NULL THEN extract(epoch FROM created) '
+                . 'ELSE extract(epoch FROM modified) AS ts, '
+                . 'layouttype '
+                . 'FROM #__customtables_layouts WHERE id=' . $layoutId . ' LIMIT 1';
+        else
+            $query = 'SELECT id, tableid, layoutname, layoutcode, layoutmobile, layoutcss, layoutjs, '
+                . 'IF(modified IS NULL,UNIX_TIMESTAMP(created),UNIX_TIMESTAMP(modified)) AS ts, '
+                . 'layouttype '
+                . 'FROM #__customtables_layouts WHERE id=' . $layoutId . ' LIMIT 1';
+
+        $rows = database::loadAssocList($query);
+        if (count($rows) != 1)
+            return null;
+
+        return $rows[0];
+    }
+
+    function createDefaultLayout_CSV($fields): string
+    {
+        $this->layoutType = 9;
+
+        $result = '';
+
+        $fieldTypes_to_skip = ['log', 'imagegallery', 'filebox', 'dummy', 'ordering'];
+        $fieldTypes_to_pureValue = ['image', 'imagegallery', 'filebox', 'file'];
+
+        foreach ($fields as $field) {
+
+            if (!in_array($field['type'], $fieldTypes_to_skip)) {
+                if ($result !== '')
+                    $result .= ',';
+
+                $result .= '"{{ ' . $field['fieldname'] . '.title }}"';
+            }
+        }
+
+        $result .= PHP_EOL . "{% block record %}";
+
+        $firstField = true;
+        foreach ($fields as $field) {
+
+            if (!in_array($field['type'], $fieldTypes_to_skip)) {
+
+                if (!$firstField)
+                    $result .= ',';
+
+                if (!in_array($field['type'], $fieldTypes_to_pureValue))
+                    $result .= '"{{ ' . $field['fieldname'] . ' }}"';
+                else
+                    $result .= '"{{ ' . $field['fieldname'] . '.value }}"';
+
+                $firstField = false;
+            }
+        }
+        return $result . PHP_EOL . "{% endblock %}";
+    }
+
     function createDefaultLayout_SimpleCatalog(array $fields, bool $addToolbar = true): string
     {
         $this->layoutType = 1;
@@ -439,176 +742,5 @@ class Layouts
         }
 
         return $result;
-    }
-
-    function createDefaultLayout_CSV($fields): string
-    {
-        $this->layoutType = 9;
-
-        $result = '';
-
-        $fieldTypes_to_skip = ['log', 'imagegallery', 'filebox', 'dummy', 'ordering'];
-        $fieldTypes_to_pureValue = ['image', 'imagegallery', 'filebox', 'file'];
-
-        foreach ($fields as $field) {
-
-            if (!in_array($field['type'], $fieldTypes_to_skip)) {
-                if ($result !== '')
-                    $result .= ',';
-
-                $result .= '"{{ ' . $field['fieldname'] . '.title }}"';
-            }
-        }
-
-        $result .= PHP_EOL . "{% block record %}";
-
-        $firstField = true;
-        foreach ($fields as $field) {
-
-            if (!in_array($field['type'], $fieldTypes_to_skip)) {
-
-                if (!$firstField)
-                    $result .= ',';
-
-                if (!in_array($field['type'], $fieldTypes_to_pureValue))
-                    $result .= '"{{ ' . $field['fieldname'] . ' }}"';
-                else
-                    $result .= '"{{ ' . $field['fieldname'] . '.value }}"';
-
-                $firstField = false;
-            }
-        }
-        return $result . PHP_EOL . "{% endblock %}";
-    }
-
-    function createDefaultLayout_Edit($fields, $addToolbar = true): string
-    {
-        $this->layoutType = 2;
-        $result = '<div class="form-horizontal">';
-
-        $fieldTypes_to_skip = ['log', 'phponview', 'phponchange', 'phponadd', 'md5', 'id', 'server', 'userid', 'viewcount', 'lastviewtime', 'changetime', 'creationtime', 'imagegallery', 'filebox', 'dummy', 'virtual'];
-
-        foreach ($fields as $field) {
-            if (!in_array($field['type'], $fieldTypes_to_skip)) {
-                $result .= '<div class="control-group">';
-                $result .= '<div class="control-label">{{ ' . $field['fieldname'] . '.label }}</div><div class="controls">{{ ' . $field['fieldname'] . '.edit }}</div>';
-                $result .= '</div>';
-            }
-        }
-
-        $result .= '</div>';
-
-        foreach ($fields as $field) {
-            if ($field['type'] === "dummy") {
-                $result .= '<p><span style="color: #FB1E3D; ">*</span> {{ ' . $field['fieldname'] . ' }}</p>
-';
-                break;
-            }
-        }
-
-        if ($addToolbar)
-            $result .= '<div style="text-align:center;">{{ button("save") }} {{ button("saveandclose") }} {{ button("saveascopy") }} {{ button("cancel") }}</div>
-';
-        return $result;
-    }
-
-    function createDefaultLayout_Edit_WP($fields, $addToolbar = true): string
-    {
-        $this->layoutType = 2;
-        $result = '<table class="form-table" role="presentation">';
-
-        $fieldTypes_to_skip = ['log', 'phponview', 'phponchange', 'phponadd', 'md5', 'id', 'server', 'userid', 'viewcount', 'lastviewtime', 'changetime', 'creationtime', 'imagegallery', 'filebox', 'dummy', 'virtual'];
-
-        foreach ($fields as $field) {
-
-            if (!in_array($field['type'], $fieldTypes_to_skip)) {
-
-                $result .= '
-            <tr class="form-field ' . ((int)$field['isrequired'] == 1 ? 'form-required' : 'form') . '">
-                        <th scope="row">
-                            <label for="' . $this->ct->Env->field_input_prefix . $field['fieldname'] . '">'
-                    . '{{ ' . $field['fieldname'] . '.title }}'
-                    . ((int)$field['isrequired'] == 1 ? '<span class="description">(' . __('required', $this->plugin_text_domain) . ')</span>' : '')
-                    . '</label>
-                        </th>
-                        <td>
-                            {{ ' . $field['fieldname'] . '.edit }}
-                        </td>
-                    </tr>
-            ';
-
-            }
-        }
-
-        $result .= '</table>';
-
-
-        if ($addToolbar)
-            $result .= '<div style="text-align:center;">{{ button("save") }} {{ button("saveandclose") }} {{ button("saveascopy") }} {{ button("cancel") }}</div>
-';
-        return $result;
-    }
-
-    public function storeAsFile($data): void
-    {
-        if ($this->ct->Env->folderToSaveLayouts !== null) {
-            $this->storeLayoutAsFile((int)$data['id'], $data['layoutname'], $data['layoutcode'], $data['layoutname'] . '.html');
-            $this->storeLayoutAsFile((int)$data['id'], $data['layoutname'], $data['layoutmobile'], $data['layoutname'] . '_mobile.html');
-            $this->storeLayoutAsFile((int)$data['id'], $data['layoutname'], $data['layoutcss'], $data['layoutname'] . '.css');
-            $this->storeLayoutAsFile((int)$data['id'], $data['layoutname'], $data['layoutjs'], $data['layoutname'] . '.js');
-        }
-    }
-
-    public function layoutTypeTranslation(): array
-    {
-        if (defined('_JEXEC')) {
-            return array(
-                1 => 'COM_CUSTOMTABLES_LAYOUTS_SIMPLE_CATALOG',
-                5 => 'COM_CUSTOMTABLES_LAYOUTS_CATALOG_PAGE',
-                6 => 'COM_CUSTOMTABLES_LAYOUTS_CATALOG_ITEM',
-                2 => 'COM_CUSTOMTABLES_LAYOUTS_EDIT_FORM',
-                4 => 'COM_CUSTOMTABLES_LAYOUTS_DETAILS',
-                3 => 'COM_CUSTOMTABLES_LAYOUTS_RECORD_LINK',
-                7 => 'COM_CUSTOMTABLES_LAYOUTS_EMAIL_MESSAGE',
-                8 => 'COM_CUSTOMTABLES_LAYOUTS_XML',
-                9 => 'COM_CUSTOMTABLES_LAYOUTS_CSV',
-                10 => 'COM_CUSTOMTABLES_LAYOUTS_JSON'
-            );
-        }
-
-        return array(
-            1 => 'Simple Catalog',
-            5 => 'Catalog Page',
-            6 => 'Catalog Item',
-            2 => 'Details',
-            4 => 'Details',
-            3 => 'COM_CUSTOMTABLES_LAYOUTS_DETAILS',
-            7 => 'Email Message',
-            8 => 'XML File',
-            9 => 'CSV File',
-            10 => 'JSON File'
-        );
-    }
-
-    function parseRawLayoutContent(string $content, bool $applyContentPlugins = true): string
-    {
-        if ($this->ct->Env->legacySupport) {
-            require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'layout.php');
-
-            $LayoutProc = new LayoutProcessor($this->ct);
-            $LayoutProc->layout = $content;
-            $content = $LayoutProc->fillLayout($this->ct->Table->record);
-        }
-
-        $twig = new TwigProcessor($this->ct, $content);
-        $content = $twig->process($this->ct->Table->record);
-
-        if ($twig->errorMessage !== null)
-            $this->ct->app->enqueueMessage($twig->errorMessage, 'error');
-
-        if ($applyContentPlugins and $this->ct->Params->allowContentPlugins)
-            $content = JoomlaBasicMisc::applyContentPlugins($content);
-
-        return $content;
     }
 }

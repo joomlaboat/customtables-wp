@@ -1,6 +1,6 @@
 let customtables_tables = [];
 let customtables_layouts = [];
-let customtables_prerenderedContent = 'temp';
+let customtables_prerenderedContent = [];
 
 !function () {
     "use strict";
@@ -8,8 +8,14 @@ let customtables_prerenderedContent = 'temp';
         {
             741: function () {
                 var e = window.wp.blocks,
+                    /*
                     t = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"customtables/dynamic-block","version":"0.1.0","title":"Example: Dynamic Block (ESNext)","category":"text","icon":"universal-access-alt",' +
                         '"attributes":{"message":{"type":"string","default":"Hello from a dynamic block!"}},"example":{"attributes":{"message":"CustomTables Block"}},"supports":{"html":false},"textdomain":"dynamic-block","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
+
+                     */
+
+                    t = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"customtables/dynamic-block","version":"0.1.0","title":"Example: Dynamic Block (ESNext)","category":"text","icon":"universal-access-alt",' +
+                        '"attributes":{"message":{}},"example":{"attributes":{"message":"CustomTables Block"}},"supports":{"html":false},"textdomain":"dynamic-block","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
 
                 function n() {
                     return n = Object.assign || function (e) {
@@ -27,7 +33,7 @@ let customtables_prerenderedContent = 'temp';
 
                 var r = window.wp.element, o = window.wp.blockEditor;
                 const {name: i} = t;
-                CustomTablesRenderBlock(e,i);
+                CustomTablesRenderBlock(e, i);
 
             }
         }, n = {};
@@ -84,9 +90,7 @@ let customtables_prerenderedContent = 'temp';
     o = r.O(o)
 }();
 
-
-function CustomTablesLoadTables()
-{
+function CustomTablesLoadTables() {
     //Load list of tables
     let parts = location.href.split("wp-admin/");
     let url = parts[0] + 'wp-admin/admin.php?page=customtables-api-tables';
@@ -109,8 +113,7 @@ function CustomTablesLoadTables()
     });
 }
 
-function CustomTablesLoadLayouts()
-{
+function CustomTablesLoadLayouts() {
     //Load list of tables
     let parts = location.href.split("wp-admin/");
     let url = parts[0] + 'wp-admin/admin.php?page=customtables-api-layouts';
@@ -133,17 +136,31 @@ function CustomTablesLoadLayouts()
     });
 }
 
-function CustomTablesLoadPreview()
-{
+function CustomTablesLoadPreview(newAttributes,props) {
+    console.log("CustomTablesLoadPreview");
+    console.log(typeof props);
+
     //Load list of tables
     let parts = location.href.split("wp-admin/");
-    let url = parts[0] + 'wp-admin/admin.php?page=customtables-api-preview';
+    console.log(JSON.stringify(props.attributes));
+    let url = parts[0] + 'wp-admin/admin.php?page=customtables-api-preview&attributes=' + btoa(JSON.stringify(newAttributes));
+    console.log(JSON.stringify(newAttributes));
 
     fetch(url, {method: 'GET', mode: 'no-cors', credentials: 'same-origin'}).then(function (response) {
 
         if (response.ok) {
             response.text().then(function (text) {
-                customtables_prerenderedContent = text;
+                //newAttributes.loading = 0;
+                let blockId = cyrb53(JSON.stringify(newAttributes));
+                console.log("blockId:"+blockId);
+                customtables_prerenderedContent[blockId] = text;
+                console.log("updated");
+                console.log(typeof props);
+
+                setTimeout(function() {
+                    props.setAttributes({loading: 1});
+                    }, 200);
+
             });
 
         } else {
@@ -156,29 +173,19 @@ function CustomTablesLoadPreview()
     });
 }
 
-function CustomTablesRenderBlock(e,i)
-{
+function CustomTablesRenderBlock(e, i) {
+
     (0, e.registerBlockType)(i, {
 
         edit: function (props) {
-            //Example
-            /*
-            let {
-                attributes: {message: t},
-                setAttributes: i
-            } = e;
-            return (0, r.createElement)(o.RichText, n({}, (0, o.useBlockProps)(), {
-                tagName: "p",
-                value: t,
-                onChange: e => i({message: e})
-            }))
-            */
+            customtables_setAttribute = props.setAttribute;
+            console.log("edit render");
 
             //With Control Panel
-
-            var attributes = props.attributes;
             var blockProps = wp.blockEditor.useBlockProps();
 
+            props.attributes.loading=0;
+            let blockId = cyrb53(JSON.stringify(props.attributes));
 
             function updateArray(newValue) {
                 props.setAttributes({connections: newValue});
@@ -288,7 +295,7 @@ function CustomTablesRenderBlock(e,i)
             let SelectControl = wp.components.SelectControl;
             let TextControl = wp.components.TextControl;
             let __ = wp.i18n.__;
-
+            //let RawHTML = wp.element.RawHTML;
             var connEls = [];
 
             function LangControl(def, lang) {
@@ -301,7 +308,7 @@ function CustomTablesRenderBlock(e,i)
                     {
                         name: 'lang',
                         type: 'select',
-                        className: 'grw-connect-lang'
+                        className: '2grw-connect-lang'
                     },
                     opts
                 );
@@ -310,7 +317,18 @@ function CustomTablesRenderBlock(e,i)
             var connectGoogle = function (e) {
             }
 
-            //alert(JSON.stringify(props.attributes));
+            //alert("props.attributes.loading="+props.attributes.loading);
+            //alert("props.attributes.loading="+props.attributes.loading);
+
+            let generatedPreview;
+            if(customtables_prerenderedContent[blockId] === undefined) {
+                CustomTablesLoadPreview(props.attributes,props);
+            }
+            else {
+                generatedPreview = (customtables_prerenderedContent[blockId] !== '' ? customtables_prerenderedContent[blockId] : '<p>CustomTables Block:<br/>Please select a Table and Layout.</p>')
+            }
+
+            //delete customtables_prerenderedContent[blockId];
 
             return el(
                 'div',
@@ -323,16 +341,31 @@ function CustomTablesRenderBlock(e,i)
                     el(
                         'div',
                         {
-                            id: 'grw-builder-option',
-                            className: 'grw-builder-options grw-block-options'
+                            id: '2grw-builder-option',
+                            className: '2grw-builder-options 2grw-block-options'
                         },
                         el(
                             PanelBody,
                             {
                                 title: __('Table'),
                                 initialOpen: true,
-                                className: 'grw-toggle grw-builder-connect grw-connect-business'
+                                className: '2grw-toggle grw-builder-connect 2grw-connect-business'
                             },
+                            el(
+                                SelectControl,
+                                {
+                                    id: 'customtables_block_loading',
+                                    name: 'customtables_block_loading',
+                                    value: props.attributes.table,
+                                    options: [{label: 'state 0',value: 0},{label: 'state 1',value: 1}],
+                                    onChange: function (newValue) {
+                                        console.log("on change called");
+                                        props.setAttributes({loading: 0});
+                                        CustomTablesLoadPreview(props);
+                                    },
+                                    style:{visibility: 'hidden'}
+                                }
+                            ),
                             el(
                                 SelectControl,
                                 {
@@ -342,23 +375,15 @@ function CustomTablesRenderBlock(e,i)
                                     options: customtables_tables,
                                     onChange: function (newValue) {
                                         props.setAttributes({table: newValue});
+                                        props.setAttributes({loading: 0});
+
+                                        let newAttributes = props.attributes;
+                                        newAttributes.table = newValue;
+
+                                        CustomTablesLoadPreview(newAttributes,props);
                                     }
                                 }
                             )
-                            /*el(
-                                'button',
-                                {
-                                    className: 'grw-builder-connect grw-connect-google',
-                                    style: {width: '100%'},
-                                    onClick: function () {
-                                        let wizardEl = jQuery('#grw-connect-wizard');
-                                        wizardEl.dialog({modal: true, width: '50%', maxWidth: '600px'});
-                                        wizardEl[0].querySelector('.grw-connect-btn').onclick = connectGoogle;
-                                    }
-                                },
-                                'Select Table'
-                            ),
-                            connEls*/
                         ),
                         el(
                             PanelBody,
@@ -375,6 +400,12 @@ function CustomTablesRenderBlock(e,i)
                                     options: customtables_layouts,
                                     onChange: function (newValue) {
                                         props.setAttributes({layout: newValue});
+                                        props.setAttributes({loading: 0});
+
+                                        let newAttributes = props.attributes;
+                                        newAttributes.layout = newValue;
+
+                                        CustomTablesLoadPreview(newAttributes,props);
                                     }
                                 }
                             )
@@ -392,6 +423,12 @@ function CustomTablesRenderBlock(e,i)
                                     value: props.attributes.filter,
                                     onChange: function (newValue) {
                                         props.setAttributes({filter: newValue});
+                                        props.setAttributes({loading: 0});
+
+                                        let newAttributes = props.attributes;
+                                        newAttributes.filter = newValue;
+
+                                        CustomTablesLoadPreview(newAttributes,props);
                                     }
                                 }
                             ),
@@ -409,6 +446,12 @@ function CustomTablesRenderBlock(e,i)
                                     value: props.attributes.orderby,
                                     onChange: function (newValue) {
                                         props.setAttributes({orderby: newValue});
+                                        props.setAttributes({loading: 0});
+
+                                        let newAttributes = props.attributes;
+                                        newAttributes.orderby = newValue;
+
+                                        CustomTablesLoadPreview(newAttributes,props);
                                     }
                                 }
                             ),
@@ -419,6 +462,12 @@ function CustomTablesRenderBlock(e,i)
                                     value: props.attributes.order,
                                     onChange: function (newValue) {
                                         props.setAttributes({order: newValue});
+                                        props.setAttributes({loading: 0});
+
+                                        let newAttributes = props.attributes;
+                                        newAttributes.order = newValue;
+
+                                        CustomTablesLoadPreview(newAttributes,props);
                                     }
                                 }
                             )
@@ -428,63 +477,73 @@ function CustomTablesRenderBlock(e,i)
                 el(
                     'div',
                     {
-                        id: 'grw-connect-wizard',
-                        title: 'Easy steps to connect Google Reviews',
+                        id: 'customtables-block-wizard',
+                        title: 'CustomTables Block',
                         style: {
                             'display': 'block',
                             'padding': '10px 20px',
-                            'border-radius': '5px',
-                            'background': '#fff'
+                            /*'border-radius': '5px',
+                            'background': '#fff'*/
                         }
                     },
                     el(
-                        'p',
+                        wp.element.RawHTML,
                         null,
-                        el('span', null, '1'),
-                        ' Custom Tables Block (',
-                        el('u', {className: 'grw-wiz-arr'}, 'Enter a location'),
-                        ') and copy your ',
-                        el('u', null, 'Place ID')
-                    ),
-                    el(
-                        'small',
-                        {style: {fontSize: '13px', color: '#000'}},
-                        'If you can\'t find your place on this map, please read ',
-                        el('a', {
-                            href: GRW_VARS.supportUrl + '&grw_tab=fig#place_id',
-                            target: '_blank'
-                        }, 'this manual how to find any Google Place ID'),
-                        '.'
-                    ),
-                    el(
-                        'p',
-                        null,
-                        el('span', null, '2'),
-                        ' Paste copied Place ID in this field and select language if needed ',
-                        el(wp.components.TextControl, {
-                            type: 'text',
-                            className: 'grw-connect-id',
-                            placeholder: 'Place ID'
-                        }),
-                        LangControl('Choose language if needed')
-                    ),
-                    el(
-                        'p',
-                        null,
-                        'Content: '+customtables_prerenderedContent
-                    ),
-                    el('button', {className: 'grw-connect-btn', onClick: connectGoogle}, 'Connect Google'),
-                    el('small', {className: 'grw-connect-error'})
+                        generatedPreview
+                    )
                 )
             );
-
             //End of control panel
         },
         save: props => {
-            CustomTablesLoadPreview();
-            return [props.pagination, props.attributes.text_size];
+            props.attributes.loading=1;
+            let attributes = props.attributes;
+            let newAttributes = {
+                table: attributes.table,
+                layout: attributes.layout,
+                filter: attributes.filter,
+                orderby: attributes.orderby,
+                order: attributes.order,
+                loading: 0
+            }
+                console.log("saved");
+            //let blockId = cyrb53(JSON.stringify(props.attributes));
+            //alert("1customtables_prerenderedContent.length:"+Object.keys(customtables_prerenderedContent).length);
+            //delete customtables_prerenderedContent[blockId];
+            //alert("2customtables_prerenderedContent.length:"+Object.keys(customtables_prerenderedContent).length);
+            //alert(typeof customtables_setAttribute)
+
+            //if(document.getElementById("customtables_block_loading"))
+//                document.getElementById("customtables_block_loading").value = 0;
+
+  //          CustomTablesLoadPreview(newAttributes,props.attributes);
+
+
+
+  //          setTimeout(function() {
+
+//                if(document.getElementById("inspector-text-control-1"))
+              //      document.getElementById("inspector-text-control-1").value = 1;
+
+            //}, 4000);
+
+            return newAttributes;
         },
-
-
     })
 }
+
+const cyrb53 = (str, seed = 0) => {
+    let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+    for(let i = 0, ch; i < str.length; i++) {
+        ch = str.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1  = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+    h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2  = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+    h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+
+    return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+};
+

@@ -26,6 +26,10 @@
 		"order": {
 			"type": "string",
 			"default": ""
+		},
+		"loading": {
+			"type": "int",
+			"default": 0
 		}
 	},
 	"example": {
