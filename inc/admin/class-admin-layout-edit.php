@@ -49,6 +49,23 @@ class Admin_Layout_Edit
         {
             $this->layoutRow = null;
         }
+
+        add_action('admin_enqueue_scripts', array($this, 'codemirror_enqueue_scripts'));
+    }
+
+    function codemirror_enqueue_scripts($hook) {
+
+        $cm_settings1['codeEditor_layoutcode'] = wp_enqueue_code_editor(array('mode'=>'text/html'));
+        wp_localize_script('jquery', 'cm_settings_layoutcode', $cm_settings1);
+        $cm_settings2['codeEditor_layoutmobile'] = wp_enqueue_code_editor(array('mode'=>'text/html'));
+        wp_localize_script('jquery', 'cm_settings_layoutmobile', $cm_settings2);
+        $cm_settings3['codeEditor_layoutcss'] = wp_enqueue_code_editor(array('mode'=>'css'));
+        wp_localize_script('jquery', 'cm_settings_layoutcss', $cm_settings3);
+        $cm_settings4['codeEditor_layoutjs'] = wp_enqueue_code_editor(array('mode'=>'javascript'));
+        wp_localize_script('jquery', 'cm_settings_layoutjs', $cm_settings4);
+
+        wp_enqueue_script('wp-theme-plugin-editor');
+        wp_enqueue_style('wp-codemirror');
     }
 
     function handle_layout_actions(): void

@@ -110,6 +110,11 @@ class Admin
 
     }
 
+
+
+
+
+
     /**
      * Register the JavaScript for the admin area.
      *
@@ -117,9 +122,8 @@ class Admin
      */
     public function enqueue_scripts()
     {
-
-        //$params = array ( 'ajaxurl' => admin_url( 'admin-ajax.php' ) );
-        wp_enqueue_script('nds_ajax_handle', plugin_dir_url(__FILE__) . 'js/customtables-admin.js', array('jquery'), $this->version, false);
+        //$params = array ( 'ajaxurl' => admin_url( 'admin-ajax.php' ) );'jquery','codemirror''codemirror'
+        wp_enqueue_script('nds_ajax_handle', plugin_dir_url(__FILE__) . 'js/customtables-admin.js', array(), $this->version, false);
         //wp_localize_script( 'nds_ajax_handle', 'params', $params );
 
 
@@ -141,6 +145,7 @@ class Admin
             wp_enqueue_script('customtables-js-ajax', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/ajax.js', array(), $this->version, false);
             wp_enqueue_script('customtables-js-typeparams_common', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/typeparams_common.js', array(), $this->version, false);
             wp_enqueue_script('customtables-js-typeparams_j4', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/typeparams_j4.js', array(), $this->version, false);
+            //codemirror.min.js
 
 
         }

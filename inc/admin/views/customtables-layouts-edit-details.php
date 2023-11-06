@@ -29,7 +29,7 @@
 
             <?php
 
-            $selectedType = $this->admin_layout_edit->layoutRow['layouttype'];
+            $selectedType = $this->admin_layout_edit->layoutRow['layouttype'] ?? '';
             $Layouts = new Layouts($this->admin_layout_edit->ct);
             $types = $Layouts->layoutTypeTranslation();
 
@@ -72,7 +72,7 @@
         </th>
         <td>
 
-            <?php echo Forms::renderHTMLSelectBoxFromDB('table',$this->admin_layout_edit->layoutRow['tableid'], true,'#__customtables_tables',
+            <?php echo Forms::renderHTMLSelectBoxFromDB('table',$this->admin_layout_edit->layoutRow['tableid'] ?? 0, true,'#__customtables_tables',
                 ['id', 'tablename'], ['published=1'], 'tablename',['onchange="loadFieldsUpdate(\'WordPress\');"']) ?>
         </td>
     </tr>
