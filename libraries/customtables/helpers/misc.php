@@ -497,7 +497,7 @@ class JoomlaBasicMisc
         $parts = explode('.', $filename);
         $filename_array = array();
 
-        $filename_array[] = JoomlaBasicMisc::JTextExtended($parts[0]);
+        $filename_array[] = common::translate($parts[0]);
         if (count($parts) > 1) {
             for ($i = 1; $i < count($parts); $i++)
                 $filename_array[] = $parts[$i];
@@ -527,11 +527,6 @@ class JoomlaBasicMisc
             $filename .= '.' . $format;
 
         return $filename;
-    }
-
-    public static function JTextExtended(string $text, int $value = null): string
-    {
-        return common::translate($text, $value);
     }
 
     public static function strip_tags_content($text, $tags = '', $invert = FALSE)
@@ -622,24 +617,6 @@ class JoomlaBasicMisc
         return $rows[0];
     }
 
-    public static function checkUserGroupAccess($thegroup = 0): bool
-    {
-        if ($thegroup == 0)
-            return false;
-
-        $user = Factory::getUser();
-        $isAdmin = $user->get('isRoot');
-        if ($isAdmin)
-            return true;
-
-        $usergroups = JAccess::getGroupsByUser($user->id);
-
-        if (in_array($thegroup, $usergroups))
-            return true;
-
-        return false;
-    }
-
     public static function applyContentPlugins(string &$htmlresult): string
     {
         $version_object = new Version;
@@ -666,7 +643,7 @@ class JoomlaBasicMisc
                 Factory::getApplication()->triggerEvent('onContentPrepare', array('com_content.article', &$o, &$content_params, 0));
 
             $htmlresult = $o->text;
-            $myDoc->setTitle(JoomlaBasicMisc::JTextExtended($pageTitle)); //because content plugins may overwrite the title
+            $myDoc->setTitle(common::translate($pageTitle)); //because content plugins may overwrite the title
         }
         return $htmlresult;
     }
@@ -694,7 +671,6 @@ class JoomlaBasicMisc
                 return $file;
             }
         }
-        return null;
     }
 
     public static function generateRandomString(int $length = 32): string

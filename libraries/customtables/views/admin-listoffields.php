@@ -18,9 +18,6 @@ if (!defined('_JEXEC') and !defined('WPINC')) {
 use JFilterInput;
 use JHtml;
 use Joomla\CMS\HTML\HTMLHelper;
-use Joomla\CMS\Language\Text;
-use Joomla\CMS\Factory;
-use Joomla\Utilities\ArrayHelper;
 use JoomlaBasicMisc;
 
 class ListOfFields
@@ -33,6 +30,7 @@ class ListOfFields
     var ?bool $canDelete;
     var ?bool $canEdit;
     var ?bool $saveOrder;
+    var string $dbPrefix;
 
     function __construct(CT $ct, ?array $items = null, ?bool $canState = null, ?bool $canDelete = null, ?bool $canEdit = null, ?bool $saveOrder = null)
     {
@@ -47,6 +45,7 @@ class ListOfFields
         $this->canDelete = $canDelete ?? false;
         $this->canEdit = $canEdit ?? false;
         $this->saveOrder = $saveOrder ?? false;
+        $this->dbPrefix = database::getDBPrefix();
     }
 
     function getListQuery(int $tableId, $published = null, $search = null, $type = null, $orderCol = null, $orderDirection = null, $limit = 0, $start = 0): string
@@ -111,8 +110,7 @@ class ListOfFields
         foreach ($this->items as $i => $item) {
 
             $canCheckin = $this->ct->Env->user->authorise('core.manage', 'com_checkin') || $item->checked_out == $this->ct->Env->user->id || $item->checked_out == 0;
-            $userChkOut = Factory::getUser($item->checked_out);
-
+            $userChkOut = new CTUser($item->checked_out);
             $result .= $this->renderBodyLine($item, $i, $canCheckin, $userChkOut);
         }
         return $result;
@@ -121,6 +119,8 @@ class ListOfFields
     protected function renderBodyLine(object $item, int $i, $canCheckin, $userChkOut): string
     {
         $hashRealTableName = database::realTableName($this->ct->Table->realtablename);
+        $hashRealTableName = str_replace($this->dbPrefix, '#__', $hashRealTableName);
+
         $result = '<tr class="row' . ($i % 2) . '" data-draggable-group="' . $this->ct->Table->tableid . '">';
 
         if ($this->canState or $this->canDelete) {
@@ -142,7 +142,7 @@ class ListOfFields
 
             $iconClass = '';
             if (!$this->saveOrder)
-                $iconClass = ' inactive" title="' . Text::_('JORDERINGDISABLED');
+                $iconClass = ' inactive" title="' . common::translate('JORDERINGDISABLED');
 
             $result .= '<span class="sortable-handler' . $iconClass . '"><span class="icon-ellipsis-v" aria-hidden="true"></span></span>';
 
@@ -198,9 +198,9 @@ class ListOfFields
                     </div>
                 </td>';
 
-        $result .= '<td>' . Text::_($item->typeLabel) . '</td>';
+        $result .= '<td>' . common::translate($item->typeLabel) . '</td>';
         $result .= '<td>' . $this->escape($item->typeparams) . $this->checkTypeParams($item->type, $item->typeparams) . '</td>';
-        $result .= '<td>' . Text::_($item->isrequired) . '</td>';
+        $result .= '<td>' . common::translate($item->isrequired) . '</td>';
         $result .= '<td>' . $this->escape($this->ct->Table->tabletitle) . '</td>';
         $result .= '<td class="text-center btns d-none d-md-table-cell">';
         if ($this->canState) {

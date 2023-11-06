@@ -11,8 +11,6 @@
 namespace CustomTables;
 
 use CT_FieldTypeTag_FileBox;
-use JoomlaBasicMisc;
-use Joomla\CMS\Uri\Uri;
 
 class RecordToolbar
 {
@@ -36,7 +34,7 @@ class RecordToolbar
         $this->iconPath = CUSTOMTABLES_MEDIA_WEBPATH . 'images/icons/';
     }
 
-    public function render(array $row, $mode)
+    public function render(array $row, $mode): string
     {
         $this->listing_id = $row[$this->Table->realidfieldname];
         $this->rid = $this->Table->tableid . 'x' . $this->listing_id;
@@ -52,7 +50,7 @@ class RecordToolbar
 
                 case 'refresh':
                     $rid = 'esRefreshIcon' . $this->rid;
-                    $alt = JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_REFRESH');
+                    $alt = common::translate('COM_CUSTOMTABLES_REFRESH');
 
                     if ($this->ct->Env->toolbarIcons != '')
                         $img = '<i class="ba-btn-transition ' . $this->ct->Env->toolbarIcons . ' fa-sync" data-icon="' . $this->ct->Env->toolbarIcons . ' fa-sync" title="' . $alt . '"></i>';
@@ -98,7 +96,7 @@ class RecordToolbar
         if (defined('WPINC'))
             return 'CustomTables: Edit Icons not supported in WP yet.';
 
-        $alt = JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_EDIT');
+        $alt = common::translate('COM_CUSTOMTABLES_EDIT');
 
         if ($this->ct->Env->toolbarIcons != '')
             $img = '<i class="ba-btn-transition ' . $this->ct->Env->toolbarIcons . ' fa-pen" data-icon="' . $this->ct->Env->toolbarIcons . ' fa-pen" title="' . $alt . '"></i>';
@@ -176,7 +174,7 @@ class RecordToolbar
     {
         $Label = 'Would you like to copy (' . $this->firstFieldValueLabel() . ')?';
 
-        $alt = JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_COPY');
+        $alt = common::translate('COM_CUSTOMTABLES_COPY');
 
         if ($this->ct->Env->toolbarIcons != '')
             $img = '<i class="ba-btn-transition ' . $this->ct->Env->toolbarIcons . ' fa-copy" data-icon="' . $this->ct->Env->toolbarIcons . ' fa-copy" title="' . $alt . '"></i>';
@@ -239,7 +237,7 @@ class RecordToolbar
             else
                 $img = '<img src="' . $this->iconPath . 'key-add.png" border="0" alt="' . $alt . '" title="' . $alt . '">';
 
-            $resetLabel = JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_USERWILLBECREATED') . ' ' . $this->firstFieldValueLabel();
+            $resetLabel = common::translate('COM_CUSTOMTABLES_USERWILLBECREATED') . ' ' . $this->firstFieldValueLabel();
             $action = 'ctCreateUser("' . $resetLabel . '", ' . $this->listing_id . ', "' . $rid . '",' . $this->ct->Params->ModuleId . ')';
         } else {
             $userRow = CTUser::GetUserRow($realUserId);
@@ -268,7 +266,7 @@ class RecordToolbar
     {
         $deleteLabel = $this->firstFieldValueLabel();
 
-        $alt = JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_DELETE');
+        $alt = common::translate('COM_CUSTOMTABLES_DELETE');
 
         if ($this->ct->Env->toolbarIcons != '')
             $img = '<i class="ba-btn-transition ' . $this->ct->Env->toolbarIcons . ' fa-trash" data-icon="' . $this->ct->Env->toolbarIcons . ' fa-trash" title="' . $alt . '"></i>';
@@ -287,7 +285,7 @@ class RecordToolbar
 
             if ($this->row['listing_published']) {
                 $link = 'javascript:ctPublishRecord(' . $this->Table->tableid . ',\'' . $this->listing_id . '\', \'' . $rid . '\',0,' . $this->ct->Params->ModuleId . ');';
-                $alt = JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_UNPUBLISH');
+                $alt = common::translate('COM_CUSTOMTABLES_UNPUBLISH');
 
                 if ($this->ct->Env->toolbarIcons != '')
                     $img = '<i class="ba-btn-transition ' . $this->ct->Env->toolbarIcons . ' fa-check-circle" data-icon="' . $this->ct->Env->toolbarIcons . ' fa-check-circle" title="' . $alt . '"></i>';
@@ -295,7 +293,7 @@ class RecordToolbar
                     $img = '<img src="' . $this->iconPath . 'publish.png" border="0" alt="' . $alt . '" title="' . $alt . '">';
             } else {
                 $link = 'javascript:ctPublishRecord(' . $this->Table->tableid . ',\'' . $this->listing_id . '\', \'' . $rid . '\',1,' . $this->ct->Params->ModuleId . ');';
-                $alt = JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_PUBLISH');
+                $alt = common::translate('COM_CUSTOMTABLES_PUBLISH');
 
                 if ($this->ct->Env->toolbarIcons != '')
                     $img = '<i class="ba-btn-transition ' . $this->ct->Env->toolbarIcons . ' fa-ban" data-icon="' . $this->ct->Env->toolbarIcons . ' fa-ban" title="' . $alt . '"></i>';
@@ -305,7 +303,7 @@ class RecordToolbar
             return '<div id="' . $rid . '" class="toolbarIcons"><a href="' . $link . '">' . $img . '</a></div>';
         } else {
             if (!$this->row['listing_published'])
-                return JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_PUBLISHED');
+                return common::translate('COM_CUSTOMTABLES_PUBLISHED');
         }
         return '';
     }

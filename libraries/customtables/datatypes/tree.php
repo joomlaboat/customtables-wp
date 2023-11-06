@@ -15,8 +15,8 @@ if (!defined('_JEXEC') and !defined('WPINC')) {
     die('Restricted access');
 }
 
+use CustomTables\common;
 use CustomTables\database;
-use Joomla\CMS\Language\Text;
 use \JoomlaBasicMisc;
 
 class Tree
@@ -46,7 +46,7 @@ class Tree
     {
         $query = "SELECT id, optionname FROM #__customtables_options WHERE parentid=0 ORDER BY optionname";
         $available_rootparents = database::loadObjectList($query);
-        JoomlaBasicMisc::array_insert($available_rootparents, array("id" => 0, "optionname" => Text::_('-Select Parent')), 0);
+        JoomlaBasicMisc::array_insert($available_rootparents, array("id" => 0, "optionname" => '-' . common::translate('COM_CUSTOMTABLES_SELECT_PARENT')), 0);
         return $available_rootparents;
 
     }
@@ -133,10 +133,9 @@ class Tree
 
         $title = "";
         foreach ($names as $optionname) {
-            $optionname = $optionname;
+
             if ($optionname == '')
                 break;
-
 
             $parentid = Tree::getOptionTitle($optionname, $parentid, $title, $langpostfix);
         }

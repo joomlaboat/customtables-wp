@@ -15,9 +15,6 @@ if (!defined('_JEXEC') and !defined('WPINC')) {
 }
 
 use Exception;
-use Joomla\CMS\Language\Text;
-use JoomlaBasicMisc;
-use Joomla\CMS\Factory;
 use JHTML;
 
 if (defined('_JEXEC'))
@@ -220,10 +217,10 @@ class SearchInputBox
         else
             $default_class = 'form-select';
 
-        $published = JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_PUBLISHED');
-        $unpublished = JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_UNPUBLISHED');
-        $any = $published . ' ' . JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_AND') . ' ' . $unpublished;
-        $translations = array($any, $published, JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_UNPUBLISHED'));
+        $published = common::translate('COM_CUSTOMTABLES_PUBLISHED');
+        $unpublished = common::translate('COM_CUSTOMTABLES_UNPUBLISHED');
+        $any = $published . ' ' . common::translate('COM_CUSTOMTABLES_AND') . ' ' . $unpublished;
+        $translations = array($any, $published, common::translate('COM_CUSTOMTABLES_UNPUBLISHED'));
         $onchange = $this->getOnChangeAttributeString($default_Action, $index, $where, $whereList);
 
         $result .= '<select'
@@ -264,7 +261,7 @@ class SearchInputBox
         else
             $default_class = 'form-select';
 
-        $translations = array(JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_ANY'), JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_YES'), JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_NO'));
+        $translations = array(common::translate('COM_CUSTOMTABLES_ANY'), common::translate('COM_CUSTOMTABLES_YES'), common::translate('COM_CUSTOMTABLES_NO'));
         $onchange = $this->getOnChangeAttributeString($default_Action, $index, $where, $whereList);
 
         $result .= '<select'
@@ -378,7 +375,7 @@ class SearchInputBox
 
         $onchange = $this->getOnChangeAttributeString($default_Action, $index, $where, $whereList);
         $options = [];
-        $options[] = ['id' => '', 'data-type' => 'radio', 'name' => '- ' . Text::_('COM_CUSTOMTABLES_SELECT') . ' ' . $this->field->title];
+        $options[] = ['id' => '', 'data-type' => 'radio', 'name' => '- ' . common::translate('COM_CUSTOMTABLES_SELECT') . ' ' . $this->field->title];
         foreach ($this->field->params as $param)
             $options[] = ['id' => $param, 'data-type' => 'radio', 'name' => $param];
 
@@ -452,7 +449,7 @@ class SearchInputBox
         else
             $cssclass = 'class="form-control ' . $cssclass . '" ';
 
-        $user = Factory::getUser();
+        $user = new CTUser();
 
         if ($default_Action != '') {
             $onchange = $default_Action;

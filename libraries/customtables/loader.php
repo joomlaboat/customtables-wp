@@ -1,4 +1,12 @@
 <?php
+/**
+ * CustomTables Joomla! 3.x/4.x/5.x Native Component and WordPress 6.x Plugin
+ * @package Custom Tables
+ * @author Ivan Komlev <support@joomlaboat.com>
+ * @link https://joomlaboat.com
+ * @copyright (C) 2018-2023. Ivan Komlev
+ * @license GNU/GPL Version 2 or later - https://www.gnu.org/licenses/gpl-2.0.html
+ **/
 
 // If this file is called directly, abort.
 if (!defined('_JEXEC') and !defined('WPINC')) {
@@ -17,6 +25,9 @@ if (!function_exists('str_contains')) {
 
 function CTLoader($include_utilities = false, $include_html = false, $PLUGIN_NAME_DIR = null, $componentName = 'com_customtables', ?bool $loadTwig = null)
 {
+    if (defined('CUSTOMTABLES_MEDIA_WEBPATH'))
+        return;
+
     if ($loadTwig === null and defined('_JEXEC')) {
         $params = JComponentHelper::getParams($componentName);
         $loadTwig = $params->get('loadTwig');
@@ -31,8 +42,13 @@ function CTLoader($include_utilities = false, $include_html = false, $PLUGIN_NAM
         define('CUSTOMTABLES_LIBRARIES_PATH', $libraryPath);
 
     if (defined('_JEXEC')) {
-        define('CUSTOMTABLES_MEDIA_WEBPATH', CUSTOMTABLES_MEDIA_WEBPATH . '');
-        define('CUSTOMTABLES_MEDIA_HOME_URL', URI::root(true));
+        define('CUSTOMTABLES_MEDIA_WEBPATH', URI::root(false) . 'components/com_customtables/libraries/customtables/media/');
+
+        $url = URI::root(false);
+        if (strlen($url) > 0 and $url[strlen($url) - 1] == '/')
+            $url = substr($url, 0, strlen($url) - 1);
+
+        define('CUSTOMTABLES_MEDIA_HOME_URL', $url);
     } elseif (defined('WPINC')) {
         define('CUSTOMTABLES_MEDIA_WEBPATH', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/');
         define('CUSTOMTABLES_MEDIA_HOME_URL', home_url());

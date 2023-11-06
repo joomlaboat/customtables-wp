@@ -1,9 +1,18 @@
 <?php
+/**
+ * CustomTables Joomla! 3.x/4.x/5.x Native Component and WordPress 6.x Plugin
+ * @package Custom Tables
+ * @author Ivan Komlev <support@joomlaboat.com>
+ * @link https://joomlaboat.com
+ * @copyright (C) 2018-2023. Ivan Komlev
+ * @license GNU/GPL Version 2 or later - https://www.gnu.org/licenses/gpl-2.0.html
+ **/
 
 namespace CustomTables;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
+use JoomlaBasicMisc;
 use JUri;
 
 class common
@@ -17,10 +26,10 @@ class common
         }
     }
 
-    public static function translate($text, $value = null)
+    public static function translate(string $text, int|float $value = null)
     {
         if (defined('WPINC')) {
-            return $text;
+            return __('Custom Tables - Table', 'customtables');
         }
 
         if (is_null($value))
@@ -41,9 +50,9 @@ class common
                 $lang->load($extension, JPATH_SITE);//JPATH_BASE);
 
                 if (is_null($value))
-                    return Text::_($text);
+                    return common::translate($text);
                 else
-                    return Text::sprintf($text, $value);
+                    return common::translate($text, $value);
             } else
                 return $text;
         } else
@@ -234,6 +243,7 @@ class common
         } else {
             echo 'common::inputGet not supported in WordPress';
         }
+        return null;
     }
 
     public static function inputPost($parameter, $default = null, $filter = null)
@@ -243,6 +253,7 @@ class common
         } else {
             echo 'common::inputPost not supported in WordPress';
         }
+        return null;
     }
 
     public static function inputSet(string $parameter, string $value): void
@@ -261,6 +272,7 @@ class common
         } else {
             echo 'common::inputFiles not supported in WordPress';
         }
+        return null;
     }
 
     public static function inputCookieSet(string $parameter, $value, $time, $path, $domain): void
@@ -288,5 +300,26 @@ class common
         } else {
             die('common::inputServer not supported in WordPress');
         }
+    }
+
+    public static function ExplodeSmartParams(string $param): array
+    {
+        $items = array();
+
+        if ($param === null)
+            return $items;
+
+        $a = JoomlaBasicMisc::csv_explode(' and ', $param, '"', true);
+        foreach ($a as $b) {
+            $c = JoomlaBasicMisc::csv_explode(' or ', $b, '"', true);
+
+            if (count($c) == 1)
+                $items[] = array('and', $b);
+            else {
+                foreach ($c as $d)
+                    $items[] = array('or', $d);
+            }
+        }
+        return $items;
     }
 }

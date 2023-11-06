@@ -15,16 +15,12 @@ if (!defined('_JEXEC') and !defined('WPINC')) {
     die('Restricted access');
 }
 
-use ESTables;
 use Exception;
 use Joomla\CMS\Version;
-use JoomlaBasicMisc;
 use JUserHelper;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Access\Access;
-use Joomla\CMS\Language\Text;
-use tagProcessor_If;
 
 class CTUser
 {
@@ -34,10 +30,11 @@ class CTUser
     var bool $isUserAdministrator;
     var ?string $name;
     var ?string $username;
+    var bool $guestCanAddNew;
 
-    public function __construct()
+    public function __construct(int $id = 0)
     {
-        $this->id = 0;
+        $this->id = $id;
         $this->groups = [];
         $this->email = null;
         $this->name = null;
@@ -49,9 +46,14 @@ class CTUser
             $version = (int)$version_object->getShortVersion();
 
             if ($version < 4)
-                $user = Factory::getUser();
-            else
-                $user = Factory::getApplication()->getIdentity();
+                $user = Factory::getUser($this->id);
+            else {
+
+                if ($this->id == 0)
+                    $user = Factory::getApplication()->getIdentity();
+                else
+                    $user = Factory::getApplication()->loadIdentity($this->id);
+            }
 
             $this->id = is_null($user) ? 0 : $user->id;
 
@@ -63,7 +65,8 @@ class CTUser
             }
             $this->isUserAdministrator = in_array(8, $this->groups);//8 is Super Users
 
-        } else {
+        } elseif (defined('WPINC')) {
+
             if (function_exists('get_current_user_id')) {
                 $this->id = get_current_user_id();
 
@@ -81,11 +84,13 @@ class CTUser
                 }
             }
         }
+
+        $this->guestCanAddNew = false;
     }
 
-    public static function ResetPassword(CT $ct, $listing_id)
+    public static function ResetPassword(CT $ct, ?string $listing_id): bool
     {
-        if ($listing_id == 0) {
+        if ($listing_id === null or $listing_id === '' or $listing_id == 0) {
             Factory::getApplication()->enqueueMessage('Table record selected.', 'error');
             return false;
         }
@@ -154,7 +159,7 @@ class CTUser
         }
 
         //clean exit
-        return false;
+        return true;
     }
 
     static protected function SetUserPassword(int $userid, string $password): int
@@ -194,7 +199,7 @@ class CTUser
         $articleId = 0;
 
         if (!@Email::checkEmail($email)) {
-            Factory::getApplication()->enqueueMessage(JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_INCORRECT_EMAIL') . ' "' . $email . '"', 'error');
+            Factory::getApplication()->enqueueMessage(common::translate('COM_CUSTOMTABLES_INCORRECT_EMAIL') . ' "' . $email . '"', 'error');
             return false;
         }
 
@@ -207,9 +212,9 @@ class CTUser
 
         if ($realUserId !== null) {
             CTUser::UpdateUserField($realtablename, $realidfieldname, $useridfieldname, $realUserId, $listing_id);
-            Factory::getApplication()->enqueueMessage(JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_USER_CREATE_PSW_SENT'));
+            Factory::getApplication()->enqueueMessage(common::translate('COM_CUSTOMTABLES_USER_CREATE_PSW_SENT'));
         } else {
-            $msg = JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_ERROR_USER_NOTCREATED');
+            $msg = common::translate('COM_CUSTOMTABLES_ERROR_USER_NOTCREATED');
             Factory::getApplication()->enqueueMessage($msg, 'error');
         }
         return true;
@@ -229,7 +234,13 @@ class CTUser
         $config = Factory::getConfig();
 
         // Initialise the table with JUser.
-        $user = Factory::getUser(0);
+        $version_object = new Version;
+        $version = (int)$version_object->getShortVersion();
+
+        if ($version < 4)
+            $user = Factory::getUser(0);
+        else
+            $user = Factory::getApplication()->loadIdentity(0);
 
         $data = array();
 
@@ -251,7 +262,7 @@ class CTUser
 
         // Bind the data.
         if (!$user->bind($data)) {
-            $msg = JoomlaBasicMisc::JTextExtended('COM_USERS_REGISTRATION_BIND_FAILED', $user->getError());
+            $msg = common::translate('COM_USERS_REGISTRATION_BIND_FAILED', $user->getError());
             return null;
         }
 
@@ -261,7 +272,7 @@ class CTUser
         // Store the data.
         if (!$user->save()) {
 
-            $msg = Text::sprintf('COM_USERS_REGISTRATION_SAVE_FAILED', $user->getError());
+            $msg = common::translate('COM_USERS_REGISTRATION_SAVE_FAILED', $user->getError());
             return null;
         }
 
@@ -294,9 +305,9 @@ class CTUser
 
         $config = Factory::getConfig();
         $siteName = $config->get('sitename');
-        $subject = JoomlaBasicMisc::JTextExtended('COM_USERS_EMAIL_ACCOUNT_DETAILS');
+        $subject = common::translate('COM_USERS_EMAIL_ACCOUNT_DETAILS');
 
-        $emailSubject = Text::sprintf(
+        $emailSubject = common::translate(
             $subject,
             $fullname,
             $siteName
@@ -305,10 +316,10 @@ class CTUser
         $emailSubject = str_replace('{NAME}', $fullname, $emailSubject);
         $emailSubject = str_replace('{SITENAME}', $siteName, $emailSubject);
 
-        $body = JoomlaBasicMisc::JTextExtended('COM_USERS_EMAIL_REGISTERED_BODY');
+        $body = common::translate('COM_USERS_EMAIL_REGISTERED_BODY');
         $UriBase = Uri::base();
 
-        $emailBody = Text::sprintf(
+        $emailBody = common::translate(
             $body,
             $fullname,
             $siteName,
@@ -358,7 +369,7 @@ class CTUser
         return $usergroup_ids;
     }
 
-    static public function UpdateUserField(string $realtablename, string $realidfieldname, string $useridfieldname, string $existing_user_id, $listing_id)
+    static public function UpdateUserField(string $realtablename, string $realidfieldname, string $useridfieldname, string $existing_user_id, $listing_id): void
     {
         $query = 'UPDATE ' . $realtablename . ' SET ' . $useridfieldname . '=' . $existing_user_id . ' WHERE ' . $realidfieldname . '=' . database::quote($listing_id) . ' LIMIT 1';
         database::setQuery($query);
@@ -400,9 +411,9 @@ class CTUser
         return false;
     }
 
-    public static function checkIfRecordBelongsToUser(CT &$ct, int $ug)
+    public static function checkIfRecordBelongsToUser(CT &$ct, int $ug): bool
     {
-        if (!isset($ct->Env->isUserAdministrator))
+        if (!isset($ct->Env->user->isUserAdministrator))
             return false;
 
         if ($ug == 1)
@@ -410,193 +421,17 @@ class CTUser
         else
             $usergroups = $ct->Env->user->groups;
 
-        $isOk = false;
-
-        if ($ct->Env->isUserAdministrator or in_array($ug, $usergroups)) {
-            $isOk = true;
+        if ($ct->Env->user->isUserAdministrator or in_array($ug, $usergroups)) {
+            return true;
         } else {
             if (isset($ct->Table->record) and isset($ct->Table->record['listing_published']) and $ct->Table->useridfieldname != '') {
                 $uid = $ct->Table->record[$ct->Table->useridrealfieldname];
 
                 if ($uid == $ct->Env->user->id and $ct->Env->user->id != 0)
-                    $isOk = true;
+                    return true;
             }
-        }
-        return $isOk;
-    }
-
-    public static function CheckAuthorization(CT &$ct, int $action = 1)
-    {
-        if ($action == 0)
-            return true;
-
-        if ($action == 5) //force edit
-        {
-            $action = 1;
-        } else {
-            if ($action == 1 and $ct->Params->listing_id == 0)
-                $action = 4; //add new
-        }
-
-        if ($ct->Params->guestCanAddNew == 1)
-            return true;
-
-        if ($ct->Params->guestCanAddNew == -1 and $ct->Params->listing_id == 0)
-            return false;
-
-        //check is authorized or not
-        if ($action == 1)
-            $userGroup = $ct->Params->editUserGroups;
-        elseif ($action == 2)
-            $userGroup = $ct->Params->publishUserGroups;
-        elseif ($action == 3)
-            $userGroup = $ct->Params->deleteUserGroups;
-        elseif ($action == 4)
-            $userGroup = $ct->Params->addUserGroups;
-        else
-            $userGroup = null;
-
-        if ($ct->Env->user->id == 0)
-            return false;
-
-        if ($ct->Env->isUserAdministrator) {
-            //Super Users have access to everything
-            return true;
-        }
-
-        if ($ct->Params->listing_id == 0 or $ct->Params->userIdField == '')
-            return JoomlaBasicMisc::checkUserGroupAccess($userGroup);
-
-        $theAnswerIs = false;
-
-        if ($ct->Params->userIdField != '')
-            $theAnswerIs = self::checkIfItemBelongsToUser($ct, $ct->Params->userIdField, $ct->Params->listing_id);
-
-        if (!$theAnswerIs)
-            return JoomlaBasicMisc::checkUserGroupAccess($userGroup);
-
-        return true;
-    }
-
-    //checkAccess
-
-    public static function checkIfItemBelongsToUser(CT &$ct, string $userIdField, string $listing_id): bool
-    {
-        $wheres = self::UserIDField_BuildWheres($ct, $userIdField, $listing_id);
-        $query = 'SELECT c.' . $ct->Table->realidfieldname . ' FROM ' . $ct->Table->realtablename . ' AS c WHERE ' . implode(' AND ', $wheres) . ' LIMIT 1';
-
-        if (database::getNumRowsOnly($query) == 1) {
-            return true;
         }
         return false;
-    }
-
-    public static function UserIDField_BuildWheres(CT &$ct, string $userIdField, string $listing_id): array
-    {
-        $wheres = [];
-
-        $statement_items = tagProcessor_If::ExplodeSmartParams($userIdField); //"and" and "or" as separators
-
-        $wheres_owner = array();
-
-        foreach ($statement_items as $item) {
-            $field = $item[1];
-            if (!str_contains($field, '.')) {
-                //example: user
-                //check if the record belong to the current user
-                $user_field_row = Fields::FieldRowByName($field, $ct->Table->fields);
-                $wheres_owner[] = [$item[0], $user_field_row['realfieldname'] . '=' . $ct->Env->user->id];
-            } else {
-                //example: parents(children).user
-                $statement_parts = explode('.', $field);
-                if (count($statement_parts) != 2) {
-                    $ct->app->enqueueMessage(JoomlaBasicMisc::JTextExtended('Menu Item - "UserID Field name" parameter has a syntax error. Error is about "." character - only one is permitted. Correct example: parent(children).user'), 'error');
-                    return [];
-                }
-
-                $table_parts = explode('(', $statement_parts[0]);
-                if (count($table_parts) != 2) {
-                    $ct->app->enqueueMessage(JoomlaBasicMisc::JTextExtended('Menu Item - "UserID Field name" parameter has a syntax error. Error is about "(" character. Correct example: parent(children).user'), 'error');
-                    return [];
-                }
-
-                $parent_tablename = $table_parts[0];
-                $parent_join_field = str_replace(')', '', $table_parts[1]);
-                $parent_user_field = $statement_parts[1];
-
-                $parent_table_row = ESTables::getTableRowByName($parent_tablename);
-
-                if (!is_object($parent_table_row)) {
-                    $ct->app->enqueueMessage(JoomlaBasicMisc::JTextExtended('Menu Item - "UserID Field name" parameter has an error: Table "' . $parent_tablename . '" not found.'), 'error');
-                    return [];
-                }
-
-                $parent_table_fields = Fields::getFields($parent_table_row->id);
-
-                $parent_join_field_row = Fields::FieldRowByName($parent_join_field, $parent_table_fields);
-
-                if (count($parent_join_field_row) == 0) {
-                    $ct->app->enqueueMessage(JoomlaBasicMisc::JTextExtended('Menu Item - "UserID Field name" parameter has an error: Join field "' . $parent_join_field . '" not found.'), 'error');
-                    return [];
-                }
-
-                if ($parent_join_field_row['type'] != 'sqljoin' and $parent_join_field_row['type'] != 'records') {
-                    $ct->app->enqueueMessage(JoomlaBasicMisc::JTextExtended('Menu Item - "UserID Field name" parameter has an error: Wrong join field type "' . $parent_join_field_row['type'] . '". Accepted types: "sqljoin" and "records" .'), 'error');
-                    return [];
-                }
-
-                //User field
-
-                $parent_user_field_row = Fields::FieldRowByName($parent_user_field, $parent_table_fields);
-
-                if (count($parent_user_field_row) == 0) {
-                    $ct->app->enqueueMessage(JoomlaBasicMisc::JTextExtended('Menu Item - "UserID Field name" parameter has an error: User field "' . $parent_user_field . '" not found.'), 'error');
-                    return [];
-                }
-
-                if ($parent_user_field_row['type'] != 'userid' and $parent_user_field_row['type'] != 'user') {
-                    $ct->app->enqueueMessage(JoomlaBasicMisc::JTextExtended('Menu Item - "UserID Field name" parameter has an error: Wrong user field type "' . $parent_join_field_row['type'] . '". Accepted types: "userid" and "user" .'), 'error');
-                    return [];
-                }
-
-                $parent_wheres = [];
-
-                $parent_wheres[] = 'p.' . $parent_user_field_row['realfieldname'] . '=' . $ct->Env->user->id;
-
-                $fieldType = $parent_join_field_row['type'];
-                if ($fieldType != 'sqljoin' and $fieldType != 'records')
-                    return [];
-
-                if ($fieldType == 'sqljoin')
-                    $parent_wheres[] = 'p.' . $parent_join_field_row['realfieldname'] . '=c.listing_id';
-
-                if ($fieldType == 'records')
-                    $parent_wheres[] = 'INSTR(p.' . $parent_join_field_row['realfieldname'] . ',CONCAT(",",c.' . $ct->Table->realidfieldname . ',","))';
-
-                $q = '(SELECT p.' . $parent_table_row->realidfieldname . ' FROM ' . $parent_table_row->realtablename . ' AS p WHERE ' . implode(' AND ', $parent_wheres) . ' LIMIT 1) IS NOT NULL';
-
-                $wheres_owner[] = [$item[0], $q];
-            }
-        }
-
-        $wheres_owner_str = '';
-        $index = 0;
-        foreach ($wheres_owner as $field) {
-            if ($index == 0)
-                $wheres_owner_str .= $field[1];
-            else
-                $wheres_owner_str .= ' ' . strtoupper($field[0]) . ' ' . $field[1];
-
-            $index += 1;
-        }
-
-        if ($listing_id != '' and $listing_id != 0)
-            $wheres[] = $ct->Table->realidfieldname . '=' . database::quote($listing_id);
-
-        if ($wheres_owner_str != '')
-            $wheres[] = '(' . $wheres_owner_str . ')';
-
-        return $wheres;
     }
 
     public static function showUserGroup(int $userid): string
@@ -635,13 +470,27 @@ class CTUser
         return implode(',', $groups);
     }
 
+    public function checkUserGroupAccess($group = 0): bool
+    {
+        if ($group == 0)
+            return false;
+
+        if ($this->isUserAdministrator)
+            return true;
+
+        if (in_array($group, $this->groups))
+            return true;
+
+        return false;
+    }
+
     function authorise(string $action, ?string $assetName): bool
     {
         if (defined('_JEXEC')) {
-            $user = Factory::getUser();
+            $user = Factory::getApplication()->getIdentity();
             return $user->authorise($action, $assetName);
         } else {
-
+            echo 'User->authorise not implemented for WordPress yet.';
         }
         return false;
     }

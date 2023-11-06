@@ -87,7 +87,7 @@ class Filtering
             $paramWhere = $twig->process();
 
             if ($twig->errorMessage !== null)
-                $this->ct->app->enqueueMessage($twig->errorMessage, 'error');
+                $this->ct->errors[] = $twig->errorMessage;
 
             if ($this->ct->Params->allowContentPlugins)
                 $paramWhere = JoomlaBasicMisc::applyContentPlugins($paramWhere);
@@ -110,7 +110,7 @@ class Filtering
 
         $param = $this->sanitizeAndParseFilter($param, true);
         $wheres = [];
-        $items = $this->ExplodeSmartParams($param);
+        $items = common::ExplodeSmartParams($param);
         $logic_operator = '';
 
         foreach ($items as $item) {
@@ -158,8 +158,10 @@ class Filtering
                         $twig = new TwigProcessor($this->ct, $value);
                         $value = $twig->process();
 
-                        if ($twig->errorMessage !== null)
-                            $this->ct->app->enqueueMessage($twig->errorMessage, 'error');
+                        if ($twig->errorMessage !== null) {
+                            $this->ct->errors[] = $twig->errorMessage;
+                            return;
+                        }
 
                         foreach ($fieldNames as $fieldname_) {
                             $fieldname_parts = explode(':', $fieldname_);
@@ -203,7 +205,7 @@ class Filtering
         }
 
         if ($logic_operator == '') {
-            $this->ct->app->enqueueMessage(JoomlaBasicMisc::JTextExtended('Search parameter "' . $param . '" is incorrect'), 'error');
+            $this->ct->errors[] = common::translate('Search parameter "' . $param . '" is incorrect');
             return;
         }
 
@@ -213,27 +215,6 @@ class Filtering
             else
                 $this->where[] = implode(' ' . $logic_operator . ' ', $wheres);
         }
-    }
-
-    function ExplodeSmartParams($param): array
-    {
-        $items = array();
-
-        if ($param === null)
-            return $items;
-
-        $a = JoomlaBasicMisc::csv_explode(' and ', $param, '"', true);
-        foreach ($a as $b) {
-            $c = JoomlaBasicMisc::csv_explode(' or ', $b, '"', true);
-
-            if (count($c) == 1)
-                $items[] = array('and', $b);
-            else {
-                foreach ($c as $d)
-                    $items[] = array('or', $d);
-            }
-        }
-        return $items;
     }
 
     function processSingleFieldWhereSyntax(array $fieldrow, string $comparison_operator, string $fieldname, string $value, string $field_extra_param = ''): string
@@ -309,7 +290,7 @@ class Filtering
                     } else {
                         $cArr[] = $this->ct->Table->realtablename . '.' . $fieldrow['realfieldname'] . '=0';
 
-                        $this->PathValue[] = JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_NOT') . ' ' . $fieldrow['fieldtitle' . $this->ct->Languages->Postfix];
+                        $this->PathValue[] = common::translate('COM_CUSTOMTABLES_NOT') . ' ' . $fieldrow['fieldtitle' . $this->ct->Languages->Postfix];
                     }
                 }
                 if (count($cArr) == 1)
@@ -435,15 +416,15 @@ class Filtering
 
                     if ($esr_selector == 'multi' or $esr_selector == 'checkbox' or $esr_selector == 'multibox') {
                         if ($comparison_operator == '!=')
-                            $opt_title = JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_NOT_CONTAINS');
+                            $opt_title = common::translate('COM_CUSTOMTABLES_NOT_CONTAINS');
                         elseif ($comparison_operator == '=')
-                            $opt_title = JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_CONTAINS');
+                            $opt_title = common::translate('COM_CUSTOMTABLES_CONTAINS');
                         elseif ($comparison_operator == '==')
-                            $opt_title = JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_IS');
+                            $opt_title = common::translate('COM_CUSTOMTABLES_IS');
                         elseif ($comparison_operator == '!==')
-                            $opt_title = JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_ISNOT');
+                            $opt_title = common::translate('COM_CUSTOMTABLES_ISNOT');
                         else
-                            $opt_title = JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_UNKNOWN_OPERATION');
+                            $opt_title = common::translate('COM_CUSTOMTABLES_UNKNOWN_OPERATION');
                     } elseif ($esr_selector == 'radio' or $esr_selector == 'single')
                         $opt_title = ':';
 
@@ -460,7 +441,7 @@ class Filtering
                         elseif ($comparison_operator == '==')
                             $cArr[] = $esr_table_full . '.' . $fieldrow['realfieldname'] . '=' . database::quote(',' . $valueNew . ',');//exact value
                         else
-                            $opt_title = JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_UNKNOWN_OPERATION');
+                            $opt_title = common::translate('COM_CUSTOMTABLES_UNKNOWN_OPERATION');
 
 
                         if ($comparison_operator == '!=' or $comparison_operator == '=') {
@@ -516,7 +497,7 @@ class Filtering
 
                         if ($valueNew != '') {
                             if ($comparison_operator == '!=') {
-                                $opt_title = JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_NOT');
+                                $opt_title = common::translate('COM_CUSTOMTABLES_NOT');
 
                                 $cArr[] = $esr_table_full . '.' . $fieldrow['realfieldname'] . '!=' . database::quote($valueNew);
                                 $this->PathValue[] = $fieldrow['fieldtitle' . $this->ct->Languages->Postfix]
@@ -738,10 +719,10 @@ class Filtering
             return '';
 
         if ($valueArr[0] != '')
-            $valueTitle .= JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_FROM') . ' ' . $valueArr[0] . ' ';
+            $valueTitle .= common::translate('COM_CUSTOMTABLES_FROM') . ' ' . $valueArr[0] . ' ';
 
         if ($valueArr[1] != '')
-            $valueTitle .= JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_TO') . ' ' . $valueArr[1];
+            $valueTitle .= common::translate('COM_CUSTOMTABLES_TO') . ' ' . $valueArr[1];
 
         $this->PathValue[] = $fieldTitle . ': ' . $valueTitle;
 
@@ -1000,13 +981,13 @@ class LinkJoinFilters
 
         $result .= '
 		<script>
-			ctTranslates["COM_CUSTOMTABLES_SELECT"] = "- ' . JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_SELECT') . '";
+			ctTranslates["COM_CUSTOMTABLES_SELECT"] = "- ' . common::translate('COM_CUSTOMTABLES_SELECT') . '";
 			ctInputBoxRecords_current_value["' . $control_name . '"]="";
 		</script>
 		';
 
         $result .= '<select id="' . $control_name . 'SQLJoinLink" onchange="ctInputbox_UpdateSQLJoinLink(\'' . $control_name . '\',\'' . $control_name_postfix . '\')">';
-        $result .= '<option value="">- ' . JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_SELECT') . '</option>';
+        $result .= '<option value="">- ' . common::translate('COM_CUSTOMTABLES_SELECT') . '</option>';
 
         foreach ($rows as $row) {
             if ($row[$tableRow['realidfieldname']] == $filterValue or str_contains($filterValue, ',' . $row[$tableRow['realidfieldname']] . ','))

@@ -211,13 +211,13 @@ class Inputbox
             if (count($pair) == 2) {
                 $layout_mode = true;
                 if ($pair[0] != 'layout' and $pair[0] != 'tablelesslayout')
-                    die(json_encode(['error' => JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_ERROR_UNKNOWN_FIELD_LAYOUT') . ' "' . $fieldName_or_layout . '"']));
+                    die(json_encode(['error' => common::translate('COM_CUSTOMTABLES_ERROR_UNKNOWN_FIELD_LAYOUT') . ' "' . $fieldName_or_layout . '"']));
 
                 $Layouts = new Layouts($ct);
                 $fieldName_or_layout_tag = $Layouts->getLayout($pair[1]);
 
                 if (!isset($fieldName_or_layout_tag) or $fieldName_or_layout_tag == '') {
-                    $result_js = ['error' => JoomlaBasicMisc::JTextExtended(
+                    $result_js = ['error' => common::translate(
                             'COM_CUSTOMTABLES_ERROR_LAYOUT_NOT_FOUND') . ' "' . $pair[1] . '"'];
                     return json_encode($result_js);
                 }
@@ -786,11 +786,11 @@ class Inputbox
             $fieldname = $this->field->fieldname . $postfix;
 
             $value = null;
-            if (array_key_exists($this->ct->Env->field_prefix . $fieldname, $this->row)) {
+            if (isset($this->row) and array_key_exists($this->ct->Env->field_prefix . $fieldname, $this->row)) {
                 $value = $this->row[$this->ct->Env->field_prefix . $fieldname];
             } else {
                 Fields::addLanguageField($this->ct->Table->realtablename, $this->ct->Env->field_prefix . $this->field->fieldname, $this->ct->Env->field_prefix . $fieldname);
-                $this->ct->app->enqueueMessage('Field "' . $this->ct->Env->field_prefix . $fieldname . '" not yet created. Go to /Custom Tables/Database schema/Checks to create that field.', 'error');
+                $this->ct->errors[] = 'Field "' . $this->ct->Env->field_prefix . $fieldname . '" not yet created. Go to /Custom Tables/Database schema/Checks to create that field.';
                 $value = '';
             }
 
@@ -866,7 +866,7 @@ class Inputbox
                     . ($value == 1 ? ' checked="checked" ' : '')
                     . ' >'
                     . '</div>'
-                    . '<label class="btn' . ($value == 1 ? ' active btn-success' : '') . '" for="' . $element_id . '0" id="' . $element_id . '0_label" >' . JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_YES') . '</label>';
+                    . '<label class="btn' . ($value == 1 ? ' active btn-success' : '') . '" for="' . $element_id . '0" id="' . $element_id . '0_label" >' . common::translate('COM_CUSTOMTABLES_YES') . '</label>';
 
                 $result .= '<div style="position: absolute;visibility:hidden !important; display:none !important;">'
                     . '<input type="radio" '
@@ -881,7 +881,7 @@ class Inputbox
                     . ($value == 0 ? ' checked="checked" ' : '')
                     . ' >'
                     . '</div>'
-                    . '<label class="btn' . ($value == 0 ? ' active btn-danger' : '') . '" for="' . $element_id . '1" id="' . $element_id . '1_label">' . JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_NO') . '</label>';
+                    . '<label class="btn' . ($value == 0 ? ' active btn-danger' : '') . '" for="' . $element_id . '1" id="' . $element_id . '1_label">' . common::translate('COM_CUSTOMTABLES_NO') . '</label>';
 
                 $result .= '</fieldset>';
             } else {
@@ -898,7 +898,7 @@ class Inputbox
                     . 'data-valuerulecaption="' . str_replace('"', '&quot;', $this->field->valuerulecaption) . '" '
                     . ($value == 0 ? ' checked="checked" ' : '')
                     . ' >'
-                    . '<label for="' . $element_id . '0">' . JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_NO') . '</label>'
+                    . '<label for="' . $element_id . '0">' . common::translate('COM_CUSTOMTABLES_NO') . '</label>'
                     . '<input type="radio" '
                     . 'id="' . $element_id . '1" '
                     . 'name="' . $element_id . '" '
@@ -910,7 +910,7 @@ class Inputbox
                     . 'data-valuerulecaption="' . str_replace('"', '&quot;', $this->field->valuerulecaption) . '" '
                     . ($value == 1 ? ' checked="checked" ' : '')
                     . ' >'
-                    . '<label for="' . $element_id . '1">' . JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_YES') . '</label>'
+                    . '<label for="' . $element_id . '1">' . common::translate('COM_CUSTOMTABLES_YES') . '</label>'
                     . '<span class="toggle-outside"><span class="toggle-inside"></span></span>'
                     . '</div>';
             }
@@ -955,7 +955,7 @@ class Inputbox
                     . 'data-valuerulecaption="' . str_replace('"', '&quot;', $this->field->valuerulecaption) . '" '
                     . ($value == 0 ? ' checked="checked" ' : '')
                     . ' >'
-                    . '<label for="' . $element_id . '0">' . JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_NO') . '</label>'
+                    . '<label for="' . $element_id . '0">' . common::translate('COM_CUSTOMTABLES_NO') . '</label>'
                     . '<input type="radio" '
                     . 'id="' . $element_id . '1" '
                     . 'name="' . $element_id . '" '
@@ -965,7 +965,7 @@ class Inputbox
                     . 'data-valuerule="' . str_replace('"', '&quot;', $this->field->valuerule) . '" '
                     . 'data-valuerulecaption="' . str_replace('"', '&quot;', $this->field->valuerulecaption) . '" '
                     . ($value == 1 ? ' checked="checked" ' : '') . ' >'
-                    . '<label for="' . $element_id . '1">' . JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_YES') . '</label>'
+                    . '<label for="' . $element_id . '1">' . common::translate('COM_CUSTOMTABLES_YES') . '</label>'
                     . '<span class="toggle-outside"><span class="toggle-inside"></span></span>'
                     . '<input type="hidden"'
                     . ' id="' . $this->prefix . $this->field->fieldname . '_off" '
@@ -1519,7 +1519,7 @@ class Inputbox
             $result = '<div style="width:100%;overflow:scroll;background-image: url(\'components/com_customtables/libraries/customtables/media/images/icons/bg.png\');">'
                 . $manageButton . '<br/>' . $vlu . '</div>';
         } else
-            $result = JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_FILE_NO_FILES') . ' ' . $manageButton;
+            $result = common::translate('COM_CUSTOMTABLES_FILE_NO_FILES') . ' ' . $manageButton;
 
         return $result;
     }
@@ -1592,7 +1592,7 @@ class Inputbox
                     $value = $twig->process($row);
 
                     if ($twig->errorMessage !== null)
-                        $this->ct->app->enqueueMessage($twig->errorMessage, 'error');
+                        $this->ct->errors[] = $twig->errorMessage;
 
                     if ($value != '') {
                         if ($this->ct->Params->allowContentPlugins)

@@ -1,4 +1,12 @@
 <?php
+/**
+ * CustomTables Joomla! 3.x/4.x/5.x Native Component and WordPress 6.x Plugin
+ * @package Custom Tables
+ * @author Ivan Komlev <support@joomlaboat.com>
+ * @link https://joomlaboat.com
+ * @copyright (C) 2018-2023. Ivan Komlev
+ * @license GNU/GPL Version 2 or later - https://www.gnu.org/licenses/gpl-2.0.html
+ **/
 
 namespace CustomTables;
 
@@ -132,7 +140,11 @@ class database
 
             foreach ($data as $key => $value) {
                 $columns[] = $db->quoteName($key);
-                $values[] = $db->quote($value);
+
+                if ($value === null)
+                    $values[] = 'NULL';
+                else
+                    $values[] = $db->quote($value);
             }
 
             $query->insert($db->quoteName($tableName))
@@ -210,13 +222,18 @@ class database
     {
         if (defined('_JEXEC')) {
 
-            $db = Factory::getDbo();
+            //$db = Factory::getDbo();
+            $db = Factory::getContainer()->get('DatabaseDriver');
+
             $query = $db->getQuery(true);
 
             // Construct the update statement
             $fields = array();
             foreach ($data as $key => $value) {
-                $fields[] = $db->quoteName($key) . ' = ' . $db->quote($value);
+                if ($value === null)
+                    $fields[] = $db->quoteName($key) . ' = NULL';
+                else
+                    $fields[] = $db->quoteName($key) . ' = ' . $db->quote($value);
             }
 
             $conditions = array();
