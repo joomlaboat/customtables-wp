@@ -8,11 +8,6 @@ let customtables_prerenderedContent = [];
         {
             741: function () {
                 var e = window.wp.blocks,
-                    /*
-                    t = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"customtables/dynamic-block","version":"0.1.0","title":"Example: Dynamic Block (ESNext)","category":"text","icon":"universal-access-alt",' +
-                        '"attributes":{"message":{"type":"string","default":"Hello from a dynamic block!"}},"example":{"attributes":{"message":"CustomTables Block"}},"supports":{"html":false},"textdomain":"dynamic-block","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
-
-                     */
 
                     t = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"customtables/dynamic-block","version":"0.1.0","title":"Example: Dynamic Block (ESNext)","category":"text","icon":"universal-access-alt",' +
                         '"attributes":{"message":{}},"example":{"attributes":{"message":"CustomTables Block"}},"supports":{"html":false},"textdomain":"dynamic-block","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
@@ -150,7 +145,7 @@ function CustomTablesLoadPreview(newAttributes,props) {
 
         if (response.ok) {
             response.text().then(function (text) {
-                //newAttributes.loading = 0;
+
                 let blockId = cyrb53(JSON.stringify(newAttributes));
                 console.log("blockId:"+blockId);
                 customtables_prerenderedContent[blockId] = text;
@@ -182,112 +177,10 @@ function CustomTablesRenderBlock(e, i) {
             console.log("edit render");
 
             //With Control Panel
-            var blockProps = wp.blockEditor.useBlockProps();
+            let blockProps = wp.blockEditor.useBlockProps();
 
             props.attributes.loading=0;
             let blockId = cyrb53(JSON.stringify(props.attributes));
-
-            function updateArray(newValue) {
-                props.setAttributes({connections: newValue});
-            };
-
-
-            function addToArray(connection) {
-                const newArray = [...props.attributes.connections, connection];
-                updateArray(newArray);
-            };
-
-            function removeFromArray(index) {
-                const newArray = props.attributes.connections.filter((_, i) => i !== index);
-                updateArray(newArray);
-            };
-
-
-            function addConnection(i, place) {
-                let title = place.name;
-                if (place.lang) title += ' (' + place.lang + ')';
-
-                return el(
-                    PanelBody,
-                    {
-                        title: title,
-                        initialOpen: false
-                    },
-                    el('div', {className: 'grw-builder-option'},
-                        el(
-                            'img',
-                            {
-                                src: place.photo,
-                                alt: place.name,
-                                className: 'grw-connect-photo'
-                            }
-                        ),
-                        el(
-                            'a',
-                            {
-                                className: 'grw-connect-photo-change',
-                                href: '#',
-                            },
-                            'Change'
-                        ),
-                        el(
-                            'a',
-                            {
-                                className: 'grw-connect-photo-default',
-                                href: '#',
-                            },
-                            'Default'
-                        ),
-                        el(
-                            TextControl,
-                            {
-                                type: 'hidden',
-                                name: 'photo',
-                                className: 'grw-connect-photo-hidden',
-                                value: place.id,
-                                tabindex: 2
-                            }
-                        )
-                    ),
-                    el('div', {className: 'grw-builder-option'},
-                        el(
-                            'input',
-                            {
-                                name: 'name',
-                                value: place.name,
-                                type: 'text'
-                            }
-                        ),
-                    ),
-                    el('div', {className: 'grw-builder-option'},
-                        LangControl('Show all connected languages', place.lang)
-                    ),
-                    el('div', {className: 'grw-builder-option'},
-                        el(
-                            'button',
-                            {
-                                className: 'grw-connect-reconnect',
-                                onClick: function () {
-
-                                }
-                            },
-                            'Reconnect'
-                        )
-                    ),
-                    el('div', {className: 'grw-builder-option'},
-                        el(
-                            'button',
-                            {
-                                className: 'grw-connect-delete',
-                                onClick: function () {
-                                    removeFromArray(i);
-                                }
-                            },
-                            'Delete connection'
-                        )
-                    ),
-                )
-            };
 
             let el = wp.element.createElement;
             let InspectorControls = wp.editor.InspectorControls;
@@ -295,40 +188,14 @@ function CustomTablesRenderBlock(e, i) {
             let SelectControl = wp.components.SelectControl;
             let TextControl = wp.components.TextControl;
             let __ = wp.i18n.__;
-            //let RawHTML = wp.element.RawHTML;
-            var connEls = [];
-
-            function LangControl(def, lang) {
-                let opts = [];
-                opts.push(el('option', {value: ''}, def));
-
-                return el
-                (
-                    'select',
-                    {
-                        name: 'lang',
-                        type: 'select',
-                        className: '2grw-connect-lang'
-                    },
-                    opts
-                );
-            }
-
-            var connectGoogle = function (e) {
-            }
-
-            //alert("props.attributes.loading="+props.attributes.loading);
-            //alert("props.attributes.loading="+props.attributes.loading);
-
             let generatedPreview;
+
             if(customtables_prerenderedContent[blockId] === undefined) {
                 CustomTablesLoadPreview(props.attributes,props);
             }
             else {
                 generatedPreview = (customtables_prerenderedContent[blockId] !== '' ? customtables_prerenderedContent[blockId] : '<p>CustomTables Block:<br/>Please select a Table and Layout.</p>')
             }
-
-            //delete customtables_prerenderedContent[blockId];
 
             return el(
                 'div',
@@ -354,7 +221,6 @@ function CustomTablesRenderBlock(e, i) {
                                 onChange: function (newValue) {
                                     console.log("on change called");
                                     props.setAttributes({loading: 0});
-                                    //CustomTablesLoadPreview(props);
                                 },
                                 type: 'hidden'
                             }
@@ -482,8 +348,6 @@ function CustomTablesRenderBlock(e, i) {
                         style: {
                             'display': 'block',
                             'padding': '10px 20px',
-                            /*'border-radius': '5px',
-                            'background': '#fff'*/
                         }
                     },
                     el(
@@ -507,26 +371,6 @@ function CustomTablesRenderBlock(e, i) {
                 loading: 0
             }
                 console.log("saved");
-            //let blockId = cyrb53(JSON.stringify(props.attributes));
-            //alert("1customtables_prerenderedContent.length:"+Object.keys(customtables_prerenderedContent).length);
-            //delete customtables_prerenderedContent[blockId];
-            //alert("2customtables_prerenderedContent.length:"+Object.keys(customtables_prerenderedContent).length);
-            //alert(typeof customtables_setAttribute)
-
-            //if(document.getElementById("customtables_block_loading"))
-//                document.getElementById("customtables_block_loading").value = 0;
-
-  //          CustomTablesLoadPreview(newAttributes,props.attributes);
-
-
-
-  //          setTimeout(function() {
-
-//                if(document.getElementById("inspector-text-control-1"))
-              //      document.getElementById("inspector-text-control-1").value = 1;
-
-            //}, 4000);
-
             return newAttributes;
         },
     })

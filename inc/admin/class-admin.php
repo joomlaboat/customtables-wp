@@ -300,7 +300,6 @@ class Admin
             case 'customtables-api-preview':
                 $attributesString = common::inputGetBase64('attributes');
                 $attributesDecoded = base64_decode($attributesString);
-                //echo '$attributesDecoded='.$attributesDecoded.'<br/>';
                 $attributes = json_decode($attributesDecoded);
                 $ct = new CT(null, false);
                 $ct->getTable($attributes->table);

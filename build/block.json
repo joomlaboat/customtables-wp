@@ -8,11 +8,11 @@
 	"icon": "universal-access-alt",
 	"attributes": {
 		"table": {
-			"type": "int",
+			"type": "string",
 			"default": 0
 		},
 		"layout": {
-			"type": "int",
+			"type": "string",
 			"default": 0
 		},
 		"filter": {
@@ -28,7 +28,7 @@
 			"default": ""
 		},
 		"loading": {
-			"type": "int",
+			"type": "integer",
 			"default": 0
 		}
 	},
