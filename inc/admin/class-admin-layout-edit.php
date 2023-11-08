@@ -22,7 +22,7 @@ class Admin_Layout_Edit
     public ?int $layoutId;
     public ?array $layoutRow;
 
-    /*
+    /**
 	 *
 	 *
 	 * @param string $plugin_text_domain	Text domain of the plugin.

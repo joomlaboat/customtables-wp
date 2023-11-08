@@ -39,4 +39,5 @@ or any other type of data that you need to display on your site.
 * First WordPress version of the Custom Tables.
 
 == Upgrade Notice ==
-First release.
+= 1.0.0 =
+* Block Widget added.

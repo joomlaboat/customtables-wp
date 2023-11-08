@@ -19,7 +19,8 @@ class Admin_Table_Edit
     public CT $ct;
     public $helperListOfTables;
     public ?int $tableId;
-    /*
+
+    /**
 	 *
 	 *
 	 * @param string $plugin_text_domain	Text domain of the plugin.

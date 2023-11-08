@@ -39,7 +39,7 @@ class Admin_Layout_List extends Libraries\WP_List_Table
     protected int $count_unpublished;
     protected ?string $current_status;
 
-    /*
+    /**
 	 * Call the parent constructor to override the defaults $args
 	 *
 	 * @param string $plugin_text_domain	Text domain of the plugin.

@@ -25,7 +25,8 @@ class Admin_Field_Edit
     public array $fieldRow;
     public array $fieldTypes;
     public array $allTables;
-    /*
+
+    /**
 	 *
 	 *
 	 * @param string $plugin_text_domain	Text domain of the plugin.

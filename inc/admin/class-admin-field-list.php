@@ -39,14 +39,13 @@ class Admin_Field_List extends Libraries\WP_List_Table
     protected int $count_unpublished;
     protected ?string $current_status;
 
-    /*
+    /**
 	 * Call the parent constructor to override the defaults $args
 	 *
 	 * @param string $plugin_text_domain	Text domain of the plugin.
 	 *
 	 * @since 1.0.0
 	 */
-
     public function __construct($plugin_text_domain)
     {
         require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoffields.php');

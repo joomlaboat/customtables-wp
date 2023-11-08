@@ -554,7 +554,7 @@ class Admin
         include_once('views' . DIRECTORY_SEPARATOR . 'customtables-dashboard.php');
     }
 
-    /*
+    /**
 	 * Display the Table List
 	 *
 	 * Callback for

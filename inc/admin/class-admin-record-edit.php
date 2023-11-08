@@ -23,7 +23,8 @@ class Admin_Record_Edit
     public ?array $recordRow;
     public string $formLink;
     public string $pageLayout;
-    /*
+
+    /**
 	 *
 	 *
 	 * @param string $plugin_text_domain	Text domain of the plugin.
