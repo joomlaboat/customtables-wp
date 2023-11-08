@@ -2,88 +2,48 @@ let customtables_tables = [];
 let customtables_layouts = [];
 let customtables_prerenderedContent = [];
 
-!function () {
-    "use strict";
-    var e, t =
-        {
-            741: function () {
-                var e = window.wp.blocks,
+var definesUtilityFunction = function () {
 
-                    t = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"customtables/dynamic-block","version":"0.1.0","title":"Example: Dynamic Block (ESNext)","category":"text","icon":"universal-access-alt",' +
-                        '"attributes":{"message":{}},"example":{"attributes":{"message":"CustomTables Block"}},"supports":{"html":false},"textdomain":"dynamic-block","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
 
-                function n() {
-                    return n = Object.assign || function (e) {
-                        for (var t = 1; t < arguments.length; t++) {
-                            var n = arguments[t];
-                            for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r])
-                        }
-                        return e
-                    }, n.apply(this, arguments)
-                }
+    // Retrieve the 'blocks' object from the 'wp' namespace in the window
+    var blocks = window.wp.blocks;
 
-                //Load list of tables, layouts and render the block and the side panel
-                CustomTablesLoadTables();
-                CustomTablesLoadLayouts();
+    // Define metadata for a custom block in WordPress
+    var blockMetadata = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"customtables/dynamic-block","version":"0.1.0","title":"Example: Dynamic Block (ESNext)","category":"text","icon":"universal-access-alt",' +
+        '"attributes":{"message":{}},"example":{"attributes":{"message":"CustomTables Block"}},"supports":{"html":false},"textdomain":"dynamic-block","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
 
-                var r = window.wp.element, o = window.wp.blockEditor;
-                const {name: i} = t;
-                CustomTablesRenderBlock(e, i);
-
-            }
-        }, n = {};
-
-    function r(e) {
-        var o = n[e];
-        if (void 0 !== o) return o.exports;
-        var i = n[e] = {exports: {}};
-        return t[e](i, i.exports, r), i.exports
-    }
-
-    r.m = t, e = [], r.O = function (t, n, o, i) {
-        if (!n) {
-            var a = 1 / 0;
-            for (u = 0; u < e.length; u++) {
-                n = e[u][0], o = e[u][1], i = e[u][2];
-                for (var s = !0, c = 0; c < n.length; c++) (!1 & i || a >= i) && Object.keys(r.O).every((function (e) {
-                    return r.O[e](n[c])
-                })) ? n.splice(c--, 1) : (s = !1, i < a && (a = i));
-                if (s) {
-                    e.splice(u--, 1);
-                    var l = o();
-                    void 0 !== l && (t = l)
+    // Define a utility function for merging objects
+    /*
+    function mergeObjects() {
+        // Check if 'Object.assign' is available, otherwise use a manual merge
+        return Object.assign || function (target) {
+            for (var i = 1; i < arguments.length; i++) {
+                var source = arguments[i];
+                for (var key in source) {
+                    // Check if the property belongs to the source object, then copy it to the target object
+                    if (Object.prototype.hasOwnProperty.call(source, key)) {
+                        target[key] = source[key];
+                    }
                 }
             }
-            return t
-        }
-        i = i || 0;
-        for (var u = e.length; u > 0 && e[u - 1][2] > i; u--) e[u] = e[u - 1];
-        e[u] = [n, o, i]
-    }, r.o = function (e, t) {
-        return Object.prototype.hasOwnProperty.call(e, t)
-    }, function () {
-        var e = {826: 0, 431: 0};
-        r.O.j = function (t) {
-            return 0 === e[t]
+            return target;
         };
-        var t = function (t, n) {
-            var o, i, a = n[0], s = n[1], c = n[2], l = 0;
-            if (a.some((function (t) {
-                return 0 !== e[t]
-            }))) {
-                for (o in s) r.o(s, o) && (r.m[o] = s[o]);
-                if (c) var u = c(r)
-            }
-            for (t && t(n); l < a.length; l++) i = a[l], r.o(e, i) && e[i] && e[i][0](), e[i] = 0;
-            return r.O(u)
-        }, n = self.webpackChunkdynamic_block = self.webpackChunkdynamic_block || [];
-        n.forEach(t.bind(null, 0)), n.push = t.bind(null, n.push.bind(n))
-    }();
-    var o = r.O(void 0, [431], (function () {
-        return r(741)
-    }));
-    o = r.O(o)
-}();
+    }
+    */
+
+    // Load list of tables, layouts and render the block and the side panel
+    CustomTablesLoadTables();
+    CustomTablesLoadLayouts();
+
+    // Destructure 'name' property from 'blockMetadata'
+    const {name: i} = blockMetadata;
+
+    // Render the custom block
+    CustomTablesRenderBlock(blocks, i);
+
+};
+
+definesUtilityFunction();
 
 function CustomTablesLoadTables() {
     //Load list of tables
@@ -131,7 +91,7 @@ function CustomTablesLoadLayouts() {
     });
 }
 
-function CustomTablesLoadPreview(newAttributes,props) {
+function CustomTablesLoadPreview(newAttributes, props) {
     console.log("CustomTablesLoadPreview");
     console.log(typeof props);
 
@@ -147,14 +107,14 @@ function CustomTablesLoadPreview(newAttributes,props) {
             response.text().then(function (text) {
 
                 let blockId = cyrb53(JSON.stringify(newAttributes));
-                console.log("blockId:"+blockId);
+                console.log("blockId:" + blockId);
                 customtables_prerenderedContent[blockId] = text;
                 console.log("updated");
                 console.log(typeof props);
 
-                setTimeout(function() {
+                setTimeout(function () {
                     props.setAttributes({loading: 1});
-                    }, 200);
+                }, 200);
 
             });
 
@@ -179,7 +139,7 @@ function CustomTablesRenderBlock(e, i) {
             //With Control Panel
             let blockProps = wp.blockEditor.useBlockProps();
 
-            props.attributes.loading=0;
+            props.attributes.loading = 0;
             let blockId = cyrb53(JSON.stringify(props.attributes));
 
             let el = wp.element.createElement;
@@ -190,10 +150,9 @@ function CustomTablesRenderBlock(e, i) {
             let __ = wp.i18n.__;
             let generatedPreview;
 
-            if(customtables_prerenderedContent[blockId] === undefined) {
-                CustomTablesLoadPreview(props.attributes,props);
-            }
-            else {
+            if (customtables_prerenderedContent[blockId] === undefined) {
+                CustomTablesLoadPreview(props.attributes, props);
+            } else {
                 generatedPreview = (customtables_prerenderedContent[blockId] !== '' ? customtables_prerenderedContent[blockId] : '<p>CustomTables Block:<br/>Please select a Table and Layout.</p>')
             }
 
@@ -224,7 +183,7 @@ function CustomTablesRenderBlock(e, i) {
                                 },
                                 type: 'hidden'
                             }
-                        ),el(
+                        ), el(
                             PanelBody,
                             {
                                 title: __('Table'),
@@ -246,7 +205,7 @@ function CustomTablesRenderBlock(e, i) {
                                         let newAttributes = props.attributes;
                                         newAttributes.table = newValue;
 
-                                        CustomTablesLoadPreview(newAttributes,props);
+                                        CustomTablesLoadPreview(newAttributes, props);
                                     }
                                 }
                             )
@@ -271,7 +230,7 @@ function CustomTablesRenderBlock(e, i) {
                                         let newAttributes = props.attributes;
                                         newAttributes.layout = newValue;
 
-                                        CustomTablesLoadPreview(newAttributes,props);
+                                        CustomTablesLoadPreview(newAttributes, props);
                                     }
                                 }
                             )
@@ -294,7 +253,7 @@ function CustomTablesRenderBlock(e, i) {
                                         let newAttributes = props.attributes;
                                         newAttributes.filter = newValue;
 
-                                        CustomTablesLoadPreview(newAttributes,props);
+                                        CustomTablesLoadPreview(newAttributes, props);
                                     }
                                 }
                             ),
@@ -317,7 +276,7 @@ function CustomTablesRenderBlock(e, i) {
                                         let newAttributes = props.attributes;
                                         newAttributes.orderby = newValue;
 
-                                        CustomTablesLoadPreview(newAttributes,props);
+                                        CustomTablesLoadPreview(newAttributes, props);
                                     }
                                 }
                             ),
@@ -330,10 +289,11 @@ function CustomTablesRenderBlock(e, i) {
                                         props.setAttributes({order: newValue});
                                         props.setAttributes({loading: 0});
 
+
                                         let newAttributes = props.attributes;
                                         newAttributes.order = newValue;
 
-                                        CustomTablesLoadPreview(newAttributes,props);
+                                        CustomTablesLoadPreview(newAttributes, props);
                                     }
                                 }
                             )
@@ -360,7 +320,7 @@ function CustomTablesRenderBlock(e, i) {
             //End of control panel
         },
         save: props => {
-            props.attributes.loading=1;
+            props.attributes.loading = 1;
             let attributes = props.attributes;
             let newAttributes = {
                 table: attributes.table,
@@ -370,7 +330,7 @@ function CustomTablesRenderBlock(e, i) {
                 order: attributes.order,
                 loading: 0
             }
-                console.log("saved");
+            console.log("saved");
             return newAttributes;
         },
     })
@@ -378,14 +338,14 @@ function CustomTablesRenderBlock(e, i) {
 
 const cyrb53 = (str, seed = 0) => {
     let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
-    for(let i = 0, ch; i < str.length; i++) {
+    for (let i = 0, ch; i < str.length; i++) {
         ch = str.charCodeAt(i);
         h1 = Math.imul(h1 ^ ch, 2654435761);
         h2 = Math.imul(h2 ^ ch, 1597334677);
     }
-    h1  = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
     h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-    h2  = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
     h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
 
     return 4294967296 * (2097151 & h2) + (h1 >>> 0);
