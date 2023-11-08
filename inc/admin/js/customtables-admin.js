@@ -31,19 +31,6 @@
      * The file is enqueued from inc/admin/class-admin.php.
      */
 
-
-    /*
-        function editorFromTextArea(textarea, extensions) {
-            let view = new EditorView({doc: textarea.value, extensions})
-            textarea.parentNode.insertBefore(view.dom, textarea)
-            textarea.style.display = "none"
-            if (textarea.form) textarea.form.addEventListener("submit", () => {
-                textarea.value = view.state.doc.toString()
-            })
-            return view
-        }
-    */
-
     $(document).ready(function () {
 
         $('[data-toggle="tab"]').click(function () {
@@ -54,7 +41,6 @@
             $(tabs).find(tab).addClass("active");
             jQuery(this).addClass("nav-tab-active");
         });
-
 
         if (document.getElementById('layoutcode')) {
             let wpObject;
@@ -95,9 +81,9 @@ function addCMEvent(wpObject) {
     cm.on('dblclick', function (e) {
         let cr = e.getCursor();
         let lineNumber = cr.line;
-        let lineString = e.doc.getLine(lineNumber) ;//state.doc.cm.line(lineNumber).text;
+        let lineString = e.doc.getLine(lineNumber);//state.doc.cm.line(lineNumber).text;
         let mousePos = cm.cursorCoords(cr, "window");
-        doExtraCodeMirrorEvent(cr.ch,lineString,lineNumber,mousePos);
+        doExtraCodeMirrorEvent(cr.ch, lineString, lineNumber, mousePos);
     }, true);
 }
 
@@ -108,11 +94,11 @@ function CustomTablesAdminLayoutsTabClicked(index, id) {
         codemirror_active_areatext_id = id;
         let cm = codemirror_editors[index];
 
-        if(index === 0 || index ===1)
+        if (index === 0 || index === 1)
             cm.codemirror.setOption("mode", 'text/html');
-        else if(index === 2)
+        else if (index === 2)
             cm.codemirror.setOption("mode", 'css');
-        else if(index === 3)
+        else if (index === 3)
             cm.codemirror.setOption("mode", 'javascript');
 
         cm.codemirror.refresh();
