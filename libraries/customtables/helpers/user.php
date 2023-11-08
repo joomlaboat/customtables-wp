@@ -16,6 +16,7 @@ if (!defined('_JEXEC') and !defined('WPINC')) {
 }
 
 use Exception;
+use Joomla\CMS\User\UserFactoryInterface;
 use Joomla\CMS\Version;
 use JUserHelper;
 use Joomla\CMS\Uri\Uri;
@@ -24,7 +25,7 @@ use Joomla\CMS\Access\Access;
 
 class CTUser
 {
-    var int $id;
+    var ?int $id;
     var array $groups;
     var ?string $email;
     var bool $isUserAdministrator;
@@ -32,8 +33,11 @@ class CTUser
     var ?string $username;
     var bool $guestCanAddNew;
 
-    public function __construct(int $id = 0)
+    public function __construct(?int $id = null)
     {
+        if ($id === 0)
+            $id = null;
+
         $this->id = $id;
         $this->groups = [];
         $this->email = null;
@@ -49,13 +53,13 @@ class CTUser
                 $user = Factory::getUser($this->id);
             else {
 
-                if ($this->id == 0)
+                if ($this->id === null)
                     $user = Factory::getApplication()->getIdentity();
                 else
-                    $user = Factory::getApplication()->loadIdentity($this->id);
+                    $user = Factory::getContainer()->get(UserFactoryInterface::class)->loadUserById($this->id);
             }
 
-            $this->id = is_null($user) ? 0 : $user->id;
+            $this->id = $user->id;
 
             if ($user !== null) {
                 $this->groups = $user->get('groups');

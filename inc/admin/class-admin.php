@@ -514,9 +514,22 @@ class Admin
         add_screen_option( 'per_page', $arguments );
         */
 
+        $page = common::inputGetCmd('page');
+        if ($page == 'customtables-records') {
+            $tableId = common::inputGetInt('table');
+            if ($tableId === null) {
+                // Redirect the user to the external URL
+                $url = 'admin.php?page=customtables-tables';
+                wp_redirect($url);
+                exit();
+            }
+        }
+
         // instantiate the Admin Record List
         $this->admin_record_list = new Admin_Record_List($this->plugin_text_domain);
         $this->admin_record_list->handle_record_actions();
+
+
     }
 
     public function preload_admin_layout_list()
