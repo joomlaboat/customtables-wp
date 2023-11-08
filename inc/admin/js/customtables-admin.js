@@ -45,7 +45,6 @@
     */
 
     $(document).ready(function () {
-        console.log("AAAAAAAAA");
 
         $('[data-toggle="tab"]').click(function () {
             let tabs = jQuery(this).attr('data-tabs');
@@ -58,8 +57,6 @@
 
 
         if (document.getElementById('layoutcode')) {
-            console.log("b");
-
             let wpObject;
 
             //In reverse order because we need editor 0 to be active

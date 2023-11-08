@@ -2,8 +2,7 @@ let customtables_tables = [];
 let customtables_layouts = [];
 let customtables_prerenderedContent = [];
 
-var definesUtilityFunction = function () {
-
+const definesUtilityFunction = function () {
 
     // Retrieve the 'blocks' object from the 'wp' namespace in the window
     var blocks = window.wp.blocks;
@@ -11,25 +10,6 @@ var definesUtilityFunction = function () {
     // Define metadata for a custom block in WordPress
     var blockMetadata = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"customtables/dynamic-block","version":"0.1.0","title":"Example: Dynamic Block (ESNext)","category":"text","icon":"universal-access-alt",' +
         '"attributes":{"message":{}},"example":{"attributes":{"message":"CustomTables Block"}},"supports":{"html":false},"textdomain":"dynamic-block","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
-
-    // Define a utility function for merging objects
-    /*
-    function mergeObjects() {
-        // Check if 'Object.assign' is available, otherwise use a manual merge
-        return Object.assign || function (target) {
-            for (var i = 1; i < arguments.length; i++) {
-                var source = arguments[i];
-                for (var key in source) {
-                    // Check if the property belongs to the source object, then copy it to the target object
-                    if (Object.prototype.hasOwnProperty.call(source, key)) {
-                        target[key] = source[key];
-                    }
-                }
-            }
-            return target;
-        };
-    }
-    */
 
     // Load list of tables, layouts and render the block and the side panel
     CustomTablesLoadTables();
@@ -40,7 +20,6 @@ var definesUtilityFunction = function () {
 
     // Render the custom block
     CustomTablesRenderBlock(blocks, i);
-
 };
 
 definesUtilityFunction();
