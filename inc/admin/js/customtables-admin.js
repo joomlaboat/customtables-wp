@@ -125,3 +125,9 @@ function showFieldTagModalForm() {
     showModalFieldTagsList();
     activateTabsWordPress('layouteditor_fields');
 }
+
+function showLayoutTagModalForm() {
+    current_table_id = document.getElementById("table").value;
+    showModalTagsList();
+    activateTabsWordPress('layouteditor_fields');
+}

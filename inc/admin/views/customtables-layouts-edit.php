@@ -38,6 +38,9 @@ $onPageLoads = array();
             ?>
             <input class="button" type="button" onClick="showFieldTagModalForm();" value="Field Tags" />
 
+            <input class="button" type="button" onClick="showLayoutTagModalForm();" value="Layout Tags" />
+
+
             </div>
 
         </h1>
