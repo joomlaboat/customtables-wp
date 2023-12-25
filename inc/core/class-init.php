@@ -175,7 +175,6 @@ class Init
 	 */
 	public function run()
 	{
-		echo ' run ';
 		$this->loader->run();
 	}
 
@@ -186,8 +185,6 @@ class Init
 	 */
 	public function get_loader()
 	{
-		echo 'FFFFFFFFFFFFFFFFFFFF';
 		return $this->loader;
 	}
-
 }

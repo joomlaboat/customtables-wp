@@ -104,9 +104,6 @@ class Loader {
 	public function run(): void
 	{
 		foreach ( $this->filters as $hook ) {
-			echo 'hoooooooooooooooook:'.$hook['hook'];
-			echo ' priority:'.$hook['priority'];
-
 			add_filter( $hook['hook'],$hook['callback']);
 			//add_filter( $hook['hook'], array( $hook['component'], $hook['callback'] ), $hook['priority'], $hook['accepted_args'] );
 		}
@@ -116,3 +113,4 @@ class Loader {
 		}
 	}
 }
+
