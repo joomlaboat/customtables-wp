@@ -36,7 +36,9 @@ class Admin_Layout_Edit
         $this->helperListOfLayouts = new ListOfLayouts($this->ct);
         $this->plugin_text_domain = $plugin_text_domain;
 
-        $this->layoutId = common::inputGetInt('layout');
+        $this->layoutId = intval(get_query_var('layout'));
+		echo '$this->layoutId='.get_query_var('layout');
+		die;
 
         if($this->layoutId === 0)
             $this->layoutId = null;

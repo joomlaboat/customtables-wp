@@ -38,10 +38,8 @@ class Loader {
 	 * Initialize the collections used to maintain the actions and filters.
 	 */
 	public function __construct() {
-
 		$this->actions = array();
 		$this->filters = array();
-
 	}
 
 	/**
@@ -68,7 +66,7 @@ class Loader {
 	 * @param    int    $priority         Optional. he priority at which the function should be fired. Default is 10.
 	 * @param    int    $accepted_args    Optional. The number of arguments that should be passed to the $callback. Default is 1
 	 */
-	public function add_filter( $hook, $component, $callback, $priority = 10, $accepted_args = 1 ) {
+	public function add_filter2( $hook, $component, $callback, $priority = 10, $accepted_args = 1 ) {
 		$this->filters = $this->add( $this->filters, $hook, $component, $callback, $priority, $accepted_args );
 	}
 
@@ -86,8 +84,8 @@ class Loader {
 	 * @param    int    $accepted_args    The number of arguments that should be passed to the $callback.
 	 * @return   array                                  The collection of actions and filters registered with WordPress.
 	 */
-	private function add( $hooks, $hook, $component, $callback, $priority, $accepted_args ) {
-
+	private function add( $hooks, $hook, $component, $callback, $priority, $accepted_args ): array
+	{
 		$hooks[] = array(
 			'hook'          => $hook,
 			'component'     => $component,
@@ -95,9 +93,7 @@ class Loader {
 			'priority'      => $priority,
 			'accepted_args' => $accepted_args,
 		);
-
 		return $hooks;
-
 	}
 
 	/**
@@ -105,16 +101,18 @@ class Loader {
 	 *
 	 * @since    1.0.0
 	 */
-	public function run() {
-
+	public function run(): void
+	{
 		foreach ( $this->filters as $hook ) {
-			add_filter( $hook['hook'], array( $hook['component'], $hook['callback'] ), $hook['priority'], $hook['accepted_args'] );
+			echo 'hoooooooooooooooook:'.$hook['hook'];
+			echo ' priority:'.$hook['priority'];
+
+			add_filter( $hook['hook'],$hook['callback']);
+			//add_filter( $hook['hook'], array( $hook['component'], $hook['callback'] ), $hook['priority'], $hook['accepted_args'] );
 		}
 
 		foreach ( $this->actions as $hook ) {
 			add_action( $hook['hook'], array( $hook['component'], $hook['callback'] ), $hook['priority'], $hook['accepted_args'] );
 		}
-
 	}
-
 }

@@ -48,7 +48,7 @@ class record
 		}
 
 		if ($listing_id == '') {
-			$listing_id = common::inputGetCmd("listing_id", ''); //TODO : this inconsistency must be fixed
+			$listing_id = common::inputGetCmd('listing_id', ''); //TODO : this inconsistency must be fixed
 			if ($listing_id == 0)
 				$listing_id = '';
 		}
@@ -277,7 +277,7 @@ class record
 		if (count($rows) != 1)
 			return false;
 
-		$data = base64_encode(json_encode($rows));
+		$data = base64_encode(common::ctJsonEncode($rows));
 
 		foreach ($this->ct->Table->fields as $fieldrow) {
 			if ($fieldrow['type'] == 'log') {

@@ -57,7 +57,7 @@ class Admin_Record_List extends Libraries\WP_List_Table
         $this->count_trashed = 0;
         $this->count_published = 0;
 
-        $this->tableId = common::inputGetInt('table');
+        $this->tableId = get_query_var('table');
         if ($this->tableId) {
             $this->ct->getTable($this->tableId);
             if ($this->ct->Table !== null and $this->ct->Table->published_field_found) {
@@ -70,7 +70,7 @@ class Admin_Record_List extends Libraries\WP_List_Table
         }
 
         $this->count_unpublished = $this->count_all - $this->count_published;
-        $this->current_status = common::inputGetCmd('status');
+        $this->current_status = get_query_var('status');
 
         if ($this->current_status !== null and $this->current_status !== 'all') {
             if ($this->current_status == 'trash' and $this->count_trashed == 0)
@@ -131,12 +131,12 @@ class Admin_Record_List extends Libraries\WP_List_Table
         if ($this->tableId === null or $this->ct->Table == null or $this->ct->Table->tablename === null)
             return [];
 
-        $search = common::inputGetString('s');
-        $orderby = common::inputGetCmd('orderby');
+        $search = get_query_var('s');
+        $orderby = get_query_var('orderby');
         if ($orderby == 'customtables_record_firstfield')
             $orderby = $this->firstFieldRealName;
 
-        $order = common::inputGetCmd('order');
+        $order = get_query_var('order');
 
         //TODO: Fix this mess by replacing the state with a text code like 'published','unpublished','everything','any','trash'
         //$showPublished = 0 - show published
@@ -441,7 +441,7 @@ class Admin_Record_List extends Libraries\WP_List_Table
                 if (!wp_verify_nonce($nonce, 'restore_nonce')) {
                     $this->invalid_nonce_redirect();
                 } else {
-                    $recordId = common::inputGetInt('id');
+                    $recordId = get_query_var('id');
                     database::update($this->ct->Table->realtablename, ['published'=>0], [$this->ct->Table->realidfieldname  =>  $recordId]);
                     //echo '<div id="message" class="updated notice is-dismissible"><p>1 record restored from the Trash.</p></div>';
                     $this->graceful_redirect();
@@ -454,7 +454,7 @@ class Admin_Record_List extends Libraries\WP_List_Table
                 if (!wp_verify_nonce($nonce, 'trash_nonce')) {
                     $this->invalid_nonce_redirect();
                 } else {
-                    $recordId = common::inputGetInt('id');
+                    $recordId = get_query_var('id');
                     database::update($this->ct->Table->realtablename, ['published' =>-2], [$this->ct->Table->realidfieldname  =>  $recordId]);
                     //echo '<div id="message" class="updated notice is-dismissible"><p>1 record moved to the Trash.</p></div>';
                     $this->graceful_redirect();
@@ -468,7 +468,7 @@ class Admin_Record_List extends Libraries\WP_List_Table
             if (!wp_verify_nonce($nonce, 'delete_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
-                $recordId = common::inputGetInt('id');
+                $recordId = get_query_var('id');
                 if ($recordId !== null) {
                     database::setQuery('DELETE FROM '.$this->ct->Table->realtablename.' WHERE '.$this->ct->Table->realidfieldname.'='.database::quote($recordId));
                     //echo '<div id="message" class="updated notice is-dismissible"><p>1 record permanently deleted.</p></div>';

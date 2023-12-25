@@ -58,7 +58,7 @@ class Admin_Layout_List extends Libraries\WP_List_Table
         $this->count_published = database::loadColumn('SELECT COUNT(id) FROM #__customtables_layouts WHERE published=1')[0];
         $this->count_unpublished = $this->count_all - $this->count_published;
 
-        $this->current_status = common::inputGetCmd('status');
+        $this->current_status = get_query_var('status');
 
         if ($this->current_status !== null and $this->current_status !== 'all') {
             if ($this->current_status == 'trash' and $this->count_trashed == 0)
@@ -111,9 +111,9 @@ class Admin_Layout_List extends Libraries\WP_List_Table
     function get_data(): array
     {
         // Fetch and return your data here
-        $search = common::inputGetString('s');
-        $orderby = common::inputGetCmd('orderby');
-        $order = common::inputGetCmd('order');
+        $search = get_query_var('s');
+        $orderby = get_query_var('orderby');
+        $order = get_query_var('order');
 
         $published = match ($this->current_status) {
             'published' => 1,
@@ -359,7 +359,7 @@ class Admin_Layout_List extends Libraries\WP_List_Table
             if (!wp_verify_nonce($nonce, 'restore_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
-                $layoutId = common::inputGetInt('layout');
+                $layoutId = get_query_var('layout');
                 database::update('#__customtables_layouts', ['published' => 0], ['id' => $layoutId]);
                 //echo '<div id="message" class="updated notice is-dismissible"><p>1 layout restored from the Trash.</p></div>';
                 $this->graceful_redirect();
@@ -372,7 +372,7 @@ class Admin_Layout_List extends Libraries\WP_List_Table
             if (!wp_verify_nonce($nonce, 'trash_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
-                $layoutId = common::inputGetInt('layout');
+                $layoutId = get_query_var('layout');
                 database::update('#__customtables_layouts', ['published' => -2], ['id' => $layoutId]);
                 //echo '<div id="message" class="updated notice is-dismissible"><p>1 layout moved to the Trash.</p></div>';
                 $this->graceful_redirect();
@@ -385,7 +385,7 @@ class Admin_Layout_List extends Libraries\WP_List_Table
             if (!wp_verify_nonce($nonce, 'delete_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
-                $layoutId = common::inputGetInt('layout');
+                $layoutId = get_query_var('layout');
                 database::setQuery('DELETE FROM #__customtables_layouts WHERE id=' . $layoutId);
                 //echo '<div id="message" class="updated notice is-dismissible"><p>1 layout permanently deleted.</p></div>';
                 $this->graceful_redirect();

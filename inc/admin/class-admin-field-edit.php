@@ -39,7 +39,7 @@ class Admin_Field_Edit
         $this->ct = new CT;
         $this->helperListOfFields = new \CustomTables\ListOfFields($this->ct);
         $this->plugin_text_domain = $plugin_text_domain;
-        $this->tableId = common::inputGetInt('table');
+        $this->tableId = get_query_var('table');
         $this->fieldId = null;
         $this->fieldRow=['tableid' => null,'fieldname' => null , 'fieldtitle' => null, 'type' => null, 'typeparams' => null, 'isrequired' => null,
             'defaultvalue' => null, 'allowordering' => null, 'valuerule' =>null, 'valuerulecaption' => null];
@@ -48,7 +48,7 @@ class Admin_Field_Edit
         {
             $this->ct->getTable($this->tableId);
             if($this->ct->Table->tablename !== null) {
-                $this->fieldId = common::inputGetInt('field');
+                $this->fieldId = get_query_var('field');
 
                 if ($this->fieldId === 0)
                     $this->fieldId = null;

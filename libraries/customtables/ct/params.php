@@ -175,8 +175,8 @@ class Params
 		if ($menu_params->get('pageclass_sfx') !== null)
 			$this->pageClassSFX = strip_tags($menu_params->get('pageclass_sfx'));
 
-		if (!$blockExternalVars and common::inputGetCmd("listing_id") !== null)
-			$this->listing_id = common::inputGetCmd("listing_id");
+		if (!$blockExternalVars and common::inputGetCmd('listing_id') !== null)
+			$this->listing_id = common::inputGetCmd('listing_id');
 		else
 			$this->listing_id = $menu_params->get('listingid');
 
@@ -350,6 +350,7 @@ class Params
 		$this->recordsField = null;
 	}
 
+	//Used by Joomla version of teh Custom Tables
 	protected function getForceItemId($menu_params): void
 	{
 		$forceItemId = $menu_params->get('forceitemid');

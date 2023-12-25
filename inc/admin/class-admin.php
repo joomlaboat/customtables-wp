@@ -3,7 +3,6 @@
 namespace CustomTablesWP\Inc\Admin;
 
 use CustomTableList;
-use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\Fields;
@@ -66,7 +65,23 @@ class Admin
     private $admin_layout_list;
     private $admin_layout_edit;
 
-    /**
+	// Add custom query variable
+	public function custom_query_vars($vars) {
+
+		echo 'LOLaaaaaaaaaa';
+		$vars[] = 'xmlfile';
+		$vars[] = 'table';
+		$vars[] = 'attributes';
+		$vars[] = 'field';
+		$vars[] = 'id';
+		$vars[] = 'layout';
+		$vars[] = 'page';
+
+		return $vars;
+	}
+
+
+	/**
      * Initialize the class and set its properties.
      *
      * @param string $plugin_name The name of this plugin.
@@ -79,7 +94,7 @@ class Admin
         $this->plugin_name = $plugin_name;
         $this->version = $version;
         $this->plugin_text_domain = $plugin_text_domain;
-        add_action('init', array($this, 'my_load_plugin_textdomain'));
+	    add_action('init', array($this, 'my_load_plugin_textdomain'));
     }
 
     function my_load_plugin_textdomain()
@@ -109,11 +124,6 @@ class Admin
         }
 
     }
-
-
-
-
-
 
     /**
      * Register the JavaScript for the admin area.
@@ -250,7 +260,7 @@ class Admin
 
         switch ($page) {
             case 'customtables-api-xml':
-                $file = common::inputGetCmd('xmlfile');
+                $file = get_query_var('xmlfile');
 
                 $xml = 'unknown file';
                 if ($file == 'tags')
@@ -264,7 +274,7 @@ class Admin
                 die($xml);
 
             case 'customtables-api-fields':
-                $tableId = common::inputGetInt('table');
+                $tableId = get_query_var('table');
 
                 if ($tableId == 0) {
                     $result = array('error' => 'tableid not set');
@@ -298,7 +308,7 @@ class Admin
                 die(json_encode($layouts));
 
             case 'customtables-api-preview':
-                $attributesString = common::inputGetBase64('attributes');
+                $attributesString = get_query_var('attributes');
                 $attributesDecoded = base64_decode($attributesString);
                 $attributes = json_decode($attributesDecoded);
                 $ct = new CT(null, false);
@@ -308,7 +318,7 @@ class Admin
 
             case 'customtables-tables-edit':
 
-                $tableId = common::inputGetInt('table');
+                $tableId = get_query_var('table');
                 $page_hook = add_submenu_page(
                     'customtables',                     // Parent Menu Slug
                     __(($tableId === 0 ? 'Add Table' : 'Edit Table') . ' - CustomTables', $this->plugin_text_domain), // Page Title
@@ -339,7 +349,7 @@ class Admin
 
             case 'customtables-fields-edit':
 
-                $tableId = common::inputGetInt('table');
+                $tableId = get_query_var('table');
                 add_submenu_page(
                     'customtables',                     // Parent Menu Slug
                     __('Fields - CustomTables', $this->plugin_text_domain), // Page Title
@@ -350,7 +360,7 @@ class Admin
                     2                                                        // Position
                 );
 
-                $fieldId = common::inputGetInt('field');
+                $fieldId = get_query_var('field');
                 $page_hook = add_submenu_page(
                     'customtables',                     // Parent Menu Slug
                     __(($fieldId == 0 ? 'Add Field' : 'Edit Field') . ' - CustomTables', $this->plugin_text_domain), // Page Title
@@ -379,7 +389,7 @@ class Admin
 
             case 'customtables-records-edit':
 
-                $tableId = common::inputGetInt('table');
+                $tableId = get_query_var('table');
                 add_submenu_page(
                     'customtables',                     // Parent Menu Slug
                     __('Records - CustomTables', $this->plugin_text_domain), // Page Title
@@ -390,7 +400,7 @@ class Admin
                     2                                                        // Position
                 );
 
-                $id = common::inputGetInt('id');
+                $id = get_query_var('id');
                 $page_hook = add_submenu_page(
                     'customtables',                     // Parent Menu Slug
                     __(($id == 0 ? 'Add Record' : 'Edit Record') . ' - CustomTables', $this->plugin_text_domain), // Page Title
@@ -405,7 +415,7 @@ class Admin
 
             case 'customtables-layouts-edit':
 
-                $layoutId = common::inputGetInt('layout');
+                $layoutId = get_query_var('layout');
                 $page_hook = add_submenu_page(
                     'customtables',                     // Parent Menu Slug
                     __(($layoutId == 0 ? 'Add Layout' : 'Edit Layout') . ' - CustomTables', $this->plugin_text_domain), // Page Title
@@ -488,9 +498,9 @@ class Admin
         $this->admin_field_list->handle_field_actions();
         $this->admin_field_list->handle_field_tasks();
 
-        $page = common::inputGetCmd('page');
+        $page = get_query_var('page');
         if ($page == 'customtables-fields') {
-            $tableId = common::inputGetInt('table');
+            $tableId = get_query_var('table');
             if ($tableId === null) {
                 // Redirect the user to the external URL
                 $url = 'admin.php?page=customtables-tables';
@@ -513,9 +523,9 @@ class Admin
         add_screen_option( 'per_page', $arguments );
         */
 
-        $page = common::inputGetCmd('page');
+        $page = get_query_var('page');
         if ($page == 'customtables-records') {
-            $tableId = common::inputGetInt('table');
+            $tableId = get_query_var('table');
             if ($tableId === null) {
                 // Redirect the user to the external URL
                 $url = 'admin.php?page=customtables-tables';
@@ -622,9 +632,9 @@ class Admin
         $this->admin_table_edit = new Admin_Table_Edit($this->plugin_text_domain);
         $this->admin_table_edit->handle_table_actions();
 
-        $page = common::inputGetCmd('page');
+        $page = get_query_var('page');
         if ($page == 'customtables-tables-edit') {
-            $tableId = common::inputGetInt('table');
+            $tableId = get_query_var('table');
 
             if ($tableId === null) {
                 $url = 'admin.php?page=customtables-tables';
@@ -640,10 +650,10 @@ class Admin
         $this->admin_field_edit = new Admin_Field_Edit($this->plugin_text_domain);
         $this->admin_field_edit->handle_field_actions();
 
-        $page = common::inputGetCmd('page');
+        $page = get_query_var('page');
         if ($page == 'customtables-fields-edit') {
-            $tableId = common::inputGetInt('table');
-            $fieldId = common::inputGetInt('field');
+            $tableId = get_query_var('table');
+            $fieldId = get_query_var('field');
             if ($fieldId === null) {
                 // Redirect the user to the external URL
                 if ($tableId === null)
@@ -672,12 +682,6 @@ class Admin
         $this->admin_layout_edit->handle_layout_actions();
         include_once('views' . DIRECTORY_SEPARATOR . 'customtables-layouts-edit.php');
     }
-
-    /*
-        public function load_customtablesAdminLayouts()
-        {
-            include_once('views' . DIRECTORY_SEPARATOR . 'customtables-layouts.php');
-        }*/
 
     public function load_customtablesAdminSchema()
     {

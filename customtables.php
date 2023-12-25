@@ -57,14 +57,12 @@ require_once(PLUGIN_NAME_DIR . 'inc/libraries/autoloader.php');
  * Register Activation and Deactivation Hooks
  * This action is documented in inc/core/class-activator.php
  */
-
 register_activation_hook(__FILE__, array(CTWP . 'Inc\Core\Activator', 'activate'));
 
 /**
  * The code that runs during plugin deactivation.
  * This action is documented inc/core/class-deactivator.php
  */
-
 register_deactivation_hook(__FILE__, array(CTWP . 'Inc\Core\Deactivator', 'deactivate'));
 
 
@@ -77,7 +75,6 @@ register_deactivation_hook(__FILE__, array(CTWP . 'Inc\Core\Deactivator', 'deact
  */
 class customtables
 {
-
 	static $init;
 
 	/**
@@ -87,15 +84,12 @@ class customtables
 	 */
 	public static function init()
 	{
-
-
 		if (null == self::$init) {
 			self::$init = new Inc\Core\Init();
 			self::$init->run();
 		}
 		return self::$init;
 	}
-
 }
 
 /*
@@ -111,38 +105,21 @@ class customtables
  */
 function customtables_init()
 {
-	//add_action( 'init', 'customtables_dynamic_block_block_init' );
-
-
 	return customtables::init();
 }
-
 
 $min_php = '5.6.0';
 
 // Check the minimum required PHP version and run the plugin.
 if (version_compare(PHP_VERSION, $min_php, '>=')) {
 	customtables_init();
-
-
 }
-
 
 $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
 if ($page == 'customtables-layouts-edit')
 	add_action('admin_enqueue_scripts', 'enqueue_codemirror');
 
-//  PLUGIN_NAME_DIR
-//require_once( 'block-widgets/customtables_block_widget.php' );
-//require_once(plugins_url('block-widgets/customtables_block_widget.php', __FILE__));
-
-
 // Function to generate real content based on block attributes
-
-
-//-------------------------------------------
-
-
 function customtables_dynamic_block_block_init()
 {
 	register_block_type(
@@ -155,7 +132,6 @@ function customtables_dynamic_block_block_init()
 
 add_action('init', 'CustomTablesWP\customtables_dynamic_block_block_init');
 
-
 /**
  * This function is called when the block is being rendered on the front end of the site
  *
@@ -165,7 +141,6 @@ add_action('init', 'CustomTablesWP\customtables_dynamic_block_block_init');
  */
 function customtables_dynamic_block_render_callback($attributes, $content, $block_instance)
 {
-
 	ob_start();
 	/**
 	 * Keeping the markup to be returned in a separate file is sometimes better, especially if there is very complicated markup.

@@ -34,7 +34,7 @@ class Admin_Table_Edit
         $this->helperListOfTables = new \CustomTables\ListOfTables($this->ct);
         $this->plugin_text_domain = $plugin_text_domain;
 
-        $this->tableId = common::inputGetInt('table');
+        $this->tableId = get_query_var('table');
 
         if($this->tableId === 0)
             $this->tableId = null;

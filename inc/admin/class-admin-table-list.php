@@ -59,7 +59,7 @@ class Admin_Table_List extends Libraries\WP_List_Table
         $this->count_published = database::loadColumn('SELECT COUNT(id) FROM #__customtables_tables WHERE published=1')[0];
         $this->count_unpublished = $this->count_all - $this->count_published;
 
-        $this->current_status = common::inputGetCmd('status');
+        $this->current_status = get_query_var('status');
 
         if ($this->current_status !== null and $this->current_status !== 'all') {
             if ($this->current_status == 'trash' and $this->count_trashed == 0)
@@ -113,9 +113,9 @@ class Admin_Table_List extends Libraries\WP_List_Table
     {
         // Fetch and return your data here
 
-        $search = common::inputGetString('s');
-        $orderby = common::inputGetCmd('orderby');
-        $order = common::inputGetCmd('order');
+        $search = get_query_var('s');
+        $orderby = get_query_var('orderby');
+        $order = get_query_var('order');
 
         $published = match ($this->current_status) {
             'published' => 1,
@@ -396,7 +396,7 @@ class Admin_Table_List extends Libraries\WP_List_Table
             if (!wp_verify_nonce($nonce, 'restore_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
-                $tableId = common::inputGetInt('table');
+                $tableId = get_query_var('table');
                 database::update('#__customtables_tables', ['published' => 0], ['id' => $tableId]);
                 //echo '<div id="message" class="updated notice is-dismissible"><p>1 table restored from the Trash.</p></div>';
                 $this->graceful_redirect();
@@ -409,7 +409,7 @@ class Admin_Table_List extends Libraries\WP_List_Table
             if (!wp_verify_nonce($nonce, 'trash_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
-                $tableId = common::inputGetInt('table');
+                $tableId = get_query_var('table');
                 database::update('#__customtables_tables', ['published' => -2], ['id' => $tableId]);
                 //echo '<div id="message" class="updated notice is-dismissible"><p>1 table moved to the Trash.</p></div>';
                 $this->graceful_redirect();
@@ -422,7 +422,7 @@ class Admin_Table_List extends Libraries\WP_List_Table
             if (!wp_verify_nonce($nonce, 'delete_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
-                $tableId = common::inputGetInt('table');
+                $tableId = get_query_var('table');
                 $this->helperListOfTables->deleteTable($tableId);
                 //echo '<div id="message" class="updated notice is-dismissible"><p>1 table permanently deleted.</p></div>';
                 $this->graceful_redirect();
