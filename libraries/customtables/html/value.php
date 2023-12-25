@@ -1,6 +1,6 @@
 <?php
 /**
- * CustomTables Joomla! 3.x/4.x/5.x Native Component and WordPress 6.x Plugin
+ * CustomTables Joomla! 3.x/4.x/5.x Component and WordPress 6.x Plugin
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
@@ -12,533 +12,510 @@ namespace CustomTables;
 
 // no direct access
 if (!defined('_JEXEC') and !defined('WPINC')) {
-    die('Restricted access');
+	die('Restricted access');
 }
 
-use CustomTables\DataTypes\Tree;
 use CustomTablesImageMethods;
 use Exception;
+use Joomla\CMS\HTML\HTMLHelper;
 use JoomlaBasicMisc;
-use JHTMLCTTime;
 
 use CT_FieldTypeTag_file;
 use CT_FieldTypeTag_image;
 use CT_FieldTypeTag_imagegallery;
 use CT_FieldTypeTag_FileBox;
-use CT_FieldTypeTag_sqljoin;
-use CT_FieldTypeTag_records;
 use CT_FieldTypeTag_log;
-use CT_FieldTypeTag_ct;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 
-use JHTML;
-
 $types_path = CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'fieldtypes' . DIRECTORY_SEPARATOR;
 
-if (file_exists($types_path . '_type_ct.php')) {
-    require_once($types_path . '_type_ct.php');
-    require_once($types_path . '_type_file.php');
-    require_once($types_path . '_type_gallery.php');
-    require_once($types_path . '_type_image.php');
-    require_once($types_path . '_type_log.php');
-    require_once($types_path . '_type_records.php');
-    require_once($types_path . '_type_sqljoin.php');
+if (file_exists($types_path . '_type_file.php')) {
+	require_once($types_path . '_type_file.php');
+	require_once($types_path . '_type_gallery.php');
+	require_once($types_path . '_type_image.php');
+	require_once($types_path . '_type_log.php');
 }
 
 class Value
 {
-    var CT $ct;
-    var Field $field;
-    var ?array $row;
-
-    function __construct(CT &$ct)
-    {
-        $this->ct = &$ct;
-    }
-
-    function renderValue(array $fieldrow, ?array $row, array $option_list, bool $parseParams = true)
-    {
-        $this->field = new Field($this->ct, $fieldrow, $row, $parseParams);
-        $rfn = $this->field->realfieldname;
-        $this->row = $row;
-        $rowValue = $row[$rfn] ?? null;
-
-        switch ($this->field->type) {
-            case 'int':
-            case 'viewcount':
-                $thousand_sep = $option_list[0] ?? ($this->field->params[0] ?? '');
-                return number_format((int)$rowValue, 0, '', $thousand_sep);
-
-            case 'float':
-
-                $params_value = ((count($this->field->params) > 0 and $this->field->params[0] != '') ? (int)$this->field->params[0] : 2);
-                $decimals = $params_value;
-                $decimals_sep = '.';
-                $thousand_sep = '';
-                if (count($option_list) > 0) {
-                    $decimals = (int)($option_list[0] ?? 0);
-                    $decimals_sep = $option_list[1] ?? '.';
-                    $thousand_sep = $option_list[2] ?? '';
-                }
-                return number_format((float)$rowValue, $decimals, $decimals_sep, $thousand_sep);
-
-            case 'ordering':
-                return $this->orderingProcess($rowValue);
-
-            case 'id':
-            case 'md5':
-            case 'phponadd':
-            case 'phponchange':
-            case 'phponview':
-            case 'alias':
-            case 'radio':
-            case 'server':
-            case 'email':
-            case 'url':
-                return $rowValue;
-            case 'googlemapcoordinates':
-
-                if ($option_list[0] == 'map') {
+	var CT $ct;
+	var Field $field;
+	var ?array $row;
+
+	function __construct(CT &$ct)
+	{
+		$this->ct = &$ct;
+	}
+
+	/**
+	 * @throws Exception
+	 * @since 3.2.2
+	 */
+	function renderValue(array $fieldrow, ?array $row, array $option_list, bool $parseParams = true)
+	{
+		$this->field = new Field($this->ct, $fieldrow, $row, $parseParams);
+		$rfn = $this->field->realfieldname;
+		$this->row = $row;
+		$rowValue = $row[$rfn] ?? null;
+
+		//Try to instantiate a class dynamically
+		$aliasMap = [
+			'userid' => 'user',
+			'sqljoin' => 'tablejoin',
+			'records' => 'tablejoinlist'
+		];
+
+		$fieldTypeShort = $this->field->type;
+		if (key_exists($fieldTypeShort, $aliasMap))
+			$fieldTypeShort = $aliasMap[$fieldTypeShort];
+
+		$additionalFile = CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'html'
+			. DIRECTORY_SEPARATOR . 'value' . DIRECTORY_SEPARATOR . $fieldTypeShort . '.php';
+
+		if (file_exists($additionalFile)) {
+			require_once($additionalFile);
+			$className = '\CustomTables\Value_' . $fieldTypeShort;
+			$ValueRenderer = new $className($this->ct, $this->field, $rowValue, $option_list);
+		}
+
+		switch ($this->field->type) {
+			case 'int':
+			case 'viewcount':
+				$thousand_sep = $option_list[0] ?? ($this->field->params[0] ?? '');
+				return number_format((int)$rowValue, 0, '', $thousand_sep);
+
+			case 'float':
+
+				$params_value = ((count($this->field->params) > 0 and $this->field->params[0] != '') ? (int)$this->field->params[0] : 2);
+				$decimals = $params_value;
+				$decimals_sep = '.';
+				$thousand_sep = '';
+				if (count($option_list) > 0) {
+					$decimals = (int)($option_list[0] ?? 0);
+					$decimals_sep = $option_list[1] ?? '.';
+					$thousand_sep = $option_list[2] ?? '';
+				}
+				return number_format((float)$rowValue, $decimals, $decimals_sep, $thousand_sep);
+
+			case 'ordering':
+				return $this->orderingProcess($rowValue);
+
+			case 'id':
+			case 'md5':
+				//case 'phponadd':
+				//case 'phponchange':
+				//case 'phponview':
+			case 'alias':
+			case 'radio':
+			case 'server':
+			case 'email':
+			case 'url':
+				return $rowValue;
+			case 'googlemapcoordinates':
+
+				if ($option_list[0] == 'map') {
+
+					$parts = explode(',', $rowValue);
+					$lat = $parts[0];
+					$lng = $parts[1] ?? '';
+					if ($lat == '' or $lng == '')
+						return '';
+
+					$width = $option_list[1] ?? '320px';
+					if (!str_contains($width, '%') and !str_contains($width, 'px'))
+						$width .= 'px';
+
+					$height = $option_list[2] ?? '240px';
+					if (!str_contains($height, '%') and !str_contains($height, 'px'))
+						$height .= 'px';
+
+					$zoom = (int)$option_list[3] ?? '10';
+					if ($zoom == 0)
+						$zoom = 10;
 
-                    $parts = explode(',', $rowValue);
-                    $lat = $parts[0];
-                    $lng = $parts[1] ?? '';
-                    if ($lat == '' or $lng == '')
-                        return '';
+					$boxId = 'ct' . $this->field->fieldname . '_map' . $this->row[$this->ct->Table->realidfieldname];
 
-                    $width = $option_list[1] ?? '320px';
-                    if (!str_contains($width, '%') and !str_contains($width, 'px'))
-                        $width .= 'px';
+					return '<div id="' . $boxId . '" style="width:' . $width . ';height:' . $height . '">'
+						. '</div><script>ctValue_googlemapcoordinates("' . $boxId . '", ' . $lat . ',' . $lng . ',' . $zoom . ')</script>';
 
-                    $height = $option_list[2] ?? '240px';
-                    if (!str_contains($height, '%') and !str_contains($height, 'px'))
-                        $height .= 'px';
+				} elseif ($option_list[0] == 'latitude')
+					return explode(',', $rowValue)[0];
+				elseif ($option_list[0] == 'longitude') {
+					$parts = explode(',', $rowValue);
+					return ($parts[1] ?? '');
+				}
+				return $rowValue;
 
-                    $zoom = (int)$option_list[3] ?? '10';
-                    if ($zoom == 0)
-                        $zoom = 10;
+			case 'multilangstring':
+			case 'multilangtext':
+				return $this->multilingual($option_list);
 
-                    $boxId = 'ct' . $this->field->fieldname . '_map' . $this->row[$this->ct->Table->realidfieldname];
+			case 'text':
+			case 'string':
+				return $this->TextFunctions($rowValue, $option_list);
 
-                    return '<div id="' . $boxId . '" style="width:' . $width . ';height:' . $height . '">'
-                        . '</div><script>ctValue_googlemapcoordinates("' . $boxId . '", ' . $lat . ',' . $lng . ',' . $zoom . ')</script>';
+			case 'blob':
+				return $this->blobProcess($rowValue, $option_list);
 
-                } elseif ($option_list[0] == 'latitude')
-                    return explode(',', $rowValue)[0];
-                elseif ($option_list[0] == 'longitude') {
-                    $parts = explode(',', $rowValue);
-                    return ($parts[1] ?? '');
-                }
-                return $rowValue;
+			case 'color':
+				return $this->colorProcess($rowValue, $option_list);
 
-            case 'multilangstring':
-            case 'multilangtext':
-                return $this->multilingual($option_list);
+			case 'file':
 
-            case 'text':
-            case 'string':
-                return $this->TextFunctions($rowValue, $option_list);
+				return CT_FieldTypeTag_file::process($rowValue, $this->field, $option_list, $row[$this->ct->Table->realidfieldname], false);
 
-            case 'blob':
-                return $this->blobProcess($rowValue, $option_list);
+			case 'image':
+				$imageSRC = '';
+				$imagetag = '';
 
-            case 'color':
-                return $this->colorProcess($rowValue, $option_list);
+				CT_FieldTypeTag_image::getImageSRCLayoutView($option_list, $rowValue, $this->field->params, $imageSRC, $imagetag);
 
-            case 'file':
+				return $imagetag;
 
-                return CT_FieldTypeTag_file::process($rowValue, $this->field, $option_list, $row[$this->ct->Table->realidfieldname], false);
+			case 'signature':
 
-            case 'image':
-                $imageSRC = '';
-                $imagetag = '';
+				$imageSRC = '';
+				$imagetag = '';
+				CT_FieldTypeTag_image::getImageSRCLayoutView($option_list, $rowValue, $this->field->params, $imageSRC, $imagetag);
 
-                CT_FieldTypeTag_image::getImageSRCLayoutView($option_list, $rowValue, $this->field->params, $imageSRC, $imagetag);
+				$conf = Factory::getConfig();
+				$sitename = $conf->get('config.sitename');
 
-                return $imagetag;
+				$ImageFolder_ = CustomTablesImageMethods::getImageFolder($this->field->params);
 
-            case 'signature':
+				$ImageFolderWeb = str_replace(DIRECTORY_SEPARATOR, '/', $ImageFolder_);
+				$ImageFolder = str_replace('/', DIRECTORY_SEPARATOR, $ImageFolder_);
 
-                $imageSRC = '';
-                $imagetag = '';
-                CT_FieldTypeTag_image::getImageSRCLayoutView($option_list, $rowValue, $this->field->params, $imageSRC, $imagetag);
+				$imageSRC = '';
+				$imagetag = '';
 
-                $conf = Factory::getConfig();
-                $sitename = $conf->get('config.sitename');
+				$format = $this->field->params[3] ?? 'png';
 
-                $ImageFolder_ = CustomTablesImageMethods::getImageFolder($this->field->params);
+				if ($format == 'jpeg')
+					$format = 'jpg';
 
-                $ImageFolderWeb = str_replace(DIRECTORY_SEPARATOR, '/', $ImageFolder_);
-                $ImageFolder = str_replace('/', DIRECTORY_SEPARATOR, $ImageFolder_);
+				$imageFileWeb = URI::root() . $ImageFolderWeb . '/' . $rowValue . '.' . $format;
+				$imageFile = $ImageFolder . DIRECTORY_SEPARATOR . $rowValue . '.' . $format;
 
-                $imageSRC = '';
-                $imagetag = '';
+				if (file_exists(JPATH_SITE . DIRECTORY_SEPARATOR . $imageFile)) {
+					$width = $this->field->params[0] ?? '300px';
+					if (((string)intval($width)) == $width)
+						$width .= 'px';
 
-                $format = $this->field->params[3] ?? 'png';
+					$height = $this->field->params[1] ?? '150px';
+					if (((string)intval($height)) == $height)
+						$height .= 'px';
 
-                if ($format == 'jpeg')
-                    $format = 'jpg';
+					return '<img src="' . $imageFileWeb . '" alt="' . $sitename . '" title="' . $sitename . '" style="width:' . $width . ';height:' . $height . ';" />';
+				}
+				return null;
 
-                $imageFileWeb = URI::root() . $ImageFolderWeb . '/' . $rowValue . '.' . $format;
-                $imageFile = $ImageFolder . DIRECTORY_SEPARATOR . $rowValue . '.' . $format;
+			case 'article':
+				//case 'multilangarticle':
+				return $this->articleProcess($rowValue, $option_list);
 
-                if (file_exists(JPATH_SITE . DIRECTORY_SEPARATOR . $imageFile)) {
-                    $width = $this->field->params[0] ?? '300px';
-                    if (((string)intval($width)) == $width)
-                        $width .= 'px';
+			case 'imagegallery':
 
-                    $height = $this->field->params[1] ?? '150px';
-                    if (((string)intval($height)) == $height)
-                        $height .= 'px';
+				$getGalleryRows = CT_FieldTypeTag_imagegallery::getGalleryRows($this->ct->Table->tablename, $this->field->fieldname, $this->row[$this->ct->Table->realidfieldname]);
 
-                    return '<img src="' . $imageFileWeb . '" alt="' . $sitename . '" title="' . $sitename . '" style="width:' . $width . ';height:' . $height . ';" />';
-                }
-                return null;
+				if ($option_list[0] ?? '' == '_count')
+					return count($getGalleryRows);
 
-            case 'article':
-            case 'multilangarticle':
-                return $this->articleProcess($rowValue, $option_list);
+				$imageSRCList = CT_FieldTypeTag_imagegallery::getImageGallerySRC($getGalleryRows, $option_list[0] ?? '', $this->field->fieldname, $this->field->params, $this->ct->Table->tableid, true);
+				$imageTagList = CT_FieldTypeTag_imagegallery::getImageGalleryTagList($imageSRCList);
+				return implode('', $imageTagList);
 
-            case 'imagegallery':
+			case 'filebox':
 
-                $getGalleryRows = CT_FieldTypeTag_imagegallery::getGalleryRows($this->ct->Table->tablename, $this->field->fieldname, $this->row[$this->ct->Table->realidfieldname]);
+				$FileBoxRows = CT_FieldTypeTag_FileBox::getFileBoxRows($this->ct->Table->tablename, $this->field->fieldname, $this->row[$this->ct->Table->realidfieldname]);
 
-                if ($option_list[0] ?? '' == '_count')
-                    return count($getGalleryRows);
+				if (($option_list[0] ?? '') == '_count')
+					return count($FileBoxRows);
 
-                $imageSRCList = CT_FieldTypeTag_imagegallery::getImageGallerySRC($getGalleryRows, $option_list[0] ?? '', $this->field->fieldname, $this->field->params, $this->ct->Table->tableid, true);
-                $imageTagList = CT_FieldTypeTag_imagegallery::getImageGalleryTagList($imageSRCList);
-                return implode('', $imageTagList);
+				return CT_FieldTypeTag_FileBox::process($FileBoxRows, $this->field, $this->row[$this->ct->Table->realidfieldname], $option_list);
 
-            case 'filebox':
+			case 'sqljoin':
+			case 'userid':
+			case 'user':
+			case 'records':
+				return $ValueRenderer->render();
 
-                $FileBoxRows = CT_FieldTypeTag_FileBox::getFileBoxRows($this->ct->Table->tablename, $this->field->fieldname, $this->row[$this->ct->Table->realidfieldname]);
+			case 'usergroup':
+				return CTUser::showUserGroup((int)$rowValue);
 
-                if (($option_list[0] ?? '') == '_count')
-                    return count($FileBoxRows);
+			case 'usergroups':
+				return CTUser::showUserGroups($rowValue);
 
-                return CT_FieldTypeTag_FileBox::process($FileBoxRows, $this->field, $this->row[$this->ct->Table->realidfieldname], $option_list);
+			case 'filelink':
+				$processor_file = CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'fieldtypes' . DIRECTORY_SEPARATOR . '_type_file.php';
+				require_once($processor_file);
+				return CT_FieldTypeTag_file::process($rowValue, $this->field, $option_list, $this->row[$this->ct->Table->realidfieldname], 0);
 
-            case 'customtables':
-                return $this->listProcess($rowValue, $option_list);
+			case 'language':
+				$lang = new Languages();
+				foreach ($lang->LanguageList as $language) {
+					if ($language->language === $rowValue)
+						return $language->caption;
+				}
+				return '';
 
-            case 'records':
-                return CT_FieldTypeTag_records::resolveRecordType($rowValue, $this->field, $option_list);
+			case 'log':
+				return CT_FieldTypeTag_log::getLogVersionLinks($this->ct, $rowValue, $this->row);
 
-            case 'sqljoin':
-                return CT_FieldTypeTag_sqljoin::resolveSQLJoinType($rowValue, $this->field->params, $option_list);
+			case 'checkbox':
+				if ((int)$rowValue)
+					return common::translate('COM_CUSTOMTABLES_YES');
+				else
+					return common::translate('COM_CUSTOMTABLES_NO');
 
-            case 'user':
-            case 'userid':
-                return JHTML::_('ESUserView.render', $rowValue, $option_list[0] ?? '');
+			case 'date':
+			case 'lastviewtime':
+				return $this->dataProcess($rowValue, $option_list);
 
-            case 'usergroup':
-                return CTUser::showUserGroup((int)$rowValue);
+			case 'time':
 
-            case 'usergroups':
-                return CTUser::showUserGroups($rowValue);
+				$path = CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'inputbox' . DIRECTORY_SEPARATOR;
+				require_once($path . 'time.php');
 
-            case 'filelink':
-                $processor_file = CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'fieldtypes' . DIRECTORY_SEPARATOR . '_type_file.php';
-                require_once($processor_file);
+				$seconds = InputBox_Time::ticks2Seconds($rowValue, $this->field->params);
+				return InputBox_Time::seconds2FormattedTime($seconds, $option_list[0] ?? '');
 
-                return CT_FieldTypeTag_file::process($rowValue, $this->field, $option_list, $this->row[$this->ct->Table->realidfieldname], 0);
+			case 'changetime':
+			case 'creationtime':
+				return $this->timeProcess($rowValue, $option_list);
+			case 'virtual':
+				return $this->virtualProcess();
+		}
+		return null;
+	}
 
-            case 'log':
-                return CT_FieldTypeTag_log::getLogVersionLinks($this->ct, $rowValue, $this->row);
+	protected function orderingProcess($value): string
+	{
+		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
+			return $value;
 
-            case 'checkbox':
-                if ((int)$rowValue)
-                    return common::translate('COM_CUSTOMTABLES_YES');
-                else
-                    return common::translate('COM_CUSTOMTABLES_NO');
+		if ($this->ct->Env->isPlugin)
+			return $value;
 
-            case 'date':
-            case 'lastviewtime':
-                return $this->dataProcess($rowValue, $option_list);
+		if (!in_array($this->ct->LayoutVariables['layout_type'], [1, 5, 6]))//If not Simple Catalog and not Catalog Page and not Catalog Item
+			return $value;
 
-            case 'time':
-                require_once(JPATH_SITE . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_customtables' . DIRECTORY_SEPARATOR . 'helpers' . DIRECTORY_SEPARATOR . 'cttime.php');
-                $seconds = JHTMLCTTime::ticks2Seconds($rowValue, $this->field->params);
-                return JHTMLCTTime::seconds2FormatedTime($seconds, $option_list[0] ?? '');
+		$edit_userGroup = (int)$this->ct->Params->editUserGroups;
+		$isEditable = CTUser::checkIfRecordBelongsToUser($this->ct, $edit_userGroup);
+		if (!$isEditable)
+			return '';
 
-            case 'changetime':
-            case 'creationtime':
-                return $this->timeProcess($rowValue, $option_list);
-            case 'virtual':
-                return $this->virtualProcess();
-        }
-        return null;
-    }
+		$edit_userGroup = (int)$this->ct->Params->editUserGroups;
+		$isEditable = CTUser::checkIfRecordBelongsToUser($this->ct, $edit_userGroup);
 
-    protected function orderingProcess($value): string
-    {
-        if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
-            return $value;
+		$orderby_pair = explode(' ', $this->ct->Ordering->orderby);
 
-        if ($this->ct->Env->isPlugin)
-            return $value;
+		if ($orderby_pair[0] == $this->field->realfieldname and $isEditable)
+			$iconClass = '';
+		else
+			$iconClass = ' inactive tip-top hasTooltip" title="' . HTMLHelper::_('tooltipText', 'COM_CUSTOMTABLES_FIELD_ORDERING_DISABLED');
 
-        if (!in_array($this->ct->LayoutVariables['layout_type'], [1, 5, 6]))//If not Simple Catalog and not Catalog Page and not Catalog Item
-            return $value;
+		if ($this->ct->Env->version < 4)
+			$result = '<span class="sortable-handler' . $iconClass . '"><i class="ctIconOrdering"></i></span>';
+		else
+			$result = '<span class="sortable-handler' . $iconClass . '"><span class="icon-ellipsis-v" aria-hidden="true"></span></span>';
 
-        $edit_userGroup = (int)$this->ct->Params->editUserGroups;
-        $isEditable = CTUser::checkIfRecordBelongsToUser($this->ct, $edit_userGroup);
-        if (!$isEditable)
-            return '';
+		if ($orderby_pair[0] == $this->field->realfieldname) {
 
-        $edit_userGroup = (int)$this->ct->Params->editUserGroups;
-        $isEditable = CTUser::checkIfRecordBelongsToUser($this->ct, $edit_userGroup);
+			if ($this->ct->Env->version < 4)
+				$result .= '<input type="text" style="display:none" name="order[]" size="5" value="' . htmlspecialchars($value ?? '') . '" class="width-20 text-area-order " />';
+			else
+				$result .= '<input type="text" name="order[]" size="5" value="' . htmlspecialchars($value ?? '') . '" class="width-20 text-area-order hidden" />';
 
-        $orderby_pair = explode(' ', $this->ct->Ordering->orderby);
+			$result .= '<input type="checkbox" style="display:none" name="cid[]" value="' . $this->row[$this->ct->Table->realidfieldname] . '" class="width-20 text-area-order " />';
 
-        if ($orderby_pair[0] == $this->field->realfieldname and $isEditable)
-            $iconClass = '';
-        else
-            $iconClass = ' inactive tip-top hasTooltip" title="' . JHtml::_('tooltipText', 'COM_CUSTOMTABLES_FIELD_ORDERING_DISABLED');
+			$this->ct->LayoutVariables['ordering_field_type_found'] = true;
+		}
+		return $result;
+	}
 
-        if ($this->ct->Env->version < 4)
-            $result = '<span class="sortable-handler' . $iconClass . '"><i class="ctIconOrdering"></i></span>';
-        else
-            $result = '<span class="sortable-handler' . $iconClass . '"><span class="icon-ellipsis-v" aria-hidden="true"></span></span>';
+	protected function multilingual(array $option_list)
+	{
+		$specific_lang = $option_list[4] ?? '';
 
-        if ($orderby_pair[0] == $this->field->realfieldname) {
+		$postfix = ''; //first language in the list
+		if ($specific_lang != '') {
+			$i = 0;
+			foreach ($this->ct->Languages->LanguageList as $l) {
+				if ($l->sef == $specific_lang) {
+					if ($i != 0)
+						$postfix = '_' . $specific_lang;
 
-            if ($this->ct->Env->version < 4)
-                $result .= '<input type="text" style="display:none" name="order[]" size="5" value="' . htmlspecialchars($value ?? '') . '" class="width-20 text-area-order " />';
-            else
-                $result .= '<input type="text" name="order[]" size="5" value="' . htmlspecialchars($value ?? '') . '" class="width-20 text-area-order hidden" />';
+					break;
+				}
+				$i++;
+			}
+		} else
+			$postfix = $this->ct->Languages->Postfix; //front-end default language
 
-            $result .= '<input type="checkbox" style="display:none" name="cid[]" value="' . $this->row[$this->ct->Table->realidfieldname] . '" class="width-20 text-area-order " />';
+		$fieldname = $this->field->realfieldname . $postfix;
+		$rowValue = $this->row[$fieldname] ?? null;
 
-            $this->ct->LayoutVariables['ordering_field_type_found'] = true;
-        }
-        return $result;
-    }
+		return $this->TextFunctions($rowValue, $option_list);
+	}
 
-    protected function multilingual(array $option_list)
-    {
-        $specific_lang = $option_list[4] ?? '';
+	public function TextFunctions($content, $parameters)
+	{
+		if (count($parameters) == 0)
+			return $content;
 
-        $postfix = ''; //first language in the list
-        if ($specific_lang != '') {
-            $i = 0;
-            foreach ($this->ct->Languages->LanguageList as $l) {
-                if ($l->sef == $specific_lang) {
-                    if ($i != 0)
-                        $postfix = '_' . $specific_lang;
+		switch ($parameters[0]) {
+			case "chars" :
+			case "words" :
 
-                    break;
-                }
-                $i++;
-            }
-        } else
-            $postfix = $this->ct->Languages->Postfix; //front-end default language
+				if (isset($parameters[1]))
+					$count = (int)$parameters[1];
+				else
+					$count = -1;
 
-        $fieldname = $this->field->realfieldname . $postfix;
-        $rowValue = $this->row[$fieldname] ?? null;
+				if (isset($parameters[2]) and $parameters[2] == 'true')
+					$cleanBraces = true;
+				else
+					$cleanBraces = false;
 
-        return $this->TextFunctions($rowValue, $option_list);
-    }
+				if (isset($parameters[3]) and $parameters[3] == 'true')
+					$cleanQuotes = true;
+				else
+					$cleanQuotes = false;
 
-    public function TextFunctions($content, $parameters)
-    {
-        if (count($parameters) == 0)
-            return $content;
+				if ($parameters[0] == "chars")
+					return JoomlaBasicMisc::charsTrimText($content, $count, $cleanBraces, $cleanQuotes);
+				else
+					return JoomlaBasicMisc::wordsTrimText($content, $count, $cleanBraces, $cleanQuotes);
 
-        switch ($parameters[0]) {
-            case "chars" :
-            case "words" :
+			case "firstimage" :
+				return JoomlaBasicMisc::getFirstImage($content);
 
-                if (isset($parameters[1]))
-                    $count = (int)$parameters[1];
-                else
-                    $count = -1;
+			default:
+				return $content;
+		}
+	}
 
-                if (isset($parameters[2]) and $parameters[2] == 'true')
-                    $cleanBraces = true;
-                else
-                    $cleanBraces = false;
-
-                if (isset($parameters[3]) and $parameters[3] == 'true')
-                    $cleanQuotes = true;
-                else
-                    $cleanQuotes = false;
-
-                if ($parameters[0] == "chars")
-                    return JoomlaBasicMisc::charsTrimText($content, $count, $cleanBraces, $cleanQuotes);
-                else
-                    return JoomlaBasicMisc::wordsTrimText($content, $count, $cleanBraces, $cleanQuotes);
-
-            case "firstimage" :
-                return JoomlaBasicMisc::getFirstImage($content);
-
-            default:
-                return $content;
-        }
-    }
-
-    protected function blobProcess(?string $value, array $option_list): ?string
-    {
-        if ((int)$value == 0)
-            return null;
-
-        $fieldType = Fields::getFieldType($this->ct->Table->realtablename, $this->field->realfieldname);
-        if ($fieldType != 'blob' and $fieldType != 'tinyblob' and $fieldType != 'mediumblob' and $fieldType != 'longblob')
-            return self::TextFunctions($value, $option_list);
-
-        $filename = CT_FieldTypeTag_file::getBlobFileName($this->field, $value, $this->row, $this->ct->Table->fields);
-
-        return CT_FieldTypeTag_file::process($filename, $this->field, $option_list, $this->row[$this->ct->Table->realidfieldname], false, intval($value));
-    }
-
-    protected function colorProcess($value, array $option_list): string
-    {
-        if ($value == '')
-            $value = '000000';
-
-        if (($option_list[0] ?? '') == "rgba") {
-            return JoomlaBasicMisc::colorStringValueToCSSRGB($value);
-        } else
-            return "#" . $value;
-    }
-
-    protected function articleProcess($rowValue, array $option_list)
-    {
-        if (isset($option_list[0]) and $option_list[0] != '')
-            $article_field = $option_list[0];
-        else
-            $article_field = 'title';
-
-        $article = $this->getArticle((int)$rowValue, $article_field);
-
-        if (isset($option_list[1])) {
-            $opts = str_replace(':', ',', $option_list[1]);
-            return $this->TextFunctions($article, explode(',', $opts));
-        } else
-            return $article;
-    }
-
-    protected function getArticle($articleId, $field)
-    {
-        // get database handle
-        $query = 'SELECT ' . $field . ' FROM #__content WHERE id=' . (int)$articleId . ' LIMIT 1';
-        $rows = database::loadAssocList($query);
-
-        if (count($rows) != 1)
-            return ""; //return nothing if article not found
-
-        return $rows[0][$field];
-    }
-
-    protected function listProcess($rowValue, array $option_list): string
-    {
-        if (count($option_list) > 1 and $option_list[0] != "") {
-            if ($option_list[0] == 'group') {
-                $rootParent = $this->field->params[0];
-
-                $orientation = 0;// horizontal
-                if (isset($option_list[1]) and $option_list[1] == 'vertical')
-                    $orientation = 1;// vertical
-
-                $groupArray = CT_FieldTypeTag_ct::groupCustomTablesParents($this->ct, $rowValue, $rootParent);
-
-                //Build structure
-                $vlu = '<table><tbody>';
-
-                if ($orientation == 0)
-                    $vlu .= '<tr>';
-
-                foreach ($groupArray as $fGroup) {
-                    if ($orientation == 1)
-                        $vlu .= '<tr>';
-
-                    $vlu .= '<td><h3>' . $fGroup[0] . '</h3><ul>';
-
-                    for ($i = 1; $i < count($fGroup); $i++)
-                        $vlu .= '<li>' . $fGroup[$i] . '</li>';
-
-                    $vlu .= '<ul></td><td></td>';
-
-                    if ($orientation == 1)
-                        $vlu .= '</tr>';
-                }
-
-                if ($orientation == 0)
-                    $vlu .= '</tr>';
-
-                $vlu .= '</tbody></table>';
-
-                return $vlu;
-            } elseif ($option_list[0] == 'list') {
-                if ($rowValue != '') {
-                    $vlu = explode(',', $rowValue);
-                    $vlu = array_filter($vlu);
-
-                    sort($vlu);
-
-                    $temp_index = 0;
-                    return Tree::BuildULHtmlList($vlu, $temp_index, $this->ct->Languages->Postfix);
-                }
-            }
-        } else {
-            if ($rowValue != '')
-                return implode(',', Tree::getMultyValueTitles($rowValue, $this->ct->Languages->Postfix, 1, ' - ', $this->field->params));
-        }
-        return '';
-    }
-
-    protected function dataProcess($rowValue, array $option_list): string
-    {
-        if ($rowValue == '' or $rowValue == '0000-00-00' or $rowValue == '0000-00-00 00:00:00')
-            return '';
-
-        $PHPDate = strtotime($rowValue);
-
-        if (($option_list[0] ?? '') != '') {
-            if ($option_list[0] == 'timestamp')
-                return $PHPDate;
-
-            return date($option_list[0], $PHPDate);
-        } else
-            return JHTML::date($PHPDate);
-    }
-
-    protected function timeProcess($value, array $option_list): string
-    {
-        $PHPDate = strtotime($value);
-        if (isset($option_list[0]) and $option_list[0] != '') {
-            if ($option_list[0] == 'timestamp')
-                return $PHPDate;
-
-            return date($option_list[0], $PHPDate);
-        } else {
-            if ($value == '0000-00-00 00:00:00')
-                return '';
-
-            return JHTML::date($PHPDate);
-        }
-    }
-
-    protected function virtualProcess(): string
-    {
-        if (count($this->field->params) == 0)
-            return '';
-
-        $layout = str_replace('****quote****', '"', $this->field->params[0]);
-        $layout = str_replace('****apos****', '"', $layout);
-
-        try {
-            $twig = new TwigProcessor($this->ct, $layout, false, false, true);
-            $value = @$twig->process($this->row);
-
-            if ($twig->errorMessage !== null)
-                return 'Error:' . $twig->errorMessage;
-        } catch (Exception $e) {
-            return 'Error:' . $e->getMessage();
-        }
-        return $value;
-    }
+	protected function blobProcess(?string $value, array $option_list): ?string
+	{
+		if ((int)$value == 0)
+			return null;
+
+		$fieldType = Fields::getFieldType($this->ct->Table->realtablename, $this->field->realfieldname);
+		if ($fieldType != 'blob' and $fieldType != 'tinyblob' and $fieldType != 'mediumblob' and $fieldType != 'longblob')
+			return self::TextFunctions($value, $option_list);
+
+		$filename = CT_FieldTypeTag_file::getBlobFileName($this->field, $value, $this->row, $this->ct->Table->fields);
+
+		return CT_FieldTypeTag_file::process($filename, $this->field, $option_list, $this->row[$this->ct->Table->realidfieldname], false, intval($value));
+	}
+
+	protected function colorProcess($value, array $option_list): string
+	{
+		if ($value == '')
+			$value = '000000';
+
+		if (($option_list[0] ?? '') == "rgba") {
+			return JoomlaBasicMisc::colorStringValueToCSSRGB($value);
+		} else
+			return "#" . $value;
+	}
+
+	protected function articleProcess($rowValue, array $option_list)
+	{
+		if (isset($option_list[0]) and $option_list[0] != '')
+			$article_field = $option_list[0];
+		else
+			$article_field = 'title';
+
+		$article = $this->getArticle((int)$rowValue, $article_field);
+
+		if (isset($option_list[1])) {
+			$opts = str_replace(':', ',', $option_list[1]);
+			return $this->TextFunctions($article, explode(',', $opts));
+		} else
+			return $article;
+	}
+
+	protected function getArticle($articleId, $field)
+	{
+		// get database handle
+		$query = 'SELECT ' . $field . ' FROM #__content WHERE id=' . (int)$articleId . ' LIMIT 1';
+		$rows = database::loadAssocList($query);
+
+		if (count($rows) != 1)
+			return ""; //return nothing if article not found
+
+		return $rows[0][$field];
+	}
+
+	protected function dataProcess($rowValue, array $option_list): string
+	{
+		if ($rowValue == '' or $rowValue == '0000-00-00' or $rowValue == '0000-00-00 00:00:00')
+			return '';
+
+		$PHPDate = strtotime($rowValue);
+
+		if (($option_list[0] ?? '') != '') {
+			if ($option_list[0] == 'timestamp')
+				return $PHPDate;
+
+			return date($option_list[0], $PHPDate);
+		} else
+			return HTMLHelper::date($PHPDate);
+	}
+
+	protected function timeProcess($value, array $option_list): string
+	{
+		$PHPDate = strtotime($value);
+		if (isset($option_list[0]) and $option_list[0] != '') {
+			if ($option_list[0] == 'timestamp')
+				return $PHPDate;
+
+			return date($option_list[0], $PHPDate);
+		} else {
+			if ($value == '0000-00-00 00:00:00')
+				return '';
+
+			return HTMLHelper::date($PHPDate);
+		}
+	}
+
+	protected function virtualProcess(): string
+	{
+		if (count($this->field->params) == 0)
+			return '';
+
+		$layout = str_replace('****quote****', '"', $this->field->params[0]);
+		$layout = str_replace('****apos****', '"', $layout);
+
+		try {
+			$twig = new TwigProcessor($this->ct, $layout, false, false, true);
+			$value = @$twig->process($this->row);
+
+			if ($twig->errorMessage !== null)
+				return 'Error:' . $twig->errorMessage;
+		} catch (Exception $e) {
+			return 'Error:' . $e->getMessage();
+		}
+		return $value;
+	}
+}
+
+abstract class BaseValue
+{
+	protected CT $ct;
+	protected Field $field;
+	protected $rowValue;
+	protected array $option_list;
+
+	function __construct(CT &$ct, Field $field, $rowValue, array $option_list = [])
+	{
+		$this->ct = $ct;
+		$this->field = $field;
+		$this->rowValue = $rowValue;
+		$this->option_list = $option_list;
+	}
 }

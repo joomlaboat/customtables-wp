@@ -296,7 +296,7 @@ function ctToolBarDO(task, tableid) {
     const elements = getListOfSelectedRecords(tableid);
 
     if (elements.length === 0) {
-        alert(Joomla.JText._('COM_CUSTOMTABLES_JS_SELECT_RECORDS'));
+        alert(TranslateText('COM_CUSTOMTABLES_JS_SELECT_RECORDS'));
         es_LinkLoading = false;
         return;
     }
@@ -304,7 +304,7 @@ function ctToolBarDO(task, tableid) {
     if (task === 'delete') {
 
         let msg;
-        if (elements.length === 1) msg = Joomla.JText._('COM_CUSTOMTABLES_JS_SELECT_DO_U_WANT_TO_DELETE1l'); else msg = Joomla.JText._('COM_CUSTOMTABLES_JS_SELECT_DO_U_WANT_TO_DELETE').replace('%s', elements.length);
+        if (elements.length === 1) msg = TranslateText('COM_CUSTOMTABLES_JS_SELECT_DO_U_WANT_TO_DELETE1l'); else msg = TranslateText('COM_CUSTOMTABLES_JS_SELECT_DO_U_WANT_TO_DELETE').replace('%s', elements.length);
 
         if (!confirm(msg)) {
             es_LinkLoading = false;
@@ -464,7 +464,11 @@ function ct_UpdateSingleValueSet(WebsiteRoot, Itemid, fieldname_, record_id, pos
                 } else {
                     obj.className = "ct_checkmark_err ";
 
-                    if (http.response.indexOf('<div class="alert-message">Nothing to save</div>') !== -1) alert(Joomla.JText._('COM_CUSTOMTABLES_JS_NOTHING_TO_SAVE')); else if (http.response.indexOf('view-login') !== -1) alert(Joomla.JText._('COM_CUSTOMTABLES_JS_SESSION_EXPIRED')); else alert(http.response);
+                    if (http.response.indexOf('<div class="alert-message">Nothing to save</div>') !== -1)
+                        alert(TranslateText('COM_CUSTOMTABLES_JS_NOTHING_TO_SAVE'));
+                    else if (http.response.indexOf('view-login') !== -1)
+                        alert(TranslateText('COM_CUSTOMTABLES_JS_SESSION_EXPIRED'));
+                    else alert(http.response);
                 }
             }
         };
@@ -627,4 +631,13 @@ function ctValue_googlemapcoordinates(boxId, lat, long, zoom) {
 
     let infoWindow = new google.maps.InfoWindow;
     return false;
+}
+
+function ctSearchBarDateRangeUpdate(fieldName) {
+    setTimeout(function () {
+        let obj = document.getElementById("es_search_box_" + fieldName);
+        let date_start = document.getElementById("es_search_box_" + fieldName + "_start").value
+        let date_end = document.getElementById("es_search_box_" + fieldName + "_end").value;
+        obj.value = date_start + "-to-" + date_end;
+    }, 300)
 }

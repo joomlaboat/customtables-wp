@@ -53,6 +53,12 @@ class Admin_Record_Edit
                 }
             }
         }
+		else
+		{
+			echo 'Table ID: '.$this->tableId.' Not found.';
+			die;
+			return;
+		}
 
         $Layouts = new Layouts($this->ct);
         $this->ct->LayoutVariables['layout_type'] = 2;

@@ -177,8 +177,8 @@ class Admin_Field_List extends Libraries\WP_List_Table
 
             $result .= '</ul>';
             $item['fieldtitle'] = $result;
-            $item['typeparams'] = str_replace('****apos****', "'", str_replace('****quote****', '"', $this->helperListOfFields->escape($item['typeparams'])));
-            $item['table'] = str_replace('****apos****', "'", str_replace('****quote****', '"', $this->helperListOfFields->escape($item['tabletitle'])));
+            $item['typeparams'] = str_replace('****apos****', "'", str_replace('****quote****', '"', common::escape($item['typeparams'])));
+            $item['table'] = str_replace('****apos****', "'", str_replace('****quote****', '"', common::escape($item['tabletitle'])));
             $item['type'] = $this->getFieldTypeLabel($item['type']);
             $newData[] = $item;
         }

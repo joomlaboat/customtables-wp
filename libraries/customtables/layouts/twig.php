@@ -1,6 +1,6 @@
 <?php
 /**
- * CustomTables Joomla! 3.x/4.x/5.x Native Component and WordPress 6.x Plugin
+ * CustomTables Joomla! 3.x/4.x/5.x Component and WordPress 6.x Plugin
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
@@ -20,12 +20,9 @@ use CT_FieldTypeTag_imagegallery;
 use Exception;
 use Joomla\CMS\Factory;
 use JoomlaBasicMisc;
-use CT_FieldTypeTag_sqljoin;
-use CT_FieldTypeTag_records;
 use Twig\Loader\ArrayLoader;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
-
 use CT_FieldTypeTag_image;
 
 $types_path = CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'fieldtypes' . DIRECTORY_SEPARATOR;
@@ -320,9 +317,11 @@ class TwigProcessor
 			try {
 				$result = @$this->twig->render($this->pageLayoutName, $this->variables);
 			} catch (Exception $e) {
-				$this->errorMessage = $e->getMessage();
+				$msg = $e->getMessage() . $e->getFile() . $e->getLine() . $e->getTraceAsString();
+				$this->errorMessage = $msg;
+				$this->ct->errors[] = $msg;
 
-				$msg = $e->getMessage();
+//				$msg = $e->getMessage();
 				if ($this->pageLayoutLink !== null)
 					$msg = str_replace($this->pageLayoutName, '<a href="' . $this->pageLayoutLink . '" target="_blank">' . $this->pageLayoutName . '</a>', $msg);
 
@@ -682,7 +681,10 @@ class fieldObject
 			} else
 				$layoutcode = '{{ ' . $fieldName . ' }}';
 
-			return CT_FieldTypeTag_sqljoin::resolveSQLJoinTypeValue($this->field, $layoutcode, $this->ct->Table->record[$this->field->realfieldname]);
+			require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'value'
+				. DIRECTORY_SEPARATOR . 'tablejoin.php');
+
+			return Value_tablejoin::renderTableJoinValue($this->field, $layoutcode, $this->ct->Table->record[$this->field->realfieldname]);
 		} elseif ($this->field->type == 'records') {
 			//2. ?string $showPublishedString = ''
 			if (isset($functionParams[1]) and is_array($functionParams[1]))
@@ -697,7 +699,11 @@ class fieldObject
 				$separatorCharacter = null;
 
 			$layoutcode = '{{ ' . $fieldName . ' }}';
-			return CT_FieldTypeTag_records::resolveRecordTypeValue($this->field, $layoutcode, $this->ct->Table->record[$this->field->realfieldname],
+
+			require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'value'
+				. DIRECTORY_SEPARATOR . 'tablejoinlist.php');
+
+			return Value_tablejoinlist::resolveRecordTypeValue($this->field, $layoutcode, $this->ct->Table->record[$this->field->realfieldname],
 				$showPublishedString, $separatorCharacter);
 		} else {
 			$this->ct->errors[] = '{{ ' . $this->field->fieldname . '.get }}. Wrong field type "' . $this->field->type . '". ".get" method is only available for Table Join and Records filed types.';
@@ -736,7 +742,11 @@ class fieldObject
 		$layoutcode = '{{ ' . $fieldName . '.value }}';
 
 		if ($this->field->type == 'sqljoin') {
-			return CT_FieldTypeTag_sqljoin::resolveSQLJoinTypeValue($this->field, $layoutcode, $this->ct->Table->record[$this->field->realfieldname]);
+
+			require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'value'
+				. DIRECTORY_SEPARATOR . 'tablejoin.php');
+
+			return Value_tablejoin::renderTableJoinValue($this->field, $layoutcode, $this->ct->Table->record[$this->field->realfieldname]);
 		} elseif ($this->field->type == 'records') {
 
 			//2. ?string $showPublishedString = ''
@@ -751,7 +761,10 @@ class fieldObject
 			else
 				$separatorCharacter = null;
 
-			return CT_FieldTypeTag_records::resolveRecordTypeValue($this->field, $layoutcode, $this->ct->Table->record[$this->field->realfieldname], $showPublishedString, $separatorCharacter);
+			require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'value'
+				. DIRECTORY_SEPARATOR . 'tablejoinlist.php');
+
+			return Value_tablejoinlist::resolveRecordTypeValue($this->field, $layoutcode, $this->ct->Table->record[$this->field->realfieldname], $showPublishedString, $separatorCharacter);
 		} else {
 			$this->ct->errors[] = '{{ ' . $this->field->fieldname . '.getvalue }}. Wrong field type "' . $this->field->type . '". ".getvalue" method is only available for Table Join and Records filed types.';
 			return '';
@@ -780,9 +793,16 @@ class fieldObject
 		}
 
 		if ($this->field->type == 'sqljoin') {
-			return CT_FieldTypeTag_sqljoin::resolveSQLJoinTypeValue($this->field, $layoutCode, $this->ct->Table->record[$this->field->realfieldname]);
+			require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'value'
+				. DIRECTORY_SEPARATOR . 'tablejoin.php');
+
+			return Value_tablejoin::renderTableJoinValue($this->field, $layoutCode, $this->ct->Table->record[$this->field->realfieldname]);
 		} elseif ($this->field->type == 'records') {
-			return CT_FieldTypeTag_records::resolveRecordTypeValue($this->field, $layoutCode, $this->ct->Table->record[$this->field->realfieldname], $showPublishedString, $separatorCharacter);
+
+			require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'value'
+				. DIRECTORY_SEPARATOR . 'tablejoinlist.php');
+
+			return Value_tablejoinlist::resolveRecordTypeValue($this->field, $layoutCode, $this->ct->Table->record[$this->field->realfieldname], $showPublishedString, $separatorCharacter);
 		}
 		return 'impossible';
 	}

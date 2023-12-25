@@ -1,6 +1,6 @@
 <?php
 /**
- * CustomTables Joomla! 3.x/4.x/5.x Native Component and WordPress 6.x Plugin
+ * CustomTables Joomla! 3.x/4.x/5.x Component and WordPress 6.x Plugin
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
@@ -119,7 +119,6 @@ class record
 		}
 
 		if (count($saveField->row_new) < 1) {
-			$this->ct->errors[] = 'Nothing to save';
 			return false;
 		}
 
@@ -128,8 +127,6 @@ class record
 				$this->row_new = $this->ct->Table->loadRecord($this->listing_id);
 
 				if ($this->row_new !== null) {
-					//$this->listing_id = $this->row_new[$this->ct->Table->realidfieldname];
-					//common::inputSet("listing_id", $this->row_new[$this->ct->Table->realidfieldname]);
 
 					if ($this->ct->Env->advancedTagProcessor) {
 						if ($phpOnAddFound)
@@ -184,6 +181,7 @@ class record
 	{
 		$this->ct->isEditForm = true; //These changes input box prefix
 		$pageLayout = $this->editForm->processLayout($row);
+
 		$backgroundFieldTypes = ['creationtime', 'changetime', 'server', 'id', 'md5', 'userid'];
 		$fieldsToEdit = [];
 

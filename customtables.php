@@ -7,6 +7,7 @@
  * @wordpress-plugin
  * Plugin Name:       CustomTables
  * Plugin URI:        https://ct4.us/
+ * GitHub:            https://github.com/joomlaboat/customtables-wp
  * Description:       CRUD solution for WordPress.
  * Version:           1.1.0
  * Author:            Ivan Komlev
@@ -20,7 +21,7 @@ namespace CustomTablesWP;
 
 // If this file is called directly, abort.
 if (!defined('WPINC')) {
-    die;
+	die;
 }
 
 /**
@@ -67,8 +68,6 @@ register_activation_hook(__FILE__, array(CTWP . 'Inc\Core\Activator', 'activate'
 register_deactivation_hook(__FILE__, array(CTWP . 'Inc\Core\Deactivator', 'deactivate'));
 
 
-
-
 /**
  * Plugin Singleton Container
  *
@@ -79,23 +78,23 @@ register_deactivation_hook(__FILE__, array(CTWP . 'Inc\Core\Deactivator', 'deact
 class customtables
 {
 
-    static $init;
+	static $init;
 
-    /**
-     * Loads the plugin
-     *
-     * @access    public
-     */
-    public static function init()
-    {
+	/**
+	 * Loads the plugin
+	 *
+	 * @access    public
+	 */
+	public static function init()
+	{
 
 
-        if (null == self::$init) {
-            self::$init = new Inc\Core\Init();
-            self::$init->run();
-        }
-        return self::$init;
-    }
+		if (null == self::$init) {
+			self::$init = new Inc\Core\Init();
+			self::$init->run();
+		}
+		return self::$init;
+	}
 
 }
 
@@ -112,21 +111,18 @@ class customtables
  */
 function customtables_init()
 {
-    //add_action( 'init', 'customtables_dynamic_block_block_init' );
+	//add_action( 'init', 'customtables_dynamic_block_block_init' );
 
 
-    return customtables::init();
+	return customtables::init();
 }
-
-
-
 
 
 $min_php = '5.6.0';
 
 // Check the minimum required PHP version and run the plugin.
 if (version_compare(PHP_VERSION, $min_php, '>=')) {
-    customtables_init();
+	customtables_init();
 
 
 }
@@ -134,7 +130,7 @@ if (version_compare(PHP_VERSION, $min_php, '>=')) {
 
 $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
 if ($page == 'customtables-layouts-edit')
-    add_action('admin_enqueue_scripts', 'enqueue_codemirror');
+	add_action('admin_enqueue_scripts', 'enqueue_codemirror');
 
 //  PLUGIN_NAME_DIR
 //require_once( 'block-widgets/customtables_block_widget.php' );
@@ -144,38 +140,37 @@ if ($page == 'customtables-layouts-edit')
 // Function to generate real content based on block attributes
 
 
-
-
-
-
 //-------------------------------------------
 
 
-function customtables_dynamic_block_block_init() {
-    register_block_type(
-        plugin_dir_path( __FILE__ ) . 'build',
-        array(
-            'render_callback' => 'CustomTablesWP\customtables_dynamic_block_render_callback',
-        )
-    );
+function customtables_dynamic_block_block_init()
+{
+	register_block_type(
+		plugin_dir_path(__FILE__) . 'build',
+		array(
+			'render_callback' => 'CustomTablesWP\customtables_dynamic_block_render_callback',
+		)
+	);
 }
-add_action( 'init', 'CustomTablesWP\customtables_dynamic_block_block_init' );
+
+add_action('init', 'CustomTablesWP\customtables_dynamic_block_block_init');
 
 
 /**
  * This function is called when the block is being rendered on the front end of the site
  *
- * @param array    $attributes     The array of attributes for this block.
- * @param string   $content        Rendered block output. ie. <InnerBlocks.Content />.
+ * @param array $attributes The array of attributes for this block.
+ * @param string $content Rendered block output. ie. <InnerBlocks.Content />.
  * @param WP_Block $block_instance The instance of the WP_Block class that represents the block being rendered.
  */
-function customtables_dynamic_block_render_callback( $attributes, $content, $block_instance ) {
+function customtables_dynamic_block_render_callback($attributes, $content, $block_instance)
+{
 
-    ob_start();
-    /**
-     * Keeping the markup to be returned in a separate file is sometimes better, especially if there is very complicated markup.
-     * All of passed parameters are still accessible in the file.
-     */
-    require plugin_dir_path( __FILE__ ) . 'build/template.php';
-    return ob_get_clean();
+	ob_start();
+	/**
+	 * Keeping the markup to be returned in a separate file is sometimes better, especially if there is very complicated markup.
+	 * All of passed parameters are still accessible in the file.
+	 */
+	require plugin_dir_path(__FILE__) . 'build/template.php';
+	return ob_get_clean();
 }

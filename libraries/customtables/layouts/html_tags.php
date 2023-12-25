@@ -1,6 +1,6 @@
 <?php
 /**
- * CustomTables Joomla! 3.x/4.x/5.x Native Component and WordPress 6.x Plugin
+ * CustomTables Joomla! 3.x/4.x/5.x Component and WordPress 6.x Plugin
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
@@ -15,10 +15,9 @@ if (!defined('_JEXEC') and !defined('WPINC')) {
 	die('Restricted access');
 }
 
-use JEventDispatcher;
+use Joomla\CMS\HTML\HTMLHelper;
 use JoomlaBasicMisc;
 use JESPagination;
-use JHTML;
 use JPluginHelper;
 
 class Twig_Html_Tags
@@ -73,7 +72,7 @@ class Twig_Html_Tags
 		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
 			return ''; //Not permitted
 
-		if (is_numeric($Alias_or_ItemId) and $Alias_or_ItemId > 0)
+		if ($Alias_or_ItemId != '' and is_numeric($Alias_or_ItemId) and (int)$Alias_or_ItemId > 0)
 			$link = '/index.php?option=com_customtables&amp;view=edititem&amp;returnto=' . $this->ct->Env->encoded_current_url . '&amp;Itemid=' . $Alias_or_ItemId;
 		elseif ($Alias_or_ItemId != '')
 			$link = '/index.php/' . $Alias_or_ItemId . '?returnto=' . $this->ct->Env->encoded_current_url;
@@ -122,7 +121,7 @@ class Twig_Html_Tags
 		$fieldid = '9999999';//some unique number. TODO
 		$objectname = 'importcsv';
 
-		JHtml::_('behavior.formvalidator');
+		HTMLHelper::_('behavior.formvalidator');
 
 		$urlstr = '/index.php?option=com_customtables&amp;view=fileuploader&amp;tmpl=component&'
 			. 'tableid=' . $this->ct->Table->tableid . '&'
@@ -376,6 +375,9 @@ class Twig_Html_Tags
 
 	function search($list_of_fields_string_or_array = null, $class = '', $reload = false, $improved = ''): string
 	{
+		if (is_string($reload))
+			$reload = $reload == 'reload';
+
 		if ($list_of_fields_string_or_array === null)
 			return '{{ html.search() }} tag requires at least one field name.';
 
@@ -472,13 +474,6 @@ class Twig_Html_Tags
 					'valuerule' => null,
 					'valuerulecaption' => null
 				);
-			} else {
-				//Date search no implemented yet. It will be range search
-				$fld = Fields::FieldRowByName($field_name_string, $this->ct->Table->fields);
-				if ($fld['type'] == 'date') {
-					$fld['typeparams'] = 'date';
-					$fld['type'] = 'range';
-				}
 			}
 
 			if ($first_field_type == '') {
@@ -512,7 +507,8 @@ class Twig_Html_Tags
 		elseif ($improved == 'virtualselect')
 			$cssClass .= ($cssClass == '' ? '' : ' ') . ' ct_virtualselect_selectbox';
 
-		$default_Action = $reload ? ' onChange="ctSearchBoxDo();"' : ' ';//action should be a space not empty or this.value=this.value
+		$onchange = $reload ? 'ctSearchBoxDo();' : null;//action should be a space not empty or this.value=this.value
+
 		$objectName = $first_fld['fieldname'];
 
 		if (count($first_fld) == 0)
@@ -520,7 +516,7 @@ class Twig_Html_Tags
 
 		$vlu = $SearchBox->renderFieldBox('es_search_box_', $objectName, $first_fld,
 			$cssClass, '0',
-			'', false, '', $default_Action, $field_title);//action should be a space not empty or
+			'', '', $onchange, $field_title);//action should be a space not empty or
 		//0 because it's not an edit box, and we pass onChange value even " " is the value;
 
 		$field2search = $this->prepareSearchElement($first_fld);
@@ -558,14 +554,7 @@ class Twig_Html_Tags
 		if (isset($fld['fields']) and count($fld['fields']) > 0) {
 			return 'es_search_box_' . $fld['fieldname'] . ':' . implode(';', $fld['fields']) . ':';
 		} else {
-			if ($fld['type'] == 'customtables') {
-				$paramsList = explode(',', $fld['typeparams']);
-				if (count($paramsList) > 1) {
-					$root = $paramsList[0];
-					return 'es_search_box_combotree_' . $this->ct->Table->tablename . '_' . $fld['fieldname'] . '_1:' . $fld['fieldname'] . ':' . $root;
-				}
-			} else
-				return 'es_search_box_' . $fld['fieldname'] . ':' . $fld['fieldname'] . ':';
+			return 'es_search_box_' . $fld['fieldname'] . ':' . $fld['fieldname'] . ':';
 		}
 
 		return '';
@@ -723,12 +712,12 @@ class Twig_Html_Tags
 			return '';
 
 		if (defined('_JEXEC')) {
-			if ($this->version >= 4) {
-				$wa = $this->document->getWebAssetManager();
+			if ($this->ct->Env->version >= 4) {
+				$wa = $this->ct->document->getWebAssetManager();
 				$wa->useScript('keepalive')->useScript('form.validate');
 			} else {
-				JHtml::_('behavior.formvalidation');
-				JHtml::_('behavior.keepalive');
+				HTMLHelper::_('behavior.formvalidation');
+				HTMLHelper::_('behavior.keepalive');
 			}
 		}
 
@@ -748,7 +737,9 @@ class Twig_Html_Tags
 		JPluginHelper::importPlugin('captcha');
 
 		if ($this->ct->Env->version < 4) {
-			$dispatcher = JEventDispatcher::getInstance();
+
+			$dispatcher = \JDispatcher::getInstance();
+			//$dispatcher = JEventDispatcher::getInstance();
 			$dispatcher->trigger('onInit', 'my_captcha_div');
 		} else {
 			$this->ct->app->triggerEvent('onInit', array(null, 'my_captcha_div', 'class=""'));

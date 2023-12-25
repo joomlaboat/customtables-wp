@@ -1,6 +1,6 @@
 <?php
 /**
- * CustomTables Joomla! 3.x/4.x/5.x Native Component and WordPress 6.x Plugin
+ * CustomTables Joomla! 3.x/4.x/5.x Component and WordPress 6.x Plugin
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 if (!defined('_JEXEC') and !defined('WPINC')) {
-    die('Restricted access');
+	die('Restricted access');
 }
 
 class Categories

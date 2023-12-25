@@ -1,6 +1,6 @@
 <?php
 /**
- * CustomTables Joomla! 3.x/4.x/5.x Native Component and WordPress 6.x Plugin
+ * CustomTables Joomla! 3.x/4.x/5.x Component and WordPress 6.x Plugin
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
@@ -16,6 +16,7 @@ if (!defined('_JEXEC') and !defined('WPINC')) {
 }
 
 use Exception;
+use JApplicationHelper;
 use Joomla\CMS\User\User;
 use Joomla\CMS\User\UserFactoryInterface;
 use Joomla\CMS\Version;
@@ -270,7 +271,7 @@ class CTUser
 		if (($userActivation == 1) || ($userActivation == 2)) {
 			jimport('joomla.user.helper');
 
-			$data['activation'] = \JApplicationHelper::getHash(JUserHelper::genRandomPassword());
+			$data['activation'] = JApplicationHelper::getHash(JUserHelper::genRandomPassword());
 			$data['block'] = 1;
 		}
 

@@ -46,7 +46,6 @@ $onPageLoads = array();
         </h1>
 
 
-
         <?php if (isset($errors) && is_wp_error($errors)) : ?>
             <div class="error">
                 <ul>

@@ -169,7 +169,7 @@ class Admin_Record_List extends Libraries\WP_List_Table
             if ($item['listing_published'] == -2)
                 $label = '<span>' . $item[$this->firstFieldRealName] . '</span>';
             else {
-                $label = '<a class="row-title" href="?page=customtables-records-edit&action=edit&id=' . $item[$this->ct->Table->realidfieldname] . '">'
+                $label = '<a class="row-title" href="?page=customtables-records-edit&action=edit&table='.$this->tableId.'&id=' . $item[$this->ct->Table->realidfieldname] . '">'
                     . $item[$this->firstFieldRealName] . '</a>';
 
                 if ($this->ct->Table->published_field_found)
