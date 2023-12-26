@@ -266,7 +266,7 @@ class Admin
 
 				}
 				header('Content-Type: application/json');
-				die(json_encode($result));
+				die(wp_json_encode($result));
 
 			case 'customtables-api-tables':
 				$tablesRows = database::loadAssocList('SELECT id,tablename FROM #__customtables_tables WHERE published=1 ORDER BY tablename');
@@ -276,7 +276,7 @@ class Admin
 					$tables[] = ['label' => $tablesRow['tablename'], 'value' => $tablesRow['id']];
 				}
 				header('Content-Type: application/json');
-				die(json_encode($tables));
+				die(wp_json_encode($tables));
 
 			case 'customtables-api-layouts':
 				$layoutsRows = database::loadAssocList('SELECT id,layoutname FROM #__customtables_layouts WHERE published=1 ORDER BY layoutname');
@@ -286,7 +286,7 @@ class Admin
 					$layouts[] = ['label' => $layoutsRow['layoutname'], 'value' => $layoutsRow['id']];
 				}
 				header('Content-Type: application/json');
-				die(json_encode($layouts));
+				die(wp_json_encode($layouts));
 
 			case 'customtables-api-preview':
 				$attributesString = common::inputGetBase64('attributes');

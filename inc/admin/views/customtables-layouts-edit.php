@@ -101,7 +101,7 @@ $onPageLoads = array();
                 ?>
 
                 <div id="allLayoutRaw"
-                     style="display:none;"><?php echo json_encode(ListOfLayouts::getLayouts()); ?></div>
+                     style="display:none;"><?php echo wp_json_encode(ListOfLayouts::getLayouts()); ?></div>
             </form>
         <?php } // End if (current_user_can('install_plugins')) ?>
     </div>

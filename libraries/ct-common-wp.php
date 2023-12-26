@@ -18,44 +18,12 @@ class common
 {
 	public static function enqueueMessage($text, $type): void
 	{
-		if (defined('_JEXEC')) {
-			Factory::getApplication()->enqueueMessage($text, $type);
-		} elseif (defined('WPINC')) {
-			echo '<div class="success-message">' . $text . '</div>';
-		}
+		echo '<div class="success-message">' . $text . '</div>';
 	}
 
 	public static function translate(string $text, int|float $value = null)
 	{
-		if (defined('WPINC')) {
-			return __($text, 'customtables');
-		}
-
-		if (is_null($value))
-			$new_text = Text::_($text);
-		else
-			$new_text = Text::sprintf($text, $value);
-
-		if ($new_text == $text) {
-			$parts = explode('_', $text);
-			if (count($parts) > 1) {
-				$type = $parts[0];
-				if ($type == 'PLG' and count($parts) > 2) {
-					$extension = strtolower($parts[0] . '_' . $parts[1] . '_' . $parts[2]);
-				} else
-					$extension = strtolower($parts[0] . '_' . $parts[1]);
-
-				$lang = Factory::getLanguage();
-				$lang->load($extension, JPATH_SITE);//JPATH_BASE);
-
-				if (is_null($value))
-					return Text::_($text);
-				else
-					return Text::sprintf($text, $value);
-			} else
-				return $text;
-		} else
-			return $new_text;
+		return __($text, 'customtables');
 	}
 
 	public static function curPageURL(): string
@@ -407,58 +375,34 @@ class common
 
 	public static function inputPost($parameter, $default = null, $filter = null)
 	{
-		if (defined('_JEXEC')) {
-			return Factory::getApplication()->input->post->get($parameter, $default, $filter);
-		} else {
-			echo 'common::inputPost not supported in WordPress';
-		}
+		echo 'common::inputPost not supported in WordPress';
 		return null;
 	}
 
 	public static function inputSet(string $parameter, string $value): void
 	{
-		if (defined('_JEXEC')) {
-			Factory::getApplication()->input->set($parameter, $value);
-		} else {
-			echo 'common::inputSet not supported in WordPress';
-		}
+		echo 'common::inputSet not supported in WordPress';
 	}
 
 	public static function inputFiles(string $fileId)
 	{
-		if (defined('_JEXEC')) {
-			return Factory::getApplication()->input->files->get($fileId);
-		} else {
-			echo 'common::inputFiles not supported in WordPress';
-		}
+		echo 'common::inputFiles not supported in WordPress';
 		return null;
 	}
 
 	public static function inputCookieSet(string $parameter, $value, $time, $path, $domain): void
 	{
-		if (defined('_JEXEC')) {
-			Factory::getApplication()->input->cookie->set($parameter, $value, $time, $path, $domain);
-		} else {
-			die('common::inputCookieSet not supported in WordPress');
-		}
+		die('common::inputCookieSet not supported in WordPress');
 	}
 
 	public static function inputCookieGet($parameter)
 	{
-		if (defined('_JEXEC')) {
-			return Factory::getApplication()->cookie->get($parameter);
-		} else {
-			die('common::inputCookieGet not supported in WordPress');
-		}
+		die('common::inputCookieGet not supported in WordPress');
 	}
 
 	public static function inputServer($parameter, $default = null, $filter = null)
 	{
-		if (defined('_JEXEC')) {
-			return Factory::getApplication()->input->server->get($parameter, $default, $filter);
-		} else {
-			die('common::inputServer not supported in WordPress');
-		}
+		die('common::inputServer not supported in WordPress');
 	}
 
 	public static function ExplodeSmartParams(string $param): array
@@ -582,6 +526,6 @@ class common
 
 	public static function ctStripTags($argument): bool|string
 	{
-		return strip_tags($argument);
+		return wp_strip_all_tags($argument);
 	}
 }

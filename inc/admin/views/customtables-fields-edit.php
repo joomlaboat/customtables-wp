@@ -81,7 +81,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                     if ($this->admin_field_edit->ct->Env->advancedTagProcessor)
                         echo 'proversion=true;' . PHP_EOL;
 
-                    echo 'all_tables=' . json_encode($this->admin_field_edit->allTables) . ';' . PHP_EOL;
+                    echo 'all_tables=' . wp_json_encode($this->admin_field_edit->allTables) . ';' . PHP_EOL;
                     ?>
                 </script>
 

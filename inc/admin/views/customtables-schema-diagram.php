@@ -25,7 +25,7 @@ $diagram = new Diagram();
     <script>
 
         TableCategoryID = null;
-        AllTables = <?php echo json_encode($diagram->tables); ?>;
+        AllTables = <?php echo wp_json_encode($diagram->tables); ?>;
 
     </script>
 
