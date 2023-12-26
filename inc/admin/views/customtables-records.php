@@ -1,11 +1,12 @@
 <?php
 // If this file is called directly, abort.
+use CustomTables\common;
+
 if (!defined('WPINC')) {
     die;
 }
 
-// Check if 'page' is set in $_REQUEST
-$page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
+$page = common::inputGetCmd('page');
 
 ?>
 <div class="wrap">

@@ -74,9 +74,11 @@ class common
 
 	public static function inputPostString($parameter, $default = null)
 	{
-		$nonce = wp_unslash($_POST['_wpnonce']);
-		if (!wp_verify_nonce($nonce, 'post'))
-			return $default;
+		if (isset($_POST['_wpnonce'])) {
+			$nonce = wp_unslash($_POST['_wpnonce']);
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'post'))
+				return $default;
+		}
 
 		if (!isset($_POST[$parameter]))
 			return $default;
@@ -87,20 +89,34 @@ class common
 
 	public static function inputGetString($parameter, $default = null)
 	{
-		$value = get_query_var($parameter);
+		if (isset($_GET['_wpnonce'])) {
+			$nonce = wp_unslash($_GET['_wpnonce']);
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'get')) {
+				//return $default;
+			}
+		}
+
+		if (!isset($_GET[$parameter]))
+			return $default;
+
+		$value = $_GET[$parameter];
+
+		//$value = get_query_var($parameter);
 
 		if (!$value)
 			return $default;
 
-		$source = wp_strip_all_tags(wp_unslash($_GET[$parameter]));
+		$source = wp_strip_all_tags(wp_unslash($value));
 		return sanitize_text_field($source);
 	}
 
 	public static function inputPostFloat($parameter, $default = null)
 	{
-		$nonce = wp_unslash($_POST['_wpnonce']);
-		if (!wp_verify_nonce($nonce, 'post'))
-			return $default;
+		if (isset($_POST['_wpnonce'])) {
+			$nonce = wp_unslash($_POST['_wpnonce']);
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'post'))
+				return $default;
+		}
 
 		// Allow a-z, 0-9, underscore, dot, dash. Also remove leading dots from result.
 		if (!isset($_POST[$parameter]))
@@ -113,33 +129,55 @@ class common
 
 	public static function inputGetFloat($parameter, $default = null)
 	{
-		$value = get_query_var($parameter);
+		if (isset($_GET['_wpnonce'])) {
+			$nonce = wp_unslash($_GET['_wpnonce']);
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'get')) {
+				//return $default;
+			}
+		}
+
+		if (!isset($_GET[$parameter]))
+			return $default;
+
+		$value = $_GET[$parameter];
 
 		if (!$value)
 			return $default;
 
 		// Only use the first floating point value
-		preg_match('/-?\d+(\.\d+)?/', (string)$_GET[$parameter], $matches);
+		preg_match('/-?\d+(\.\d+)?/', (string)$value, $matches);
 		return @ (float)$matches[0];
 	}
 
 	public static function inputGetInt(string $parameter, ?int $default = null): ?int
 	{
-		$value = get_query_var($parameter);
+		if (isset($_GET['_wpnonce'])) {
+			$nonce = wp_unslash($_GET['_wpnonce'] ?? '');
+			if (function_exists('\wp_verify_nonce') and !\wp_verify_nonce($nonce, 'get')) {
+				//return $default;
+			}
+		}
+
+		if (!isset($_GET[$parameter]))
+			return $default;
+
+		$value = $_GET[$parameter] ?? null;
 
 		if (!$value)
 			return $default;
 
 		// Allow a-z, 0-9, underscore, dot, dash. Also remove leading dots from result.
-		preg_match('/-?\d+/', (string)$_GET[$parameter], $matches);
+		preg_match('/-?\d+/', (string)$value, $matches);
 		return @ (int)$matches[0];
 	}
 
 	public static function inputPostInt($parameter, $default = null)
 	{
-		$nonce = wp_unslash($_POST['_wpnonce']);
-		if (!wp_verify_nonce($nonce, 'post'))
-			return $default;
+		if (isset($_POST['_wpnonce'])) {
+			$nonce = wp_unslash($_POST['_wpnonce']);
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'post'))
+				return $default;
+		}
 
 		// Allow a-z, 0-9, underscore, dot, dash. Also remove leading dots from result.
 		if (!isset($_POST[$parameter]))
@@ -151,9 +189,11 @@ class common
 
 	public static function inputPostUInt($parameter, $default = null)
 	{
-		$nonce = wp_unslash($_POST['_wpnonce']);
-		if (!wp_verify_nonce($nonce, 'post'))
-			return $default;
+		if (isset($_POST['_wpnonce'])) {
+			$nonce = wp_unslash($_POST['_wpnonce']);
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'post'))
+				return $default;
+		}
 
 		// Allow a-z, 0-9, underscore, dot, dash. Also remove leading dots from result.
 		if (!isset($_POST[$parameter]))
@@ -165,7 +205,17 @@ class common
 
 	public static function inputGetUInt($parameter, $default = null)
 	{
-		$value = get_query_var($parameter);
+		if (isset($_GET['_wpnonce'])) {
+			$nonce = wp_unslash($_GET['_wpnonce']);
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'get')) {
+				//return $default;
+			}
+		}
+
+		if (!isset($_GET[$parameter]))
+			return $default;
+
+		$value = $_GET[$parameter];
 
 		if (!$value)
 			return $default;
@@ -176,9 +226,11 @@ class common
 
 	public static function inputPostCmd(string $parameter, $default = null)
 	{
-		$nonce = wp_unslash($_POST['_wpnonce']);
-		if (!wp_verify_nonce($nonce, 'post'))
-			return $default;
+		if (isset($_POST['_wpnonce'])) {
+			$nonce = wp_unslash($_POST['_wpnonce']);
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'post'))
+				return $default;
+		}
 
 		// Allow a-z, 0-9, underscore, dot, dash. Also remove leading dots from result.
 		if (!isset($_POST[$parameter]))
@@ -190,20 +242,34 @@ class common
 
 	public static function inputGetCmd(string $parameter, $default = null)
 	{
-		$value = get_query_var($parameter);
+		if (isset($_GET['_wpnonce'])) {
+			$nonce = wp_unslash($_GET['_wpnonce']);
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'get')) {
+				//return $default;
+			}
+		}
+
+		if (!isset($_GET[$parameter]))
+			return $default;
+
+		$value = $_GET[$parameter];
+
+		//$value = get_query_var($parameter);
 
 		if (!$value)
 			return $default;
 
-		$result = (string)preg_replace('/[^A-Z\d_\.-]/i', '', $_GET[$parameter]);
+		$result = (string)preg_replace('/[^A-Z\d_\.-]/i', '', $value);
 		return ltrim($result, '.');
 	}
 
 	public static function inputPostRow(string $parameter, $default = null)
 	{
-		$nonce = wp_unslash($_POST['_wpnonce']);
-		if (!wp_verify_nonce($nonce, 'post'))
-			return $default;
+		if (isset($_POST['_wpnonce'])) {
+			$nonce = wp_unslash($_POST['_wpnonce']);
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'post'))
+				return $default;
+		}
 
 		// Allow a-z, 0-9, underscore, dot, dash. Also remove leading dots from result.
 		if (!isset($_POST[$parameter]))
@@ -214,19 +280,33 @@ class common
 
 	public static function inputGetRow(string $parameter, $default = null)
 	{
-		$value = get_query_var($parameter);
+		if (isset($_GET['_wpnonce'])) {
+			$nonce = wp_unslash($_GET['_wpnonce']);
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'get')) {
+				//return $default;
+			}
+		}
+
+		if (!isset($_GET[$parameter]))
+			return $default;
+
+		$value = $_GET[$parameter];
+
+		//$value = get_query_var($parameter);
 
 		if (!$value)
 			return $default;
 
-		return stripslashes($_GET[$parameter]);
+		return stripslashes($value);
 	}
 
 	public static function inputPostBase64(string $parameter, $default = null)
 	{
-		$nonce = wp_unslash($_POST['_wpnonce']);
-		if (!wp_verify_nonce($nonce, 'post'))
-			return $default;
+		if (isset($_POST['_wpnonce'])) {
+			$nonce = wp_unslash($_POST['_wpnonce']);
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'post'))
+				return $default;
+		}
 
 		// Allow a-z, 0-9, underscore, dot, dash. Also remove leading dots from result.
 		if (!isset($_POST[$parameter]))
@@ -238,31 +318,57 @@ class common
 
 	public static function inputGetBase64(string $parameter, $default = null)
 	{
-		$value = get_query_var($parameter);
+		if (isset($_GET['_wpnonce'])) {
+			$nonce = wp_unslash($_GET['_wpnonce']);
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'get')) {
+				//return $default;
+			}
+		}
+
+		if (!isset($_GET[$parameter]))
+			return $default;
+
+		$value = $_GET[$parameter];
+
+		//$value = get_query_var($parameter);
 
 		if (!$value)
 			return $default;
 
 		// Allow a-z, 0-9, slash, plus, equals.
-		return (string)preg_replace('/[^A-Z\d\/+=]/i', '', $_GET[$parameter]);
+		return (string)preg_replace('/[^A-Z\d\/+=]/i', '', $value);
 	}
 
 	public static function inputGetWord(string $parameter, $default = null)
 	{
-		$value = get_query_var($parameter);
+		if (isset($_GET['_wpnonce'])) {
+			$nonce = wp_unslash($_GET['_wpnonce']);
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'get')) {
+				//return $default;
+			}
+		}
+
+		if (!isset($_GET[$parameter]))
+			return $default;
+
+		$value = $_GET[$parameter];
+
+		//$value = get_query_var($parameter);
 
 		if (!$value)
 			return $default;
 
 		// Only allow characters a-z, and underscores
-		return (string)preg_replace('/[^A-Z_]/i', '', $_GET[$parameter]);
+		return (string)preg_replace('/[^A-Z_]/i', '', $value);
 	}
 
 	public static function inputPostAlnum(string $parameter, $default = null)
 	{
-		$nonce = wp_unslash($_POST['_wpnonce']);
-		if (!wp_verify_nonce($nonce, 'post'))
-			return $default;
+		if (isset($_POST['_wpnonce'])) {
+			$nonce = wp_unslash($_POST['_wpnonce']);
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'post'))
+				return $default;
+		}
 
 		// Allow a-z, 0-9, underscore, dot, dash. Also remove leading dots from result.
 		if (!isset($_POST[$parameter]))
@@ -274,17 +380,23 @@ class common
 
 	public static function inputGetAlnum(string $parameter, $default = null)
 	{
-		$nonce = wp_unslash($_POST['_wpnonce']);
-		if (!wp_verify_nonce($nonce, 'get')) {
-			return $default;
+		if (isset($_GET['_wpnonce'])) {
+			$nonce = wp_unslash($_GET['_wpnonce']);
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'get')) {
+				//return $default;
+			}
 		}
 
-		// Allow a-z, 0-9, underscore, dot, dash. Also remove leading dots from result.
 		if (!isset($_GET[$parameter]))
 			return $default;
 
+		$value = $_GET[$parameter];
+
+		if (!$value)
+			return $default;
+
 		// Allow a-z and 0-9 only
-		return (string)preg_replace('/[^A-Z\d]/i', '', $_GET[$parameter]);
+		return (string)preg_replace('/[^A-Z\d]/i', '', $value);
 	}
 
 	public static function inputGet(string $parameter, $default, string $filter)
@@ -466,5 +578,10 @@ class common
 	public static function ctJsonEncode($argument): bool|string
 	{
 		return wp_json_encode($argument);
+	}
+
+	public static function ctStripTags($argument): bool|string
+	{
+		return strip_tags($argument);
 	}
 }

@@ -67,6 +67,7 @@ class Init
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
+
 	}
 
 	/**
@@ -109,8 +110,6 @@ class Init
 	private function define_admin_hooks(): void
 	{
 		$plugin_admin = new Admin\Admin($this->get_plugin_name(), $this->get_version(), $this->get_plugin_text_domain());
-
-		$this->loader->add_filter2('query_vars', $plugin_admin,'custom_query_vars');
 
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
@@ -165,6 +164,8 @@ class Init
 	private function define_public_hooks()
 	{
 		$plugin_public = new Frontend\Frontend($this->get_plugin_name(), $this->get_version(), $this->get_plugin_text_domain());
+
+		//$this->loader->add_filter('query_vars', $plugin_public,'custom_query_vars');
 
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');

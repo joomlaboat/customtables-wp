@@ -7,6 +7,8 @@
 
 namespace CustomTablesWP\Inc\Libraries;
 
+use CustomTables\common;
+
 /**
  * Administration API: WP_List_Table class
  *
@@ -352,19 +354,27 @@ class WP_List_Table {
 	 * @param string $input_id ID attribute value for the search input field.
 	 */
 	public function search_box( $text, $input_id ) {
-		if ( empty( $_REQUEST['s'] ) && !$this->has_items() )
+
+		$s = common::inputGetCmd('s');
+
+		if ($s === null && !$this->has_items() )
 			return;
 
 		$input_id = $input_id . '-search-input';
 
-		if ( ! empty( $_REQUEST['orderby'] ) )
-			echo '<input type="hidden" name="orderby" value="' . esc_attr( $_REQUEST['orderby'] ) . '" />';
-		if ( ! empty( $_REQUEST['order'] ) )
-			echo '<input type="hidden" name="order" value="' . esc_attr( $_REQUEST['order'] ) . '" />';
-		if ( ! empty( $_REQUEST['post_mime_type'] ) )
-			echo '<input type="hidden" name="post_mime_type" value="' . esc_attr( $_REQUEST['post_mime_type'] ) . '" />';
-		if ( ! empty( $_REQUEST['detached'] ) )
-			echo '<input type="hidden" name="detached" value="' . esc_attr( $_REQUEST['detached'] ) . '" />';
+		$orderby = common::inputGetCmd('orderby');
+		$order = common::inputGetCmd('order');
+
+		if ( ! empty( $orderby ) )
+			echo '<input type="hidden" name="orderby" value="' . esc_attr( $orderby ) . '" />';
+		if ( ! empty( $order ) )
+			echo '<input type="hidden" name="order" value="' . esc_attr( $order ) . '" />';
+        /*
+		if ( ! empty( $REQUEST['post_mime_type'] ) )
+			echo '<input type="hidden" name="post_mime_type" value="' . esc_attr( $REQUEST['post_mime_type'] ) . '" />';
+		if ( ! empty( $REQUEST['detached'] ) )
+			echo '<input type="hidden" name="detached" value="' . esc_attr( $REQUEST['detached'] ) . '" />';
+        */
 ?>
 <p class="search-box">
 	<label class="screen-reader-text" for="<?php echo esc_attr( $input_id ); ?>"><?php echo $text; ?>:</label>
@@ -491,14 +501,19 @@ class WP_List_Table {
 	 * @return string|false The action name or False if no action was selected
 	 */
 	public function current_action() {
-		if ( isset( $_REQUEST['filter_action'] ) && ! empty( $_REQUEST['filter_action'] ) )
+
+		$filter_action = common::inputPostCmd('filter_action','');
+		$action = common::inputPostInt('action',-1);
+		$action2 = common::inputPostCmd('action2',-1);
+
+		if ( $filter_action != '')
 			return false;
 
-		if ( isset( $_REQUEST['action'] ) && -1 != $_REQUEST['action'] )
-			return $_REQUEST['action'];
+		if ( $action != -1)
+			return $action;
 
-		if ( isset( $_REQUEST['action2'] ) && -1 != $_REQUEST['action2'] )
-			return $_REQUEST['action2'];
+		if ( $action2 != -1)
+			return $action2;
 
 		return false;
 	}
@@ -704,7 +719,7 @@ class WP_List_Table {
 	 * @return int
 	 */
 	public function get_pagenum() {
-		$pagenum = isset( $_REQUEST['paged'] ) ? absint( $_REQUEST['paged'] ) : 0;
+		$pagenum = absint(common::inputGetInt('paged',0));
 
 		if ( isset( $this->_pagination_args['total_pages'] ) && $pagenum > $this->_pagination_args['total_pages'] )
 			$pagenum = $this->_pagination_args['total_pages'];
@@ -1342,7 +1357,10 @@ class WP_List_Table {
 		$this->prepare_items();
 
 		ob_start();
-		if ( ! empty( $_REQUEST['no_placeholder'] ) ) {
+
+		$no_placeholder = common::inputGetCmd('no_placeholder');
+
+		if ($no_placeholder !== null) {
 			$this->display_rows();
 		} else {
 			$this->display_rows_or_placeholder();
@@ -1382,4 +1400,5 @@ class WP_List_Table {
 
 		printf( "<script type='text/javascript'>list_args = %s;</script>\n", wp_json_encode( $args ) );
 	}
+
 }

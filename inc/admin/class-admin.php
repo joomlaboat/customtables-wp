@@ -3,6 +3,7 @@
 namespace CustomTablesWP\Inc\Admin;
 
 use CustomTableList;
+use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\Fields;
@@ -19,424 +20,397 @@ use CustomTables\Layouts;
  *
  * @author    Karan NA Gupta
  */
+
 class Admin
 {
 
-    /**
-     * The ID of this plugin.
-     *
-     * @since    1.0.0
-     * @access   private
-     * @var      string $plugin_name The ID of this plugin.
-     */
-    private $plugin_name;
+	/**
+	 * The ID of this plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      string $plugin_name The ID of this plugin.
+	 */
+	private $plugin_name;
 
-    /**
-     * The version of this plugin.
-     *
-     * @since    1.0.0
-     * @access   private
-     * @var      string $version The current version of this plugin.
-     */
-    private $version;
+	/**
+	 * The version of this plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      string $version The current version of this plugin.
+	 */
+	private $version;
 
-    /**
-     * The text domain of this plugin.
-     *
-     * @since    1.0.0
-     * @access   private
-     * @var      string $plugin_text_domain The text domain of this plugin.
-     */
-    private $plugin_text_domain;
+	/**
+	 * The text domain of this plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      string $plugin_text_domain The text domain of this plugin.
+	 */
+	private $plugin_text_domain;
 
-    /**
-     * WP_List_Table object
-     *
-     * @since    1.0.0
-     * @access   private
-     * @var      admin_table_list $admin_list_table
-     */
-    private $admin_table_list;
-    private $admin_table_edit;
-    private $admin_field_list;
-    private $admin_field_edit;
-    private $admin_record_list;
-    private $admin_record_edit;
-    private $admin_layout_list;
-    private $admin_layout_edit;
+	/**
+	 * WP_List_Table object
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      admin_table_list $admin_list_table
+	 */
+	private $admin_table_list;
+	private $admin_table_edit;
+	private $admin_field_list;
+	private $admin_field_edit;
+	private $admin_record_list;
+	private $admin_record_edit;
+	private $admin_layout_list;
+	private $admin_layout_edit;
 
-	// Add custom query variable
-	public function custom_query_vars($vars) {
-
-		echo 'LOLaaaaaaaaaa';
-		$vars[] = 'xmlfile';
-		$vars[] = 'table';
-		$vars[] = 'attributes';
-		$vars[] = 'field';
-		$vars[] = 'id';
-		$vars[] = 'layout';
-		$vars[] = 'page';
-
-		return $vars;
+	/**
+	 * Initialize the class and set its properties.
+	 *
+	 * @param string $plugin_name The name of this plugin.
+	 * @param string $version The version of this plugin.
+	 * @param string $plugin_text_domain The text domain of this plugin
+	 * @since    1.0.0
+	 */
+	public function __construct($plugin_name, $version, $plugin_text_domain)
+	{
+		$this->plugin_name = $plugin_name;
+		$this->version = $version;
+		$this->plugin_text_domain = $plugin_text_domain;
+		add_action('init', array($this, 'my_load_plugin_textdomain'));
 	}
+
+	function my_load_plugin_textdomain()
+	{
+		$domain = 'customtables';
+		$mo_file = ABSPATH . 'wp-content/plugins/customtables/Languages/' . $domain . '-' . get_locale() . '.mo';
+
+		load_textdomain($domain, $mo_file);
+		//load_plugin_textdomain( $domain, false, dirname( plugin_basename( __FILE__ ) ) . '/lang/' );
+	}
+
+	/**
+	 * Register the stylesheets for the admin area.
+	 *
+	 * @since    1.0.0
+	 */
+	public function enqueue_styles()
+	{
+		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/customtables-admin.css', array(), $this->version, 'all');
+		wp_enqueue_style('fieldtypes', plugin_dir_url(__FILE__) . '../../libraries/customtables/media/css/fieldtypes.css', false, $this->version);
+
+		$page = common::inputGetCmd('page');
+
+		if ($page == 'customtables-layouts-edit') {
+
+		}
+	}
+
+	/**
+	 * Register the JavaScript for the admin area.
+	 *
+	 * @since    1.0.0
+	 */
+	public function enqueue_scripts()
+	{
+		//$params = array ( 'ajaxurl' => admin_url( 'admin-ajax.php' ) );'jquery','codemirror''codemirror'
+		wp_enqueue_script('nds_ajax_handle', plugin_dir_url(__FILE__) . 'js/customtables-admin.js', array(), $this->version, false);
+		//wp_localize_script( 'nds_ajax_handle', 'params', $params );
+
+		$page = common::inputGetCmd('page');
+
+		if ($page == 'customtables-schema') {
+			wp_enqueue_script('customtables-js-raphael', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/raphael.min.js', array('jquery'), $this->version, false);
+			wp_enqueue_script('customtables-js-diagram', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/diagram.js', array('jquery'), $this->version, false);
+		}
+
+		if ($page == 'customtables-fields-edit') {
+			wp_enqueue_script('customtables-js-ajax', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/ajax.js', array(), $this->version, false);
+			wp_enqueue_script('customtables-js-typeparams_common', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/typeparams_common.js', array(), $this->version, false);
+			wp_enqueue_script('customtables-js-typeparams_j4', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/typeparams_j4.js', array(), $this->version, false);
+		}
+
+
+		if ($page == 'customtables-layouts-edit') {
+
+			wp_enqueue_script('customtables-js-ajax', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/ajax.js', array(), $this->version, false);
+			wp_enqueue_script('customtables-js-typeparams_common', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/typeparams_common.js', array(), $this->version, false);
+			wp_enqueue_script('customtables-js-typeparams_j4', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/typeparams_j4.js', array(), $this->version, false);
+			//codemirror.min.js
+
+
+		}
+	}
+	/*
+		function enqueue_codemirror() {
+			// Enqueue CodeMirror CSS
+			wp_enqueue_style( 'codemirror-css', 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.min.css' );
+
+			// Enqueue CodeMirror JavaScript
+			wp_enqueue_script( 'codemirror-js', 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.min.js', array(), null, true );
+		}
+
+	*/
+	/*
+		function enqueue_code_editor() {
+			wp_enqueue_code_editor(array('type' => 'text/html'));
+		}
+		*/
 
 
 	/**
-     * Initialize the class and set its properties.
-     *
-     * @param string $plugin_name The name of this plugin.
-     * @param string $version The version of this plugin.
-     * @param string $plugin_text_domain The text domain of this plugin
-     * @since    1.0.0
-     */
-    public function __construct($plugin_name, $version, $plugin_text_domain)
-    {
-        $this->plugin_name = $plugin_name;
-        $this->version = $version;
-        $this->plugin_text_domain = $plugin_text_domain;
-	    add_action('init', array($this, 'my_load_plugin_textdomain'));
-    }
+	 * Callback for the user sub-menu in define_admin_hooks() for class Init.
+	 *
+	 * @since    1.0.0
+	 */
+	public function add_plugin_admin_menu()
+	{
+		// Get the custom tables icon
+		$icon = $this->getCustomTablesIcon();
 
-    function my_load_plugin_textdomain()
-    {
-        $domain = 'customtables';
-        $mo_file = ABSPATH . 'wp-content/plugins/customtables/Languages/' . $domain . '-' . get_locale() . '.mo';
+		// Dashboard
+		add_menu_page(
+			'Dashboard - CustomTables ', // Page Title
+			'Custom Tables',             // Menu Title
+			'manage_options',            // Capability
+			'customtables',               // Menu Slug
+			array($this, 'load_customtablesAdminDashboard'), // Callback Function
+			$icon                         // Icon URL
+		);
 
-        load_textdomain($domain, $mo_file);
-        //load_plugin_textdomain( $domain, false, dirname( plugin_basename( __FILE__ ) ) . '/lang/' );
-    }
+		// Dashboard Submenu
+		add_submenu_page(
+			'customtables',          // Parent Menu Slug
+			'Dashboard - CustomTables', // Page Title
+			'Dashboard',              // Menu Title
+			'manage_options',         // Capability
+			'customtables',           // Menu Slug
+			array($this, 'load_customtablesAdminDashboard'), // Callback Function
+			1                          // Position
+		);
 
-    /**
-     * Register the stylesheets for the admin area.
-     *
-     * @since    1.0.0
-     */
-    public function enqueue_styles()
-    {
-        wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/customtables-admin.css', array(), $this->version, 'all');
-        wp_enqueue_style('fieldtypes', plugin_dir_url(__FILE__) . '../../libraries/customtables/media/css/fieldtypes.css', false, $this->version);
+		// Tables
+		$page_hook = add_submenu_page(
+			'customtables',                    // Parent Menu Slug
+			__('Tables - CustomTables', $this->plugin_text_domain), // Page Title
+			__('Tables', $this->plugin_text_domain),                // Menu Title
+			'manage_options',                                      // Capability
+			'customtables-tables',                                 // Menu Slug
+			array($this, 'load_admin_table_list'),                  // Callback Function
+			2                                                      // Position
+		);
+		add_action('load-' . $page_hook, array($this, 'preload_admin_table_list'));
 
-        $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
+		// Layouts
+		$page_hook = add_submenu_page(
+			'customtables',                     // Parent Menu Slug
+			'Custom Tables - Layouts',          // Page Title
+			'Layouts',                          // Menu Title
+			'manage_options',                   // Capability
+			'customtables-layouts',             // Menu Slug
+			array($this, 'load_admin_layout_list'), // Callback Function
+			3                                   // Position
+		);
+		add_action('load-' . $page_hook, array($this, 'preload_admin_layout_list'));
 
-        if ($page == 'customtables-layouts-edit') {
+		// Database Schema
+		add_submenu_page(
+			'customtables',                      // Parent Menu Slug
+			'Custom Tables - Database Schema',   // Page Title
+			'Database Schema',                   // Menu Title
+			'manage_options',                    // Capability
+			'customtables-schema',        // Menu Slug
+			array($this, 'load_customtablesAdminSchema'), // Callback Function
+			4                                    // Position
+		);
 
+		// Documentation
+		add_submenu_page(
+			'customtables',                       // Parent Menu Slug
+			'Custom Tables - Documentation',       // Page Title
+			'Documentation',                       // Menu Title
+			'manage_options',                      // Capability
+			'customtables-documentation',          // Menu Slug
+			array($this, 'load_customtablesAdminDocumentation'), // Callback Function
+			5                                       // Position
+		);
 
-        }
+		// Edit Table Sub Sub Menu
+		$page = common::inputGetCmd('page');
 
-    }
+		switch ($page) {
+			case 'customtables-api-xml':
+				$file = common::inputGetCmd('xmlfile');
 
-    /**
-     * Register the JavaScript for the admin area.
-     *
-     * @since    1.0.0
-     */
-    public function enqueue_scripts()
-    {
-        //$params = array ( 'ajaxurl' => admin_url( 'admin-ajax.php' ) );'jquery','codemirror''codemirror'
-        wp_enqueue_script('nds_ajax_handle', plugin_dir_url(__FILE__) . 'js/customtables-admin.js', array(), $this->version, false);
-        //wp_localize_script( 'nds_ajax_handle', 'params', $params );
+				$xml = 'unknown file';
+				if ($file == 'tags')
+					$xml = file_get_contents(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR
+						. 'media' . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . $file . '.xml');
 
+				elseif ($file == 'fieldtypes')
+					$xml = file_get_contents(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR
+						. 'media' . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . $file . '.xml');
 
-        $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
-        if ($page == 'customtables-schema') {
-            wp_enqueue_script('customtables-js-raphael', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/raphael.min.js', array('jquery'), $this->version, false);
-            wp_enqueue_script('customtables-js-diagram', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/diagram.js', array('jquery'), $this->version, false);
-        }
+				die($xml);
 
-        if ($page == 'customtables-fields-edit') {
-            wp_enqueue_script('customtables-js-ajax', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/ajax.js', array(), $this->version, false);
-            wp_enqueue_script('customtables-js-typeparams_common', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/typeparams_common.js', array(), $this->version, false);
-            wp_enqueue_script('customtables-js-typeparams_j4', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/typeparams_j4.js', array(), $this->version, false);
-        }
+			case 'customtables-api-fields':
+				$tableId = common::inputGetInt('table');
 
+				if ($tableId == 0) {
+					$result = array('error' => 'tableid not set');
+				} else {
+					$result = Fields::getFields($tableId, true);
 
-        if ($page == 'customtables-layouts-edit') {
+				}
+				header('Content-Type: application/json');
+				die(json_encode($result));
 
-            wp_enqueue_script('customtables-js-ajax', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/ajax.js', array(), $this->version, false);
-            wp_enqueue_script('customtables-js-typeparams_common', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/typeparams_common.js', array(), $this->version, false);
-            wp_enqueue_script('customtables-js-typeparams_j4', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/typeparams_j4.js', array(), $this->version, false);
-            //codemirror.min.js
+			case 'customtables-api-tables':
+				$tablesRows = database::loadAssocList('SELECT id,tablename FROM #__customtables_tables WHERE published=1 ORDER BY tablename');
+				$tables = [];
+				$tables[] = ['label' => '- Select Table', 'value' => null];
+				foreach ($tablesRows as $tablesRow) {
+					$tables[] = ['label' => $tablesRow['tablename'], 'value' => $tablesRow['id']];
+				}
+				header('Content-Type: application/json');
+				die(json_encode($tables));
 
+			case 'customtables-api-layouts':
+				$layoutsRows = database::loadAssocList('SELECT id,layoutname FROM #__customtables_layouts WHERE published=1 ORDER BY layoutname');
+				$layouts = [];
+				$layouts[] = ['label' => '- Select Layout', 'value' => null];
+				foreach ($layoutsRows as $layoutsRow) {
+					$layouts[] = ['label' => $layoutsRow['layoutname'], 'value' => $layoutsRow['id']];
+				}
+				header('Content-Type: application/json');
+				die(json_encode($layouts));
 
-        }
-    }
-    /*
-        function enqueue_codemirror() {
-            // Enqueue CodeMirror CSS
-            wp_enqueue_style( 'codemirror-css', 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.min.css' );
+			case 'customtables-api-preview':
+				$attributesString = common::inputGetBase64('attributes');
+				$attributesDecoded = base64_decode($attributesString);
+				$attributes = json_decode($attributesDecoded);
+				$ct = new CT(null, false);
+				$ct->getTable($attributes->table);
+				$layouts = new Layouts($ct);
+				die($layouts->renderMixedLayout((int)$attributes->layout));
 
-            // Enqueue CodeMirror JavaScript
-            wp_enqueue_script( 'codemirror-js', 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.min.js', array(), null, true );
-        }
+			case 'customtables-tables-edit':
+				$tableId = common::inputGetInt('table');
+				$page_hook = add_submenu_page(
+					'customtables',                     // Parent Menu Slug
+					__(($tableId === 0 ? 'Add Table' : 'Edit Table') . ' - CustomTables', $this->plugin_text_domain), // Page Title
+					__(($tableId === 0 ? ' -- Add' : ' -- Edit'), $this->plugin_text_domain),                     // Menu Title
+					'manage_options',                                         // Capability
+					'customtables-tables-edit',                               // Menu Slug
+					array($this, 'load_customtablesAdminTablesEdit'),        // Callback Function
+					2                                                        // Position
+				);
+				add_action('load-' . $page_hook, array($this, 'load_customtablesAdminTablesEdit'));
+				break;
 
-    */
-    /*
-        function enqueue_code_editor() {
-            echo 'AASAS';
-            wp_enqueue_code_editor(array('type' => 'text/html'));
-        }
-        */
+			case 'customtables-fields':
+				$page_hook = add_submenu_page(
+					'customtables',                     // Parent Menu Slug
+					__('Fields - CustomTables', $this->plugin_text_domain), // Page Title
+					__(' - Fields', $this->plugin_text_domain),                     // Menu Title
+					'manage_options',                                         // Capability
+					'customtables-fields',                               // Menu Slug 'customtables-fields'
+					array($this, 'load_admin_field_list'),        // Callback Function
+					2                                                        // Position
+				);
+				//$url = add_query_arg(array('table' => $tableId), admin_url('admin.php?page=customtables-fields'));
+				//echo "<script>jQuery(document).ready(function() { jQuery('#toplevel_page_customtables-fields').attr('href', '$url'); });</script>";
+				add_action('load-' . $page_hook, array($this, 'preload_admin_field_list'));
+				break;
 
+			case 'customtables-fields-edit':
+				$tableId = common::inputGetInt('table');
+				add_submenu_page(
+					'customtables',                     // Parent Menu Slug
+					__('Fields - CustomTables', $this->plugin_text_domain), // Page Title
+					__(' - Fields', $this->plugin_text_domain),                     // Menu Title
+					'manage_options',                                         // Capability
+					'customtables-fields&table=' . $tableId,                               // Menu Slug
+					array($this, 'load_admin_field_list'),        // Callback Function
+					2                                                        // Position
+				);
 
-    /**
-     * Callback for the user sub-menu in define_admin_hooks() for class Init.
-     *
-     * @since    1.0.0
-     */
-    public function add_plugin_admin_menu()
-    {
-        // Get the custom tables icon
-        $icon = $this->getCustomTablesIcon();
+				$fieldId = common::inputGetInt('field');
+				$page_hook = add_submenu_page(
+					'customtables',                     // Parent Menu Slug
+					__(($fieldId == 0 ? 'Add Field' : 'Edit Field') . ' - CustomTables', $this->plugin_text_domain), // Page Title
+					__(($fieldId == 0 ? ' -- Add' : ' -- Edit'), $this->plugin_text_domain),                     // Menu Title
+					'manage_options',                                         // Capability
+					'customtables-fields-edit',                               // Menu Slug
+					array($this, 'load_customtablesAdminFieldsEdit'),        // Callback Function
+					3                                                        // Position
+				);
+				add_action('load-' . $page_hook, array($this, 'load_customtablesAdminFieldsEdit'));
+				break;
 
-        // Dashboard
-        add_menu_page(
-            'Dashboard - CustomTables ', // Page Title
-            'Custom Tables',             // Menu Title
-            'manage_options',            // Capability
-            'customtables',               // Menu Slug
-            array($this, 'load_customtablesAdminDashboard'), // Callback Function
-            $icon                         // Icon URL
-        );
+			case 'customtables-records':
 
-        // Dashboard Submenu
-        add_submenu_page(
-            'customtables',          // Parent Menu Slug
-            'Dashboard - CustomTables', // Page Title
-            'Dashboard',              // Menu Title
-            'manage_options',         // Capability
-            'customtables',           // Menu Slug
-            array($this, 'load_customtablesAdminDashboard'), // Callback Function
-            1                          // Position
-        );
+				$page_hook = add_submenu_page(
+					'customtables',                     // Parent Menu Slug
+					__('Records - CustomTables', $this->plugin_text_domain), // Page Title
+					__(' - Records', $this->plugin_text_domain),                     // Menu Title
+					'manage_options',                                         // Capability
+					'customtables-records',                               // Menu Slug 'customtables-fields'
+					array($this, 'load_admin_record_list'),        // Callback Function
+					2                                                        // Position
+				);
+				add_action('load-' . $page_hook, array($this, 'preload_admin_record_list'));
+				break;
 
-        // Tables
-        $page_hook = add_submenu_page(
-            'customtables',                    // Parent Menu Slug
-            __('Tables - CustomTables', $this->plugin_text_domain), // Page Title
-            __('Tables', $this->plugin_text_domain),                // Menu Title
-            'manage_options',                                      // Capability
-            'customtables-tables',                                 // Menu Slug
-            array($this, 'load_admin_table_list'),                  // Callback Function
-            2                                                      // Position
-        );
-        add_action('load-' . $page_hook, array($this, 'preload_admin_table_list'));
+			case 'customtables-records-edit':
 
-        // Layouts
-        $page_hook = add_submenu_page(
-            'customtables',                     // Parent Menu Slug
-            'Custom Tables - Layouts',          // Page Title
-            'Layouts',                          // Menu Title
-            'manage_options',                   // Capability
-            'customtables-layouts',             // Menu Slug
-            array($this, 'load_admin_layout_list'), // Callback Function
-            3                                   // Position
-        );
-        add_action('load-' . $page_hook, array($this, 'preload_admin_layout_list'));
+				$tableId = common::inputGetInt('table');
+				add_submenu_page(
+					'customtables',                     // Parent Menu Slug
+					__('Records - CustomTables', $this->plugin_text_domain), // Page Title
+					__(' - Records', $this->plugin_text_domain),                     // Menu Title
+					'manage_options',                                         // Capability
+					'customtables-records&table=' . $tableId,                               // Menu Slug
+					array($this, 'load_admin_record_list'),        // Callback Function
+					2                                                        // Position
+				);
 
-        // Database Schema
-        add_submenu_page(
-            'customtables',                      // Parent Menu Slug
-            'Custom Tables - Database Schema',   // Page Title
-            'Database Schema',                   // Menu Title
-            'manage_options',                    // Capability
-            'customtables-schema',        // Menu Slug
-            array($this, 'load_customtablesAdminSchema'), // Callback Function
-            4                                    // Position
-        );
+				$id = common::inputGetInt('id');
+				$page_hook = add_submenu_page(
+					'customtables',                     // Parent Menu Slug
+					__(($id == 0 ? 'Add Record' : 'Edit Record') . ' - CustomTables', $this->plugin_text_domain), // Page Title
+					__(($id == 0 ? ' -- Add' : ' -- Edit'), $this->plugin_text_domain),                     // Menu Title
+					'manage_options',                                         // Capability
+					'customtables-records-edit',                               // Menu Slug
+					array($this, 'load_customtablesAdminRecordsEdit'),        // Callback Function
+					3                                                        // Position
+				);
+				add_action('load-' . $page_hook, array($this, 'load_customtablesAdminRecordsEdit'));
+				break;
 
-        // Documentation
-        add_submenu_page(
-            'customtables',                       // Parent Menu Slug
-            'Custom Tables - Documentation',       // Page Title
-            'Documentation',                       // Menu Title
-            'manage_options',                      // Capability
-            'customtables-documentation',          // Menu Slug
-            array($this, 'load_customtablesAdminDocumentation'), // Callback Function
-            5                                       // Position
-        );
+			case 'customtables-layouts-edit':
 
-        // Edit Table Sub Sub Menu
-        $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
+				$layoutId = common::inputGetInt('layout');
+				$page_hook = add_submenu_page(
+					'customtables',                     // Parent Menu Slug
+					__(($layoutId == 0 ? 'Add Layout' : 'Edit Layout') . ' - CustomTables', $this->plugin_text_domain), // Page Title
+					__(($layoutId == 0 ? ' -- Add' : ' -- Edit'), $this->plugin_text_domain),                     // Menu Title
+					'manage_options',                                         // Capability
+					'customtables-layouts-edit',                               // Menu Slug
+					array($this, 'load_customtablesAdminLayoutsEdit'),        // Callback Function
+					3                                                        // Position
+				);
+				add_action('load-' . $page_hook, array($this, 'load_customtablesAdminLayoutsEdit'));
+				break;
+		}
+	}
 
-        switch ($page) {
-            case 'customtables-api-xml':
-                $file = get_query_var('xmlfile');
-
-                $xml = 'unknown file';
-                if ($file == 'tags')
-                    $xml = file_get_contents(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR
-                        . 'media' . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . $file . '.xml');
-
-                elseif ($file == 'fieldtypes')
-                    $xml = file_get_contents(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR
-                        . 'media' . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . $file . '.xml');
-
-                die($xml);
-
-            case 'customtables-api-fields':
-                $tableId = get_query_var('table');
-
-                if ($tableId == 0) {
-                    $result = array('error' => 'tableid not set');
-                } else {
-                    $result = Fields::getFields($tableId, true);
-
-                }
-                header('Content-Type: application/json');
-                die(json_encode($result));
-
-            case 'customtables-api-tables':
-                $tablesRows = database::loadAssocList('SELECT id,tablename FROM #__customtables_tables WHERE published=1 ORDER BY tablename');
-                $tables = [];
-                $tables[] = ['label' => '- Select Table', 'value' => null];
-                foreach ($tablesRows as $tablesRow)
-                {
-                    $tables[] = ['label' => $tablesRow['tablename'], 'value' => $tablesRow['id']];
-                }
-                header('Content-Type: application/json');
-                die(json_encode($tables));
-
-            case 'customtables-api-layouts':
-                $layoutsRows = database::loadAssocList('SELECT id,layoutname FROM #__customtables_layouts WHERE published=1 ORDER BY layoutname');
-                $layouts = [];
-                $layouts[] = ['label' => '- Select Layout', 'value' => null];
-                foreach ($layoutsRows as $layoutsRow)
-                {
-                    $layouts[] = ['label' => $layoutsRow['layoutname'], 'value' => $layoutsRow['id']];
-                }
-                header('Content-Type: application/json');
-                die(json_encode($layouts));
-
-            case 'customtables-api-preview':
-                $attributesString = get_query_var('attributes');
-                $attributesDecoded = base64_decode($attributesString);
-                $attributes = json_decode($attributesDecoded);
-                $ct = new CT(null, false);
-                $ct->getTable($attributes->table);
-                $layouts = new Layouts($ct);
-                die($layouts->renderMixedLayout((int)$attributes->layout));
-
-            case 'customtables-tables-edit':
-
-                $tableId = get_query_var('table');
-                $page_hook = add_submenu_page(
-                    'customtables',                     // Parent Menu Slug
-                    __(($tableId === 0 ? 'Add Table' : 'Edit Table') . ' - CustomTables', $this->plugin_text_domain), // Page Title
-                    __(($tableId === 0 ? ' -- Add' : ' -- Edit'), $this->plugin_text_domain),                     // Menu Title
-                    'manage_options',                                         // Capability
-                    'customtables-tables-edit',                               // Menu Slug
-                    array($this, 'load_customtablesAdminTablesEdit'),        // Callback Function
-                    2                                                        // Position
-                );
-                add_action('load-' . $page_hook, array($this, 'load_customtablesAdminTablesEdit'));
-                break;
-
-            case 'customtables-fields':
-
-                $page_hook = add_submenu_page(
-                    'customtables',                     // Parent Menu Slug
-                    __('Fields - CustomTables', $this->plugin_text_domain), // Page Title
-                    __(' - Fields', $this->plugin_text_domain),                     // Menu Title
-                    'manage_options',                                         // Capability
-                    'customtables-fields',                               // Menu Slug 'customtables-fields'
-                    array($this, 'load_admin_field_list'),        // Callback Function
-                    2                                                        // Position
-                );
-                //$url = add_query_arg(array('table' => $tableId), admin_url('admin.php?page=customtables-fields'));
-                //echo "<script>jQuery(document).ready(function() { jQuery('#toplevel_page_customtables-fields').attr('href', '$url'); });</script>";
-                add_action('load-' . $page_hook, array($this, 'preload_admin_field_list'));
-                break;
-
-            case 'customtables-fields-edit':
-
-                $tableId = get_query_var('table');
-                add_submenu_page(
-                    'customtables',                     // Parent Menu Slug
-                    __('Fields - CustomTables', $this->plugin_text_domain), // Page Title
-                    __(' - Fields', $this->plugin_text_domain),                     // Menu Title
-                    'manage_options',                                         // Capability
-                    'customtables-fields&table=' . $tableId,                               // Menu Slug
-                    array($this, 'load_admin_field_list'),        // Callback Function
-                    2                                                        // Position
-                );
-
-                $fieldId = get_query_var('field');
-                $page_hook = add_submenu_page(
-                    'customtables',                     // Parent Menu Slug
-                    __(($fieldId == 0 ? 'Add Field' : 'Edit Field') . ' - CustomTables', $this->plugin_text_domain), // Page Title
-                    __(($fieldId == 0 ? ' -- Add' : ' -- Edit'), $this->plugin_text_domain),                     // Menu Title
-                    'manage_options',                                         // Capability
-                    'customtables-fields-edit',                               // Menu Slug
-                    array($this, 'load_customtablesAdminFieldsEdit'),        // Callback Function
-                    3                                                        // Position
-                );
-                add_action('load-' . $page_hook, array($this, 'load_customtablesAdminFieldsEdit'));
-                break;
-
-            case 'customtables-records':
-
-                $page_hook = add_submenu_page(
-                    'customtables',                     // Parent Menu Slug
-                    __('Records - CustomTables', $this->plugin_text_domain), // Page Title
-                    __(' - Records', $this->plugin_text_domain),                     // Menu Title
-                    'manage_options',                                         // Capability
-                    'customtables-records',                               // Menu Slug 'customtables-fields'
-                    array($this, 'load_admin_record_list'),        // Callback Function
-                    2                                                        // Position
-                );
-                add_action('load-' . $page_hook, array($this, 'preload_admin_record_list'));
-                break;
-
-            case 'customtables-records-edit':
-
-                $tableId = get_query_var('table');
-                add_submenu_page(
-                    'customtables',                     // Parent Menu Slug
-                    __('Records - CustomTables', $this->plugin_text_domain), // Page Title
-                    __(' - Records', $this->plugin_text_domain),                     // Menu Title
-                    'manage_options',                                         // Capability
-                    'customtables-records&table=' . $tableId,                               // Menu Slug
-                    array($this, 'load_admin_record_list'),        // Callback Function
-                    2                                                        // Position
-                );
-
-                $id = get_query_var('id');
-                $page_hook = add_submenu_page(
-                    'customtables',                     // Parent Menu Slug
-                    __(($id == 0 ? 'Add Record' : 'Edit Record') . ' - CustomTables', $this->plugin_text_domain), // Page Title
-                    __(($id == 0 ? ' -- Add' : ' -- Edit'), $this->plugin_text_domain),                     // Menu Title
-                    'manage_options',                                         // Capability
-                    'customtables-records-edit',                               // Menu Slug
-                    array($this, 'load_customtablesAdminRecordsEdit'),        // Callback Function
-                    3                                                        // Position
-                );
-                add_action('load-' . $page_hook, array($this, 'load_customtablesAdminRecordsEdit'));
-                break;
-
-            case 'customtables-layouts-edit':
-
-                $layoutId = get_query_var('layout');
-                $page_hook = add_submenu_page(
-                    'customtables',                     // Parent Menu Slug
-                    __(($layoutId == 0 ? 'Add Layout' : 'Edit Layout') . ' - CustomTables', $this->plugin_text_domain), // Page Title
-                    __(($layoutId == 0 ? ' -- Add' : ' -- Edit'), $this->plugin_text_domain),                     // Menu Title
-                    'manage_options',                                         // Capability
-                    'customtables-layouts-edit',                               // Menu Slug
-                    array($this, 'load_customtablesAdminLayoutsEdit'),        // Callback Function
-                    3                                                        // Position
-                );
-                add_action('load-' . $page_hook, array($this, 'load_customtablesAdminLayoutsEdit'));
-                break;
-        }
-
-
-        // add_action('admin_enqueue_scripts', 'enqueue_code_editor');
-        //add_action( 'admin_enqueue_scripts', 'enqueue_codemirror' );
-    }
-
-    protected function getCustomTablesIcon()
-    {
-        $svg = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"   xmlns="http://www.w3.org/2000/svg"
+	protected function getCustomTablesIcon()
+	{
+		$svg = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"   xmlns="http://www.w3.org/2000/svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    
    inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
@@ -459,237 +433,232 @@ class Admin
   </g>
 </svg>';
 
-        return 'data:image/svg+xml;base64,' . base64_encode($svg);
-    }
+		return 'data:image/svg+xml;base64,' . base64_encode($svg);
+	}
 
-    public function preload_admin_table_list()
-    {
+	public function preload_admin_table_list()
+	{
+		/*
+		$arguments	=	array(
+			'label'		=>	__( 'Users Per Page', $this->plugin_text_domain ),
+			'default'	=>	5,
+			'option'	=>	'users_per_page'
+		);
 
-        /*
-        $arguments	=	array(
-            'label'		=>	__( 'Users Per Page', $this->plugin_text_domain ),
-            'default'	=>	5,
-            'option'	=>	'users_per_page'
-        );
+		add_screen_option( 'per_page', $arguments );
+		*/
 
-        add_screen_option( 'per_page', $arguments );
-        */
+		// instantiate the Admin Table List
+		$this->admin_table_list = new Admin_Table_List($this->plugin_text_domain);
+		$this->admin_table_list->handle_table_actions();
+	}
 
-        // instantiate the Admin Table List
-        $this->admin_table_list = new Admin_Table_List($this->plugin_text_domain);
-        $this->admin_table_list->handle_table_actions();
-    }
+	public function preload_admin_field_list()
+	{
 
-    public function preload_admin_field_list()
-    {
+		/*
+		$arguments	=	array(
+			'label'		=>	__( 'Users Per Page', $this->plugin_text_domain ),
+			'default'	=>	5,
+			'option'	=>	'users_per_page'
+		);
 
-        /*
-        $arguments	=	array(
-            'label'		=>	__( 'Users Per Page', $this->plugin_text_domain ),
-            'default'	=>	5,
-            'option'	=>	'users_per_page'
-        );
+		add_screen_option( 'per_page', $arguments );
+		*/
 
-        add_screen_option( 'per_page', $arguments );
-        */
+		// instantiate the Admin Field List
+		$this->admin_field_list = new Admin_Field_List($this->plugin_text_domain);
+		$this->admin_field_list->handle_field_actions();
+		$this->admin_field_list->handle_field_tasks();
 
-        // instantiate the Admin Field List
-        $this->admin_field_list = new Admin_Field_List($this->plugin_text_domain);
-        $this->admin_field_list->handle_field_actions();
-        $this->admin_field_list->handle_field_tasks();
+		$page = common::inputGetCmd('page');
 
-        $page = get_query_var('page');
-        if ($page == 'customtables-fields') {
-            $tableId = get_query_var('table');
-            if ($tableId === null) {
-                // Redirect the user to the external URL
-                $url = 'admin.php?page=customtables-tables';
-                wp_redirect($url);
-                exit();
-            }
-        }
-    }
+		if ($page == 'customtables-fields') {
+			$tableId = common::inputGetInt('table');
+			if ($tableId === null) {
+				// Redirect the user to the external URL
+				$url = 'admin.php?page=customtables-tables';
+				wp_redirect($url);
+				exit();
+			}
+		}
+	}
 
-    public function preload_admin_record_list()
-    {
+	public function preload_admin_record_list()
+	{
 
-        /*
-        $arguments	=	array(
-            'label'		=>	__( 'Users Per Page', $this->plugin_text_domain ),
-            'default'	=>	5,
-            'option'	=>	'users_per_page'
-        );
+		/*
+		$arguments	=	array(
+			'label'		=>	__( 'Users Per Page', $this->plugin_text_domain ),
+			'default'	=>	5,
+			'option'	=>	'users_per_page'
+		);
 
-        add_screen_option( 'per_page', $arguments );
-        */
+		add_screen_option( 'per_page', $arguments );
+		*/
 
-        $page = get_query_var('page');
-        if ($page == 'customtables-records') {
-            $tableId = get_query_var('table');
-            if ($tableId === null) {
-                // Redirect the user to the external URL
-                $url = 'admin.php?page=customtables-tables';
-                wp_redirect($url);
-                exit();
-            }
-        }
+		$page = common::inputGetCmd('page');
+		if ($page == 'customtables-records') {
+			$tableId = common::inputGetInt('table');
+			if ($tableId === null) {
+				// Redirect the user to the external URL
+				$url = 'admin.php?page=customtables-tables';
+				wp_redirect($url);
+				exit();
+			}
+		}
 
-        // instantiate the Admin Record List
-        $this->admin_record_list = new Admin_Record_List($this->plugin_text_domain);
-        $this->admin_record_list->handle_record_actions();
+		// instantiate the Admin Record List
+		$this->admin_record_list = new Admin_Record_List($this->plugin_text_domain);
+		$this->admin_record_list->handle_record_actions();
+	}
 
+	public function preload_admin_layout_list()
+	{
+		/*
+		$arguments	=	array(
+			'label'		=>	__( 'Users Per Page', $this->plugin_text_domain ),
+			'default'	=>	5,
+			'option'	=>	'users_per_page'
+		);
 
-    }
+		add_screen_option( 'per_page', $arguments );
+		*/
 
-    public function preload_admin_layout_list()
-    {
+		// instantiate the Admin Layout List
+		$this->admin_layout_list = new Admin_Layout_List($this->plugin_text_domain);
+		$this->admin_layout_list->handle_layout_actions();
+	}
 
-        /*
-        $arguments	=	array(
-            'label'		=>	__( 'Users Per Page', $this->plugin_text_domain ),
-            'default'	=>	5,
-            'option'	=>	'users_per_page'
-        );
+	public function load_customtablesAdminDashboard()
+	{
+		include_once('views' . DIRECTORY_SEPARATOR . 'customtables-dashboard.php');
+	}
 
-        add_screen_option( 'per_page', $arguments );
-        */
-
-        // instantiate the Admin Layout List
-        $this->admin_layout_list = new Admin_Layout_List($this->plugin_text_domain);
-        $this->admin_layout_list->handle_layout_actions();
-    }
-
-    public function load_customtablesAdminDashboard()
-    {
-        include_once('views' . DIRECTORY_SEPARATOR . 'customtables-dashboard.php');
-    }
-
-    /**
+	/**
 	 * Display the Table List
 	 *
 	 * Callback for
 	 *
-	 * @since	1.0.0
+	 * @since    1.0.0
 	 */
-    public function load_admin_table_list()
-    {
-        {
-            // instantiate the Admin Table List
-            $this->admin_table_list = new Admin_Table_List($this->plugin_text_domain);
+	public function load_admin_table_list()
+	{
+		{
+			// instantiate the Admin Table List
+			$this->admin_table_list = new Admin_Table_List($this->plugin_text_domain);
 
-            // query, filter, and sort the data
-            $this->admin_table_list->prepare_items();
+			// query, filter, and sort the data
+			$this->admin_table_list->prepare_items();
 
-            // render the List of Tables
-            include_once('views/customtables-tables.php');
-        }
-    }
+			// render the List of Tables
+			include_once('views/customtables-tables.php');
+		}
+	}
 
-    public function load_admin_field_list()
-    {
-        {
-            // instantiate the Admin Field List
-            $this->admin_field_list = new Admin_Field_List($this->plugin_text_domain);
+	public function load_admin_field_list()
+	{
+		{
+			// instantiate the Admin Field List
+			$this->admin_field_list = new Admin_Field_List($this->plugin_text_domain);
 
-            // query, filter, and sort the data
-            $this->admin_field_list->prepare_items();
+			// query, filter, and sort the data
+			$this->admin_field_list->prepare_items();
 
-            // render the List of Fields
-            include_once('views/customtables-fields.php');
-        }
-    }
+			// render the List of Fields
+			include_once('views/customtables-fields.php');
+		}
+	}
 
-    public function load_admin_record_list()
-    {
-        {
-            // instantiate the Admin Record List
-            $this->admin_record_list = new Admin_Record_List($this->plugin_text_domain);
+	public function load_admin_record_list()
+	{
+		{
+			// instantiate the Admin Record List
+			$this->admin_record_list = new Admin_Record_List($this->plugin_text_domain);
 
-            // query, filter, and sort the data
-            $this->admin_record_list->prepare_items();
+			// query, filter, and sort the data
+			$this->admin_record_list->prepare_items();
 
-            // render the List of Records
-            include_once('views/customtables-records.php');
-        }
-    }
+			// render the List of Records
+			include_once('views/customtables-records.php');
+		}
+	}
 
-    public function load_admin_layout_list()
-    {
-        {
-            // instantiate the Admin Layout List
-            $this->admin_layout_list = new Admin_Layout_List($this->plugin_text_domain);
+	public function load_admin_layout_list(): void
+	{
+		// instantiate the Admin Layout List
+		$this->admin_layout_list = new Admin_Layout_List($this->plugin_text_domain);
 
-            // query, filter, and sort the data
-            $this->admin_layout_list->prepare_items();
+		// query, filter, and sort the data
+		$this->admin_layout_list->prepare_items();
 
-            // render the List of Layout
-            include_once('views/customtables-layouts.php');
-        }
-    }
+		// render the List of Layout
+		include_once('views/customtables-layouts.php');
 
-    public function load_customtablesAdminTablesEdit()
-    {
-        $this->admin_table_edit = new Admin_Table_Edit($this->plugin_text_domain);
-        $this->admin_table_edit->handle_table_actions();
+	}
 
-        $page = get_query_var('page');
-        if ($page == 'customtables-tables-edit') {
-            $tableId = get_query_var('table');
+	public function load_customtablesAdminTablesEdit()
+	{
+		$this->admin_table_edit = new Admin_Table_Edit($this->plugin_text_domain);
+		$this->admin_table_edit->handle_table_actions();
 
-            if ($tableId === null) {
-                $url = 'admin.php?page=customtables-tables';
-                wp_redirect($url);
-                exit();
-            }
-        }
-        include_once('views' . DIRECTORY_SEPARATOR . 'customtables-tables-edit.php');
-    }
+		$page = common::inputGetCmd('page');
+		if ($page == 'customtables-tables-edit') {
+			$tableId = common::inputGetInt('table');
 
-    public function load_customtablesAdminFieldsEdit()
-    {
-        $this->admin_field_edit = new Admin_Field_Edit($this->plugin_text_domain);
-        $this->admin_field_edit->handle_field_actions();
+			if ($tableId === null) {
+				$url = 'admin.php?page=customtables-tables';
+				wp_redirect($url);
+				exit();
+			}
+		}
+		include_once('views' . DIRECTORY_SEPARATOR . 'customtables-tables-edit.php');
+	}
 
-        $page = get_query_var('page');
-        if ($page == 'customtables-fields-edit') {
-            $tableId = get_query_var('table');
-            $fieldId = get_query_var('field');
-            if ($fieldId === null) {
-                // Redirect the user to the external URL
-                if ($tableId === null)
-                    $url = 'admin.php?page=customtables-tables';
-                else
-                    $url = 'admin.php?page=customtables-fields&table=' . $tableId;
+	public function load_customtablesAdminFieldsEdit()
+	{
+		$this->admin_field_edit = new Admin_Field_Edit($this->plugin_text_domain);
+		$this->admin_field_edit->handle_field_actions();
 
-                wp_redirect($url);
-                exit();
-            }
-        }
+		$page = common::inputGetCmd('page');
+		if ($page == 'customtables-fields-edit') {
+			$tableId = common::inputGetInt('table');
+			$fieldId = common::inputGetInt('field');
+			if ($fieldId === null) {
+				// Redirect the user to the external URL
+				if ($tableId === null)
+					$url = 'admin.php?page=customtables-tables';
+				else
+					$url = 'admin.php?page=customtables-fields&table=' . $tableId;
 
-        include_once('views' . DIRECTORY_SEPARATOR . 'customtables-fields-edit.php');
-    }
+				wp_redirect($url);
+				exit();
+			}
+		}
+		include_once('views' . DIRECTORY_SEPARATOR . 'customtables-fields-edit.php');
+	}
 
-    public function load_customtablesAdminRecordsEdit()
-    {
-        $this->admin_record_edit = new Admin_Record_Edit($this->plugin_text_domain);
-        $this->admin_record_edit->handle_record_actions();
-        include_once('views' . DIRECTORY_SEPARATOR . 'customtables-records-edit.php');
-    }
+	public function load_customtablesAdminRecordsEdit()
+	{
+		$this->admin_record_edit = new Admin_Record_Edit($this->plugin_text_domain);
+		$this->admin_record_edit->handle_record_actions();
+		include_once('views' . DIRECTORY_SEPARATOR . 'customtables-records-edit.php');
+	}
 
-    public function load_customtablesAdminLayoutsEdit()
-    {
-        $this->admin_layout_edit = new Admin_Layout_Edit($this->plugin_text_domain);
-        $this->admin_layout_edit->handle_layout_actions();
-        include_once('views' . DIRECTORY_SEPARATOR . 'customtables-layouts-edit.php');
-    }
+	public function load_customtablesAdminLayoutsEdit()
+	{
+		$this->admin_layout_edit = new Admin_Layout_Edit($this->plugin_text_domain);
+		$this->admin_layout_edit->handle_layout_actions();
+		include_once('views' . DIRECTORY_SEPARATOR . 'customtables-layouts-edit.php');
+	}
 
-    public function load_customtablesAdminSchema()
-    {
-        include_once('views' . DIRECTORY_SEPARATOR . 'customtables-schema.php');
-    }
+	public function load_customtablesAdminSchema()
+	{
+		include_once('views' . DIRECTORY_SEPARATOR . 'customtables-schema.php');
+	}
 
-    public function load_customtablesAdminDocumentation()
-    {
-        include_once('views' . DIRECTORY_SEPARATOR . 'customtables-documentation.php');
-    }
+	public function load_customtablesAdminDocumentation()
+	{
+		include_once('views' . DIRECTORY_SEPARATOR . 'customtables-documentation.php');
+	}
 }

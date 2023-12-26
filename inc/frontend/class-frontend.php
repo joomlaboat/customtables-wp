@@ -108,6 +108,24 @@ class Frontend {
 		//wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/customtables-frontend.js', array( 'jquery' ), $this->version, false );
 
 	}
+
+	/*
+	function custom_query_vars($vars)
+	{
+		echo 'FRONT END custom_qu2ery_vars';
+
+		//$vars[] = 'xmlfile';
+		//$vars[] = 'table';
+		//$vars[] = 'attributes';
+		//$vars[] = 'field';
+		//$vars[] = 'id';
+		$vars[] = 'layout';
+		$vars[] = 'abc';
+		//$vars[] = 'page';
+
+		return $vars;
+	}
+	*/
 }
 
 

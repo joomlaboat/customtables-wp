@@ -24,6 +24,8 @@ if (!defined('WPINC')) {
 	die;
 }
 
+use CustomTables\common;
+
 /**
  * Define Constants
  */
@@ -41,7 +43,6 @@ define(CTWP . 'PLUGIN_NAME_URL', plugin_dir_url(__FILE__));
 define(CTWP . 'PLUGIN_BASENAME', plugin_basename(__FILE__));
 
 define(CTWP . 'PLUGIN_TEXT_DOMAIN', 'customtables');
-
 
 /**
  * Autoload Classes
@@ -64,7 +65,6 @@ register_activation_hook(__FILE__, array(CTWP . 'Inc\Core\Activator', 'activate'
  * This action is documented inc/core/class-deactivator.php
  */
 register_deactivation_hook(__FILE__, array(CTWP . 'Inc\Core\Deactivator', 'deactivate'));
-
 
 /**
  * Plugin Singleton Container
@@ -105,7 +105,10 @@ class customtables
  */
 function customtables_init()
 {
-	return customtables::init();
+	if (is_admin()) {
+		//Make sure that this is called only when Custom Tables admin section is open
+		return customtables::init();
+	}
 }
 
 $min_php = '5.6.0';
@@ -115,7 +118,8 @@ if (version_compare(PHP_VERSION, $min_php, '>=')) {
 	customtables_init();
 }
 
-$page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
+$page = common::inputGetCmd('page','');
+
 if ($page == 'customtables-layouts-edit')
 	add_action('admin_enqueue_scripts', 'enqueue_codemirror');
 
@@ -137,7 +141,6 @@ add_action('init', 'CustomTablesWP\customtables_dynamic_block_block_init');
  *
  * @param array $attributes The array of attributes for this block.
  * @param string $content Rendered block output. ie. <InnerBlocks.Content />.
- * @param WP_Block $block_instance The instance of the WP_Block class that represents the block being rendered.
  */
 function customtables_dynamic_block_render_callback($attributes, $content, $block_instance)
 {

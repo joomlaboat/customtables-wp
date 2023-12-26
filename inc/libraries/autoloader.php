@@ -21,8 +21,6 @@
 
 spl_autoload_register( function( $class_name ) {
 
-
-
 		// If the specified $class_name does not include our namespace, duck out.
 		if ( false === strpos( $class_name, 'CustomTablesWP' ) ) {
 			return;
@@ -48,6 +46,7 @@ spl_autoload_register( function( $class_name ) {
 				 * Otherwise, just set the $file_name equal to that of the class
 				 * filename structure.
 				 */
+
 				if ( strpos( strtolower( $file_parts[ count( $file_parts ) - 1 ] ), 'interface' ) ) {
 
 					// Grab the name of the interface from its qualified name.

@@ -53,13 +53,13 @@ class Admin_Field_List extends Libraries\WP_List_Table
         $this->helperListOfFields = new \CustomTables\ListOfFields($this->ct);
         $this->plugin_text_domain = $plugin_text_domain;
 
-        $this->tableId = get_query_var('table');
+	    $this->tableId = common::inputGetInt('table');
         if ($this->tableId) {
             $this->ct->getTable($this->tableId);
 
-            $this->count_all = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE tableid='.$this->tableId.' AND published!=-2')[0];
-            $this->count_trashed = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE tableid='.$this->tableId.' AND published=-2')[0];
-            $this->count_published = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE tableid='.$this->tableId.' AND published=1')[0];
+            $this->count_all = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE tableid='.$this->tableId.' AND published!=-2')[0] ?? 0;
+            $this->count_trashed = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE tableid='.$this->tableId.' AND published=-2')[0] ?? 0;
+            $this->count_published = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE tableid='.$this->tableId.' AND published=1')[0] ?? 0;
         } else {
             $this->count_all = 0;
             $this->count_trashed = 0;
@@ -67,7 +67,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
         }
 
         $this->count_unpublished = $this->count_all - $this->count_published;
-        $this->current_status = get_query_var('status');
+	    $this->current_status = common::inputGetCmd('status');
 
         if ($this->current_status !== null and $this->current_status !== 'all') {
             if ($this->current_status == 'trash' and $this->count_trashed == 0)
@@ -129,9 +129,9 @@ class Admin_Field_List extends Libraries\WP_List_Table
         if ($this->tableId === null or $this->ct->Table == null or $this->ct->Table->tablename === null)
             return [];
 
-        $search = get_query_var('s');
-        $orderby = get_query_var('orderby');
-        $order = get_query_var('order');
+	    $search = common::inputGetString('s');
+	    $orderby = common::inputGetCmd('orderby');
+	    $order = common::inputGetCmd('order');
 
         $published = match ($this->current_status) {
             'published' => 1,
@@ -140,8 +140,17 @@ class Admin_Field_List extends Libraries\WP_List_Table
             default => null
         };
 
+	    $data = [];
+
         $query = $this->helperListOfFields->getListQuery($this->tableId, $published, $search, null, $orderby, $order);
-        $data = database::loadAssocList($query);
+
+	    try {
+		    $data = database::loadAssocList($query);
+	    }catch(\Exception $exception)
+	    {
+
+	    }
+
         $newData = [];
         foreach ($data as $item) {
             //$field_exists = ESTables::checkIfTableExists($item['realfieldname']);
@@ -425,7 +434,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
     function handle_field_actions()
     {
         /*
-         * Note: Field bulk_actions can be identified by checking $_REQUEST['action'] and $_REQUEST['action2']
+         * Note: Field bulk_actions can be identified by checking $REQUEST['action'] and $REQUEST['action2']
          *
          * action - is set if checkbox from top-most select-all is set, otherwise returns -1
          * action2 - is set if checkbox the bottom-most select-all checkbox is set, otherwise returns -1
@@ -440,7 +449,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
             if (!wp_verify_nonce($nonce, 'restore_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
-                $fieldId = get_query_var('field');
+	            $fieldId = common::inputGetInt('field');
                 database::update('#__customtables_fields', ['published'=>0], ['id'=> $fieldId]);
                 //echo '<div id="message" class="updated notice is-dismissible"><p>1 field restored from the Trash.</p></div>';
                 $this->graceful_redirect();
@@ -453,7 +462,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
             if (!wp_verify_nonce($nonce, 'trash_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
-                $fieldId = get_query_var('field');
+	            $fieldId = common::inputGetInt('field');
                 database::update('#__customtables_fields', ['published'=>-2], ['id'=> $fieldId]);
                 //echo '<div id="message" class="updated notice is-dismissible"><p>1 field moved to the Trash.</p></div>';
                 $this->graceful_redirect();
@@ -466,7 +475,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
             if (!wp_verify_nonce($nonce, 'delete_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
-                $fieldId = get_query_var('field');
+	            $fieldId = common::inputGetInt('field');
                 if ($fieldId !== null) {
                     Fields::deleteField_byID($this->ct, $fieldId);
                     //echo '<div id="message" class="updated notice is-dismissible"><p>1 field permanently deleted.</p></div>';
@@ -515,11 +524,13 @@ class Admin_Field_List extends Libraries\WP_List_Table
      */
     public function invalid_nonce_redirect()
     {
+	    $page = common::inputGetCmd('page');
+
         wp_die(__('Invalid Nonce', $this->plugin_text_domain),
             __('Error', $this->plugin_text_domain),
             array(
                 'response' => 403,
-                'back_link' => esc_url(add_query_arg(array('page' => wp_unslash($_REQUEST['page'])), admin_url('users.php'))),
+                'back_link' => esc_url(add_query_arg(array('page' => wp_unslash($page)), admin_url('users.php'))),
             )
         );
     }
@@ -549,7 +560,9 @@ class Admin_Field_List extends Libraries\WP_List_Table
 
     function is_table_action($action): bool
     {
-        if (isset($_REQUEST['action']) && ($_REQUEST['action'] === $action) || (isset($_REQUEST['action2']) && $_REQUEST['action2'] === $action))
+	    $action1 = common::inputGetCmd('action','');
+	    $action2 = common::inputGetCmd('action2','');
+        if ($action1 === $action || $action2 === $action)
             return true;
 
         return false;

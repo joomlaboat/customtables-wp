@@ -36,9 +36,7 @@ class Admin_Layout_Edit
         $this->helperListOfLayouts = new ListOfLayouts($this->ct);
         $this->plugin_text_domain = $plugin_text_domain;
 
-        $this->layoutId = intval(get_query_var('layout'));
-		echo '$this->layoutId='.get_query_var('layout');
-		die;
+	    $this->layoutId = common::inputGetInt('layout');
 
         if($this->layoutId === 0)
             $this->layoutId = null;
@@ -72,7 +70,8 @@ class Admin_Layout_Edit
 
     function handle_layout_actions(): void
     {
-        if(isset($_REQUEST['action']) && ('createlayout' === $_REQUEST['action'] || 'savelayout' === $_REQUEST['action'])) {
+	    $action = common::inputPostCmd('action','');
+        if('createlayout' === $action || 'savelayout' === $action) {
             $this->helperListOfLayouts->save($this->layoutId);
             $url = 'admin.php?page=customtables-layouts';
             ob_start(); // Start output buffering

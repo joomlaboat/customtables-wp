@@ -36,14 +36,15 @@ class Admin_Record_Edit
         require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoffields.php');
         $this->ct = new CT;
         $this->plugin_text_domain = $plugin_text_domain;
-        $this->tableId = get_query_var('table');
+	    $this->tableId = common::inputGetInt('table');
         $this->recordRow = null;
         $this->listing_id = null;
 
         if ($this->tableId) {
             $this->ct->getTable($this->tableId);
             if ($this->ct->Table->tablename !== null) {
-                $this->listing_id = get_query_var('id');
+
+	            $this->listing_id = common::inputGetCmd('id');
 
                 if($this->listing_id === 0)
                     $this->listing_id = null;
@@ -70,7 +71,8 @@ class Admin_Record_Edit
 
     function handle_record_actions(): void
     {
-        if (isset($_REQUEST['action']) && ('createrecord' === $_REQUEST['action'] || 'saverecord' === $_REQUEST['action'])) {
+	    $action = common::inputPostCmd('action','');
+        if ('createrecord' === $action || 'saverecord' === $action) {
 
             $recordClassFilePath = CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'records' . DIRECTORY_SEPARATOR . 'record.php';
             require_once($recordClassFilePath);
@@ -79,7 +81,7 @@ class Admin_Record_Edit
             $Layouts = new Layouts($this->ct);
             $record->editForm->layoutContent = $Layouts->createDefaultLayout_Edit($this->ct->Table->fields, false);
 
-            $listing_id = get_query_var('id');
+	        $listing_id = common::inputGetCmd('id');
             $record->save($listing_id, false);
 
             //$this->helperListOfFields->save($this->tableId, $this->fieldId);

@@ -7,9 +7,6 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
-
-echo 'layout='.get_query_var('layout');
-
 ?>
 
 <div class="wrap">

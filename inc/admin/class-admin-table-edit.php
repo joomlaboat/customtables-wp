@@ -34,7 +34,7 @@ class Admin_Table_Edit
         $this->helperListOfTables = new \CustomTables\ListOfTables($this->ct);
         $this->plugin_text_domain = $plugin_text_domain;
 
-        $this->tableId = get_query_var('table');
+	    $this->tableId = common::inputGetInt('table');
 
         if($this->tableId === 0)
             $this->tableId = null;
@@ -45,7 +45,9 @@ class Admin_Table_Edit
 
     function handle_table_actions()
     {
-        if(isset($_REQUEST['action']) && ('createtable' === $_REQUEST['action'] || 'savetable' === $_REQUEST['action'])) {
+	    $action = common::inputPostCmd('action','');
+
+        if('createtable' === $action || 'savetable' === $action) {
             $errors=$this->helperListOfTables->save($this->tableId);
             if(count($errors)>0)
             {

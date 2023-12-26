@@ -21,6 +21,7 @@ class Admin_Field_Edit
     public $plugin_text_domain;
     public CT $ct;
     public $helperListOfFields;
+	public ?int $tableId;
     public ?int $fieldId;
     public array $fieldRow;
     public array $fieldTypes;
@@ -39,7 +40,7 @@ class Admin_Field_Edit
         $this->ct = new CT;
         $this->helperListOfFields = new \CustomTables\ListOfFields($this->ct);
         $this->plugin_text_domain = $plugin_text_domain;
-        $this->tableId = get_query_var('table');
+	    $this->tableId = common::inputGetInt('table');
         $this->fieldId = null;
         $this->fieldRow=['tableid' => null,'fieldname' => null , 'fieldtitle' => null, 'type' => null, 'typeparams' => null, 'isrequired' => null,
             'defaultvalue' => null, 'allowordering' => null, 'valuerule' =>null, 'valuerulecaption' => null];
@@ -48,7 +49,7 @@ class Admin_Field_Edit
         {
             $this->ct->getTable($this->tableId);
             if($this->ct->Table->tablename !== null) {
-                $this->fieldId = get_query_var('field');
+                $this->fieldId = common::inputGetInt('field');
 
                 if ($this->fieldId === 0)
                     $this->fieldId = null;
@@ -64,7 +65,8 @@ class Admin_Field_Edit
 
     function handle_field_actions()
     {
-        if(isset($_REQUEST['action']) && ('createfield' === $_REQUEST['action'] || 'savefield' === $_REQUEST['action'])) {
+	    $action = common::inputPostCmd('action','');
+        if('createfield' === $action || 'savefield' === $action) {
             $this->helperListOfFields->save($this->tableId,$this->fieldId);
             $url = 'admin.php?page=customtables-fields&table='.$this->tableId;
 

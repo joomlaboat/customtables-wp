@@ -1,4 +1,6 @@
 <?php
+
+use CustomTables\common;
 use CustomTables\IntegrityChecks;
 
 // If this file is called directly, abort.
@@ -6,8 +8,7 @@ if ( ! defined( 'WPINC' ) ) {
     die;
 }
 
-// Check if 'page' is set in $_REQUEST
-$page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
+$page = common::inputGetCmd('page');
 
 $result = IntegrityChecks::check($this->admin_table_list->ct, true, false);
 
