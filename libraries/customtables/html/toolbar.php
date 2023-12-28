@@ -117,12 +117,16 @@ class RecordToolbar
 			$editLink .= '&amp;ModuleId=' . $this->ct->Params->ModuleId;
 
 		if ($isModal) {
-			$tmp_current_url = base64_encode($this->ct->Env->current_url);//To have the returnto link that may include listing_id param.
+			$tmp_current_url = common::makeReturnToURL($this->ct->Env->current_url);//To have the returnto link that may include listing_id param.
 			$editLink .= '&amp;returnto=' . $tmp_current_url;
 			$link = 'javascript:ctEditModal(\'' . $editLink . '\',null)';
 		} else {
-			$returnto = base64_encode($this->ct->Env->current_url);
-			$link = $editLink . '&amp;returnto=' . $returnto;
+			$returnToEncoded = common::getReturnToURL(false);
+
+			if (!empty($returnToEncoded))
+				$link = $editLink . '&amp;returnto=' . $returnToEncoded;
+			else
+				$link = $editLink;
 		}
 		$a = '<a href="' . $link . '">' . $img . '</a>';
 

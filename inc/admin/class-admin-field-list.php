@@ -570,7 +570,6 @@ class Admin_Field_List extends Libraries\WP_List_Table
 
     function handle_field_actions_edit()
     {
-        // Assuming $_POST['field'] contains the selected items
         $field_id = (int)(isset($_POST['field']) ? $_POST['field'][0] : '');
 
         // Redirect to the edit page with the appropriate parameters
