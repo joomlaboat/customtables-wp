@@ -396,7 +396,10 @@ class Admin_Table_List extends Libraries\WP_List_Table
          */
 
         // check for individual row actions
-        $the_table_action = $this->current_action();
+	    $filter_action = $_REQUEST['filter_action'] ?? null;
+	    $action = $_REQUEST['action'] ?? null;
+	    $action2 = $_REQUEST['action2'] ?? null;
+	    $the_table_action = $this->current_action($filter_action,$action,$action2);
 
         if ('restore' === $the_table_action) {
             $nonce = wp_unslash($_REQUEST['_wpnonce']);

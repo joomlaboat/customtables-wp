@@ -65,7 +65,7 @@ class Admin_Field_Edit
 
     function handle_field_actions()
     {
-	    $action = common::inputPostCmd('action','');
+	    $action = common::inputPostCmd('action','','create-edit-field');
         if('createfield' === $action || 'savefield' === $action) {
             $this->helperListOfFields->save($this->tableId,$this->fieldId);
             $url = 'admin.php?page=customtables-fields&table='.$this->tableId;

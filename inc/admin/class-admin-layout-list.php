@@ -360,7 +360,10 @@ class Admin_Layout_List extends Libraries\WP_List_Table
 		 */
 
 		// check for individual row actions
-		$the_layout_action = $this->current_action();
+		$filter_action = $_REQUEST['filter_action'] ?? null;
+		$action = $_REQUEST['action'] ?? null;
+		$action2 = $_REQUEST['action2'] ?? null;
+		$the_layout_action = $this->current_action($filter_action,$action,$action2);
 
 		if ('restore' === $the_layout_action) {
 			$nonce = wp_unslash($_REQUEST['_wpnonce']);

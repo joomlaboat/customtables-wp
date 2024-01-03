@@ -441,7 +441,12 @@ class Admin_Field_List extends Libraries\WP_List_Table
          */
 
         // check for individual row actions
-        $the_table_action = $this->current_action();
+	    $filter_action = $_REQUEST['filter_action'] ?? null;
+	    echo '$filter_action='.$filter_action.'<br/>';
+
+	    $action = $_REQUEST['action'] ?? null;
+	    $action2 = $_REQUEST['action2'] ?? null;
+        $the_table_action = $this->current_action($filter_action,$action,$action2);
 
         if ('restore' === $the_table_action) {
             $nonce = wp_unslash($_REQUEST['_wpnonce']);
@@ -457,6 +462,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
         }
 
         if ('trash' === $the_table_action) {
+
             $nonce = wp_unslash($_REQUEST['_wpnonce']);
             // verify the nonce.
             if (!wp_verify_nonce($nonce, 'trash_nonce')) {
@@ -560,8 +566,9 @@ class Admin_Field_List extends Libraries\WP_List_Table
 
     function is_table_action($action): bool
     {
-	    $action1 = common::inputGetCmd('action','');
-	    $action2 = common::inputGetCmd('action2','');
+	    $action1 = common::inputPostCmd('action','','bulk-' . $this->_args['plural']);
+	    $action2 = common::inputPostCmd('action2','','bulk-' . $this->_args['plural']);
+
         if ($action1 === $action || $action2 === $action)
             return true;
 
@@ -570,10 +577,15 @@ class Admin_Field_List extends Libraries\WP_List_Table
 
     function handle_field_actions_edit()
     {
-        $field_id = (int)(isset($_POST['field']) ? $_POST['field'][0] : '');
-
-        // Redirect to the edit page with the appropriate parameters
-        $this->graceful_redirect('admin.php?page=customtables-fields-edit&action=edit&table=' . $this->tableId . '&field=' . $field_id);
+	    $nonce = wp_unslash($_REQUEST['_wpnonce']);
+	    if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
+		    $this->invalid_nonce_redirect();
+	    }
+		else {
+			$field_id = isset($_POST['field']) ? $_POST['field'][0] : '';
+			// Redirect to the edit page with the appropriate parameters
+			$this->graceful_redirect('admin.php?page=customtables-fields-edit&action=edit&table=' . $this->tableId . '&field=' . $field_id);
+		}
     }
 
     function handle_field_actions_publish(int $state): void

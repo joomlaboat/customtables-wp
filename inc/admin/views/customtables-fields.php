@@ -46,6 +46,7 @@ $page = common::inputGetCmd('page');
         <div id="customtables-post-body">
             <form id="customtables-admin-field-list-form" method="post">
                 <input type="hidden" name="page" value="<?php echo $page; ?>"/>
+	            <?php //wp_nonce_field('fields', '_wpnonce'); ?>
                 <?php
                 $this->admin_field_list->search_box(__('Find', $this->plugin_text_domain), 'nds-field-find');
                 $this->admin_field_list->views();

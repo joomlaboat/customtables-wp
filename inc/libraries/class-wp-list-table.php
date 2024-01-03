@@ -77,6 +77,12 @@ class WP_List_Table
 	 * @var array
 	 */
 	protected $_column_headers;
+
+	protected $compat_fields = array('_args', '_pagination_args', 'screen', '_actions', '_pagination');
+	protected $compat_methods = array('set_pagination_args', 'get_views', 'get_bulk_actions', 'bulk_actions',
+		'row_actions', 'months_dropdown', 'view_switcher', 'comments_bubble', 'get_items_per_page', 'pagination',
+		'get_sortable_columns', 'get_column_info', 'get_table_classes', 'display_tablenav', 'extra_tablenav',
+		'single_row_columns');
 	/**
 	 * Cached bulk actions.
 	 *
@@ -270,6 +276,24 @@ class WP_List_Table
 	}
 
 	/**
+	 * Get the current page number
+	 *
+	 * @return int
+	 * @since 3.1.0
+	 * @access public
+	 *
+	 */
+	public function get_pagenum()
+	{
+		$pagenum = absint(common::inputGetInt('paged', 0));
+
+		if (isset($this->_pagination_args['total_pages']) && $pagenum > $this->_pagination_args['total_pages'])
+			$pagenum = $this->_pagination_args['total_pages'];
+
+		return max(1, $pagenum);
+	}
+
+	/**
 	 * Displays the search box.
 	 *
 	 * @param string $text The 'submit' button label.
@@ -380,23 +404,18 @@ class WP_List_Table
 	 * @access public
 	 *
 	 */
-	public function current_action()
+	public function current_action(?string $filter_action, ?string $action, ?string $action2): ?string
 	{
+		if ($filter_action != null)
+			return null;
 
-		$filter_action = common::inputPostCmd('filter_action', '');
-		$action = common::inputPostInt('action', -1);
-		$action2 = common::inputPostCmd('action2', -1);
-
-		if ($filter_action != '')
-			return false;
-
-		if ($action != -1)
+		if ($action !== null)
 			return $action;
 
-		if ($action2 != -1)
+		if ($action2 != null)
 			return $action2;
 
-		return false;
+		return null;
 	}
 
 	/**
@@ -858,6 +877,80 @@ class WP_List_Table
 	}
 
 	/**
+	 * Get a list of all, hidden and sortable columns, with filter applied
+	 *
+	 * @return array
+	 * @since 3.1.0
+	 * @access protected
+	 *
+	 */
+	protected function get_column_info()
+	{
+		// $_column_headers is already set / cached
+		if (isset($this->_column_headers) && is_array($this->_column_headers)) {
+			// Back-compat for list tables that have been manually setting $_column_headers for horse reasons.
+			// In 4.3, we added a fourth argument for primary column.
+			$column_headers = array(array(), array(), array(), $this->get_primary_column_name());
+			foreach ($this->_column_headers as $key => $value) {
+				$column_headers[$key] = $value;
+			}
+
+			return $column_headers;
+		}
+
+		$columns = get_column_headers($this->screen);
+		$hidden = get_hidden_columns($this->screen);
+
+		$sortable_columns = $this->get_sortable_columns();
+		/**
+		 * Filters the list table sortable columns for a specific screen.
+		 *
+		 * The dynamic portion of the hook name, `$this->screen->id`, refers
+		 * to the ID of the current screen, usually a string.
+		 *
+		 * @param array $sortable_columns An array of sortable columns.
+		 * @since 3.5.0
+		 *
+		 */
+		$_sortable = apply_filters("manage_{$this->screen->id}_sortable_columns", $sortable_columns);
+
+		$sortable = array();
+		foreach ($_sortable as $id => $data) {
+			if (empty($data))
+				continue;
+
+			$data = (array)$data;
+			if (!isset($data[1]))
+				$data[1] = false;
+
+			$sortable[$id] = $data;
+		}
+
+		$primary = $this->get_primary_column_name();
+		$this->_column_headers = array($columns, $hidden, $sortable, $primary);
+
+		return $this->_column_headers;
+	}
+
+	/**
+	 * Get a list of sortable columns. The format is:
+	 * 'internal-name' => 'orderby'
+	 * or
+	 * 'internal-name' => array( 'orderby', true )
+	 *
+	 * The second format will make the initial sorting order be descending
+	 *
+	 * @return array
+	 * @since 3.1.0
+	 * @access protected
+	 *
+	 */
+	protected function get_sortable_columns()
+	{
+		return array();
+	}
+
+	/**
 	 * Generate the tbody element for the list table.
 	 *
 	 * @since 3.1.0
@@ -1004,80 +1097,6 @@ class WP_List_Table
 	}
 
 	/**
-	 * Get a list of all, hidden and sortable columns, with filter applied
-	 *
-	 * @return array
-	 * @since 3.1.0
-	 * @access protected
-	 *
-	 */
-	protected function get_column_info()
-	{
-		// $_column_headers is already set / cached
-		if (isset($this->_column_headers) && is_array($this->_column_headers)) {
-			// Back-compat for list tables that have been manually setting $_column_headers for horse reasons.
-			// In 4.3, we added a fourth argument for primary column.
-			$column_headers = array(array(), array(), array(), $this->get_primary_column_name());
-			foreach ($this->_column_headers as $key => $value) {
-				$column_headers[$key] = $value;
-			}
-
-			return $column_headers;
-		}
-
-		$columns = get_column_headers($this->screen);
-		$hidden = get_hidden_columns($this->screen);
-
-		$sortable_columns = $this->get_sortable_columns();
-		/**
-		 * Filters the list table sortable columns for a specific screen.
-		 *
-		 * The dynamic portion of the hook name, `$this->screen->id`, refers
-		 * to the ID of the current screen, usually a string.
-		 *
-		 * @param array $sortable_columns An array of sortable columns.
-		 * @since 3.5.0
-		 *
-		 */
-		$_sortable = apply_filters("manage_{$this->screen->id}_sortable_columns", $sortable_columns);
-
-		$sortable = array();
-		foreach ($_sortable as $id => $data) {
-			if (empty($data))
-				continue;
-
-			$data = (array)$data;
-			if (!isset($data[1]))
-				$data[1] = false;
-
-			$sortable[$id] = $data;
-		}
-
-		$primary = $this->get_primary_column_name();
-		$this->_column_headers = array($columns, $hidden, $sortable, $primary);
-
-		return $this->_column_headers;
-	}
-
-	/**
-	 * Get a list of sortable columns. The format is:
-	 * 'internal-name' => 'orderby'
-	 * or
-	 * 'internal-name' => array( 'orderby', true )
-	 *
-	 * The second format will make the initial sorting order be descending
-	 *
-	 * @return array
-	 * @since 3.1.0
-	 * @access protected
-	 *
-	 */
-	protected function get_sortable_columns()
-	{
-		return array();
-	}
-
-	/**
 	 * Message to be displayed when there are no items
 	 *
 	 * @since 3.1.0
@@ -1183,24 +1202,6 @@ class WP_List_Table
 		}
 
 		$this->_pagination_args = $args;
-	}
-
-	/**
-	 * Get the current page number
-	 *
-	 * @return int
-	 * @since 3.1.0
-	 * @access public
-	 *
-	 */
-	public function get_pagenum()
-	{
-		$pagenum = absint(common::inputGetInt('paged', 0));
-
-		if (isset($this->_pagination_args['total_pages']) && $pagenum > $this->_pagination_args['total_pages'])
-			$pagenum = $this->_pagination_args['total_pages'];
-
-		return max(1, $pagenum);
 	}
 
 	/**

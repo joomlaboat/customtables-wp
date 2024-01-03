@@ -88,7 +88,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                 <form method="post" name="createfield" id="createfield" class="validate" novalidate="novalidate">
                     <input name="action" type="hidden" value="createfield"/>
                     <input name="table" type="hidden" value="<?php echo $this->admin_field_edit->tableId; ?>"/>
-                    <?php wp_nonce_field('create-field', '_wpnonce_create-field'); ?>
+                    <?php wp_nonce_field('create-edit-field', '_wpnonce'); ?>
 
                     <table class="form-table" role="presentation">
                         <!-- Field Name Field -->
