@@ -71,7 +71,7 @@ class Admin_Record_Edit
 
     function handle_record_actions(): void
     {
-	    $action = common::inputPostCmd('action','');
+	    $action = common::inputPostCmd('action','','create-edit-record');
         if ('createrecord' === $action || 'saverecord' === $action) {
 
             $recordClassFilePath = CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'records' . DIRECTORY_SEPARATOR . 'record.php';

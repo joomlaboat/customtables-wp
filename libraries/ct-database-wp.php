@@ -116,6 +116,7 @@ class MySQLWhereClause
 
 	public function getWhereClause(string $logicalOperator = 'AND'): string
 	{
+		$this->placeholderValues = [];
 		$where = [];
 
 		// Process regular conditions
@@ -147,65 +148,6 @@ class MySQLWhereClause
 		return implode(' ' . $logicalOperator . ' ', $where);
 	}
 
-	/*
-	public function getWhereClause(): string
-	{
-		$where = '';
-		$count = count($this->conditions);
-		$orCount = count($this->orConditions);
-		$nestedCount = count($this->nestedConditions);
-		$nestedOrCount = count($this->nestedOrConditions);
-
-		if ($count > 0 || $orCount > 0 || $nestedCount > 0) {
-
-			// Process regular conditions
-			$where .= self::getWhereClauseMergeConditions($this->conditions);
-
-			// Process OR conditions
-			if ($orCount > 0) {
-
-				$whereNew = self::getWhereClauseMergeConditions($this->orConditions);
-
-				if ($whereNew != '')
-					$where .= '(' . $whereNew . ')';
-			}
-
-			// Process nested conditions
-			if ($nestedCount > 0) {
-				foreach ($this->nestedConditions as $nestedCondition) { //foreach ($this->nestedConditions as $index => $nestedCondition) {
-					$nestedWhere = $nestedCondition->getWhereClause();
-					$nestedValues = $nestedCondition->getWhereClausePlaceholderValues();
-
-					if (!empty($nestedWhere)) {
-						if ($count > 0 || $orCount > 0) {
-							$where .= ' AND ';
-						}
-						$where .= '(' . $nestedWhere . ')';
-						$this->placeholderValues = array_merge($this->placeholderValues, $nestedValues);
-					}
-				}
-			}
-
-			// Process nested OR conditions
-			if ($nestedOrCount > 0) {
-				foreach ($this->nestedOrConditions as $nestedOrCondition) { //foreach ($this->nestedConditions as $index => $nestedCondition) {
-					$nestedWhere = $nestedOrCondition->getWhereClause();
-					$nestedValues = $nestedOrCondition->getWhereClausePlaceholderValues();
-
-					if (!empty($nestedWhere)) {
-						if ($count > 0 || $orCount > 0) {
-							$where .= ' OR ';
-						}
-						$where .= '(' . $nestedWhere . ')';
-						$this->placeholderValues = array_merge($this->placeholderValues, $nestedValues);
-					}
-				}
-			}
-		}
-		echo '$where=' . $where . '<br/>';
-		return $where;
-	}
-*/
 	protected function getWhereClauseMergeConditions($conditions,  $logicalOperator = 'AND'): string
 	{
 		$where = [];

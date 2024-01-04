@@ -84,7 +84,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                     <form method="post" name="createrecord" id="createrecord" class="validate" novalidate="novalidate">
                     <input name="action" type="hidden" value="createrecord"/>
                     <input name="table" type="hidden" value="'.$this->admin_record_edit->tableId.'"/>';
-                    echo wp_nonce_field('create-record', '_wpnonce_create-record');
+                    echo wp_nonce_field('create-edit-record' );
 
                     $buttonText = ($this->admin_record_edit->listing_id == 0) ? __('Add New Record') : __('Save Record');
 
