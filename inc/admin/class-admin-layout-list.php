@@ -7,6 +7,7 @@ use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\Layouts;
 use CustomTables\ListOfLayouts;
+use CustomTables\MySQLWhereClause;
 use CustomTablesWP\Inc\Libraries;
 
 /**
@@ -53,9 +54,21 @@ class Admin_Layout_List extends Libraries\WP_List_Table
 		$this->helperListOfLayouts = new ListOfLayouts($this->ct);
 		$this->plugin_text_domain = $plugin_text_domain;
 
-		$this->count_all = database::loadColumn('SELECT COUNT(id) FROM #__customtables_layouts WHERE published!=-2')[0] ?? 0;
-		$this->count_trashed = database::loadColumn('SELECT COUNT(id) FROM #__customtables_layouts WHERE published=-2')[0] ?? 0;
-		$this->count_published = database::loadColumn('SELECT COUNT(id) FROM #__customtables_layouts WHERE published=1')[0] ?? 0;
+		$whereClause = new MySQLWhereClause();
+		$whereClause->addCondition('published', -2,'!=');
+		$this->count_all = database::loadColumn('#__customtables_layouts',['COUNT(id) AS c'], $whereClause)[0] ?? 0;
+		//$this->count_all = database::loadColumn('SELECT COUNT(id) FROM #__customtables_layouts WHERE published!=-2')[0] ?? 0;
+
+		$whereClause = new MySQLWhereClause();
+		$whereClause->addCondition('published', -2);
+		$this->count_trashed = database::loadColumn('#__customtables_layouts',['COUNT(id) AS c'], $whereClause)[0] ?? 0;
+		//$this->count_trashed = database::loadColumn('SELECT COUNT(id) FROM #__customtables_layouts WHERE published=-2')[0] ?? 0;
+
+		$whereClause = new MySQLWhereClause();
+		$whereClause->addCondition('published', 1);
+		$this->count_published = database::loadColumn('#__customtables_layouts',['COUNT(id) AS c'], $whereClause)[0] ?? 0;
+		//$this->count_published = database::loadColumn('SELECT COUNT(id) FROM #__customtables_layouts WHERE published=1')[0] ?? 0;
+
 		$this->count_unpublished = $this->count_all - $this->count_published;
 
 		$this->current_status = common::inputGetCmd('status');
@@ -125,10 +138,8 @@ class Admin_Layout_List extends Libraries\WP_List_Table
 
 		$data = [];
 
-		$query = $this->helperListOfLayouts->getListQuery($published, $search, null, null, $orderby, $order);
-
 		try {
-			$data = database::loadAssocList($query);
+			$data = $this->helperListOfLayouts->getListQuery($published, $search, null, null, $orderby, $order);
 		}catch(\Exception $exception)
 		{
 

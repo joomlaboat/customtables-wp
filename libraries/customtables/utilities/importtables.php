@@ -617,8 +617,8 @@ class ImportTables
 		//$query = 'SELECT rgt FROM #__menu ORDER BY rgt DESC LIMIT 1';
 
 		$whereClause = new MySQLWhereClause();
-
 		$rows = database::loadAssocList('#__menu', ['rgt'], $whereClause, 'rgt', null, 1);
+
 		if (count($rows) == 0)
 			return 0;
 

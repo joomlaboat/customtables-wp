@@ -6,6 +6,7 @@
             <label for="layoutname">
                 <?php use CustomTables\Forms;
                 use CustomTables\Layouts;
+                use CustomTables\MySQLWhereClause;
 
                 echo __('Layout Name', $this->plugin_text_domain); ?>
                 <span class="description">(<?php echo __('required', $this->plugin_text_domain); ?>)</span>
@@ -72,8 +73,13 @@
         </th>
         <td>
 
-            <?php echo Forms::renderHTMLSelectBoxFromDB('table',$this->admin_layout_edit->layoutRow['tableid'] ?? 0, true,'#__customtables_tables',
-                ['id', 'tablename'], ['published=1'], 'tablename',['onchange="loadFieldsUpdate(\'WordPress\');"']) ?>
+            <?php
+
+            $whereClause = new MySQLWhereClause();
+            $whereClause->addCondition('published', 1);
+
+            echo Forms::renderHTMLSelectBoxFromDB('table',$this->admin_layout_edit->layoutRow['tableid'] ?? 0, true,'#__customtables_tables',
+                ['id', 'tablename'], $whereClause, 'tablename',['onchange="loadFieldsUpdate(\'WordPress\');"']) ?>
         </td>
     </tr>
 </table>

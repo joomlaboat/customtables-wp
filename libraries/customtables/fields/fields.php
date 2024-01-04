@@ -297,20 +297,16 @@ class Fields
 		if ($fieldid == 0)
 			$fieldid = common::inputGetInt('fieldid', 0);
 
-		if ($assocList)
-			$rows = database::loadAssocList('SELECT ' . Fields::getFieldRowSelects() . ' FROM #__customtables_fields AS s WHERE id=' . $fieldid . ' LIMIT 1');
-		else
-			$rows = database::loadObjectList('#__customtables_fields', Fields::getFieldRowSelects(), ['id' => $fieldid], 1);
+		$whereClause = new MySQLWhereClause();
+		$whereClause->addCondition('id', $fieldid);
+
+		$rows = database::loadObjectList('#__customtables_fields', Fields::getFieldRowSelectArray(),
+			$whereClause, 1, null, null, null, ($assocList ? 'ARRAY_A' : 'OBJECT'));
 
 		if (count($rows) != 1)
 			return null;
 
 		return $rows[0];
-	}
-
-	protected static function getFieldRowSelects(): string
-	{
-		return implode(',', self::getFieldRowSelectArray());
 	}
 
 	protected static function getFieldRowSelectArray(): array
@@ -779,8 +775,6 @@ class Fields
 		return $field;
 	}
 
-	//MySQL only
-
 	/**
 	 * @throws Exception
 	 * @since 3.2.2
@@ -790,6 +784,8 @@ class Fields
 		$query = 'DELETE FROM #__customtables_fields AS f WHERE (SELECT id FROM #__customtables_tables AS t WHERE t.id = f.tableid) IS NULL';
 		database::setQuery($query);
 	}
+
+	//MySQL only
 
 	public static function getSelfParentField($ct)
 	{
@@ -1888,6 +1884,11 @@ class Fields
 			$newRow = '';
 
 		return $newRow;
+	}
+
+	protected static function getFieldRowSelects(): string
+	{
+		return implode(',', self::getFieldRowSelectArray());
 	}
 
 	/**

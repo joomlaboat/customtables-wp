@@ -10,7 +10,9 @@
 
 // no direct access
 use CustomTables\common;
+use CustomTables\CT;
 use CustomTables\database;
+use CustomTables\Filtering;
 use CustomTables\MySQLWhereClause;
 
 if (!defined('_JEXEC') and !defined('WPINC')) {
@@ -76,7 +78,6 @@ class CustomTablesImageMethods
 		//delete gallery images if exist
 		//check is table exists
 		$recs = database::getTableStatus(database::getDataBaseName(), $gallery_table_name, false);
-		//$recs = database::loadObjectList('SHOW TABLES LIKE "' . $gallery_table_name . '"');
 
 		if (count($recs) > 0) {
 
@@ -624,6 +625,10 @@ class CustomTablesImageMethods
 		return 1;
 	}
 
+	/**
+	 * @throws Exception
+	 * @since 3.2.2
+	 */
 	function compareThumbs($additional_params, $realtablename, $realfieldname, $ImageFolder, $uploadedfile, $thumbFileName): int
 	{
 		$pair = explode(':', $additional_params);
@@ -633,19 +638,28 @@ class CustomTablesImageMethods
 			if (isset($pair[1]))
 				$level_identity = (int)$pair[1];
 
-			$additional_filter = '';
+			$whereClause = new MySQLWhereClause();
 
-			if (isset($pair[2]))
-				$additional_filter = $pair[2];
+			if (isset($pair[2])) {
 
+				$tablename = str_replace('#__customtables_table_', '', $realtablename);
+				$tableRow = ESTables::getTableRowByNameAssoc($tablename);
+				$newCt = new CT();
+				$newCt->setTable($tableRow);
+				$f = new Filtering($newCt);
+				$f->addWhereExpression($pair[2]);
+				$whereClause = $f->whereClause;
+			}
 			//A bit of sanitation
+			/*
 			$additional_filter = str_replace('"', '', $additional_filter);
 			$additional_filter = str_replace("'", '', $additional_filter);
 			$additional_filter = str_replace(";", '', $additional_filter);
 			$additional_filter = str_replace("/", '', $additional_filter);
 			$additional_filter = str_replace("\\", '', $additional_filter);
+			*/
 
-			$ImageID = -FindSimilarImage::find($uploadedfile, $level_identity, $realtablename, $realfieldname, $ImageFolder, $additional_filter);
+			$ImageID = -FindSimilarImage::find($uploadedfile, $level_identity, $realtablename, $realfieldname, $ImageFolder, $whereClause);
 
 			if ($ImageID !== null) {
 				unlink($uploadedfile);
@@ -656,7 +670,7 @@ class CustomTablesImageMethods
 		return 0;
 	}
 
-	function CheckImage($src, $memorylimit): bool
+	function CheckImage($src, $memoryLimit): bool
 	{
 		if (!file_exists($src))
 			return false;
@@ -665,7 +679,7 @@ class CustomTablesImageMethods
 
 		$ms = $wh[0] * $wh[1] * 4;
 
-		if ($ms > $memorylimit)
+		if ($ms > $memoryLimit)
 			return false;
 
 		return true;

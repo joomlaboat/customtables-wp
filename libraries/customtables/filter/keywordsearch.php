@@ -104,7 +104,7 @@ class CustomTablesKeywordSearch
 				$whereClause = $this->getRowsByKeywords_ProcessTypes($fieldrow['type'], $fieldrow['fieldname'], $fieldrow['typeparams'],
 					'[[:<:]]' . $keywords . '[[:>:]]', $inner);
 
-				if (count($whereClause->conditions) > 0)
+				if ($whereClause->hasConditions())
 					$this->getKeywordSearch($inner, $whereClause, $result_rows, $count, $listing_ids);
 			}
 
@@ -122,7 +122,7 @@ class CustomTablesKeywordSearch
 				foreach ($keyword_arr as $kw) {
 					$inner = '';
 					$whereClauseTemp = $this->getRowsByKeywords_ProcessTypes($fieldrow['type'], $fieldrow['fieldname'], $fieldrow['typeparams'], '[[:<:]]' . $kw . '[[:>:]]', $inner);
-					if (count($whereClauseTemp->conditions) > 0) {
+					if ($whereClauseTemp->hasConditions()) {
 
 						$whereClause->addNestedCondition($whereClauseTemp);
 
@@ -137,7 +137,7 @@ class CustomTablesKeywordSearch
 				//$where = implode(' ' . $AndOrOr . ' ', $where_arr);
 				$inner = implode(' ', $inner_arr);
 
-				if (count($whereClause->conditions) > 0)
+				if ($whereClause->hasConditions())
 					$this->getKeywordSearch($inner, $whereClause, $result_rows, $count, $listing_ids);
 
 				$this->PathValue[] = common::translate('COM_CUSTOMTABLES_CONTAINS') . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
@@ -157,7 +157,7 @@ class CustomTablesKeywordSearch
 				if (isset($fieldrow['type']) and isset($fieldrow['fieldname'])) {
 					$whereClauseTemp = $this->getRowsByKeywords_ProcessTypes($fieldrow['type'], $fieldrow['fieldname'], $fieldrow['typeparams'], '[[:<:]]' . $kw, $inner);
 
-					if (count($whereClauseTemp->conditions) > 0) {
+					if ($whereClauseTemp->hasConditions()) {
 						$whereClause->addNestedCondition($whereClauseTemp);
 
 						//$where_arr[] = $w;
@@ -174,7 +174,7 @@ class CustomTablesKeywordSearch
 
 			//$where = str_replace('\\', '', $where);
 
-			if (count($whereClause->conditions) > 0)
+			if ($whereClause->hasConditions())
 				$this->getKeywordSearch($inner, $whereClause, $result_rows, $count, $listing_ids);
 
 			$this->PathValue[] = common::translate('COM_CUSTOMTABLES_CONTAINS') . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
@@ -301,7 +301,7 @@ class CustomTablesKeywordSearch
 			$inner = implode(' ', $inner_arr);
 			//$where = str_replace('\\', '', $where);
 
-			if (count($whereClause->conditions) > 0)
+			if ($whereClause->hasConditions())
 				$this->getKeywordSearch($inner, $whereClause, $result_rows, $count, $listing_ids);
 
 			$this->PathValue[] = common::translate('COM_CUSTOMTABLES_CONTAINS') . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';

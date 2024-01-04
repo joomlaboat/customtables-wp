@@ -170,7 +170,8 @@ class CT
 		}
 
 		$selects = $this->Table->selects;
-
+		$ordering = [];
+		
 		if ($this->Ordering->orderby !== null) {
 			if ($this->Ordering->selects !== null)
 				$selects[] = $this->Ordering->selects;
@@ -204,15 +205,13 @@ class CT
 					if ($this->Table->recordcount < $this->LimitStart or $this->Table->recordcount < $the_limit)
 						$this->LimitStart = 0;
 
-					//try {
-					echo '$this->Filter->whereClause=' . $this->Filter->whereClause . '<br/>';
-					die;
-					$this->Records = database::loadAssocList($this->Table->realtablename, $selects, $this->Filter->whereClause,
-						(count($ordering) > 0 ? implode(',', $ordering) : null), null, $the_limit, $this->LimitStart);
-					/*} catch (\Exception $e) {
+					try {
+						$this->Records = database::loadAssocList($this->Table->realtablename, $selects, $this->Filter->whereClause,
+							(count($ordering) > 0 ? implode(',', $ordering) : null), null, $the_limit, $this->LimitStart);
+					} catch (\Exception $e) {
 						echo $e->getMessage();
 						return false;
-					}*/
+					}
 				}
 			}
 		} else

@@ -6,6 +6,7 @@ use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\Fields;
+use CustomTables\MySQLWhereClause;
 use CustomTablesWP\Inc\Libraries;
 
 /**
@@ -57,9 +58,23 @@ class Admin_Field_List extends Libraries\WP_List_Table
         if ($this->tableId) {
             $this->ct->getTable($this->tableId);
 
-            $this->count_all = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE tableid='.$this->tableId.' AND published!=-2')[0] ?? 0;
-            $this->count_trashed = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE tableid='.$this->tableId.' AND published=-2')[0] ?? 0;
-            $this->count_published = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE tableid='.$this->tableId.' AND published=1')[0] ?? 0;
+	        $whereClause = new MySQLWhereClause();
+	        $whereClause->addCondition('tableid', $this->tableId);
+	        $whereClause->addCondition('published', -2,'!=');
+	        $this->count_all = database::loadColumn('#__customtables_fields',['COUNT(id) AS c'], $whereClause)[0] ?? 0;
+            //$this->count_all = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE tableid='.$this->tableId.' AND published!=-2')[0] ?? 0;
+
+	        $whereClause = new MySQLWhereClause();
+	        $whereClause->addCondition('tableid', $this->tableId);
+	        $whereClause->addCondition('published', -2);
+	        $this->count_trashed = database::loadColumn('#__customtables_fields',['COUNT(id) AS c'], $whereClause)[0] ?? 0;
+            //$this->count_trashed = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE tableid='.$this->tableId.' AND published=-2')[0] ?? 0;
+
+			$whereClause = new MySQLWhereClause();
+	        $whereClause->addCondition('tableid', $this->tableId);
+	        $whereClause->addCondition('published', 1);
+	        $this->count_published = database::loadColumn('#__customtables_fields',['COUNT(id) AS c'], $whereClause)[0] ?? 0;
+            //$this->count_published = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE tableid='.$this->tableId.' AND published=1')[0] ?? 0;
         } else {
             $this->count_all = 0;
             $this->count_trashed = 0;
@@ -140,15 +155,11 @@ class Admin_Field_List extends Libraries\WP_List_Table
             default => null
         };
 
-	    $data = [];
-
-        $query = $this->helperListOfFields->getListQuery($this->tableId, $published, $search, null, $orderby, $order);
-
 	    try {
-		    $data = database::loadAssocList($query);
+		    $data = $this->helperListOfFields->getListQuery($this->tableId, $published, $search, null, $orderby, $order);
 	    }catch(\Exception $exception)
 	    {
-
+		    $data = [];
 	    }
 
         $newData = [];

@@ -69,7 +69,7 @@ else
             </p>
             <form method="post" name="createtable" id="createtable" class="validate" novalidate="novalidate">
                 <input name="action" type="hidden" value="createtable"/>
-                <?php wp_nonce_field('create-table', '_wpnonce_create-table'); ?>
+                <?php wp_nonce_field('create-edit-table' ); ?>
 
                 <table class="form-table" role="presentation">
                     <!-- Table Name Field -->

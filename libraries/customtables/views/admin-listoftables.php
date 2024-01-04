@@ -57,7 +57,7 @@ class ListOfTables
 	 * @throws Exception
 	 * @since 3.2.2
 	 */
-	function getListQuery($published = null, $search = null, $category = null, $orderCol = null, $orderDirection = null, $limit = 0, $start = 0): array
+	function getListQuery($published = null, $search = null, $category = null, $orderCol = null, $orderDirection = null, $limit = 0, $start = 0, bool $returnQueryString = false)
 	{
 		$fieldCount = '(SELECT COUNT(fields.id) FROM #__customtables_fields AS fields WHERE fields.tableid=a.id AND (fields.published=0 or fields.published=1) LIMIT 1)';
 
@@ -69,52 +69,38 @@ class ListOfTables
 		}
 		$selects[] = $fieldCount . ' AS fieldcount';
 
-		//$query = 'SELECT ' . implode(',', $selects) . ' FROM ' . database::quoteName('#__customtables_tables') . ' AS a';
-
 		$whereClause = new MySQLWhereClause();
 
-		//$where = [];
+		$whereClausePublished = new MySQLWhereClause();
 
 		// Filter by published state
 		if (is_numeric($published))
-			$whereClause->addCondition('a.published', (int)$published);
+			$whereClausePublished->addCondition('a.published', (int)$published);
 		elseif ($published === null or $published === '') {
-			$whereClause->addOrCondition('a.published', 0);
-			$whereClause->addOrCondition('a.published', 1);
+			$whereClausePublished->addOrCondition('a.published', 0);
+			$whereClausePublished->addOrCondition('a.published', 1);
 		}
+
+		if ($whereClausePublished->hasConditions())
+			$whereClause->addNestedCondition($whereClausePublished);
 
 		// Filter by search.
 		if (!empty($search)) {
+			$whereClauseSearch = new MySQLWhereClause();
 			if (stripos($search, 'id:') === 0) {
-				$whereClause->addCondition('a.id', (int)substr($search, 3));
-				//$where [] = 'a.id = ' . (int)substr($search, 3);
+				$whereClauseSearch->addCondition('a.id', (int)substr($search, 3));
 			} else {
-				//$search = database::quote('%' . $search . '%');
-				//$where [] = '(a.tablename LIKE ' . $search . ')';
-				$whereClause->addCondition('a.tablename', $search, 'LIKE');
+				$whereClauseSearch->addCondition('a.tablename', '%' . $search . '%', 'LIKE');
 			}
+			if ($whereClauseSearch->hasConditions())
+				$whereClause->addNestedCondition($whereClauseSearch);
 		}
 
-		// Filter by Tableid.
+		// Filter by Category.
 		if ($category !== null and $category != '' and (int)$category != 0) {
 			$whereClause->addCondition('a.tablecategory', (int)$category);
-			//$where [] = 'a.tablecategory = ' . database::quote((int)$category);
 		}
-
-		//$query .= ' WHERE ' . implode(' AND ', $where);
-
-		// Add the list ordering clause.
-		/*
-		if ($orderCol != '')
-			$query .= ' ORDER BY ' . database::quoteName($orderCol) . ' ' . $orderDirection;
-
-		if ($limit != 0)
-			$query .= ' LIMIT ' . $limit;
-
-		if ($start != 0)
-			$query .= ' OFFSET ' . $start;
-*/
-		return database::loadAssocList('#__customtables_tables AS a', $selects, $whereClause, $orderCol, $orderDirection, $limit, $start);
+		return database::loadAssocList('#__customtables_tables AS a', $selects, $whereClause, $orderCol, $orderDirection, $limit, $start, null, $returnQueryString);
 	}
 
 	/**

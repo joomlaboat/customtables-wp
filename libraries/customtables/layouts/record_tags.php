@@ -353,7 +353,7 @@ class Twig_Record_Tags
 			//$wheres[] = $this->ct->Table->realtablename . '.' . $this->ct->Table->tablerow['realidfieldname'] . '=' . database::quote($this->ct->Table->record[$this->ct->Table->realidfieldname]);
 		}
 
-		if (count($whereClauseAdditional->conditions) > 0)
+		if ($whereClauseAdditional->hasConditions())
 			$whereClause->addNestedCondition($whereClauseAdditional);
 		//$wheres[] = '(' . $additional_where . ')';
 
@@ -836,6 +836,8 @@ class Twig_Tables_Tags
 			return '';
 		}
 
+		return 'abc';
+		
 		$join_table_fields = Fields::getFields($table);
 
 		$join_ct = new CT;

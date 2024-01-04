@@ -31,6 +31,23 @@ class MySQLWhereClause
 		$this->placeholderValues = [];
 	}
 
+	public function hasConditions(): bool
+	{
+		if (count($this->conditions) > 0)
+			return true;
+
+		if (count($this->orConditions) > 0)
+			return true;
+
+		if (count($this->nestedConditions) > 0)
+			return true;
+
+		if (count($this->nestedOrConditions) > 0)
+			return true;
+
+		return false;
+	}
+
 	public function addConditionsFromArray(array $conditions): void
 	{
 		foreach ($conditions as $fieldName => $fieldValue) {
@@ -43,7 +60,7 @@ class MySQLWhereClause
 	{
 		$operator = strtoupper($operator);
 
-		$possibleOperators = ['=', '>', '<', '!=', '>=', '<=', 'LIKE', 'NULL', 'NOT NULL', 'INSTR'];
+		$possibleOperators = ['=', '>', '<', '!=', '>=', '<=', 'LIKE', 'NULL', 'NOT NULL', 'INSTR','NOT INSTR'];
 
 		if (!in_array($operator, $possibleOperators)) {
 			throw new \mysql_xdevapi\Exception('SQL Where Clause operator "' . common::ctStripTags($operator) . '" not recognized.');
@@ -61,7 +78,7 @@ class MySQLWhereClause
 	{
 		$operator = strtoupper($operator);
 
-		$possibleOperators = ['=', '>', '<', '!=', '>=', '<=', 'LIKE', 'NULL', 'NOT NULL', 'INSTR'];
+		$possibleOperators = ['=', '>', '<', '!=', '>=', '<=', 'LIKE', 'NULL', 'NOT NULL', 'INSTR','NOT INSTR'];
 
 		if (!in_array($operator, $possibleOperators)) {
 			throw new \mysql_xdevapi\Exception('SQL Where Clause operator "' . common::ctStripTags($operator) . '" not recognized.');
@@ -97,6 +114,40 @@ class MySQLWhereClause
 		return $wpdb->prepare($whereString, $placeholders);
 	}
 
+	public function getWhereClause(string $logicalOperator = 'AND'): string
+	{
+		$where = [];
+
+		// Process regular conditions
+		if (count($this->conditions))
+			$where [] = self::getWhereClauseMergeConditions($this->conditions);
+
+		// Process OR conditions
+		if (count($this->orConditions) > 0)
+			$where [] = '(' . self::getWhereClauseMergeConditions($this->orConditions, 'OR') . ')';
+
+		// Process nested conditions
+		if (count($this->nestedConditions) > 0) {
+
+			foreach ($this->nestedConditions as $nestedCondition) {
+				$where [] = $nestedCondition->getWhereClause();
+				$nestedValues = $nestedCondition->getWhereClausePlaceholderValues();
+				$this->placeholderValues = array_merge($this->placeholderValues, $nestedValues);
+			}
+		}
+
+		// Process nested OR conditions
+		if (count($this->nestedOrConditions) > 0) {
+			foreach ($this->nestedOrConditions as $nestedOrCondition) {
+				$where [] = '(' . $nestedOrCondition->getWhereClause('OR') . ')';
+				$nestedValues = $nestedOrCondition->getWhereClausePlaceholderValues();
+				$this->placeholderValues = array_merge($this->placeholderValues, $nestedValues);
+			}
+		}
+		return implode(' ' . $logicalOperator . ' ', $where);
+	}
+
+	/*
 	public function getWhereClause(): string
 	{
 		$where = '';
@@ -108,12 +159,12 @@ class MySQLWhereClause
 		if ($count > 0 || $orCount > 0 || $nestedCount > 0) {
 
 			// Process regular conditions
-			$where .= self::getWhereClauseMergeConditions($this->conditions, $count, $orCount, $nestedCount, $nestedOrCount);
+			$where .= self::getWhereClauseMergeConditions($this->conditions);
 
 			// Process OR conditions
 			if ($orCount > 0) {
 
-				$whereNew = self::getWhereClauseMergeConditions($this->orConditions, $count, $orCount, $nestedCount, $nestedOrCount, 'OR');
+				$whereNew = self::getWhereClauseMergeConditions($this->orConditions);
 
 				if ($whereNew != '')
 					$where .= '(' . $whereNew . ')';
@@ -154,54 +205,57 @@ class MySQLWhereClause
 		echo '$where=' . $where . '<br/>';
 		return $where;
 	}
-
-	protected function getWhereClauseMergeConditions($conditions, $count, $orCount, $nestedCount, $nestedOrCount, $logicalOperator = 'AND'): string
+*/
+	protected function getWhereClauseMergeConditions($conditions,  $logicalOperator = 'AND'): string
 	{
-		$where = '';
+		$where = [];
 
-		foreach ($conditions as $index => $condition) {
-
-			if ($where != '')
-				$where .= ' ' . $logicalOperator . ' ';
+		foreach ($conditions as $condition) {
 
 			if ($condition['value'] === null) {
-				$where .= $condition['field'];
+				$where []= $condition['field'];
 			} elseif ($condition['operator'] == 'NULL') {
-				$where .= $condition['field'] . ' IS NULL';
+				$where []= $condition['field'] . ' IS NULL';
 			} elseif ($condition['operator'] == 'NOT NULL') {
-				$where .= $condition['field'] . ' IS NOT NULL';
+				$where []= $condition['field'] . ' IS NOT NULL';
 			} elseif ($condition['operator'] == 'INSTR') {
 				if ($condition['sanitized']) {
-					$where .= 'INSTR(' . $condition['field'] . ',' . $condition['value'] . ')';
+					$where []= 'INSTR(' . $condition['field'] . ',' . $condition['value'] . ')';
 				} else {
-					$where .= 'INSTR(' . $condition['field'] . ',' . $this->getPlaceholder($condition['value']) . ')';
+					$where []= 'INSTR(' . $condition['field'] . ',' . $this->getPlaceholder($condition['value']) . ')';
 					$this->placeholderValues[] = $condition['value'];
 				}
 			} elseif ($condition['operator'] == 'NOT INSTR') {
 				if ($condition['sanitized']) {
-					$where .= '!INSTR(' . $condition['field'] . ',' . $condition['value'] . ')';
+					$where []= '!INSTR(' . $condition['field'] . ',' . $condition['value'] . ')';
 				} else {
-					$where .= '!INSTR(' . $condition['field'] . ',' . $this->getPlaceholder($condition['value']) . ')';
+					$where []= '!INSTR(' . $condition['field'] . ',' . $this->getPlaceholder($condition['value']) . ')';
 					$this->placeholderValues[] = $condition['value'];
 				}
 			} elseif ($condition['operator'] == 'REGEXP') {
 				if ($condition['sanitized']) {
-					$where .= $condition['field'] . ' REGEXP ' . $condition['value'];
+					$where []= $condition['field'] . ' REGEXP ' . $condition['value'];
 				} else {
-					$where .= $condition['field'] . ' REGEXP ' . $this->getPlaceholder($condition['value']);
+					$where []= $condition['field'] . ' REGEXP ' . $this->getPlaceholder($condition['value']);
 					$this->placeholderValues[] = $condition['value'];
 				}
-
+			} elseif ($condition['operator'] == 'IN') {
+				if ($condition['sanitized']) {
+					$where [] = $condition['field'] . ' IN ' . $condition['value'];
+				} else {
+					$where [] = $this->getPlaceholder($condition['field']) . ' IN ' . $condition['value'];
+					$this->placeholderValues[] = $condition['field'];
+				}
 			} else {
 				if ($condition['sanitized']) {
-					$where .= $condition['field'] . ' ' . $condition['operator'] . ' ' . $condition['value'];
+					$where [] = $condition['field'] . ' ' . $condition['operator'] . ' ' . $condition['value'];
 				} else {
-					$where .= $condition['field'] . ' ' . $condition['operator'] . ' ' . $this->getPlaceholder($condition['value']);
+					$where [] = $condition['field'] . ' ' . $condition['operator'] . ' '.$this->getPlaceholder($condition['value']);
 					$this->placeholderValues[] = $condition['value'];
 				}
 			}
 		}
-		return $where;
+		return implode(' ' . $logicalOperator . ' ', $where);
 	}
 
 	private function getPlaceholder($value): string
@@ -299,13 +353,6 @@ class database
 		return true;
 	}
 
-	public static function getNumRowsOnly($query): int
-	{
-		global $wpdb;
-		$wpdb->query(str_replace('#__', $wpdb->prefix, $query));
-		return $wpdb->num_rows;
-	}
-
 	public static function getVersion(): ?float
 	{
 		global $wpdb;
@@ -318,7 +365,8 @@ class database
 	 * @since 3.2.2
 	 */
 	public static function loadAssocList(string  $table, array $selects, MySQLWhereClause $whereClause, ?string $order = null,
-	                                     ?string $orderBy = null, ?int $limit = null, ?int $limitStart = null, string $groupBy = null): array
+	                                     ?string $orderBy = null, ?int $limit = null,
+	                                     ?int $limitStart = null, string $groupBy = null)
 	{
 		return self::loadObjectList($table, $selects, $whereClause, $order, $orderBy, $limit, $limitStart, 'ARRAY_A', $groupBy);
 	}
@@ -329,7 +377,8 @@ class database
 	 */
 	public static function loadObjectList(string  $table, array $selectsRaw, MySQLWhereClause $whereClause,
 	                                      ?string $order = null, ?string $orderBy = null,
-	                                      ?int    $limit = null, ?int $limitStart = null, string $output_type = 'OBJECT', string $groupBy = null)
+	                                      ?int    $limit = null, ?int $limitStart = null, string $output_type = 'OBJECT',
+	                                      string $groupBy = null)
 	{
 		global $wpdb;
 
@@ -354,55 +403,68 @@ class database
 		//$realTableName is internal and cannot be manipulated
 		//Where values sanitized properly in MySQLWhereClause class
 
-		if (count($placeholders) == 0) {
-			$results = $wpdb->get_results("SELECT " . implode(',', $selects) . " FROM " . $realTableName
-				. ($whereString != '' ? ' WHERE ' . $whereString : '')
-				. (!empty($groupBy) != '' ? ' GROUP BY ' . $groupBy : '')
-				. (!empty($order) ? ' ORDER BY ' . $order . ($orderBy !== null and strtolower($orderBy) == 'desc' ? ' DESC' : '') : '')
-				. (!empty($limit) ? ' LIMIT %d' : '')//Use of single explicit placeholder is needed for WPCS verification because it thinks that $placeholders is a single variable, but it's an array
-				. (!empty($limitStart) ? ' OFFSET ' . $limitStart : ''),
-				$output_type);// phpcs:ignore WordPress.DB.PreparedSQL -- Ignore Prepared SQL warnings
-		} else {
-			$results = $wpdb->get_results(
-				$wpdb->prepare("SELECT " . implode(',', $selects) . " FROM " . $realTableName
-					. ($whereString != '' ? ' WHERE ' . $whereString : '')
-					. (!empty($groupBy) != '' ? ' GROUP BY ' . $groupBy : '')
-					. (!empty($order) ? ' ORDER BY ' . $order . ($orderBy !== null and strtolower($orderBy) == 'desc' ? ' DESC' : '') : '')
-					. (!empty($limit) ? ' LIMIT %d' : '')//Use of single explicit placeholder is needed for WPCS verification because it thinks that $placeholders is a single variable, but it's an array
-					. (!empty($limitStart) ? ' OFFSET ' . $limitStart : ''), ...$placeholders),
-				$output_type);// phpcs:ignore WordPress.DB.PreparedSQL -- Ignore Prepared SQL warnings
-		}
+		$query = "SELECT " . implode(',', $selects) . " FROM " . $realTableName
+			. ($whereString != '' ? ' WHERE ' . $whereString : '')
+			. (!empty($groupBy) != '' ? ' GROUP BY ' . $groupBy : '')
+			. (!empty($order) ? ' ORDER BY ' . $order . ($orderBy !== null and strtolower($orderBy) == 'desc' ? ' DESC' : '') : '')
+			. (!empty($limit) ? ' LIMIT %d' : '')//Use of single explicit placeholder is needed for WPCS verification because it thinks that $placeholders is a single variable, but it's an array
+			. (!empty($limitStart) ? ' OFFSET ' . $limitStart : '');
+
+		if (count($placeholders) > 0)
+			$query = $wpdb->prepare($query, ...$placeholders);
+
+		$output_type_temp = $output_type;
+
+		if ($output_type == 'ROW_LIST' or $output_type == 'COLUMN')
+			$output_type_temp = 'ARRAY_A';
+
+		$results = $wpdb->get_results($query, $output_type_temp);// phpcs:ignore WordPress.DB.PreparedSQL -- Ignore Prepared SQL warnings
 
 		if ($wpdb->last_error !== '')
 			throw new Exception($wpdb->last_error);
 
-		return $results;
+		if ($output_type == 'OBJECT' or $output_type == 'ARRAY_A')
+			return $results;
+
+		if ($output_type == 'ROW_LIST') {
+			// Convert associative array of associative arrays to a numerical array of associative arrays
+			return array_values($results);
+		}
+
+		if ($output_type == 'COLUMN')
+		{
+			// Assuming $results is an array of associative arrays fetched from the database
+			$firstRow = reset($results); // Get the first row from the result set
+
+			if ($firstRow !== false) { // Check if there's at least one row
+				$columnNames = array_keys($firstRow); // Get the keys (column names) of the associative array (first row)
+
+				// The column name corresponding to the key of the first column
+				$firstColumnName = $columnNames[0];
+
+				// Extract a single column from the associative array of associative arrays{
+				return array_column($results, $firstColumnName);
+			} else {
+				return null;
+			}
+		}
+		return null;
 	}
 
-	public static function loadRowList($query, $limitStart = null, $limit = null): ?array
+	public static function loadRowList(string  $table, array $selects, MySQLWhereClause $whereClause,
+	                                   ?string $order = null, ?string $orderBy = null,
+	                                   ?int    $limit = null, ?int $limitStart = null,
+	                                   string  $groupBy = null, bool $returnQueryString = false)
 	{
-		global $wpdb;
-
-		if ($limit !== null)
-			$query .= ' LIMIT ' . $limit;
-
-		if ($limitStart !== null)
-			$query .= ' OFFSET ' . $limitStart;
-
-		return $wpdb->get_results(str_replace('#__', $wpdb->prefix, $query), ARRAY_N);
+		return self::loadObjectList($table, $selects, $whereClause, $order, $orderBy, $limit, $limitStart, 'ROW_LIST', $groupBy, $returnQueryString);
 	}
 
-	public static function loadColumn($query, $limitStart = null, $limit = null): ?array
+	public static function loadColumn(string  $table, array $selects, MySQLWhereClause $whereClause,
+	                                  ?string $order = null, ?string $orderBy = null,
+	                                  ?int    $limit = null, ?int $limitStart = null,
+	                                  string  $groupBy = null, bool $returnQueryString = false)
 	{
-		global $wpdb;
-
-		if ($limit !== null)
-			$query .= ' LIMIT ' . $limit;
-
-		if ($limitStart !== null)
-			$query .= ' OFFSET ' . $limitStart;
-
-		return $wpdb->get_col(str_replace('#__', $wpdb->prefix, $query));
+		return self::loadObjectList($table, $selects, $whereClause, $order, $orderBy, $limit, $limitStart, 'COLUMN', $groupBy, $returnQueryString);
 	}
 
 	public static function getTableStatus(string $database, string $tablename, bool $addPrefix = true)
@@ -415,7 +477,7 @@ class database
 		else
 			$realTableName = $tablename;
 
-		return $wpdb->get_results('SHOW TABLE STATUS FROM "' . $database . '" LIKE "' . $realTableName . '"');
+		return $wpdb->get_results('SHOW TABLE STATUS FROM ' . $database . ' LIKE "' . $realTableName . '"');
 	}
 
 	public static function getTableIndex(string $tableName, string $fieldName)
@@ -484,7 +546,7 @@ class database
 		}
 	}
 
-	public static function quote($value, bool $row = true): ?string
+	public static function quote($value, bool $row = false): ?string
 	{
 		global $wpdb;
 

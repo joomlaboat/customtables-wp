@@ -6,6 +6,7 @@ use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\Fields;
+use CustomTables\MySQLWhereClause;
 use CustomTablesWP\Inc\Libraries;
 use CustomTables\ListOfTables;
 use ESTables;
@@ -54,9 +55,18 @@ class Admin_Table_List extends Libraries\WP_List_Table
         $this->helperListOfTables = new ListOfTables($this->ct);
         $this->plugin_text_domain = $plugin_text_domain;
 
-        $this->count_all = database::loadColumn('SELECT COUNT(id) FROM #__customtables_tables WHERE published!=-2')[0] ?? 0;
-        $this->count_trashed = database::loadColumn('SELECT COUNT(id) FROM #__customtables_tables WHERE published=-2')[0] ?? 0;
-        $this->count_published = database::loadColumn('SELECT COUNT(id) FROM #__customtables_tables WHERE published=1')[0] ?? 0;
+	    $whereClause = new MySQLWhereClause();
+	    $whereClause->addCondition('published', -2,'!=');
+	    $this->count_all = database::loadColumn('#__customtables_tables',['COUNT(id) AS c'], $whereClause)[0] ?? 0;
+
+	    $whereClause = new MySQLWhereClause();
+	    $whereClause->addCondition('published', -2);
+	    $this->count_trashed = database::loadColumn('#__customtables_tables',['COUNT(id) AS c'], $whereClause)[0] ?? 0;
+
+	    $whereClause = new MySQLWhereClause();
+	    $whereClause->addCondition('published', 1);
+	    $this->count_published = database::loadColumn('#__customtables_tables',['COUNT(id) AS c'], $whereClause)[0] ?? 0;
+
         $this->count_unpublished = $this->count_all - $this->count_published;
 
 	    $this->current_status = common::inputGetCmd('status');
@@ -126,12 +136,11 @@ class Admin_Table_List extends Libraries\WP_List_Table
 
 	    $data = [];
 
-        $query = $this->helperListOfTables->getListQuery($published, $search, null, $orderby, $order);
         try {
-	        $data = database::loadAssocList($query);
+	        $data = $this->helperListOfTables->getListQuery($published, $search, null, $orderby, $order);
         }catch(\Exception $exception)
         {
-
+			return [];
         }
 
         $newData = [];

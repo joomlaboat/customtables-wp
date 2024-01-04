@@ -40,8 +40,6 @@ class IntegrityTables extends IntegrityChecks
 
 			//Check if table exists
 			$rows = database::getTableStatus(database::getDataBaseName(), database::realTableName($table['tablename']), false);
-			print_r($rows);
-			die;
 			//$query_check_table = 'SHOW TABLES LIKE ' . database::quote();
 
 			$tableExists = !(count($rows) == 0);

@@ -70,7 +70,7 @@ class Admin_Layout_Edit
 
     function handle_layout_actions(): void
     {
-	    $action = common::inputPostCmd('action','');
+	    $action = common::inputPostCmd('action','','create-edit-field');
         if('createlayout' === $action || 'savelayout' === $action) {
             $this->helperListOfLayouts->save($this->layoutId);
             $url = 'admin.php?page=customtables-layouts';

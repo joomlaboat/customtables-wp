@@ -5,6 +5,7 @@ namespace CustomTablesWP\Inc\Admin;
 use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\database;
+use CustomTables\MySQLWhereClause;
 use CustomTablesWP\Inc\Libraries;
 
 /**
@@ -29,7 +30,6 @@ class Admin_Record_List extends Libraries\WP_List_Table
      */
     public string $plugin_text_domain;
     public CT $ct;
-    //public $helperListOfFields;
     public ?int $tableId;
 
     protected int $count_all;
@@ -48,9 +48,7 @@ class Admin_Record_List extends Libraries\WP_List_Table
 	 */
     public function __construct($plugin_text_domain)
     {
-        //require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoffields.php');
         $this->ct = new CT;
-        //$this->helperListOfFields = new \CustomTables\ListOfFields($this->ct);
         $this->plugin_text_domain = $plugin_text_domain;
 
         $this->count_all = 0;
@@ -61,11 +59,18 @@ class Admin_Record_List extends Libraries\WP_List_Table
         if ($this->tableId) {
             $this->ct->getTable($this->tableId);
             if ($this->ct->Table !== null and $this->ct->Table->published_field_found) {
-                $query = 'SELECT COUNT(' . $this->ct->Table->realidfieldname . ') FROM ' . $this->ct->Table->realtablename . ' WHERE ';
 
-                $this->count_all = database::loadColumn($query . 'published!=-2')[0];
-                $this->count_trashed = database::loadColumn($query . 'published=-2')[0];
-                $this->count_published = database::loadColumn($query . 'published=1')[0];
+	            $whereClause = new MySQLWhereClause();
+	            $whereClause->addCondition('published', -2,'!=');
+	            $this->count_all = database::loadColumn($this->ct->Table->realtablename,['COUNT(' . $this->ct->Table->realidfieldname . ') AS c'], $whereClause)[0] ?? 0;
+
+	            $whereClause = new MySQLWhereClause();
+	            $whereClause->addCondition('published', -2);
+	            $this->count_trashed = database::loadColumn($this->ct->Table->realtablename,['COUNT(' . $this->ct->Table->realidfieldname . ') AS c'], $whereClause)[0] ?? 0;
+
+	            $whereClause = new MySQLWhereClause();
+	            $whereClause->addCondition('published', 1);
+	            $this->count_published = database::loadColumn($this->ct->Table->realtablename,['COUNT(' . $this->ct->Table->realidfieldname . ') AS c'], $whereClause)[0] ?? 0;
             }
         }
 

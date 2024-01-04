@@ -31,7 +31,6 @@ class Tables
 	 */
 	public static function getAllTables(): array
 	{
-		//$query = 'SELECT id,tablename,tabletitle FROM #__customtables_tables WHERE published=1 ORDER BY tablename';
 		$whereClause = new MySQLWhereClause();
 		$whereClause->addCondition('published', 1);
 

@@ -120,7 +120,7 @@ class InputBox_tablejoin extends BaseInputBox
 		}
 
 		$ct->setFilter($filter, $showPublished);
-		if (count($whereClauseAdditional->conditions) > 0)
+		if ($whereClauseAdditional->hasConditions())
 			$ct->Filter->whereClause->addNestedCondition($whereClauseAdditional);
 
 		if ($search !== null and $search != '') {
