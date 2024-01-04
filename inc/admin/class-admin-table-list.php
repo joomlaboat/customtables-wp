@@ -521,11 +521,14 @@ class Admin_Table_List extends Libraries\WP_List_Table
 
     function handle_table_actions_edit()
     {
-        // Assuming $_POST['table'] contains the selected items
-        $table_id = (int)(isset($_POST['table']) ? $_POST['table'][0] : '');
-
-        // Redirect to the edit page with the appropriate parameters
-        $this->graceful_redirect('admin.php?page=customtables-tables-edit&action=edit&table=' . $table_id);
+	    $nonce = wp_unslash($_REQUEST['_wpnonce']);
+	    if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
+		    $this->invalid_nonce_redirect();
+	    } else {
+		    $table_id = (int)(isset($_POST['table']) ? $_POST['table'][0] : '');
+		    // Redirect to the edit page with the appropriate parameters
+		    $this->graceful_redirect('admin.php?page=customtables-tables-edit&action=edit&table=' . $table_id);
+	    }
     }
 
     function handle_table_actions_publish(int $state): void
@@ -549,13 +552,19 @@ class Admin_Table_List extends Libraries\WP_List_Table
 
     function handle_table_actions_delete()
     {
-        $tables = ($_POST['table'] ?? []);
-        if (count($tables) > 0) {
-            foreach ($tables as $tableId)
-                $this->helperListOfTables->deleteTable($tableId);
+	    $nonce = wp_unslash($_REQUEST['_wpnonce']);
+	    // verify the nonce.
+	    if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
+		    $this->invalid_nonce_redirect();
+	    } else {
+		    $tables = ($_POST['table'] ?? []);
+		    if (count($tables) > 0) {
+			    foreach ($tables as $tableId)
+				    $this->helperListOfTables->deleteTable($tableId);
 
-            $this->graceful_redirect();
-        }
-        echo '<div id="message" class="updated error is-dismissible"><p>Tables not selected.</p></div>';
+			    $this->graceful_redirect();
+		    }
+		    echo '<div id="message" class="updated error is-dismissible"><p>Tables not selected.</p></div>';
+	    }
     }
 }

@@ -10,6 +10,9 @@
 
 namespace CustomTables;
 
+use DateTime;
+use DateTimeZone;
+use Exception;
 use JoomlaBasicMisc;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -594,5 +597,103 @@ class common
 			$randomString .= $characters[wp_rand(0, $charactersLength - 1)];
 
 		return $randomString;
+	}
+
+	public static function saveString2File(string $filePath, string $content): ?string
+	{
+		global $wp_filesystem;
+
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . '/wp-admin/includes/file.php';
+		}
+
+		WP_Filesystem();
+
+		if ( ! $wp_filesystem ) {
+			return 'Unable to initialize WP_Filesystem.';
+		}
+
+		try {
+			$result = $wp_filesystem->put_contents($filePath, $content);
+
+			if ( ! $result ) {
+				throw new Exception('Failed to write content to file.');
+			}
+
+		} catch (Exception $e) {
+			return $e->getMessage();
+		}
+
+		return null;
+	}
+
+	public static function getStringFromFile(string $filePath): ?string
+	{
+		global $wp_filesystem;
+
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . '/wp-admin/includes/file.php';
+		}
+
+		WP_Filesystem();
+
+		if ( ! $wp_filesystem ) {
+			return 'Unable to initialize WP_Filesystem.';
+		}
+
+		try {
+			$content = $wp_filesystem->get_contents($filePath);
+
+			if ( $content === false ) {
+				throw new Exception('Failed to read content from file.');
+			}
+
+		} catch (Exception $e) {
+			return $e->getMessage();
+		}
+
+		return $content;
+	}
+
+	public static function default_timezone_set(): void
+	{
+		$timezone_string = get_option('timezone_string');
+
+		if ($timezone_string) {
+			$timezone_object = new DateTimeZone($timezone_string);
+			$current_time = new DateTime(null, $timezone_object);
+			$offset = $timezone_object->getOffset($current_time);
+		}
+	}
+
+	public static function getWhereParameter($field): string
+	{
+		$list = self::getWhereParameters();
+
+		if ($list === null)
+			return '';
+
+		foreach ($list as $l) {
+			$p = explode('=', $l);
+			$fld_name = str_replace('_t_', '', $p[0]);
+			$fld_name = str_replace('_r_', '', $fld_name); //range
+
+			if ($fld_name == $field and isset($p[1]))
+				return $p[1];
+		}
+		return '';
+	}
+
+	protected static function getWhereParameters(): ?array
+	{
+		$value = common::inputGetString('where');
+		if ($value !== null) {
+			$b = urldecode($value);
+			$b = str_replace(' or ', ' and ', $b);
+			$b = str_replace(' OR ', ' and ', $b);
+			$b = str_replace(' AND ', ' and ', $b);
+			return explode(' and ', $b);
+		}
+		return null;
 	}
 }

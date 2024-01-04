@@ -563,10 +563,14 @@ class Admin_Record_List extends Libraries\WP_List_Table
 
     function handle_record_actions_edit()
     {
-        $recordId = (int)(isset($_POST['ids']) ? $_POST['id'][0] : '');
-
-        // Redirect to the edit page with the appropriate parameters
-        $this->graceful_redirect('admin.php?page=customtables-records-edit&action=edit&table=' . $this->tableId . '&id=' . $recordId);
+	    $nonce = wp_unslash($_REQUEST['_wpnonce']);
+	    if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
+		    $this->invalid_nonce_redirect();
+	    } else {
+		    $recordId = (int)(isset($_POST['ids']) ? $_POST['id'][0] : '');
+		    // Redirect to the edit page with the appropriate parameters
+		    $this->graceful_redirect('admin.php?page=customtables-records-edit&action=edit&table=' . $this->tableId . '&id=' . $recordId);
+	    }
     }
 
     function handle_record_actions_publish(int $state): void
@@ -589,13 +593,19 @@ class Admin_Record_List extends Libraries\WP_List_Table
 
     function handle_record_actions_delete()
     {
-        $records = ($_POST['ids'] ?? []);
-        if (count($records) > 0) {
-            foreach ($records as $recordId)
-                database::setQuery('DELETE FROM '.$this->ct->Table->realtablename.' WHERE '.$this->ct->Table->realidfieldname.'='.database::quote($recordId));
+	    $nonce = wp_unslash($_REQUEST['_wpnonce']);
+	    // verify the nonce.
+	    if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
+		    $this->invalid_nonce_redirect();
+	    } else {
+		    $records = ($_POST['ids'] ?? []);
+		    if (count($records) > 0) {
+			    foreach ($records as $recordId)
+				    database::setQuery('DELETE FROM ' . $this->ct->Table->realtablename . ' WHERE ' . $this->ct->Table->realidfieldname . '=' . database::quote($recordId));
 
-            $this->graceful_redirect();
-        }
-        echo '<div id="message" class="updated error is-dismissible"><p>Records not selected.</p></div>';
+			    $this->graceful_redirect();
+		    }
+		    echo '<div id="message" class="updated error is-dismissible"><p>Records not selected.</p></div>';
+	    }
     }
 }

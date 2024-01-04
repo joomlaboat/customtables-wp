@@ -206,8 +206,10 @@ class Inputbox
 		if ($this->ct->isRecordNull($row)) {
 			$value = common::inputPostString($this->field->realfieldname, null, 'create-edit-record');
 
-			if ($value == '')
-				$value = $this->getWhereParameter($this->field->realfieldname);
+			if ($value == '') {
+				$f = str_replace($this->ct->Env->field_prefix, '', $this->field->realfieldname);//legacy support
+				$value = common::getWhereParameter($f);
+			}
 
 			if ($value == '') {
 				$value = $this->field->defaultvalue;
@@ -247,30 +249,6 @@ class Inputbox
 			}
 		}
 		return $value;
-	}
-
-	public function getWhereParameter($field): string
-	{
-		$f = str_replace($this->ct->Env->field_prefix, '', $field);
-
-		$list = $this->getWhereParameters();
-
-		foreach ($list as $l) {
-			$p = explode('=', $l);
-			if ($p[0] == $f and isset($p[1]))
-				return $p[1];
-		}
-		return '';
-	}
-
-	protected function getWhereParameters(): array
-	{
-		$value = common::inputGetBase64('where', '');
-		$b = base64_decode($value);
-		$b = str_replace(' or ', ' and ', $b);
-		$b = str_replace(' OR ', ' and ', $b);
-		$b = str_replace(' AND ', ' and ', $b);
-		return explode(' and ', $b);
 	}
 }
 

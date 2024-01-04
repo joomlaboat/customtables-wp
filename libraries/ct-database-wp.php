@@ -393,23 +393,31 @@ class database
 		return null;
 	}
 
+	/**
+	 * @throws Exception
+	 * @since 3.2.2
+	 */
 	public static function loadRowList(string  $table, array $selects, MySQLWhereClause $whereClause,
 	                                   ?string $order = null, ?string $orderBy = null,
 	                                   ?int    $limit = null, ?int $limitStart = null,
-	                                   string  $groupBy = null, bool $returnQueryString = false)
+	                                   string  $groupBy = null, bool $returnQueryString = false): array
 	{
 		return self::loadObjectList($table, $selects, $whereClause, $order, $orderBy, $limit, $limitStart, 'ROW_LIST', $groupBy, $returnQueryString);
 	}
 
+	/**
+	 * @throws Exception
+	 * @since 3.2.2
+	 */
 	public static function loadColumn(string  $table, array $selects, MySQLWhereClause $whereClause,
 	                                  ?string $order = null, ?string $orderBy = null,
 	                                  ?int    $limit = null, ?int $limitStart = null,
-	                                  string  $groupBy = null, bool $returnQueryString = false)
+	                                  string  $groupBy = null, bool $returnQueryString = false): array
 	{
 		return self::loadObjectList($table, $selects, $whereClause, $order, $orderBy, $limit, $limitStart, 'COLUMN', $groupBy, $returnQueryString);
 	}
 
-	public static function getTableStatus(string $database, string $tablename, bool $addPrefix = true)
+	public static function getTableStatus(string $database, string $tablename, bool $addPrefix = true): array
 	{
 		global $wpdb;
 		$dbPrefix = $wpdb->prefix;
@@ -419,31 +427,31 @@ class database
 		else
 			$realTableName = $tablename;
 
-		return $wpdb->get_results('SHOW TABLE STATUS FROM ' . $database . ' LIKE "' . $realTableName . '"');
+		return $wpdb->get_results($wpdb->prepare("SHOW TABLE STATUS FROM %i LIKE %s",$database,$realTableName));
 	}
 
-	public static function getTableIndex(string $tableName, string $fieldName)
+	public static function getTableIndex(string $tableName, string $fieldName): array
 	{
 		global $wpdb;
-		return $wpdb->get_results('SHOW INDEX FROM ' . $tableName . ' WHERE Key_name = "' . $fieldName . '"');
+		return $wpdb->get_results($wpdb->prepare("SHOW INDEX FROM %i WHERE Key_name = %s", $tableName, $fieldName));
 	}
 
-	public static function showTables()
+	public static function showTables(): array
 	{
 		global $wpdb;
 		return $wpdb->get_results('SHOW TABLES', 'ARRAY_A');
 	}
 
-	public static function showCreateTable($tableName)
+	public static function showCreateTable($tableName): array
 	{
 		global $wpdb;
-		return $wpdb->get_results('SHOW CREATE TABLE ' . $tableName, 'ARRAY_A');
+		return $wpdb->get_results($wpdb->prepare("SHOW CREATE TABLE %i",$tableName), 'ARRAY_A');
 	}
 
-	public static function getExistingFields($tableName)
+	public static function getExistingFields($tableName): array
 	{
 		global $wpdb;
-		return $wpdb->get_results('SHOW COLUMNS FROM ' . $tableName, 'ARRAY_A');
+		return $wpdb->get_results($wpdb->prepare("SHOW COLUMNS FROM %i",$tableName), 'ARRAY_A');
 	}
 
 	public static function getFieldType(string $realtablename, $realfieldname)
@@ -454,11 +462,11 @@ class database
 		$serverType = self::getServerType();
 
 		if ($serverType == 'postgresql')
-			$query = 'SELECT data_type FROM information_schema.columns WHERE table_name = ' . database::quote($realtablename) . ' AND column_name=' . database::quote($realfieldname);
+			$query = 'SELECT data_type FROM information_schema.columns WHERE table_name = %i AND column_name = %i';
 		else
-			$query = 'SHOW COLUMNS FROM ' . $realtablename . ' WHERE ' . database::quoteName('field') . '=' . database::quote($realfieldname);
+			$query = 'SHOW COLUMNS FROM %i WHERE `field` = %i';
 
-		$rows = $wpdb->get_results($query, 'ARRAY_A');
+		$rows = $wpdb->get_results($wpdb->prepare($query,$realtablename,$realfieldname), 'ARRAY_A');
 
 		if (count($rows) == 0)
 			return '';
