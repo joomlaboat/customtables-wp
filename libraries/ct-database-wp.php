@@ -427,7 +427,7 @@ class database
 		else
 			$realTableName = $tablename;
 
-		return $wpdb->get_results($wpdb->prepare("SHOW TABLE STATUS FROM %i LIKE %s",$database,$realTableName));
+		return $wpdb->get_results($wpdb->prepare("SHOW TABLE STATUS FROM %i LIKE %s",$database,$realTableName));; // phpcs:ignore WordPress.DB.PreparedSQL.NotEnoughReplacements
 	}
 
 	public static function getTableIndex(string $tableName, string $fieldName): array

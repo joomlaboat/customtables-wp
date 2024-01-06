@@ -415,7 +415,8 @@ class Admin
   </g>
 </svg>';
 
-		return 'data:image/svg+xml;base64,' . base64_encode($svg);
+		// WPCS: The use of base64_encode() is required for Menu Item in SVG format.
+		return 'data:image/svg+xml;base64,' . base64_encode($svg);// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 	}
 
 	public function preload_admin_table_list()
