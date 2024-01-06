@@ -21,6 +21,8 @@ use tagProcessor_Item;
 use tagProcessor_If;
 use tagProcessor_Page;
 use tagProcessor_Value;
+use CustomTables\ProInputBoxTableJoin;
+use CustomTables\ProInputBoxTableJoinList;
 
 use JoomlaBasicMisc;
 
@@ -183,14 +185,38 @@ class Inputbox
 				if (!$this->isTwig)
 					return 'Old Table Join tags no longer supported';
 
-				return $inputBoxRenderer->render($value, $this->defaultValue);
+				if (defined('_JEXEC')) {
+					$path = JPATH_SITE . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'inputbox' . DIRECTORY_SEPARATOR;
+
+					if (file_exists($path . 'tablejoin.php')) {
+						require_once($path . 'tablejoin.php');
+
+						$inputBoxRenderer = new ProInputBoxTableJoin($this->ct, $this->field, $this->row, $this->option_list, $this->attributesArray);
+						return $inputBoxRenderer->render($value, $this->defaultValue);
+					} else {
+						return common::translate('COM_CUSTOMTABLES_AVAILABLE');
+					}
+				} else {
+					return 'Table Join field type is not supported by WordPress version of the Custom Tables yet.';
+				}
 
 			case 'records':
-				$path = CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'inputbox' . DIRECTORY_SEPARATOR;
-				require_once($path . 'tablejoin.php');
-				require_once($path . 'tablejoinlist.php');
 
-				return $inputBoxRenderer->render($value, $this->defaultValue);
+				if (defined('_JEXEC')) {
+					$path = JPATH_SITE . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'inputbox' . DIRECTORY_SEPARATOR;
+
+					if (file_exists($path . 'tablejoin.php') and file_exists($path . 'tablejoinlist.php')) {
+						require_once($path . 'tablejoin.php');
+						require_once($path . 'tablejoinlist.php');
+
+						$inputBoxRenderer = new ProInputBoxTableJoinList($this->ct, $this->field, $this->row, $this->option_list, $this->attributesArray);
+						return $inputBoxRenderer->render($value, $this->defaultValue);
+					} else {
+						return common::translate('COM_CUSTOMTABLES_AVAILABLE');
+					}
+				} else {
+					return 'Table Join List field type is not supported by WordPress version of the Custom Tables yet.';
+				}
 		}
 		return '';
 	}

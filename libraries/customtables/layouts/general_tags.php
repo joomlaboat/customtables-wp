@@ -19,6 +19,7 @@ use JoomlaBasicMisc;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Router\Route;
 use LayoutProcessor;
+use CustomTables\ctProHelpers;
 
 class Twig_Fields_Tags
 {
@@ -267,7 +268,7 @@ class Twig_Url_Tags
 
 	function getstringandencode($param, $default = ''): string
 	{
-		if ($this->ct->Env->advancedTagProcessor and class_exists('ctProHelpers'))
+		if ($this->ct->Env->advancedTagProcessor and class_exists('CustomTables\ctProHelpers'))
 			return ctProHelpers::getstringandencode($param, $default);
 		else
 			return '{{ url.getstringandencode() }} - Not supported in WordPress version';
@@ -280,7 +281,7 @@ class Twig_Url_Tags
 
 	function getstringanddecode($param, $default = ''): string
 	{
-		if ($this->ct->Env->advancedTagProcessor and class_exists('ctProHelpers'))
+		if ($this->ct->Env->advancedTagProcessor and class_exists('CustomTables\ctProHelpers'))
 			return ctProHelpers::getstringanddecode($param, $default);
 		else
 			return '{{ url.getstringanddecode() }} - Not supported in WordPress version';

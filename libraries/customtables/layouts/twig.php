@@ -19,9 +19,8 @@ use CT_FieldTypeTag_FileBox;
 use CT_FieldTypeTag_imagegallery;
 use Exception;
 use Joomla\CMS\Factory;
-use JoomlaBasicMisc;
+use CustomTables\ctProHelpers;
 use Twig\Loader\ArrayLoader;
-use Twig\TwigFilter;
 use Twig\TwigFunction;
 use CT_FieldTypeTag_image;
 
@@ -257,7 +256,7 @@ class TwigProcessor
 
 	protected function addTwigFilters(): void
 	{
-		if ($this->ct->Env->advancedTagProcessor and class_exists('ctProHelpers')) {
+		if ($this->ct->Env->advancedTagProcessor and class_exists('CustomTables\ctProHelpers')) {
 			$filters = ctProHelpers::TwigFilters();
 
 			foreach ($filters as $filter)

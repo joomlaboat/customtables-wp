@@ -77,7 +77,7 @@ function CustomTablesLoadPreview(newAttributes, props) {
     //Load list of tables
     let parts = location.href.split("wp-admin/");
     console.log(JSON.stringify(props.attributes));
-    let url = parts[0] + 'wp-admin/admin.php?page=customtables-api-preview&attributes=' + btoa(JSON.stringify(newAttributes));
+    let url = parts[0] + 'wp-admin/admin.php?page=customtables-api-preview&attributes=' + encodeURIComponent(JSON.stringify(newAttributes));
     console.log(JSON.stringify(newAttributes));
 
     fetch(url, {method: 'GET', mode: 'no-cors', credentials: 'same-origin'}).then(function (response) {

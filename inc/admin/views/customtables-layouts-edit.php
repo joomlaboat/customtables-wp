@@ -24,7 +24,7 @@ $onPageLoads = array();
 
         <form method="post" name="createlayout" id="createlayout" class="validate" novalidate="novalidate">
             <input name="action" type="hidden" value="createlayout"/>
-            <?php wp_nonce_field('create-edit-layout', '_wpnonce_create-layout'); ?>
+            <?php wp_nonce_field('create-edit-layout'); ?>
 
         <h1 id="add-new-user">
             <?php

@@ -8,6 +8,8 @@ use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\Fields;
 use CustomTables\Layouts;
+use CustomTables\MySQLWhereClause;
+use Exception;
 
 /**
  * The admin-specific functionality of the plugin.
@@ -20,7 +22,6 @@ use CustomTables\Layouts;
  *
  * @author    Karan NA Gupta
  */
-
 class Admin
 {
 
@@ -89,7 +90,6 @@ class Admin
 		$mo_file = ABSPATH . 'wp-content/plugins/customtables/Languages/' . $domain . '-' . get_locale() . '.mo';
 
 		load_textdomain($domain, $mo_file);
-		//load_plugin_textdomain( $domain, false, dirname( plugin_basename( __FILE__ ) ) . '/lang/' );
 	}
 
 	/**
@@ -116,9 +116,7 @@ class Admin
 	 */
 	public function enqueue_scripts()
 	{
-		//$params = array ( 'ajaxurl' => admin_url( 'admin-ajax.php' ) );'jquery','codemirror''codemirror'
 		wp_enqueue_script('nds_ajax_handle', plugin_dir_url(__FILE__) . 'js/customtables-admin.js', array(), $this->version, false);
-		//wp_localize_script( 'nds_ajax_handle', 'params', $params );
 
 		$page = common::inputGetCmd('page');
 
@@ -133,38 +131,18 @@ class Admin
 			wp_enqueue_script('customtables-js-typeparams_j4', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/typeparams_j4.js', array(), $this->version, false);
 		}
 
-
 		if ($page == 'customtables-layouts-edit') {
-
 			wp_enqueue_script('customtables-js-ajax', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/ajax.js', array(), $this->version, false);
 			wp_enqueue_script('customtables-js-typeparams_common', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/typeparams_common.js', array(), $this->version, false);
 			wp_enqueue_script('customtables-js-typeparams_j4', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/typeparams_j4.js', array(), $this->version, false);
-			//codemirror.min.js
-
-
 		}
 	}
-	/*
-		function enqueue_codemirror() {
-			// Enqueue CodeMirror CSS
-			wp_enqueue_style( 'codemirror-css', 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.min.css' );
-
-			// Enqueue CodeMirror JavaScript
-			wp_enqueue_script( 'codemirror-js', 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.min.js', array(), null, true );
-		}
-
-	*/
-	/*
-		function enqueue_code_editor() {
-			wp_enqueue_code_editor(array('type' => 'text/html'));
-		}
-		*/
-
 
 	/**
 	 * Callback for the user sub-menu in define_admin_hooks() for class Init.
 	 *
-	 * @since    1.0.0
+	 * @throws Exception
+	 * @since    1.1.0
 	 */
 	public function add_plugin_admin_menu()
 	{
@@ -269,7 +247,9 @@ class Admin
 				die(wp_json_encode($result));
 
 			case 'customtables-api-tables':
-				$tablesRows = database::loadAssocList('SELECT id,tablename FROM #__customtables_tables WHERE published=1 ORDER BY tablename');
+				$whereClause = new MySQLWhereClause();
+				$whereClause->addCondition('published',1);
+				$tablesRows = database::loadAssocList('#__customtables_tables',['id','tablename'],$whereClause,'tablename');
 				$tables = [];
 				$tables[] = ['label' => '- Select Table', 'value' => null];
 				foreach ($tablesRows as $tablesRow) {
@@ -279,7 +259,9 @@ class Admin
 				die(wp_json_encode($tables));
 
 			case 'customtables-api-layouts':
-				$layoutsRows = database::loadAssocList('SELECT id,layoutname FROM #__customtables_layouts WHERE published=1 ORDER BY layoutname');
+				$whereClause = new MySQLWhereClause();
+				$whereClause->addCondition('published',1);
+				$layoutsRows = database::loadAssocList('#__customtables_layouts',['id','layoutname'],$whereClause,'layoutname');
 				$layouts = [];
 				$layouts[] = ['label' => '- Select Layout', 'value' => null];
 				foreach ($layoutsRows as $layoutsRow) {
@@ -289,8 +271,8 @@ class Admin
 				die(wp_json_encode($layouts));
 
 			case 'customtables-api-preview':
-				$attributesString = common::inputGetBase64('attributes');
-				$attributesDecoded = base64_decode($attributesString);
+				$attributesString = common::inputGetString('attributes');
+				$attributesDecoded = urldecode($attributesString);
 				$attributes = json_decode($attributesDecoded);
 				$ct = new CT(null, false);
 				$ct->getTable($attributes->table);

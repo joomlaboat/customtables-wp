@@ -21,6 +21,7 @@ use Exception;
 use JCaptcha;
 use Joomla\CMS\Factory;
 use CustomTables\CustomPHP\CleanExecute;
+use CustomTables\ctProHelpers;
 
 class record
 {
@@ -113,7 +114,7 @@ class record
 
 		} else {
 
-			if ($this->ct->Env->advancedTagProcessor and class_exists('ctProHelpers'))
+			if ($this->ct->Env->advancedTagProcessor and class_exists('CustomTables\ctProHelpers'))
 				ctProHelpers::updateLog($this->ct, $this->listing_id);
 
 			try {

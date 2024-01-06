@@ -21,7 +21,7 @@ use Joomla\CMS\Component\ComponentHelper;
 
 use CT_FieldTypeTag_image;
 use CT_FieldTypeTag_file;
-use Joomla\CMS\Factory;
+use CustomTables\ctProHelpers;
 use LayoutProcessor;
 use tagProcessor_General;
 use tagProcessor_Item;
@@ -428,7 +428,7 @@ class SaveFieldQuerySet
 
 			case 'signature':
 
-				if ($this->ct->Env->advancedTagProcessor and class_exists('ctProHelpers')) {
+				if ($this->ct->Env->advancedTagProcessor and class_exists('CustomTables\ctProHelpers')) {
 					$value = ctProHelpers::get_customtables_type_signature($this->field->comesfieldname, $this->field->params, $this->field->params[3] ?? 'png');
 					$this->setNewValue($value);
 				}
