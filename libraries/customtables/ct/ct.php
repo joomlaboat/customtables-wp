@@ -17,6 +17,7 @@ if (!defined('_JEXEC') and !defined('WPINC')) {
 
 use CustomTablesImageMethods;
 use ESTables;
+use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
@@ -110,6 +111,10 @@ class CT
 		$this->Params->setParams($menuParams, $blockExternalVars, $ModuleId);
 	}
 
+	/**
+	 * @throws Exception
+	 * @since 3.2.3
+	 */
 	function getTable($tableNameOrID, $userIdFieldName = null): void
 	{
 		$this->Table = new Table($this->Languages, $this->Env, $tableNameOrID, $userIdFieldName);
@@ -117,6 +122,10 @@ class CT
 		$this->prepareSEFLinkBase();
 	}
 
+	/**
+	 * @throws Exception
+	 * @since 3.2.3
+	 */
 	public function setTable(array $tableRow, $userIdFieldName = null): void
 	{
 		$this->Table = new Table($this->Languages, $this->Env, 0);
@@ -146,6 +155,10 @@ class CT
 		$this->alias_fieldname = null;
 	}
 
+	/**
+	 * @throws Exception
+	 * @since 3.2.3
+	 */
 	function setFilter(?string $filter_string = null, int $showpublished = 0): void
 	{
 		$this->Filter = new Filtering($this, $showpublished);
@@ -154,7 +167,7 @@ class CT
 	}
 
 	/**
-	 * @throws \Exception
+	 * @throws Exception
 	 * @since 3.2.2
 	 */
 	function getRecords($all = false, $limit = 0): bool
@@ -194,7 +207,7 @@ class CT
 							(count($ordering) > 0 ? implode(',', $ordering) : null), null, 20000, 0);
 					else
 						$this->Records = database::loadAssocList($this->Table->realtablename, $selects, $this->Filter->whereClause,
-							(count($ordering) > 0 ? implode(',', $ordering) : null), null);
+							(count($ordering) > 0 ? implode(',', $ordering) : null));
 				} else {
 					if ($the_limit > 20000)
 						$the_limit = 20000;
@@ -208,7 +221,7 @@ class CT
 					try {
 						$this->Records = database::loadAssocList($this->Table->realtablename, $selects, $this->Filter->whereClause,
 							(count($ordering) > 0 ? implode(',', $ordering) : null), null, $the_limit, $this->LimitStart);
-					} catch (\Exception $e) {
+					} catch (Exception $e) {
 						echo $e->getMessage();
 						return false;
 					}
@@ -241,7 +254,7 @@ class CT
 
 		try {
 			$rows = database::loadObjectList($this->Table->realtablename, ['COUNT(' . $this->Table->tablerow['realidfieldname'] . ') AS count'], $whereClause);
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			echo 'Database error happened';
 			echo $e->getMessage();
 			return 0;
@@ -255,6 +268,10 @@ class CT
 		return $this->Table->recordcount;
 	}
 
+	/**
+	 * @throws Exception
+	 * @since 3.2.3
+	 */
 	function getRecordsByKeyword(): void
 	{
 		//Joomla Method
@@ -415,7 +432,7 @@ class CT
 	}
 
 	/**
-	 * @throws \Exception
+	 * @throws Exception
 	 * @since 3.2.2
 	 */
 	public function deleteSingleRecord($listing_id): int
@@ -428,7 +445,7 @@ class CT
 		$whereClause = new MySQLWhereClause();
 		$whereClause->addCondition($this->Table->realidfieldname, $listing_id);
 
-		$rows = database::loadAssocList($this->Table->realtablename, ['*'], $whereClause, null, null);
+		$rows = database::loadAssocList($this->Table->realtablename, ['*'], $whereClause);
 
 		if (count($rows) == 0)
 			return -1;
@@ -492,13 +509,24 @@ class CT
 		return 1;
 	}
 
-	public function setPublishStatusSingleRecord($listing_id, $status): int
+	/**
+	 * @throws Exception
+	 * @since 3.2.3
+	 */
+	public function setPublishStatusSingleRecord($listing_id, int $status): int
 	{
 		if (!$this->Table->published_field_found)
 			return -1;
 
-		$query = 'UPDATE ' . $this->Table->realtablename . ' SET published=' . (int)$status . ' WHERE ' . $this->Table->realidfieldname . '=' . database::quote($listing_id);
-		database::setQuery($query);
+		$data = [
+			'published' => $status
+		];
+		$whereClauseUpdate = new MySQLWhereClause();
+		$whereClauseUpdate->addCondition($this->Table->realidfieldname, $listing_id);
+		database::update($this->Table->realtablename, $data, $whereClauseUpdate);
+
+		//$query = 'UPDATE ' . $this->Table->realtablename . ' SET published=' . (int)$status . ' WHERE ' . $this->Table->realidfieldname . '=' . database::quote($listing_id);
+		//database::setQuery($query);
 
 		if ($status == 1)
 			$this->Table->saveLog($listing_id, 3);
@@ -510,7 +538,7 @@ class CT
 	}
 
 	/**
-	 * @throws \Exception
+	 * @throws Exception
 	 * @since 3.2.2
 	 */
 	public function RefreshSingleRecord($listing_id, $save_log): int
@@ -540,8 +568,11 @@ class CT
 			}
 		}
 
-		if (count($saveField->row_new) > 0)
-			database::update($this->Table->realtablename, $saveField->row_new, [$this->Table->realidfieldname => $listing_id]);
+		if (count($saveField->row_new) > 0) {
+			$whereClauseUpdate = new MySQLWhereClause();
+			$whereClauseUpdate->addCondition($this->Table->realidfieldname, $listing_id);
+			database::update($this->Table->realtablename, $saveField->row_new, $whereClauseUpdate);
+		}
 
 		//End of Apply default values
 
@@ -563,17 +594,21 @@ class CT
 			CleanExecute::executeCustomPHPfile($this->Table->tablerow['customphp'], $row, $row);
 
 		//Send email note if applicable
-		if ($this->Params->onRecordAddSendEmail == 3 and ($this->Params->onRecordSaveSendEmailTo != '' or $this->Params->onRecordAddSendEmailTo != '')) {
+		if ($this->Params->onRecordAddSendEmail == 3 and !empty($this->Params->onRecordSaveSendEmailTo)) {
 			//check conditions
 
 			if ($saveField->checkSendEmailConditions($listing_id, $this->Params->sendEmailCondition)) {
 				//Send email conditions met
-				$saveField->sendEmailIfAddressSet($listing_id, $row);//,$new_username,$new_password);
+				$saveField->sendEmailIfAddressSet($listing_id, $row, $this->Params->onRecordSaveSendEmailTo);
 			}
 		}
 		return 1;
 	}
 
+	/**
+	 * @throws Exception
+	 * @since 3.2.3
+	 */
 	protected function updateMD5(string $listing_id): void
 	{
 		//TODO: Use savefield
@@ -591,15 +626,26 @@ class CT
 				}
 
 				if (count($fields) > 1) {
-					database::setQuery('UPDATE ' . $this->Table->realtablename . ' SET '
-						. database::quoteName($fieldrow['realfieldname']) . '=MD5(CONCAT_WS(' . implode(',', $fields) . ')) WHERE '
-						. database::quoteName($this->Table->realidfieldname) . '=' . database::quote($listing_id)
-					);
+
+					$data = [
+						$fieldrow['realfieldname'] => ['MD5(CONCAT_WS(' . implode(',', $fields) . '))', 'sanitized']
+					];
+					$whereClauseUpdate = new MySQLWhereClause();
+					$whereClauseUpdate->addCondition($this->Table->realidfieldname, $listing_id);
+					database::update($this->Table->realtablename, $data, $whereClauseUpdate);
+
+					//database::setQuery('UPDATE ' . $this->Table->realtablename . ' SET '
+					//. database::quoteName($fieldrow['realfieldname']) . '=MD5(CONCAT_WS(' . implode(',', $fields) . ')) WHERE '
+					//. database::quoteName($this->Table->realidfieldname) . '=' . database::quote($listing_id)
 				}
 			}
 		}
 	}
 
+	/**
+	 * @throws Exception
+	 * @since 3.2.3
+	 */
 	public function CheckAuthorization(int $action = 1): bool
 	{
 		$listing_id = $this->Params->listing_id;
@@ -654,7 +700,7 @@ class CT
 	}
 
 	/**
-	 * @throws \Exception
+	 * @throws Exception
 	 * @since 3.2.2
 	 */
 	public function checkIfItemBelongsToUser(string $listing_id, string $userIdField): bool
@@ -673,6 +719,10 @@ class CT
 		return false;
 	}
 
+	/**
+	 * @throws Exception
+	 * @since 3.2.3
+	 */
 	public function UserIDField_BuildWheres(string $userIdField, string $listing_id): MySQLWhereClause
 	{
 		$whereClause = new MySQLWhereClause();
@@ -767,9 +817,6 @@ class CT
 				//$q = '(SELECT p.' . $parent_table_row->realidfieldname . ' FROM ' . $parent_table_row->realtablename . ' AS p WHERE ' . implode(' AND ', $parent_wheres) . ' LIMIT 1) IS NOT NULL';
 
 				$parent_wheres_string = (string)$whereClauseParent;
-				echo '$parent_wheres_string=' . $parent_wheres_string;
-				die;
-
 				$whereClauseOwner->addCondition('(SELECT p.' . $parent_table_row->realidfieldname . ' FROM ' . $parent_table_row->realtablename . ' AS p WHERE ' . $parent_wheres_string . ' LIMIT 1)', null, 'NOT NULL');
 				//$wheres_owner[] = [$item[0], $q];
 			}

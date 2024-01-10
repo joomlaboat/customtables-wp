@@ -417,7 +417,11 @@ class Admin_Table_List extends Libraries\WP_List_Table
                 $this->invalid_nonce_redirect();
             } else {
 	            $tableId = common::inputGetInt('table');
-                database::update('#__customtables_tables', ['published' => 0], ['id' => $tableId]);
+
+				$whereClauseUpdate = new MySQLWhereClause();
+	            $whereClauseUpdate->addCondition('id', $tableId);
+
+                database::update('#__customtables_tables', ['published' => 0], $whereClauseUpdate);
                 //echo '<div id="message" class="updated notice is-dismissible"><p>1 table restored from the Trash.</p></div>';
                 $this->graceful_redirect();
             }
@@ -430,7 +434,11 @@ class Admin_Table_List extends Libraries\WP_List_Table
                 $this->invalid_nonce_redirect();
             } else {
 	            $tableId = common::inputGetInt('table');
-                database::update('#__customtables_tables', ['published' => -2], ['id' => $tableId]);
+
+	            $whereClauseUpdate = new MySQLWhereClause();
+	            $whereClauseUpdate->addCondition('id', $tableId);
+
+                database::update('#__customtables_tables', ['published' => -2], $whereClauseUpdate);
                 //echo '<div id="message" class="updated notice is-dismissible"><p>1 table moved to the Trash.</p></div>';
                 $this->graceful_redirect();
             }
@@ -511,8 +519,8 @@ class Admin_Table_List extends Libraries\WP_List_Table
 
     function is_table_action($action): bool
     {
-	    $action1 = common::inputGetCmd('action','');
-	    $action2 = common::inputGetCmd('action2','');
+	    $action1 = common::inputPostCmd('action','','bulk-' . $this->_args['plural']);
+	    $action2 = common::inputPostCmd('action2','','bulk-' . $this->_args['plural']);
         if ($action1 === $action || $action2 === $action)
             return true;
 
@@ -540,8 +548,13 @@ class Admin_Table_List extends Libraries\WP_List_Table
         } else {
             $tables = ($_POST['table'] ?? []);
 
-            foreach ($tables as $table)
-                database::update('#__customtables_tables', ['published' => $state], ['id' => (int)$table]);
+            foreach ($tables as $table) {
+
+	            $whereClauseUpdate = new MySQLWhereClause();
+	            $whereClauseUpdate->addCondition('id', (int)$table);
+
+	            database::update('#__customtables_tables', ['published' => $state], $whereClauseUpdate);
+            }
 
             if (count($tables) > 0)
                 $this->graceful_redirect();

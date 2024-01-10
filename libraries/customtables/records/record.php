@@ -118,7 +118,11 @@ class record
 				ctProHelpers::updateLog($this->ct, $this->listing_id);
 
 			try {
-				database::update($this->ct->Table->realtablename, $saveField->row_new, [$this->ct->Table->realidfieldname => $this->listing_id]);
+
+				$whereClauseUpdate = new MySQLWhereClause();
+				$whereClauseUpdate->addCondition($this->ct->Table->realidfieldname, $this->listing_id);
+
+				database::update($this->ct->Table->realtablename, $saveField->row_new, $whereClauseUpdate);
 			} catch (Exception $e) {
 				$this->ct->errors[] = $e->getMessage();
 				die('Error: ' . $e->getMessage());
@@ -162,22 +166,26 @@ class record
 		}
 
 		if ($this->ct->Params->onRecordSaveSendEmailTo != '' or $this->ct->Params->onRecordAddSendEmailTo != '') {
-			if ($this->ct->Params->onRecordAddSendEmail == 3) {
+
+			//1 When record added
+			//2 When record saved
+			//3 On Condition
+
+			if ($this->ct->Params->onRecordAddSendEmail == 3 and !empty($this->ct->Params->onRecordAddSendEmailTo)) {
 				//check conditions
 				if ($saveField->checkSendEmailConditions($this->listing_id, $this->ct->Params->sendEmailCondition)) {
 					//Send email conditions met
-					$saveField->sendEmailIfAddressSet($this->listing_id, $this->row_new);
+					$saveField->sendEmailIfAddressSet($this->listing_id, $this->row_new, $this->ct->Params->onRecordSaveSendEmailTo);
 				}
 			} else {
 				if ($isItNewRecords or $isCopy) {
 					//New record
-					if ($this->ct->Params->onRecordAddSendEmail == 1 or $this->ct->Params->onRecordAddSendEmail == 2)
-						$saveField->sendEmailIfAddressSet($this->listing_id, $this->row_new);
+					if ($this->ct->Params->onRecordAddSendEmail == 1 and !empty($this->ct->Params->onRecordAddSendEmailTo))
+						$saveField->sendEmailIfAddressSet($this->listing_id, $this->row_new, $this->ct->Params->onRecordAddSendEmailTo);
 				} else {
 					//Old record
-					if ($this->ct->Params->onRecordAddSendEmail == 2) {
-						$saveField->sendEmailIfAddressSet($this->listing_id, $this->row_new);
-					}
+					if ($this->ct->Params->onRecordAddSendEmail == 2 and !empty($this->ct->Params->onRecordSaveSendEmailTo))
+						$saveField->sendEmailIfAddressSet($this->listing_id, $this->row_new, $this->ct->Params->onRecordSaveSendEmailTo);
 				}
 			}
 		}

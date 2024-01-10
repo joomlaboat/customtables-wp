@@ -154,7 +154,8 @@ class ImportTables
 		else
 			$mySQLTableName = $table;
 
-		$sets = array();
+		//$sets = array();
+		$data = [];
 		$keys = array_keys($rows_new);
 
 		$ignore_fields = ['asset_id', 'created_by', 'modified_by', 'version', 'hits', 'publish_up', 'publish_down'];
@@ -165,22 +166,27 @@ class ImportTables
 		}
 
 		foreach ($keys as $key) {
-			$type = null;
+			//$type = null;
 
 			if (!in_array($key, $ignore_fields)) {
 				$fieldname = ImportTables::checkFieldName($key, $force_id, $exceptions);
 
 				if ($fieldname != '' and Fields::checkIfFieldExists($mySQLTableName, $fieldname)) {
 					if (array_key_exists($key, $rows_new) and (!array_key_exists($key, $rows_old) or $rows_new[$key] != $rows_old[$key])) {
-						$sets[] = $fieldname . '=' . ImportTables::dbQuoteByType($rows_new[$key], $type);
+						$data[$fieldname] = $rows_new[$key];
+						//$sets[] = $fieldname . '=' . ImportTables::dbQuoteByType($rows_new[$key], $type);
 					}
 				}
 			}
 		}
 
-		if (count($sets) > 0) {
-			$query = 'UPDATE ' . $mySQLTableName . ' SET ' . implode(', ', $sets) . ' WHERE id=' . (int)$rows_old['id'];
-			database::setQuery($query);
+		if (count($data) > 0) {
+			$whereClauseUpdate = new MySQLWhereClause();
+			$whereClauseUpdate->addCondition('id', $rows_old['id']);
+			database::update($mySQLTableName, $data, $whereClauseUpdate);
+
+			//$query = 'UPDATE ' . $mySQLTableName . ' SET ' . implode(', ', $sets) . ' WHERE id=' . (int)$rows_old['id'];
+			//database::setQuery($query);
 		}
 	}
 
@@ -214,6 +220,7 @@ class ImportTables
 		return '';
 	}
 
+	/*
 	protected static function dbQuoteByType($value, $type = null): float|int|string|null
 	{
 		if ($type === null) {
@@ -240,6 +247,7 @@ class ImportTables
 
 		return null;
 	}
+	*/
 
 	/**
 	 * @throws Exception
@@ -299,7 +307,16 @@ class ImportTables
 						//Get non language field type
 						$nonLanguageFieldName = Fields::getLanguageLessFieldName($key);
 
-						$fieldType = database::getFieldType($mysqlTableName, $nonLanguageFieldName);
+						//TODO: check how it works
+						$whereClause = new MySQLWhereClause();
+						$whereClause->addCondition('tableid', '(SELECT id A FROM #__customtables_tables WHERE tablename=' . database::quote($table) . ')', '=', true);
+						$whereClause->addCondition('fieldname', str_replace('es_', '', $nonLanguageFieldName));
+						$col = database::loadColumn('#__customtables_fields', ['type'], $whereClause, null, null, 1);
+						//$fieldType = database::getFieldType($mysqlTableName, $nonLanguageFieldName);
+						$fieldType = '';
+						if (count($col) == 1) {
+							$fieldType = $col[0];
+						}
 
 						if ($fieldType != '') {
 							Fields::AddMySQLFieldNotExist($mysqlTableName, $key, $fieldType, '');
@@ -318,7 +335,7 @@ class ImportTables
 	 * @throws Exception
 	 * @since 3.2.2
 	 */
-	protected static function updateTableCategory($tableid, $table_new, $categoryName): void
+	protected static function updateTableCategory(int $tableid, $table_new, string $categoryName): void
 	{
 		if (isset($table_new['tablecategory']))
 			$categoryId_ = $table_new['tablecategory'];
@@ -367,10 +384,17 @@ class ImportTables
 
 		if ($categoryId != $categoryId_ or is_null($categoryId)) {
 			//Update Category ID in table
-			$mysqlTableName = '#__customtables_tables';
+			//$mysqlTableName = '#__customtables_tables';
 
-			$query = 'UPDATE ' . $mysqlTableName . ' SET tablecategory=' . (int)$categoryId . ' WHERE id=' . (int)$tableid;
-			database::setQuery($query);
+			$data = [
+				'tablecategory' => (int)$categoryId
+			];
+			$whereClauseUpdate = new MySQLWhereClause();
+			$whereClauseUpdate->addCondition('id', $tableid);
+			database::update('#__customtables_tables', $data, $whereClauseUpdate);
+
+			//$query = 'UPDATE ' . $mysqlTableName . ' SET tablecategory=' . (int)$categoryId . ' WHERE id=' . (int)$tableid;
+			//database::setQuery($query);
 		}
 	}
 

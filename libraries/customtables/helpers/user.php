@@ -184,8 +184,16 @@ class CTUser
 	 */
 	static protected function SetUserPassword(int $userid, string $password): int
 	{
-		$query = 'UPDATE #__users SET password=md5("' . $password . '"), requireReset=0 WHERE id=' . $userid;
-		database::setQuery($query); // Consider using prepared statements to prevent SQL injection.
+		$data = [
+			'password' => md5($password),
+			'requireReset' => 0
+		];
+		$whereClauseUpdate = new MySQLWhereClause();
+		$whereClauseUpdate->addCondition('id', $userid);
+		database::update('#__users', $data, $whereClauseUpdate);
+
+		//$query = 'UPDATE #__users SET password=md5("' . $password . '"), requireReset=0 WHERE id=' . $userid;
+		//database::setQuery($query); // Consider using prepared statements to prevent SQL injection.
 		return $userid;
 	}
 
@@ -223,6 +231,10 @@ class CTUser
 		return implode(',', $groupList);
 	}
 
+	/**
+	 * @throws Exception
+	 * @since 3.2.3
+	 */
 	public static function CreateUser(string $realtablename, string $realidfieldname, string $email, string $name, string $usergroups, string $listing_id, string $useridfieldname): bool
 	{
 		if ($name == '') {
@@ -340,8 +352,9 @@ class CTUser
 		//Apply group
 
 		foreach ($group_ids as $group_id) {
-			$query = 'INSERT #__user_usergroup_map SET user_id=' . $user->id . ', group_id=' . $group_id;
-			database::setQuery($query);
+			//$query = 'INSERT #__user_usergroup_map SET user_id=' . $user->id . ', group_id=' . $group_id;
+			database::insert('#__user_usergroup_map', ['user_id' => $user->id, 'group_id' => $group_id]);
+			//database::setQuery($query);
 		}
 
 		// Compile the notification mail values.
@@ -422,10 +435,17 @@ class CTUser
 	 * @throws Exception
 	 * @since 3.2.2
 	 */
-	static public function UpdateUserField(string $realtablename, string $realidfieldname, string $useridfieldname, string $existing_user_id, $listing_id): void
+	static public function UpdateUserField(string $realtablename, string $realidfieldname, string $userIdFieldName, string $existing_user_id, $listing_id): void
 	{
-		$query = 'UPDATE ' . $realtablename . ' SET ' . $useridfieldname . '=' . $existing_user_id . ' WHERE ' . $realidfieldname . '=' . database::quote($listing_id) . ' LIMIT 1';
-		database::setQuery($query);
+		$data = [
+			$userIdFieldName => $existing_user_id
+		];
+		$whereClauseUpdate = new MySQLWhereClause();
+		$whereClauseUpdate->addCondition($realidfieldname, $listing_id);
+		database::update($realtablename, $data, $whereClauseUpdate);
+
+		//$query = 'UPDATE ' . $realtablename . ' SET ' . $userIdFieldName . '=' . $existing_user_id . ' WHERE ' . $realidfieldname . '=' . database::quote($listing_id) . ' LIMIT 1';
+		//database::setQuery($query);
 	}
 
 	/**

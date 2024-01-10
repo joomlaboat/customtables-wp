@@ -149,8 +149,6 @@ class ListOfLayouts
 			}
 		}
 
-		//$tableTitle = null;
-
 		// Process layout name
 		if (function_exists("transliterator_transliterate"))
 			$newLayoutName = transliterator_transliterate("Any-Latin; Latin-ASCII; Lower()", common::inputPostString('layoutname', null, 'create-edit-layout'));
@@ -200,14 +198,17 @@ class ListOfLayouts
 		//$Layouts = new Layouts($this->ct);
 		//$Layouts->storeAsFile($data);
 
-		try {
-			if ($layoutId !== null)
-				database::update('#__customtables_layouts', $data, ['id' => $layoutId]);
-			else
-				database::insert('#__customtables_layouts', $data);
-		} catch (Exception $e) {
-			return false;
-		}
+		//try {
+		if ($layoutId !== null) {
+			$whereClauseUpdate = new MySQLWhereClause();
+			$whereClauseUpdate->addCondition('id', $layoutId);
+
+			database::update('#__customtables_layouts', $data, $whereClauseUpdate);
+		} else
+			database::insert('#__customtables_layouts', $data);
+		//} catch (Exception $e) {
+		//	return false;
+		//}
 		return true;
 	}
 }

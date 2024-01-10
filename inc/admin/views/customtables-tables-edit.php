@@ -25,11 +25,11 @@ else
             ?>
         </h1>
 
-        <?php if (isset($errors) && is_wp_error($errors)) : ?>
+        <?php if (isset($this->admin_table_edit->errors) && is_wp_error($this->admin_table_edit->errors)) : ?>
             <div class="error">
                 <ul>
                     <?php
-                    foreach ($errors->get_error_messages() as $err) {
+                    foreach ($this->admin_table_edit->errors->get_error_messages() as $err) {
                         echo "<li>$err</li>\n";
                     }
                     ?>

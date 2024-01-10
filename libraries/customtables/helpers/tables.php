@@ -138,7 +138,8 @@ class ESTables
 		$whereClause->addConditionsFromArray($where);
 
 		//$query = 'SELECT ' . ESTables::getTableRowSelects() . ' FROM #__customtables_tables AS s WHERE ' . $where . ' LIMIT 1';
-		$rows = database::loadAssocList('#__customtables_tables', ESTables::getTableRowSelectArray(), $whereClause, null, null, 1);
+		$rows = database::loadAssocList('#__customtables_tables AS s', ESTables::getTableRowSelectArray(), $whereClause, null, null, 1);
+
 		if (count($rows) != 1)
 			return null;
 
@@ -339,7 +340,7 @@ class ESTables
 
 		$fields = database::loadObjectList('information_schema.columns', $selects, $whereClause);
 
-		$set_fieldNames = ['tableid', 'fieldname', 'fieldtitle', 'allowordering', 'type', 'typeparams', 'ordering', 'defaultvalue', 'description', 'customfieldname', 'isrequired'];
+		//$set_fieldNames = ['tableid', 'fieldname', 'fieldtitle', 'allowordering', 'type', 'typeparams', 'ordering', 'defaultvalue', 'description', 'customfieldname', 'isrequired'];
 
 		$primary_key_column = '';
 		$ordering = 1;
@@ -347,7 +348,7 @@ class ESTables
 			if ($primary_key_column == '' and strtolower($field->column_key) == 'pri') {
 				$primary_key_column = $field->column_name;
 			} else {
-				$set_values = [];
+				//$set_values = [];
 
 				$ct_field_type = Fields::convertMySQLFieldTypeToCT($field->data_type, $field->column_type);
 				if ($ct_field_type['type'] === null) {
@@ -355,31 +356,42 @@ class ESTables
 					return false;
 				}
 
-				$set_values['tableid'] = (int)$tableRow->id;
-				$set_values['fieldname'] = database::quote(strtolower($field->column_name));
-				$set_values['fieldtitle'] = database::quote(ucwords(strtolower($field->column_name)));
-				$set_values['allowordering'] = 'true';
-				$set_values['type'] = database::quote($ct_field_type['type']);
+				//$set_fieldNames = ['tableid', 'fieldname', 'fieldtitle', 'allowordering', 'type', 'typeparams', 'ordering', 'defaultvalue', 'description', 'customfieldname', 'isrequired'];
+
+				$data['tableid'] = (int)$tableRow->id;
+				$data['fieldname'] = strtolower($field->column_name);
+				$data['fieldtitle'] = ucwords(strtolower($field->column_name));
+				$data['allowordering'] = true;
+				$data['type'] = $ct_field_type['type'];
 
 				if (key_exists('typeparams', $ct_field_type))
-					$set_values['typeparams'] = database::quote($ct_field_type['typeparams']);
+					$data['typeparams'] = $ct_field_type['typeparams'];
 
-				$set_values['ordering'] = $ordering;
-				$set_values['defaultvalue'] = $field->column_default != '' ? database::quote($field->column_default) : 'NULL';
-				$set_values['description'] = $field->column_comment != '' ? database::quote($field->column_comment) : 'NULL';
-				$set_values['customfieldname'] = database::quote($field->column_name);
-				$set_values['isrequired'] = 0;
+				$data['ordering'] = $ordering;
+				$data['defaultvalue'] = $field->column_default != '' ? $field->column_default : null;
+				$data['description'] = $field->column_comment != '' ? $field->column_comment : null;
+				$data['customfieldname'] = $field->column_name;
+				$data['isrequired'] = 0;
 
-				$query = 'INSERT INTO #__customtables_fields (' . implode(',', $set_fieldNames) . ') VALUES (' . implode(',', $set_values) . ')';
-				database::setQuery($query);
+				//$query = 'INSERT INTO #__customtables_fields (' . implode(',', $set_fieldNames) . ') VALUES (' . implode(',', $set_values) . ')';
+				database::insert('#__customtables_fields', $data);
+				//database::setQuery($query);
 				$ordering += 1;
 			}
 		}
 
 		if ($primary_key_column != '') {
 			//Update primary key column
-			$query = 'UPDATE #__customtables_tables SET customidfield = ' . database::quote($primary_key_column) . ' WHERE id = ' . (int)$tableRow->id;
-			database::setQuery($query);
+
+			$data = [
+				'customidfield' => $primary_key_column
+			];
+			$whereClauseUpdate = new MySQLWhereClause();
+			$whereClauseUpdate->addCondition('id', (int)$tableRow->id);
+			database::update('#__customtables_tables', $data, $whereClauseUpdate);
+
+			//$query = 'UPDATE #__customtables_tables SET customidfield = ' . database::quote($primary_key_column) . ' WHERE id = ' . (int)$tableRow->id;
+			//database::setQuery($query);
 		}
 		return true;
 	}
@@ -470,31 +482,41 @@ class ESTables
 
 		foreach ($rows as $row) {
 
-			$inserts = array('tableid=' . $new_table_id);
+			$data = [];
+			$data['tableid'] = $new_table_id;
+			//$inserts = array('tableid=' . $new_table_id);
 			foreach ($fields as $fld) {
 
 				if ($fld == 'parentid') {
 					if ((int)$row[$fld] == 0)
-						$inserts[] = $fld . '=NULL';
+						$data[$fld] = null;
+					//$inserts[] = $fld . '=NULL';
 					else
-						$inserts[] = $fld . '=' . (int)$row[$fld];
+						$data[$fld] = (int)$row[$fld];
+					//$inserts[] = $fld . '=' . (int)$row[$fld];
 				} elseif ($fld == 'created_by' or $fld == 'modified_by') {
 					if ((int)$row[$fld] == 0)
-						$inserts[] = $fld . '=' . $ct->Env->user->id;
+						$data[$fld] = $ct->Env->user->id;
+					//$inserts[] = $fld . '=' . $ct->Env->user->id;
 					else
-						$inserts[] = $fld . '=' . (int)$row[$fld];
+						$data[$fld] = (int)$row[$fld];
+					//$inserts[] = $fld . '=' . (int)$row[$fld];
 				} elseif ($fld == 'created' or $fld == 'modified') {
 					if ($row[$fld] == "")
-						$inserts[] = $fld . '=NOW()';
+						$data[$fld] = ['NOW()', 'sanitized'];
+					//$inserts[] = $fld . '=NOW()';
 					else
-						$inserts[] = $fld . '="' . $row[$fld] . '"';
+						$data[$fld] = $row[$fld];
+					//$inserts[] = $fld . '="' . $row[$fld] . '"';
 				} else {
-					$value = str_replace('"', '\"', $row[$fld]);
-					$inserts[] = $fld . '="' . $value . '"';
+					//$value = str_replace('"', '\"', $row[$fld]);
+					$data[$fld] = str_replace('"', '\"', $row[$fld]);
+					//$inserts[] = $fld . '="' . $value . '"';
 				}
 			}
-			$iq = 'INSERT INTO #__customtables_fields SET ' . implode(', ', $inserts);
-			database::setQuery($iq);
+			database::insert('#__customtables_fields', $data);
+			//$iq = 'INSERT INTO #__customtables_fields SET ' . implode(', ', $inserts);
+			//database::setQuery($iq);
 		}
 		return true;
 	}

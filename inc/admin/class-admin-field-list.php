@@ -465,7 +465,11 @@ class Admin_Field_List extends Libraries\WP_List_Table
 				$this->invalid_nonce_redirect();
 			} else {
 				$fieldId = common::inputGetInt('field');
-				database::update('#__customtables_fields', ['published' => 0], ['id' => $fieldId]);
+
+				$whereClauseUpdate = new MySQLWhereClause();
+				$whereClauseUpdate->addCondition('id', $fieldId);
+
+				database::update('#__customtables_fields', ['published' => 0], $whereClauseUpdate);
 				//echo '<div id="message" class="updated notice is-dismissible"><p>1 field restored from the Trash.</p></div>';
 				$this->graceful_redirect();
 			}
@@ -479,7 +483,11 @@ class Admin_Field_List extends Libraries\WP_List_Table
 				$this->invalid_nonce_redirect();
 			} else {
 				$fieldId = common::inputGetInt('field');
-				database::update('#__customtables_fields', ['published' => -2], ['id' => $fieldId]);
+
+				$whereClauseUpdate = new MySQLWhereClause();
+				$whereClauseUpdate->addCondition('id', $fieldId);
+
+				database::update('#__customtables_fields', ['published' => -2], $whereClauseUpdate);
 				//echo '<div id="message" class="updated notice is-dismissible"><p>1 field moved to the Trash.</p></div>';
 				$this->graceful_redirect();
 			}
@@ -594,8 +602,13 @@ class Admin_Field_List extends Libraries\WP_List_Table
 			$this->invalid_nonce_redirect();
 		} else {
 			$fields = (isset($_POST['field']) ? $_POST['field'] : []);
-			foreach ($fields as $field)
-				database::update('#__customtables_fields', ['published' => $state], ['id' => (int)$field]);
+			foreach ($fields as $field) {
+
+				$whereClauseUpdate = new MySQLWhereClause();
+				$whereClauseUpdate->addCondition('id', (int)$field);
+
+				database::update('#__customtables_fields', ['published' => $state], $whereClauseUpdate);
+			}
 
 			if (count($fields) > 0)
 				$this->graceful_redirect();

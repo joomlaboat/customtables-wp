@@ -168,6 +168,8 @@ class Admin_Record_List extends Libraries\WP_List_Table
             die('Table not found');
         }
 
+		echo '$this->firstFieldRealName='.$this->firstFieldRealName.'*<br/>';
+
         $newData = [];
         foreach ($this->ct->Records as $item) {
 
@@ -451,7 +453,11 @@ class Admin_Record_List extends Libraries\WP_List_Table
                     $this->invalid_nonce_redirect();
                 } else {
 	                $recordId = common::inputGetInt('id');
-                    database::update($this->ct->Table->realtablename, ['published'=>0], [$this->ct->Table->realidfieldname  =>  $recordId]);
+
+	                $whereClauseUpdate = new MySQLWhereClause();
+	                $whereClauseUpdate->addCondition($this->ct->Table->realidfieldname, $recordId);
+
+                    database::update($this->ct->Table->realtablename, ['published'=>0], $whereClauseUpdate);
                     //echo '<div id="message" class="updated notice is-dismissible"><p>1 record restored from the Trash.</p></div>';
                     $this->graceful_redirect();
                 }
@@ -464,7 +470,11 @@ class Admin_Record_List extends Libraries\WP_List_Table
                     $this->invalid_nonce_redirect();
                 } else {
 	                $recordId = common::inputGetInt('id');
-                    database::update($this->ct->Table->realtablename, ['published' =>-2], [$this->ct->Table->realidfieldname  =>  $recordId]);
+
+	                $whereClauseUpdate = new MySQLWhereClause();
+	                $whereClauseUpdate->addCondition($this->ct->Table->realidfieldname, $recordId);
+
+                    database::update($this->ct->Table->realtablename, ['published' =>-2], $whereClauseUpdate);
                     //echo '<div id="message" class="updated notice is-dismissible"><p>1 record moved to the Trash.</p></div>';
                     $this->graceful_redirect();
                 }
@@ -553,8 +563,9 @@ class Admin_Record_List extends Libraries\WP_List_Table
 
     function is_table_action($action): bool
     {
-	    $action1 = common::inputGetCmd('action','');
-	    $action2 = common::inputGetCmd('action2','');
+	    $action1 = common::inputPostCmd('action','','bulk-' . $this->_args['plural']);
+	    $action2 = common::inputPostCmd('action2','','bulk-' . $this->_args['plural']);
+
         if ($action1 === $action || $action2 === $action)
             return true;
 
@@ -581,8 +592,13 @@ class Admin_Record_List extends Libraries\WP_List_Table
             $this->invalid_nonce_redirect();
         } else {
             $records = ($_POST['ids'] ?? []);
-            foreach ($records as $recordId)
-                database::update($this->ct->Table->realtablename, ['published' => $state], ['id' => $recordId]);
+            foreach ($records as $recordId) {
+
+	            $whereClauseUpdate = new MySQLWhereClause();
+	            $whereClauseUpdate->addCondition('id', $recordId);
+
+	            database::update($this->ct->Table->realtablename, ['published' => $state], $whereClauseUpdate);
+            }
 
             if (count($records) > 0)
                 $this->graceful_redirect();

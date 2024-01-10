@@ -383,7 +383,11 @@ class Admin_Layout_List extends Libraries\WP_List_Table
 				$this->invalid_nonce_redirect();
 			} else {
 				$layoutId = common::inputGetInt('layout');
-				database::update('#__customtables_layouts', ['published' => 0], ['id' => $layoutId]);
+
+				$whereClauseUpdate = new MySQLWhereClause();
+				$whereClauseUpdate->addCondition('id', $layoutId);
+
+				database::update('#__customtables_layouts', ['published' => 0], $whereClauseUpdate);
 				//echo '<div id="message" class="updated notice is-dismissible"><p>1 layout restored from the Trash.</p></div>';
 				$this->graceful_redirect();
 			}
@@ -396,7 +400,11 @@ class Admin_Layout_List extends Libraries\WP_List_Table
 				$this->invalid_nonce_redirect();
 			} else {
 				$layoutId = common::inputGetInt('layout');
-				database::update('#__customtables_layouts', ['published' => -2], ['id' => $layoutId]);
+
+				$whereClauseUpdate = new MySQLWhereClause();
+				$whereClauseUpdate->addCondition('id', $layoutId);
+
+				database::update('#__customtables_layouts', ['published' => -2], $whereClauseUpdate);
 				//echo '<div id="message" class="updated notice is-dismissible"><p>1 layout moved to the Trash.</p></div>';
 				$this->graceful_redirect();
 			}
@@ -478,8 +486,8 @@ class Admin_Layout_List extends Libraries\WP_List_Table
 
 	function is_layout_action($action): bool
 	{
-		$action1 = common::inputGetCmd('action','');
-		$action2 = common::inputGetCmd('action2','');
+		$action1 = common::inputPostCmd('action','','bulk-' . $this->_args['plural']);
+		$action2 = common::inputPostCmd('action2','','bulk-' . $this->_args['plural']);
 		if ($action1 === $action || $action2 === $action)
 			return true;
 
@@ -506,8 +514,14 @@ class Admin_Layout_List extends Libraries\WP_List_Table
 			$this->invalid_nonce_redirect();
 		} else {
 			$layouts = ($_POST['layout'] ?? []);
-			foreach ($layouts as $layout)
-				database::update('#__customtables_layouts', ['published' => $state], ['id' => (int)$layout]);
+
+			foreach ($layouts as $layout) {
+
+				$whereClauseUpdate = new MySQLWhereClause();
+				$whereClauseUpdate->addCondition('id', (int)$layout);
+
+				database::update('#__customtables_layouts', ['published' => $state], $whereClauseUpdate);
+			}
 
 			if (count($layouts) > 0)
 				$this->graceful_redirect();
