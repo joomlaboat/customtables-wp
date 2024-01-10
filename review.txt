@@ -1,0 +1,450 @@
+Hello,
+
+There are issues with your plugin code preventing it from being approved immediately. We have pended your submission in order to help you correct all issues so that it may be approved and published.
+
+We ask you read this email in its entirety, address all listed issues, and reply to this email with your corrected code attached (or linked). You have three (3) months to make all corrections, before your plugin will be rejected. Even so, as long as you reply to this email, we will be able to continue with your review and eventually publish your code.
+
+Remember in addition to code quality, security and functionality, we require all plugins adhere to our guidelines. If you have not yet, please read them:
+
+https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/
+
+We know it can be long, but you must follow the directions at the end as not doing so will result in your review being delayed. It is required for you to read and reply to these emails, and failure to do so will result in significant delays with your plugin being accepted.
+
+Finally, should you at any time wish to alter your permalink (aka the plugin slug), you must explicitly tell us what you want it to be. Just changing the display name is not sufficient, and we require to you clearly state your desired permalink. Remember, permalinks cannot be altered after approval.
+
+Be aware that you will not be able to submit another plugin while this one is being reviewed.
+
+## Incorrect Stable Tag
+
+In your readme, your 'Stable Tag' does not match the Plugin Version as indicated in your main plugin file.
+
+ERROR: Readme Stable tag and header versions are different 1.0 != 1.0.0
+readme.txt - Stable tag: 1.0
+customtables.php - Version: 1.0.0
+
+Your Stable Tag is meant to be the stable version of your plugin, not of WordPress. For your plugin to be properly downloaded from WordPress.org, those values need to be the same. If they're out of sync, your users won't get the right version of your code.
+
+We recommend you use Semantic Versioning (aka SemVer) for managing versions:
+
+https://en.wikipedia.org/wiki/Software_versioning
+https://semver.org/
+
+Please note: While currently using the stable tag of trunk currently works in the Plugin Directory, it's not actually a supported or recommended method to indicate new versions and has been known to cause issues with automatic updates.
+
+We ask you please properly use tags and increment them when you release new versions of your plugin, just like you update the plugin version in the main file. Having them match is the best way to be fully forward supporting.
+
+## Calling files remotely
+
+Offloading images, js, css, and other scripts to your servers or any remote service (like Google, MaxCDN, jQuery.com etc) is disallowed. When you call remote data you introduce an unnecessary dependency on another site. If the file you're calling isn't a part of WordPress Core, then you should include it -locally- in your plugin, not remotely. If the file IS included in WordPress core, please call that instead.
+
+An exception to this rule is if your plugin is performing a service. We will permit this on a case by case basis. Since this can be confusing we have some examples of what are not permitted:
+
+    Offloading jquery CSS files to Google - You should include the CSS in your plugin.
+    Inserting an iframe with a help doc - A link, or including the docs in your plugin is preferred.
+    Calling images from your own domain - They should be included in your plugin.
+
+Here are some examples of what we would permit:
+
+    Calling font families from Google or their approved CDN (if GPL compatible)
+    API calls back to your server to process possible spam comments (like Akismet)
+    Offloading comments to your own servers (like Disqus)
+    oEmbed calls to a service provider (like Twitter or YouTube)
+
+Please remove external dependencies from your plugin and, if possible, include all files within the plugin (that is not called remotely). If instead you feel you are providing a service, please re-write your readme.txt in a manner that explains the service, the servers being called, and if any account is needed to connect.
+
+Example(s) from your plugin:
+
+
+customtables/libraries/codemirror/mode/javascript/json-ld.html:57 "image": "https://www.civil.usherbrooke.ca/cours/gci215a/empire-state-building.jpg",
+customtables/libraries/codemirror/mode/css/gss.html:86 background-image: url('https://www.google.com/images/logo_sm.gif');
+
+
+customtables/libraries/customtables/ct/ct.php:383 $this->document->addCustomTag('<script src="' . URI::root(true) . '/media/system/js/fields/calendar.min.js" defer></script>');
+customtables/libraries/customtables/ct/ct.php:344 $this->document->addCustomTag('<script src="' . URI::root(true) . '/media/jui/js/bootstrap.min.js"></script>');
+customtables/libraries/customtables/ct/ct.php:382 $this->document->addCustomTag('<script src="' . URI::root(true) . '/media/system/js/fields/calendar-locales/date/gregorian/date-helper.min.js" defer></script>');
+customtables/libraries/customtables/ct/ct.php:352 $this->document->addCustomTag('<script src="' . URI::root(true) . '/components/com_customtables/libraries/customtables/media/js/jquery.form.js"></script>');
+customtables/libraries/customtables/ct/ct.php:361 $this->document->addCustomTag('<script src="' . URI::root(true) . '/components/com_customtables/libraries/virtualselect/virtual-select.min.js"></script>');
+customtables/libraries/customtables/ct/ct.php:351 $this->document->addCustomTag('<script src="' . URI::root(true) . '/components/com_customtables/libraries/customtables/media/js/jquery.uploadfile.js"></script>');
+
+
+... out of a total of 7 coincidences.
+
+## Undocumented use of a 3rd Party or external service
+
+We permit plugins to require the use of 3rd party (i.e. external) services, provided they are properly documented in a clear manner.
+
+We require plugins that reach out to other services to disclose this, in clear and plain language, so users are aware of where data is being sent. This allows them to ensure that any legal issues with data transmissions are covered. This is true even if you are the 3rd party service.
+
+In order to do so, you must update your readme to do the following:
+
+    Clearly explain that your plugin is relying on a 3rd party as a service and under what circumstances
+    Provide a link to the service .
+    Provide a link to the service terms of use and/or privacy policies.
+
+Remember, this is for your own legal protection. Use of services must be upfront and well documented.
+
+Example(s) from your plugin:
+
+
+# Domain(s) not mentioned in the readme file.
+customtables/libraries/customtables/ct/ct.php:368 $this->document->addCustomTag('<script src="https://maps.google.com/maps/api/js?key=' . $googleMapAPIKey . '&sensor=false"></script>');
+
+
+
+## Please use WordPress' file uploader
+
+When plugins use move_uploaded_file(), they exclude their uploads from the built-in checks and balances with WordPress's functions. Instead of that, you should use the built in function:
+
+https://developer.wordpress.org/reference/functions/wp_handle_upload/
+
+Example(s) from your plugin:
+
+
+customtables/libraries/uploader.php:88 move_uploaded_file($file["tmp_name"], $newFileName);
+customtables/libraries/uploader.php:79 move_uploaded_file($file["tmp_name"], $newFileName);
+
+
+
+## Internationalization: Don't use variables or defines as text, context or text domain parameters.
+
+Please do not use variable names for the text, context or text domain portion of a gettext function, all of them NEED to be strings, otherwise they could not be read by the translation parser.
+
+For example, this is a bad call: esc_html__( 'Translate me.' , $plugin_slug );, the fix here would be like this esc_html__( 'Translate me.' , 'plugin-slug' );
+
+This is also wrong: esc_html__( 'Your city is ' . $city . '.' , 'plugin-slug' );, the fix here would be using a placeholder and change it later using printf, like this:
+
+printf(
+       /* translators: %s: Name of a city */
+       esc_html__( 'Your city is %s.', 'plugin-slug' ),
+       esc_html($city)
+ );
+
+
+Also have in mind that your text domain has to be the same as your plugin's slug (also known as permalink).
+
+The text domain also needs to be added to the plugin header. WordPress uses it to internationalize your plugin meta-data even when the plugin is disabled.
+
+You can read https://developer.wordpress.org/plugins/internationalization/how-to-internationalize-your-plugin/#text-domains for more information.
+
+Example(s) from your plugin:
+
+
+customtables/inc/admin/class-admin-table-list.php:205 __('Table Title', $this->plugin_text_domain);
+customtables/inc/admin/class-admin-field-list.php:519 __('Invalid Nonce', $this->plugin_text_domain);
+customtables/inc/admin/views/customtables-dashboard.php:21 __('Tables', $this->plugin_text_domain);
+customtables/inc/admin/class-admin-table-list.php:489 __('Invalid Nonce', $this->plugin_text_domain);
+customtables/inc/admin/views/customtables-fields-edit.php:126 __('required', $this->plugin_text_domain);
+customtables/inc/admin/views/customtables-documentation.php:13 _e('Custom Tables - Documentation', $this->plugin_text_domain);
+customtables/inc/admin/views/customtables-layouts-edit.php:125 __('required', $this->plugin_text_domain);
+customtables/inc/admin/class-admin.php:303 __(' - Records', $this->plugin_text_domain);
+
+
+... out of a total of 106 coincidences.
+
+## Data Must be Sanitized, Escaped, and Validated
+
+When you include POST/GET/REQUEST/FILE calls in your plugin, it's important to sanitize, validate, and escape them. The goal here is to prevent a user from accidentally sending trash data through the system, as well as protecting them from potential security issues.
+
+SANITIZE: Data that is input (either by a user or automatically) must be sanitized as soon as possible. This lessens the possibility of XSS vulnerabilities and MITM attacks where posted data is subverted.
+
+VALIDATE: All data should be validated, no matter what. Even when you sanitize, remember that you don’t want someone putting in ‘dog’ when the only valid values are numbers.
+
+ESCAPE: Data that is output must be escaped properly when it is echo'd, so it can't hijack admin screens. There are many esc_*() functions you can use to make sure you don't show people the wrong data.
+
+To help you with this, WordPress comes with a number of sanitization and escaping functions. You can read about those here:
+
+    https://developer.wordpress.org/apis/security/sanitizing/
+    https://developer.wordpress.org/apis/security/escaping/
+
+
+Remember: You must use the most appropriate functions for the context. If you’re sanitizing email, use sanitize_email(), if you’re outputting HTML, use wp_kses_post(), and so on.
+
+An easy mantra here is this:
+
+Sanitize early
+Escape Late
+Always Validate
+
+Clean everything, check everything, escape everything, and never trust the users to always have input sane data. After all, users come from all walks of life.
+
+Example(s) from your plugin:
+
+
+customtables/inc/admin/class-admin-field-list.php:439 $nonce = wp_unslash($_REQUEST['_wpnonce']);
+customtables/inc/admin/class-admin-field-list.php:570 $nonce = wp_unslash($_REQUEST['_wpnonce']);
+customtables/inc/admin/views/customtables-layouts.php:10 $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
+customtables/inc/admin/class-admin-layout-list.php:513 $layouts = (isset($_POST['layout']) ? $_POST['layout'] : []);
+customtables/inc/admin/class-admin-record-list.php:585 $records = ($_POST['ids'] ?? []);
+customtables/inc/admin/views/customtables-records.php:8 $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
+customtables/inc/libraries/class-wp-list-table.php:1060 $current_url = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
+ -----> 'http://' . $_SERVER['HTTP_HOST']
+customtables/libraries/customtables/helpers/common.php:142 preg_match('/-?[0-9]+/', (string)$_POST[$parameter], $matches);
+
+
+... out of a total of 66 coincidences.
+
+Note: escape functions cannot be used to sanitize. They serve different purposes. Even if they seem to be perfect for this purpose, most of the functions are filterable and people expect to use them to escape. Therefore, another plugin may change what they do and make yours at risk and exploitable.
+
+If you are trying to echo the variable, you have to first sanitize it and then escape it, as for example:
+
+             echo esc_html(sanitize_text_field($_POST['example']));
+
+Example(s) from your plugin:
+
+
+customtables/inc/libraries/class-wp-list-table.php:363 echo '<input type="hidden" name="order" value="' . esc_attr( $_REQUEST['order'] ) . '" />';
+ -----> esc_attr($_REQUEST['order'])
+customtables/inc/libraries/class-wp-list-table.php:367 echo '<input type="hidden" name="detached" value="' . esc_attr( $_REQUEST['detached'] ) . '" />';
+ -----> esc_attr($_REQUEST['detached'])
+customtables/inc/libraries/class-wp-list-table.php:365 echo '<input type="hidden" name="post_mime_type" value="' . esc_attr( $_REQUEST['post_mime_type'] ) . '" />';
+ -----> esc_attr($_REQUEST['post_mime_type'])
+customtables/inc/libraries/class-wp-list-table.php:361 echo '<input type="hidden" name="orderby" value="' . esc_attr( $_REQUEST['orderby'] ) . '" />';
+ -----> esc_attr($_REQUEST['orderby'])
+
+
+
+## Variables and options must be escaped when echo'd
+
+Much related to sanitizing everything, all variables that are echoed need to be escaped when they're echoed, so it can't hijack users or (worse) admin screens. There are many esc_*() functions you can use to make sure you don't show people the wrong data, as well as some that will allow you to echo HTML safely.
+
+At this time, we ask you escape all $-variables, options, and any sort of generated data when it is being echoed. That means you should not be escaping when you build a variable, but when you output it at the end. We call this 'escaping late.'
+
+Besides protecting yourself from a possible XSS vulnerability, escaping late makes sure that you're keeping the future you safe. While today your code may be only outputted hardcoded content, that may not be true in the future. By taking the time to properly escape when you echo, you prevent a mistake in the future from becoming a critical security issue.
+
+This remains true of options you've saved to the database. Even if you've properly sanitized when you saved, the tools for sanitizing and escaping aren't interchangeable. Sanitizing makes sure it's safe for processing and storing in the database. Escaping makes it safe to output.
+
+Also keep in mind that sometimes a function is echoing when it should really be returning content instead. This is a common mistake when it comes to returning JSON encoded content. Very rarely is that actually something you should be echoing at all. Echoing is because it needs to be on the screen, read by a human. Returning (which is what you would do with an API) can be json encoded, though remember to sanitize when you save to that json object!
+
+There are a number of options to secure all types of content (html, email, etc). Yes, even HTML needs to be properly escaped.
+
+https://developer.wordpress.org/apis/security/escaping/
+
+Remember: You must use the most appropriate functions for the context. There is pretty much an option for everything you could echo. Even echoing HTML safely.
+
+Example(s) from your plugin:
+
+
+customtables/inc/admin/views/customtables-tables-edit.php:80 <span>(<?php echo __('required', $this->plugin_text_domain); ?>)</span>
+customtables/inc/admin/views/customtables-dashboard.php:29 src="<?php echo home_url() ?>/wp-content/plugins/customtables/libraries/customtables/media/images/controlpanel/icons/listoflayouts.png">
+ -----> echo home_url();
+customtables/inc/libraries/class-wp-list-table.php:1223 echo '<tr><td colspan="' . $this->get_column_count() . '">';
+customtables/inc/admin/views/customtables-fields-edit.php:146 <span>(<?php echo __('required', $this->plugin_text_domain); ?>)</span>
+customtables/inc/admin/views/customtables-documentation.php:22 <h3><?php echo CustomTables\common::translate('COM_CUSTOMTABLES_TABLEFIELDTYPES_DESC'); ?></h3><br/>
+customtables/inc/admin/views/customtables-tables-edit.php:52 echo "<p>$message</p>";
+customtables/inc/libraries/class-wp-list-table.php:596 <option<?php selected( $m, 0 ); ?> value="0"><?php _e( 'All dates' ); ?></option>
+ -----> _e('All dates')
+customtables/inc/libraries/class-wp-list-table.php:1307 echo "<td $attributes>";
+
+
+... out of a total of 163 coincidences.
+
+Note: when you need to echo a JSON, it's better to make use of the function wp_json_encode, also, make sure you are not avoiding escaping with the options passed on the second parameter.
+
+             echo wp_json_encode($array_or_object);
+
+Example(s) from your plugin:
+
+
+customtables/inc/admin/views/customtables-schema-diagram.php:28 AllTables = <?php echo json_encode($diagram->tables); ?>;
+customtables/inc/admin/views/customtables-fields-edit.php:84 echo 'all_tables=' . json_encode($this->admin_field_edit->allTables) . ';' . PHP_EOL;
+customtables/libraries/importcsv.php:73 echo json_encode(['error' => 'sqljoin field(' . $fields[$f_index]->fieldtitle . ') table not found']);
+
+
+
+Note: The functions _e and _ex outputs the translation without escaping, please use an alternative function that escapes the output.
+
+    An alternative to _e would be esc_html_e, esc_attr_e or simply using __ wrapped by a escaping function and inside an echo.
+    An alternative to _ex would be using _x wrapped by a escaping function and inside an echo.
+
+Examples:
+
+<h2><?php esc_html_e('Settings page', 'plugin-slug'); ?></h2>
+ <h2><?php echo esc_html(__('Settings page', 'plugin-slug')); ?></h2>
+ <h2><?php echo esc_html(_x('Settings page', 'Settings page title', 'plugin-slug')); ?></h2>
+
+
+Example(s) from your plugin:
+
+
+customtables/inc/admin/views/customtables-records-edit.php:21 _e('Add New Record');
+customtables/inc/admin/views/customtables-records.php:15 _e('Custom Tables - Table', $this->plugin_text_domain);
+customtables/inc/admin/views/customtables-records-edit.php:75 _e('Edit record.');
+customtables/inc/libraries/class-wp-list-table.php:342 _e( 'No items found.' );
+
+
+... out of a total of 40 coincidences.
+
+Note: The function __ retrieves the translation without escaping, please either:
+
+    Use an alternative function that escapes the resulting value such as esc_html__ or esc_attr__.
+    Or wrap the __ function with a proper escaping function such as esc_html, esc_attr, wp_kses_post, etc.
+
+Examples:
+
+<h2><?php echo esc_html__('Settings page', 'plugin-slug'); ?></h2>
+ <h2><?php echo esc_html(__('Settings page', 'plugin-slug')); ?></h2>
+
+
+Example(s) from your plugin:
+
+
+customtables/inc/admin/views/customtables-layouts-edit.php:90 <span>(<?php echo __('required', $this->plugin_text_domain); ?>)</span>
+ -----> __('required', $this->plugin_text_domain)
+customtables/inc/admin/views/customtables-dashboard.php:28 <img alt="<?php echo __('Layouts', $this->plugin_text_domain); ?>"
+customtables/inc/admin/views/customtables-tables-edit.php:107 <span>(<?php echo __('required', $this->plugin_text_domain); ?>)</span>
+ -----> __('required', $this->plugin_text_domain)
+customtables/inc/admin/views/customtables-fields-edit.php:26 echo '<div><p>' . __('Table not selected or not found.', $this->plugin_text_domain) . '</p></div>';
+
+
+... out of a total of 32 coincidences.
+
+## Generic function/class/define/namespace/option names
+
+All plugins must have unique function names, namespaces, defines, class and option names. This prevents your plugin from conflicting with other plugins or themes. We need you to update your plugin to use more unique and distinct names.
+
+A good way to do this is with a prefix. For example, if your plugin is called "Easy Custom Post Types" then you could use names like these:
+
+    function ecpt_save_post()
+    define( 'ECPT_LICENSE', true );
+    class ECPT_Admin{}
+    namespace ECPT;
+    update_option( 'ecpt_settings', $settings );
+
+
+Don't try to use two (2) or three (3) letter prefixes anymore. We host nearly 100-thousand plugins on WordPress.org alone. There are tens of thousands more outside our servers. Believe us, you’re going to run into conflicts.
+
+You also need to avoid the use of __ (double underscores), wp_ , or _ (single underscore) as a prefix. Those are reserved for WordPress itself. You can use them inside your classes, but not as stand-alone function.
+
+Please remember, if you're using _n() or __() for translation, that's fine. We're only talking about functions you've created for your plugin, not the core functions from WordPress. In fact, those core features are why you need to not use those prefixes in your own plugin! You don't want to break WordPress for your users.
+
+Related to this, using if (!function_exists('NAME')) { around all your functions and classes sounds like a great idea until you realize the fatal flaw. If something else has a function with the same name and their code loads first, your plugin will break. Using if-exists should be reserved for shared libraries only.
+
+Remember: Good prefix names are unique and distinct to your plugin. This will help you and the next person in debugging, as well as prevent conflicts.
+
+Analysis result:
+
+
+# Looks like there are elements not using common prefixes.
+customtables/libraries/customtables/loader.php:11 function str_contains
+customtables/libraries/customtables/loader.php:17 function CTLoader
+customtables/libraries/customtables/_es2ct.php:24 function updateESTables
+customtables/libraries/customtables/_es2ct.php:29 function getESTables
+customtables/libraries/customtables/_es2ct.php:71 function fixTableCategory
+customtables/libraries/customtables/_es2ct.php:94 function findFileByName
+customtables/libraries/customtables/_es2ct.php:104 function updateLayoutVerticalBarTags
+customtables/libraries/customtables/_es2ct.php:130 function fixToolBarTags
+customtables/libraries/customtables/_es2ct.php:165 function updateImageFieldTypeParama
+customtables/libraries/customtables/_es2ct.php:171 function updateMenuItems
+customtables/libraries/customtables/_es2ct.php:195 function updatefieldTypes
+customtables/libraries/customtables/_es2ct.php:201 function updateLayouts
+customtables/libraries/customtables/_es2ct.php:207 function updateContent
+customtables/libraries/customtables/_es2ct.php:235 function addCetegoriesTable
+customtables/libraries/customtables/_es2ct.php:258 function updateFields
+customtables/libraries/customtables/_es2ct.php:326 function fixFields
+customtables/libraries/customtables/_es2ct.php:365 function getExistingFields
+customtables/libraries/multiselector.php:19 class ESMultiSelector
+customtables/libraries/uploader.php:21 class ESFileUploader
+customtables/libraries/layout.php:34 class LayoutProcessor
+customtables/libraries/combotreeloader.php:26 define('_JEXEC', 1);
+customtables/libraries/combotreeloader.php:36 define('JPATH_BASE', $path);
+customtables/libraries/combotreeloader.php:37 define('JPATH_SITE', $path);
+customtables/libraries/combotreeloader.php:92 class ESDynamicComboTree
+customtables/libraries/importcsv.php:19 function importCSVfile
+customtables/libraries/importcsv.php:27 function getLines
+customtables/libraries/importcsv.php:45 function detectDelimiter
+customtables/libraries/importcsv.php:60 function processFieldParams
+customtables/libraries/importcsv.php:90 function importCSVdata
+customtables/libraries/importcsv.php:129 function findRecord
+customtables/libraries/importcsv.php:143 function findSQLRecordJoin
+customtables/libraries/importcsv.php:168 function findSQLJoin
+customtables/libraries/importcsv.php:175 function addSQLJoinSets
+customtables/libraries/importcsv.php:181 function prepareSQLQuery
+customtables/libraries/importcsv.php:294 function ifBomUtf8
+customtables/libraries/importcsv.php:302 function removeBomUtf8
+customtables/libraries/importcsv.php:313 function prepareFieldList
+customtables/libraries/esinputbox.php:19 class ESInputBox
+customtables/libraries/fieldtypes/_type_sqljoin.php:20 class CT_FieldTypeTag_sqljoin
+customtables/libraries/fieldtypes/_type_image.php:22 class CT_FieldTypeTag_image
+customtables/libraries/fieldtypes/_type_log.php:20 class CT_FieldTypeTag_log
+customtables/libraries/fieldtypes/_type_ct.php:19 class CT_FieldTypeTag_ct
+customtables/libraries/fieldtypes/_type_records.php:20 class CT_FieldTypeTag_records
+customtables/libraries/fieldtypes/_type_file.php:26 class CT_FieldTypeTag_file
+customtables/libraries/fieldtypes/_type_gallery.php:19 class CT_FieldTypeTag_imagegallery
+customtables/libraries/tagprocessor/render_json.php:19 trait render_json
+customtables/libraries/tagprocessor/render_csv.php:19 trait render_csv
+customtables/libraries/tagprocessor/render_html.php:20 trait render_html
+customtables/libraries/tagprocessor/render_xlsx.php:18 trait render_xlsx
+customtables/libraries/tagprocessor/render_xml.php:19 trait render_xml
+customtables/libraries/tagprocessor/render_image.php:20 trait render_image
+
+
+We recommend you loading libraries using composer.
+
+## Allowing Direct File Access to plugin files
+
+Direct file access is when someone directly queries your file. This can be done by simply entering the complete path to the file in the URL bar of the browser but can also be done by doing a POST request directly to the file. For files that only contain a PHP class the risk of something funky happening when directly accessed is pretty small. For files that contain procedural code, functions and function calls, the chance of security risks is a lot bigger.
+
+You can avoid this by putting this code at the top of all PHP files that could potentially execute code if accessed directly :
+
+             if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+
+Example(s) from your plugin:
+
+
+customtables/libraries/fieldtypes/_type_ct.php:12
+customtables/libraries/tagprocessor/valuetags.php:12
+customtables/libraries/tagprocessor/render_csv.php:12
+customtables/libraries/customtables/extratasks/extratasks.php:12
+customtables/libraries/tagprocessor/settags.php:12
+customtables/inc/admin/views/customtables-tables-edit-help.php:3
+customtables/libraries/multiselector.php:12
+customtables/libraries/customtables/datatypes/filebox.php:11
+
+
+... out of a total of 60 coincidences.
+
+## Unsafe SQL calls
+
+When making database calls, it's highly important to protect your code from SQL injection vulnerabilities. You need to update your code to use wpdb calls and prepare() with your queries to protect them.
+
+Please review the following:
+
+    https://developer.wordpress.org/reference/classes/wpdb/#protect-queries-against-sql-injection-attacks
+    https://codex.wordpress.org/Data_Validation#Database
+    https://make.wordpress.org/core/2012/12/12/php-warning-missing-argument-2-for-wpdb-prepare/
+    https://ottopress.com/2013/better-know-a-vulnerability-sql-injection/
+
+Example(s) from your plugin:
+
+
+
+
+customtables/libraries/customtables/helpers/database.php:243 $result = $wpdb->get_results(str_replace('#__', $wpdb->prefix, $query), ARRAY_A);
+# The SQL query needs to be included in a wpdb::prepare($query, $args) function.
+# Remember that you will need to include placeholders for each variable within the query and include their calls in the second parameter of wpdb::prepare().
+
+
+customtables/libraries/customtables/helpers/database.php:273 return $wpdb->get_results(str_replace('#__', $wpdb->prefix, $query), ARRAY_N);
+# The SQL query needs to be included in a wpdb::prepare($query, $args) function.
+# Remember that you will need to include placeholders for each variable within the query and include their calls in the second parameter of wpdb::prepare().
+
+
+... out of a total of 10 coincidences.
+
+----------------------------------------------
+
+Please note that due to the significant backlog the Plugin Review team is facing, we have only done a basic review of your plugin. Once the issues we shared above are fixed, we will do a more in-depth review that might surface other issues. In order to prevent further delays, we strongly urge you to review the guidelines again before you resubmit it.
+
+If the corrections we requested in this initial review are not completed within 3 months (90 days), we will reject this submission in order to keep our queue manageable and you will need to resubmit the plugin from scratch.
+
+Your next steps are:
+
+    Make all the corrections related to the issues we listed.
+    Review your entire code following the guidelines to ensure there are no other related concerns.
+    Attach your corrected plugin as a zip file OR provide a link to a public location (Dropbox, GitHub, etc) from where we can download the code. A direct link to the zip is best.
+    Please do not send it using services where the download expires after a short period of time (such as WeTransfer-Free).
+
+Once we receive your updated code, we will re-review it from top down.
+
+Be aware that if your zip contains JavaScript files, you may not be able to email it as many hosts block that in the interests of security. Keep in mind, all version control directories (like GitHub) will auto-generate a zip for you, so you do not need to upload a zip file to their systems. You can just link to the repository.
