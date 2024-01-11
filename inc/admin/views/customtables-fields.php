@@ -3,9 +3,7 @@
 use CustomTables\common;
 use CustomTables\Integrity\IntegrityFields;
 
-if (!defined('WPINC')) {
-    die;
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 $page = common::inputGetCmd('page');
 

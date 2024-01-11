@@ -7,6 +7,8 @@
 
 namespace CustomTablesWP\Inc\Libraries;
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 use CustomTables\common;
 
 /**
@@ -687,7 +689,7 @@ class WP_List_Table
 		$current = $this->get_pagenum();
 		$removable_query_args = wp_removable_query_args();
 
-		$current_url = set_url_scheme('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+		$current_url = common::curPageURL();//set_url_scheme('https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
 
 		$current_url = remove_query_arg($removable_query_args, $current_url);
 

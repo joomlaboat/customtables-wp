@@ -1,5 +1,7 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 $title = __('Add New Custom Table');
 $parent_file = 'customtables-tables.php';
 

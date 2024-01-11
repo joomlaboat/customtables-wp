@@ -6,6 +6,8 @@
  * @subpackage Administration
  */
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 //include ('customtables-layouts-edit-help.php');
 
 use CustomTables\ListOfLayouts;

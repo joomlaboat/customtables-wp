@@ -6,9 +6,9 @@
  * @subpackage Administration
  */
 
-//include ('customtables-records-edit-help.php');
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-use CustomTables\Layouts;
+//include ('customtables-records-edit-help.php');
 
 require_once ABSPATH . 'wp-admin/admin-header.php';
 

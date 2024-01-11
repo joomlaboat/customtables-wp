@@ -5,6 +5,9 @@
  * @package WordPress
  * @subpackage Administration
  */
+
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 function enqueue_codemirror() {
 
 $version = '1.1.0';

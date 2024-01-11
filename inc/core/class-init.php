@@ -2,6 +2,8 @@
 
 namespace CustomTablesWP\Inc\Core;
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 use CustomTablesWP as CTWP;
 use CustomTablesWP\Inc\Admin as Admin;
 use CustomTablesWP\Inc\Frontend as Frontend;

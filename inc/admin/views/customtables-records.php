@@ -1,10 +1,7 @@
 <?php
-// If this file is called directly, abort.
-use CustomTables\common;
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-if (!defined('WPINC')) {
-    die;
-}
+use CustomTables\common;
 
 $page = common::inputGetCmd('page');
 

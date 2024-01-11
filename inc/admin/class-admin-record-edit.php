@@ -2,6 +2,8 @@
 
 namespace CustomTablesWP\Inc\Admin;
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\Layouts;

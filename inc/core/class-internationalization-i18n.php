@@ -2,6 +2,8 @@
 
 namespace CustomTablesWP\Inc\Core;
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 /**
  * Define the internationalization functionality.
  *

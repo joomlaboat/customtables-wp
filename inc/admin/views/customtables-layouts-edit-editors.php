@@ -1,3 +1,9 @@
+<?php
+
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+?>
+
 <h2 class="nav-tab-wrapper wp-clearfix">
     <button onclick="CustomTablesAdminLayoutsTabClicked(0,'layoutcode');return false;" data-toggle="tab" data-tabs=".gtabs.layouteditorTabs" data-tab=".layoutcode-tab" class="nav-tab nav-tab-active" >HTML (Desktop)</button>
     <button onclick="CustomTablesAdminLayoutsTabClicked(1,'layoutmobile');return false;" data-toggle="tab" data-tabs=".gtabs.layouteditorTabs" data-tab=".layoutmobile-tab" class="nav-tab" >HTML (Mobile)</button>

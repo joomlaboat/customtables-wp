@@ -1,10 +1,6 @@
 <?php
-/**
- * New User Administration Screen.
- *
- * @package WordPress
- * @subpackage Administration
- */
+
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 //include ('customtables-tables-edit-help.php');
 

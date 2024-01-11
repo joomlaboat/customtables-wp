@@ -4,9 +4,8 @@
  * The admin area of the plugin to load the User List Table
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-    exit; // Exit if accessed directly
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 ?>
 
 <div class="wrap">

@@ -6,9 +6,9 @@
  * @subpackage Administration
  */
 
-//include ('customtables-fields-edit-help.php');
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-require_once ABSPATH . 'wp-admin/admin-header.php';
+//include ('customtables-fields-edit-help.php');
 
 ?>
     <div class="wrap">
