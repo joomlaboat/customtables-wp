@@ -260,7 +260,14 @@ class database
 		for ($i = 0; $i < count($dataHolders->columns); $i++)
 			$columnPlaceHolder[] = '%i';
 
-		$placeHolders = array_merge($dataHolders->columns, $dataHolders->values);
+		$values = [];
+		foreach ($dataHolders->values as $value)
+		{
+			if($value !== null)
+				$values[] = $value;
+		}
+
+		$placeHolders = array_merge($dataHolders->columns, $values);
 
 		$wpdb->query(
 			$wpdb->prepare(
@@ -289,14 +296,14 @@ class database
 			$columns[] = $key;
 
 			if (is_array($value) and count($value) == 2 and $value[1] == 'sanitized') {
-				//$values[]=$value[0];
+				$values[] = null;
 				$placeHolders[] = $value[0];
 			} else {
 				if ($value === null) {
-					//$values[]='NULL';
+					$values[] = null;
 					$placeHolders[] = 'NULL';
 				} elseif (is_bool($value)) {
-					//$values[] = $value ? 'TRUE' : 'FALSE';
+					$values[] = null;
 					$placeHolders[] = $value ? 'TRUE' : 'FALSE';
 				} elseif (is_int($value)) {
 					$values[] = $value;
@@ -339,17 +346,18 @@ class database
 			return true;
 
 		$dataHolders = (object)self::prepareFields($data);
-
 		$columnPlaceHolder = [];
-
 		$placeHolders = [];
 		$index = 0;
-		foreach ($dataHolders->placeHolders as $placeHolder) {
-			$placeHolders[] = $dataHolders->columns[$index];
-			$placeHolders[] = $dataHolders->values[$index];
-			$columnPlaceHolder[] = '%i=' . $placeHolder;
 
-			$index +=1;
+		foreach ($dataHolders->columns as $column) {
+			$placeHolders[] = $column;//$dataHolders->columns[$index];
+			if ($dataHolders->values[$index] !== null)
+				$placeHolders[] = $dataHolders->values[$index];
+
+			$columnPlaceHolder[] = '%i=' . $dataHolders->placeHolders[$index];
+
+			$index += 1;
 		}
 
 		$whereString = $whereClause->getWhereClause();// Returns the "where" clause with %d,%f,%s placeholders
