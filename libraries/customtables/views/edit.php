@@ -47,7 +47,7 @@ class Edit
 			$this->pageLayoutNameString = $this->ct->Params->editLayout;
 
 			if (!isset($Layouts->layoutId)) {
-				echo 'Layout: "' . $this->ct->Params->editLayout . '" not found.';
+				$this->ct->errors[] = $this->ct->Params->editLayout . '" not found.';
 				return false;
 			}
 

@@ -136,7 +136,7 @@ class Catalog
 				$pageLayoutNameString = (($layoutName ?? '') == '' ? 'InlinePageLayout' : $layoutName);
 				$pageLayoutLink = '/administrator/index.php?option=com_customtables&view=listoflayouts&task=layouts.edit&id=' . $Layouts->layoutId;
 			} else {
-				echo 'Layout "' . $layoutName . '" not found.';
+				$this->ct->errors[] = 'Layout "' . $layoutName . '" not found.';
 			}
 		} else {
 			if ($this->ct->Env->frmt == 'csv') {

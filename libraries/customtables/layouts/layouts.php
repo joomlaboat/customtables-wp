@@ -561,7 +561,6 @@ class Layouts
 		// -------------------- Table
 
 		if ($this->ct->Table === null) {
-			echo 'Load Table';
 			$this->ct->getTable($this->ct->Params->tableName);
 
 			if ($this->ct->Table->tablename === null) {

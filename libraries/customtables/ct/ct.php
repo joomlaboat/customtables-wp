@@ -222,7 +222,7 @@ class CT
 						$this->Records = database::loadAssocList($this->Table->realtablename, $selects, $this->Filter->whereClause,
 							(count($ordering) > 0 ? implode(',', $ordering) : null), null, $the_limit, $this->LimitStart);
 					} catch (Exception $e) {
-						echo $e->getMessage();
+						$this->errors[] = $e->getMessage();
 						return false;
 					}
 				}
@@ -255,8 +255,7 @@ class CT
 		try {
 			$rows = database::loadObjectList($this->Table->realtablename, ['COUNT(' . $this->Table->tablerow['realidfieldname'] . ') AS count'], $whereClause);
 		} catch (Exception $e) {
-			echo 'Database error happened';
-			echo $e->getMessage();
+			$this->errors[] = $e->getMessage();
 			return 0;
 		}
 

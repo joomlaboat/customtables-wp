@@ -35,9 +35,10 @@ class ListOfTables
 			$rows = database::loadObjectList($realtablename, ['COUNT(' . $realIdField . ') AS count'], $whereClause, null, null, 1);
 		} catch (Exception $e) {
 			if (defined('_JEXEC')) {
-				echo $e->getMessage();
 				$app = Factory::getApplication();
 				$app->enqueueMessage('Table "' . $realtablename . '" - ' . $e->getMessage(), 'error');
+			} else {
+				throw new Exception($e->getMessage());
 			}
 			return 0;
 		}
