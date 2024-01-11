@@ -138,7 +138,7 @@ class Admin_Record_List extends Libraries\WP_List_Table
 
 	    $search = common::inputGetString('s');
 	    $orderby = common::inputGetCmd('orderby');
-        if ($orderby == 'customtables_record_firstfield')
+        if ($orderby == 'customtables_record_firstfield' and $this->firstFieldRealName !== null)
             $orderby = $this->firstFieldRealName;
 
 	    $order = common::inputGetCmd('order');
@@ -168,25 +168,32 @@ class Admin_Record_List extends Libraries\WP_List_Table
             die('Table not found');
         }
 
-		echo '$this->firstFieldRealName='.$this->firstFieldRealName.'*<br/>';
+	    if($this->firstFieldRealName !== null)
+	    {
+            $newData = [];
+            foreach ($this->ct->Records as $item) {
 
-        $newData = [];
-        foreach ($this->ct->Records as $item) {
+	            //$labelText = $this->firstFieldRealName !== null ? $item[$this->firstFieldRealName] : $item[$this->ct->Table->realidfieldname];
+	            $labelText = $item[$this->ct->Table->realidfieldname];
 
-            if ($item['listing_published'] == -2)
-                $label = '<span>' . $item[$this->firstFieldRealName] . '</span>';
-            else {
-                $label = '<a class="row-title" href="?page=customtables-records-edit&action=edit&table='.$this->tableId.'&id=' . $item[$this->ct->Table->realidfieldname] . '">'
-                    . $item[$this->firstFieldRealName] . '</a>';
+	            if ($item['listing_published'] == -2)
+		            $label = '<span>' . $labelText . '</span>';
+	            else {
 
-                if ($this->ct->Table->published_field_found)
-                    $label .= (($this->current_status != 'unpublished' and $item['listing_published'] == 0) ? ' — <span class="post-state">Draft</span>' : '');
+		            $label = '<a class="row-title" href="?page=customtables-records-edit&action=edit&table=' . $this->tableId . '&id=' . $item[$this->ct->Table->realidfieldname] . '">'
+			            . $labelText . '</a>';
+
+		            if ($this->ct->Table->published_field_found)
+			            $label .= (($this->current_status != 'unpublished' and $item['listing_published'] == 0) ? ' — <span class="post-state">Draft</span>' : '');
+	            }
+
+	            $item[$this->firstFieldRealName] = '<strong>' . $label . '</strong>';
+
+	            $newData[] = $item;
             }
-
-            $item[$this->firstFieldRealName] = '<strong>' . $label . '</strong>';
-            $newData[] = $item;
+		    return $newData;
         }
-        return $newData;
+		return $this->ct->Records;
     }
 
     /**
