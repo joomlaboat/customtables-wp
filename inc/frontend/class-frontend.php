@@ -1,20 +1,19 @@
 <?php
+/**
+ * Plugin Name:       CustomTables
+ * Plugin URI:        https://ct4.us/
+ * GitHub:            https://github.com/joomlaboat/customtables-wp
+ * Author:            Ivan Komlev
+ * License:           GPL-2.0+
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ *
+ * Defines the plugin name, version, and two examples hooks for how to
+ * enqueue the public-facing stylesheet and JavaScript.
+ */
 
 namespace CustomTablesWP\Inc\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
-
-/**
- * The public-facing functionality of the plugin.
- *
- * Defines the plugin name, version, and two examples hooks for how to
- * enqueue the public-facing stylesheet and JavaScript.
- *
- * @link       https://www.nuancedesignstudio.in
- * @since      1.0.0
- *
- * @author    Karan NA Gupta
- */
 
 class Frontend {
 

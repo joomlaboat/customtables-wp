@@ -1,4 +1,15 @@
 <?php
+/**
+ * Plugin Name:       CustomTables
+ * Plugin URI:        https://ct4.us/
+ * GitHub:            https://github.com/joomlaboat/customtables-wp
+ * Author:            Ivan Komlev
+ * License:           GPL-2.0+
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ *
+ * The core plugin class.
+ * Defines internationalization, admin-specific hooks, and public-facing site hooks.
+ */
 
 namespace CustomTablesWP\Inc\Core;
 
@@ -8,15 +19,6 @@ use CustomTablesWP as CTWP;
 use CustomTablesWP\Inc\Admin as Admin;
 use CustomTablesWP\Inc\Frontend as Frontend;
 
-/**
- * The core plugin class.
- * Defines internationalization, admin-specific hooks, and public-facing site hooks.
- *
- * @link       https://www.nuancedesignstudio.in
- * @since      1.0.0
- *
- * @author     Karan NA Gupta
- */
 class Init
 {
 	protected string $plugin_name;

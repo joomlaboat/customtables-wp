@@ -1,4 +1,12 @@
 <?php
+/**
+ * Plugin Name:       CustomTables
+ * Plugin URI:        https://ct4.us/
+ * GitHub:            https://github.com/joomlaboat/customtables-wp
+ * Author:            Ivan Komlev
+ * License:           GPL-2.0+
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ */
 
 namespace CustomTablesWP\Inc\Admin;
 
@@ -11,17 +19,6 @@ use CustomTables\Fields;
 use CustomTables\MySQLWhereClause;
 use CustomTablesWP\Inc\Libraries;
 
-/**
- * Class for displaying registered WordPress Users
- * in a WordPress-like Admin Table with row actions to
- * perform user meta operations
- *
- *
- * @link       http://nuancedesignstudio.in
- * @since      1.0.0
- *
- * @author     Karan NA Gupta
- */
 class Admin_Field_List extends Libraries\WP_List_Table
 {
 	/**
