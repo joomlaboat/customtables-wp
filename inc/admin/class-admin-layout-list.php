@@ -24,13 +24,9 @@ use CustomTablesWP\Inc\Libraries;
 class Admin_Layout_List extends Libraries\WP_List_Table
 {
 	/**
-	 * The text domain of this plugin.
-	 *
 	 * @since    1.0.0
 	 * @access   private
-	 * @var      string $plugin_text_domain The text domain of this plugin.
 	 */
-	public string $plugin_text_domain;
 	public CT $ct;
 	public ListOfLayouts $helperListOfLayouts;
 
@@ -41,18 +37,13 @@ class Admin_Layout_List extends Libraries\WP_List_Table
 	protected ?string $current_status;
 
 	/**
-	 * Call the parent constructor to override the defaults $args
-	 *
-	 * @param string $plugin_text_domain Text domain of the plugin.
-	 *
 	 * @since 1.0.0
 	 */
-	public function __construct($plugin_text_domain)
+	public function __construct()
 	{
 		require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoflayouts.php');
 		$this->ct = new CT;
 		$this->helperListOfLayouts = new ListOfLayouts($this->ct);
-		$this->plugin_text_domain = $plugin_text_domain;
 
 		$whereClause = new MySQLWhereClause();
 		$whereClause->addCondition('published', -2,'!=');
@@ -183,13 +174,13 @@ class Admin_Layout_List extends Libraries\WP_List_Table
 	{
 		return array(
 			'cb' => '<input type="checkbox" />',
-			'layoutname' => __('Layout Name', $this->plugin_text_domain),
-			'layouttype' => __('Type', $this->plugin_text_domain),
-			'tabletitle' => __('Table', $this->plugin_text_domain),
-			'layout_size' => __('Size', $this->plugin_text_domain),
-			'modifiedby' => __('Modified By', $this->plugin_text_domain),
-			'modified' => __('Modified When', $this->plugin_text_domain),
-			'id' => __('Id', $this->plugin_text_domain)
+			'layoutname' => __('Layout Name', 'customtables'),
+			'layouttype' => __('Type', 'customtables'),
+			'tabletitle' => __('Table', 'customtables'),
+			'layout_size' => __('Size', 'customtables'),
+			'modifiedby' => __('Modified By', 'customtables'),
+			'modified' => __('Modified When', 'customtables'),
+			'id' => __('Id', 'customtables')
 		);
 	}
 
@@ -244,7 +235,7 @@ class Admin_Layout_List extends Libraries\WP_List_Table
 	 */
 	public function no_items(): void
 	{
-		_e('No layouts found.', $this->plugin_text_domain);
+		_e('No layouts found.', 'customtables');
 	}
 
 	/**
@@ -452,8 +443,8 @@ class Admin_Layout_List extends Libraries\WP_List_Table
 	{
 		$page = common::inputGetCmd('page');
 
-		wp_die(__('Invalid Nonce', $this->plugin_text_domain),
-			__('Error', $this->plugin_text_domain),
+		wp_die(__('Invalid Nonce', 'customtables'),
+			__('Error', 'customtables'),
 			array(
 				'response' => 403,
 				'back_link' => esc_url(add_query_arg(array('page' => wp_unslash($page)), admin_url('users.php'))),

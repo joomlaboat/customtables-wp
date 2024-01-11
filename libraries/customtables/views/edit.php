@@ -112,7 +112,7 @@ class Edit
 				HTMLHelper::_('jquery.framework');
 				jimport('joomla.html.html.bootstrap');
 			}
-			$this->ct->loadJSAndCSS();
+			common::loadJSAndCSS($this->ct->Params, $this->ct->Env);
 		}
 
 		if (!$this->ct->Params->blockExternalVars and $this->ct->Params->showPageHeading and $this->ct->Params->pageTitle !== null) {

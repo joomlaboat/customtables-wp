@@ -14,19 +14,19 @@ $page = common::inputGetCmd('page');
     <h1 class="wp-heading-inline">
         <?php
         if (isset($this->admin_field_list->ct->Table) and $this->admin_field_list->ct->Table->tablename !== null) {
-            _e('Custom Tables - Table', $this->plugin_text_domain);
+            _e('Custom Tables - Table', 'customtables');
             echo ' "' . $this->admin_field_list->ct->Table->tabletitle . '" - ';
-            _e('Fields', $this->plugin_text_domain);
+            _e('Fields', 'customtables');
         } else {
-            _e('Custom Tables - Fields', $this->plugin_text_domain);
-            echo '<div class="error"><p>' . __('Table not selected or not found.', $this->plugin_text_domain) . '</p></div>';
+            _e('Custom Tables - Fields', 'customtables');
+            echo '<div class="error"><p>' . __('Table not selected or not found.', 'customtables') . '</p></div>';
         }
         ?></h1>
 
     <?php
     if (isset($this->admin_field_list->ct->Table) and $this->admin_field_list->ct->Table->tablename !== null) {
         echo '<a href="admin.php?page=customtables-fields-edit&table='.$this->admin_field_list->tableId.'&field=0" class="page-title-action">'
-            . __('Add New', $this->plugin_text_domain) . '</a>';
+            . __('Add New', 'customtables') . '</a>';
     }
     ?>
 
@@ -48,7 +48,7 @@ $page = common::inputGetCmd('page');
                 <input type="hidden" name="page" value="<?php echo $page; ?>"/>
 	            <?php //wp_nonce_field('fields', '_wpnonce'); ?>
                 <?php
-                $this->admin_field_list->search_box(__('Find', $this->plugin_text_domain), 'nds-field-find');
+                $this->admin_field_list->search_box(__('Find', 'customtables'), 'nds-field-find');
                 $this->admin_field_list->views();
                 $this->admin_field_list->display();
                 ?>

@@ -24,7 +24,6 @@ use Exception;
  */
 class Admin
 {
-
 	/**
 	 * The ID of this plugin.
 	 *
@@ -42,15 +41,6 @@ class Admin
 	 * @var      string $version The current version of this plugin.
 	 */
 	private $version;
-
-	/**
-	 * The text domain of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      string $plugin_text_domain The text domain of this plugin.
-	 */
-	private $plugin_text_domain;
 
 	/**
 	 * WP_List_Table object
@@ -73,14 +63,12 @@ class Admin
 	 *
 	 * @param string $plugin_name The name of this plugin.
 	 * @param string $version The version of this plugin.
-	 * @param string $plugin_text_domain The text domain of this plugin
 	 * @since    1.0.0
 	 */
-	public function __construct($plugin_name, $version, $plugin_text_domain)
+	public function __construct($plugin_name, $version)
 	{
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-		$this->plugin_text_domain = $plugin_text_domain;
 		add_action('init', array($this, 'my_load_plugin_textdomain'));
 	}
 
@@ -173,8 +161,8 @@ class Admin
 		// Tables
 		$page_hook = add_submenu_page(
 			'customtables',                    // Parent Menu Slug
-			__('Tables - CustomTables', $this->plugin_text_domain), // Page Title
-			__('Tables', $this->plugin_text_domain),                // Menu Title
+			__('Tables - CustomTables', 'customtables'), // Page Title
+			__('Tables', 'customtables'),                // Menu Title
 			'manage_options',                                      // Capability
 			'customtables-tables',                                 // Menu Slug
 			array($this, 'load_admin_table_list'),                  // Callback Function
@@ -283,8 +271,8 @@ class Admin
 				$tableId = common::inputGetInt('table');
 				$page_hook = add_submenu_page(
 					'customtables',                     // Parent Menu Slug
-					__(($tableId === 0 ? 'Add Table' : 'Edit Table') . ' - CustomTables', $this->plugin_text_domain), // Page Title
-					__(($tableId === 0 ? ' -- Add' : ' -- Edit'), $this->plugin_text_domain),                     // Menu Title
+					__(($tableId === 0 ? 'Add Table' : 'Edit Table') . ' - CustomTables', 'customtables'), // Page Title
+					__(($tableId === 0 ? ' -- Add' : ' -- Edit'), 'customtables'),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-tables-edit',                               // Menu Slug
 					array($this, 'load_customtablesAdminTablesEdit'),        // Callback Function
@@ -296,8 +284,8 @@ class Admin
 			case 'customtables-fields':
 				$page_hook = add_submenu_page(
 					'customtables',                     // Parent Menu Slug
-					__('Fields - CustomTables', $this->plugin_text_domain), // Page Title
-					__(' - Fields', $this->plugin_text_domain),                     // Menu Title
+					__('Fields - CustomTables', 'customtables'), // Page Title
+					__(' - Fields', 'customtables'),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-fields',                               // Menu Slug 'customtables-fields'
 					array($this, 'load_admin_field_list'),        // Callback Function
@@ -312,8 +300,8 @@ class Admin
 				$tableId = common::inputGetInt('table');
 				add_submenu_page(
 					'customtables',                     // Parent Menu Slug
-					__('Fields - CustomTables', $this->plugin_text_domain), // Page Title
-					__(' - Fields', $this->plugin_text_domain),                     // Menu Title
+					__('Fields - CustomTables', 'customtables'), // Page Title
+					__(' - Fields', 'customtables'),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-fields&table=' . $tableId,                               // Menu Slug
 					array($this, 'load_admin_field_list'),        // Callback Function
@@ -323,8 +311,8 @@ class Admin
 				$fieldId = common::inputGetInt('field');
 				$page_hook = add_submenu_page(
 					'customtables',                     // Parent Menu Slug
-					__(($fieldId == 0 ? 'Add Field' : 'Edit Field') . ' - CustomTables', $this->plugin_text_domain), // Page Title
-					__(($fieldId == 0 ? ' -- Add' : ' -- Edit'), $this->plugin_text_domain),                     // Menu Title
+					__(($fieldId == 0 ? 'Add Field' : 'Edit Field') . ' - CustomTables', 'customtables'), // Page Title
+					__(($fieldId == 0 ? ' -- Add' : ' -- Edit'), 'customtables'),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-fields-edit',                               // Menu Slug
 					array($this, 'load_customtablesAdminFieldsEdit'),        // Callback Function
@@ -337,8 +325,8 @@ class Admin
 
 				$page_hook = add_submenu_page(
 					'customtables',                     // Parent Menu Slug
-					__('Records - CustomTables', $this->plugin_text_domain), // Page Title
-					__(' - Records', $this->plugin_text_domain),                     // Menu Title
+					__('Records - CustomTables', 'customtables'), // Page Title
+					__(' - Records', 'customtables'),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-records',                               // Menu Slug 'customtables-fields'
 					array($this, 'load_admin_record_list'),        // Callback Function
@@ -352,8 +340,8 @@ class Admin
 				$tableId = common::inputGetInt('table');
 				add_submenu_page(
 					'customtables',                     // Parent Menu Slug
-					__('Records - CustomTables', $this->plugin_text_domain), // Page Title
-					__(' - Records', $this->plugin_text_domain),                     // Menu Title
+					__('Records - CustomTables', 'customtables'), // Page Title
+					__(' - Records', 'customtables'),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-records&table=' . $tableId,                               // Menu Slug
 					array($this, 'load_admin_record_list'),        // Callback Function
@@ -363,8 +351,8 @@ class Admin
 				$id = common::inputGetInt('id');
 				$page_hook = add_submenu_page(
 					'customtables',                     // Parent Menu Slug
-					__(($id == 0 ? 'Add Record' : 'Edit Record') . ' - CustomTables', $this->plugin_text_domain), // Page Title
-					__(($id == 0 ? ' -- Add' : ' -- Edit'), $this->plugin_text_domain),                     // Menu Title
+					__(($id == 0 ? 'Add Record' : 'Edit Record') . ' - CustomTables', 'customtables'), // Page Title
+					__(($id == 0 ? ' -- Add' : ' -- Edit'), 'customtables'),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-records-edit',                               // Menu Slug
 					array($this, 'load_customtablesAdminRecordsEdit'),        // Callback Function
@@ -378,8 +366,8 @@ class Admin
 				$layoutId = common::inputGetInt('layout');
 				$page_hook = add_submenu_page(
 					'customtables',                     // Parent Menu Slug
-					__(($layoutId == 0 ? 'Add Layout' : 'Edit Layout') . ' - CustomTables', $this->plugin_text_domain), // Page Title
-					__(($layoutId == 0 ? ' -- Add' : ' -- Edit'), $this->plugin_text_domain),                     // Menu Title
+					__(($layoutId == 0 ? 'Add Layout' : 'Edit Layout') . ' - CustomTables', 'customtables'), // Page Title
+					__(($layoutId == 0 ? ' -- Add' : ' -- Edit'), 'customtables'),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-layouts-edit',                               // Menu Slug
 					array($this, 'load_customtablesAdminLayoutsEdit'),        // Callback Function
@@ -423,7 +411,7 @@ class Admin
 	{
 		/*
 		$arguments	=	array(
-			'label'		=>	__( 'Users Per Page', $this->plugin_text_domain ),
+			'label'		=>	__( 'Users Per Page', 'customtables' ),
 			'default'	=>	5,
 			'option'	=>	'users_per_page'
 		);
@@ -432,7 +420,7 @@ class Admin
 		*/
 
 		// instantiate the Admin Table List
-		$this->admin_table_list = new Admin_Table_List($this->plugin_text_domain);
+		$this->admin_table_list = new Admin_Table_List();
 		$this->admin_table_list->handle_table_actions();
 	}
 
@@ -441,7 +429,7 @@ class Admin
 
 		/*
 		$arguments	=	array(
-			'label'		=>	__( 'Users Per Page', $this->plugin_text_domain ),
+			'label'		=>	__( 'Users Per Page', 'customtables' ),
 			'default'	=>	5,
 			'option'	=>	'users_per_page'
 		);
@@ -450,7 +438,7 @@ class Admin
 		*/
 
 		// instantiate the Admin Field List
-		$this->admin_field_list = new Admin_Field_List($this->plugin_text_domain);
+		$this->admin_field_list = new Admin_Field_List();
 		$this->admin_field_list->handle_field_actions();
 		$this->admin_field_list->handle_field_tasks();
 
@@ -472,7 +460,7 @@ class Admin
 
 		/*
 		$arguments	=	array(
-			'label'		=>	__( 'Users Per Page', $this->plugin_text_domain ),
+			'label'		=>	__( 'Users Per Page', 'customtables' ),
 			'default'	=>	5,
 			'option'	=>	'users_per_page'
 		);
@@ -492,7 +480,7 @@ class Admin
 		}
 
 		// instantiate the Admin Record List
-		$this->admin_record_list = new Admin_Record_List($this->plugin_text_domain);
+		$this->admin_record_list = new Admin_Record_List();
 		$this->admin_record_list->handle_record_actions();
 	}
 
@@ -500,7 +488,7 @@ class Admin
 	{
 		/*
 		$arguments	=	array(
-			'label'		=>	__( 'Users Per Page', $this->plugin_text_domain ),
+			'label'		=>	__( 'Users Per Page', 'customtables' ),
 			'default'	=>	5,
 			'option'	=>	'users_per_page'
 		);
@@ -509,7 +497,7 @@ class Admin
 		*/
 
 		// instantiate the Admin Layout List
-		$this->admin_layout_list = new Admin_Layout_List($this->plugin_text_domain);
+		$this->admin_layout_list = new Admin_Layout_List();
 		$this->admin_layout_list->handle_layout_actions();
 	}
 
@@ -529,7 +517,7 @@ class Admin
 	{
 		{
 			// instantiate the Admin Table List
-			$this->admin_table_list = new Admin_Table_List($this->plugin_text_domain);
+			$this->admin_table_list = new Admin_Table_List();
 
 			// query, filter, and sort the data
 			$this->admin_table_list->prepare_items();
@@ -543,7 +531,7 @@ class Admin
 	{
 		{
 			// instantiate the Admin Field List
-			$this->admin_field_list = new Admin_Field_List($this->plugin_text_domain);
+			$this->admin_field_list = new Admin_Field_List();
 
 			// query, filter, and sort the data
 			$this->admin_field_list->prepare_items();
@@ -557,7 +545,7 @@ class Admin
 	{
 		{
 			// instantiate the Admin Record List
-			$this->admin_record_list = new Admin_Record_List($this->plugin_text_domain);
+			$this->admin_record_list = new Admin_Record_List();
 
 			// query, filter, and sort the data
 			$this->admin_record_list->prepare_items();
@@ -570,7 +558,7 @@ class Admin
 	public function load_admin_layout_list(): void
 	{
 		// instantiate the Admin Layout List
-		$this->admin_layout_list = new Admin_Layout_List($this->plugin_text_domain);
+		$this->admin_layout_list = new Admin_Layout_List();
 
 		// query, filter, and sort the data
 		$this->admin_layout_list->prepare_items();
@@ -582,7 +570,7 @@ class Admin
 
 	public function load_customtablesAdminTablesEdit()
 	{
-		$this->admin_table_edit = new Admin_Table_Edit($this->plugin_text_domain);
+		$this->admin_table_edit = new Admin_Table_Edit();
 		$this->admin_table_edit->handle_table_actions();
 
 		$page = common::inputGetCmd('page');
@@ -600,7 +588,7 @@ class Admin
 
 	public function load_customtablesAdminFieldsEdit()
 	{
-		$this->admin_field_edit = new Admin_Field_Edit($this->plugin_text_domain);
+		$this->admin_field_edit = new Admin_Field_Edit();
 		$this->admin_field_edit->handle_field_actions();
 
 		$page = common::inputGetCmd('page');
@@ -623,14 +611,14 @@ class Admin
 
 	public function load_customtablesAdminRecordsEdit()
 	{
-		$this->admin_record_edit = new Admin_Record_Edit($this->plugin_text_domain);
+		$this->admin_record_edit = new Admin_Record_Edit();
 		$this->admin_record_edit->handle_record_actions();
 		include_once('views' . DIRECTORY_SEPARATOR . 'customtables-records-edit.php');
 	}
 
 	public function load_customtablesAdminLayoutsEdit()
 	{
-		$this->admin_layout_edit = new Admin_Layout_Edit($this->plugin_text_domain);
+		$this->admin_layout_edit = new Admin_Layout_Edit();
 		$this->admin_layout_edit->handle_layout_actions();
 		include_once('views' . DIRECTORY_SEPARATOR . 'customtables-layouts-edit.php');
 	}

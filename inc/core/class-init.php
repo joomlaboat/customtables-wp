@@ -36,24 +36,13 @@ class Init
 	 */
 	protected $plugin_basename;
 
-	/**
-	 * The current version of the plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   protected
-	 * @var      string $version The current version of the plugin.
-	 */
 	protected $version;
 
 	/**
-	 * The text domain of the plugin.
-	 *
 	 * @since    1.0.0
 	 * @access   protected
 	 * @var      string $version The current version of the plugin.
 	 */
-	protected $plugin_text_domain;
-
 
 	// define the core functionality of the plugin.
 	public function __construct()
@@ -61,7 +50,6 @@ class Init
 		$this->plugin_name = CTWP\PLUGIN_NAME;
 		$this->version = CTWP\PLUGIN_VERSION;
 		$this->plugin_basename = CTWP\PLUGIN_BASENAME;
-		$this->plugin_text_domain = CTWP\PLUGIN_TEXT_DOMAIN;
 
 		$this->load_dependencies();
 		$this->set_locale();
@@ -95,7 +83,7 @@ class Init
 	 */
 	private function set_locale()
 	{
-		$plugin_i18n = new Internationalization_i18n($this->plugin_text_domain);
+		$plugin_i18n = new Internationalization_i18n();
 		$this->loader->add_action('plugins_loaded', $plugin_i18n, 'load_plugin_textdomain');
 	}
 
@@ -109,7 +97,7 @@ class Init
 	 */
 	private function define_admin_hooks(): void
 	{
-		$plugin_admin = new Admin\Admin($this->get_plugin_name(), $this->get_version(), $this->get_plugin_text_domain());
+		$plugin_admin = new Admin\Admin($this->get_plugin_name(), $this->get_version());
 
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
@@ -145,17 +133,6 @@ class Init
 	}
 
 	/**
-	 * Retrieve the text domain of the plugin.
-	 *
-	 * @return    string    The text domain of the plugin.
-	 * @since     1.0.0
-	 */
-	public function get_plugin_text_domain()
-	{
-		return $this->plugin_text_domain;
-	}
-
-	/**
 	 * Register all of the hooks related to the public-facing functionality
 	 * of the plugin.
 	 *
@@ -163,7 +140,7 @@ class Init
 	 */
 	private function define_public_hooks()
 	{
-		$plugin_public = new Frontend\Frontend($this->get_plugin_name(), $this->get_version(), $this->get_plugin_text_domain());
+		$plugin_public = new Frontend\Frontend($this->get_plugin_name(), $this->get_version());
 
 		//$this->loader->add_filter('query_vars', $plugin_public,'custom_query_vars');
 

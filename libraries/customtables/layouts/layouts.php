@@ -556,7 +556,7 @@ class Layouts
 	protected function renderCatalog(): string
 	{
 		if ($this->ct->Env->frmt == 'html')
-			$this->ct->loadJSAndCSS();
+			common::loadJSAndCSS($this->ct->Params, $this->ct->Env);
 
 		// -------------------- Table
 

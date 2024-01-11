@@ -8,8 +8,8 @@
                 use CustomTables\Layouts;
                 use CustomTables\MySQLWhereClause;
 
-                echo __('Layout Name', $this->plugin_text_domain); ?>
-                <span class="description">(<?php echo __('required', $this->plugin_text_domain); ?>)</span>
+                echo __('Layout Name', 'customtables'); ?>
+                <span class="description">(<?php echo __('required', 'customtables'); ?>)</span>
             </label>
         </th>
         <td>
@@ -22,8 +22,8 @@
         <!-- Layout Type -->
         <th scope="row" style="text-align: right;">
             <label for="layouttype">
-                <?php echo __('Layout Type', $this->plugin_text_domain); ?>
-                <span class="description">(<?php echo __('required', $this->plugin_text_domain); ?>)</span>
+                <?php echo __('Layout Type', 'customtables'); ?>
+                <span class="description">(<?php echo __('required', 'customtables'); ?>)</span>
             </label>
         </th>
         <td>
@@ -67,8 +67,8 @@
         <!-- Layout Type -->
         <th scope="row" style="text-align: right;">
             <label for="layoutname">
-                <?php echo __('Table', $this->plugin_text_domain); ?>
-                <span class="description">(<?php echo __('required', $this->plugin_text_domain); ?>)</span>
+                <?php echo __('Table', 'customtables'); ?>
+                <span class="description">(<?php echo __('required', 'customtables'); ?>)</span>
             </label>
         </th>
         <td>

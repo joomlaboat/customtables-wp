@@ -22,13 +22,9 @@ use CustomTablesWP\Inc\Libraries;
 class Admin_Record_List extends Libraries\WP_List_Table
 {
     /**
-     * The text domain of this plugin.
-     *
      * @since    1.0.0
      * @access   private
-     * @var      string $plugin_text_domain The text domain of this plugin.
      */
-    public string $plugin_text_domain;
     public CT $ct;
     public ?int $tableId;
 
@@ -40,17 +36,11 @@ class Admin_Record_List extends Libraries\WP_List_Table
     protected ?string $firstFieldRealName;
 
     /**
-	 * Call the parent constructor to override the defaults $args
-	 *
-	 * @param string $plugin_text_domain	Text domain of the plugin.
-	 *
 	 * @since 1.0.0
 	 */
-    public function __construct($plugin_text_domain)
+    public function __construct()
     {
         $this->ct = new CT;
-        $this->plugin_text_domain = $plugin_text_domain;
-
         $this->count_all = 0;
         $this->count_trashed = 0;
         $this->count_published = 0;
@@ -230,7 +220,7 @@ class Admin_Record_List extends Libraries\WP_List_Table
             }
         }
 
-        $columns['id'] = __('Id', $this->plugin_text_domain);
+        $columns['id'] = __('Id', 'customtables');
 
         return $columns;
     }
@@ -321,7 +311,7 @@ class Admin_Record_List extends Libraries\WP_List_Table
      */
     public function no_items(): void
     {
-        _e('No records found.', $this->plugin_text_domain);
+        _e('No records found.', 'customtables');
     }
 
     /**
@@ -536,8 +526,8 @@ class Admin_Record_List extends Libraries\WP_List_Table
     {
 	    $page = common::inputGetCmd('page');
 
-        wp_die(__('Invalid Nonce', $this->plugin_text_domain),
-            __('Error', $this->plugin_text_domain),
+        wp_die(__('Invalid Nonce', 'customtables'),
+            __('Error', 'customtables'),
             array(
                 'response' => 403,
                 'back_link' => esc_url(add_query_arg(array('page' => wp_unslash($page)), admin_url('users.php'))),

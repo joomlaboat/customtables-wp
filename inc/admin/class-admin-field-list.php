@@ -23,13 +23,9 @@ use CustomTablesWP\Inc\Libraries;
 class Admin_Field_List extends Libraries\WP_List_Table
 {
 	/**
-	 * The text domain of this plugin.
-	 *
 	 * @since    1.0.0
 	 * @access   private
-	 * @var      string $plugin_text_domain The text domain of this plugin.
 	 */
-	public $plugin_text_domain;
 	public CT $ct;
 	public $helperListOfFields;
 	public ?int $tableId;
@@ -41,18 +37,13 @@ class Admin_Field_List extends Libraries\WP_List_Table
 	protected ?string $current_status;
 
 	/**
-	 * Call the parent constructor to override the defaults $args
-	 *
-	 * @param string $plugin_text_domain Text domain of the plugin.
-	 *
 	 * @since 1.0.0
 	 */
-	public function __construct($plugin_text_domain)
+	public function __construct()
 	{
 		require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoffields.php');
 		$this->ct = new CT;
 		$this->helperListOfFields = new \CustomTables\ListOfFields($this->ct);
-		$this->plugin_text_domain = $plugin_text_domain;
 
 		$this->tableId = common::inputGetInt('table');
 		if ($this->tableId) {
@@ -225,13 +216,13 @@ class Admin_Field_List extends Libraries\WP_List_Table
 	{
 		return array(
 			'cb' => '<input type="checkbox" />',
-			'fieldname' => __('Field Name', $this->plugin_text_domain),
-			'fieldtitle' => __('Field Title', $this->plugin_text_domain),
-			'type' => __('Field Type', $this->plugin_text_domain),
-			'typeparams' => __('Type Parameters', $this->plugin_text_domain),
-			'isrequired' => __('Required', $this->plugin_text_domain),
-			'table' => __('Table', $this->plugin_text_domain),
-			'id' => __('Id', $this->plugin_text_domain)
+			'fieldname' => __('Field Name', 'customtables'),
+			'fieldtitle' => __('Field Title', 'customtables'),
+			'type' => __('Field Type', 'customtables'),
+			'typeparams' => __('Type Parameters', 'customtables'),
+			'isrequired' => __('Required', 'customtables'),
+			'table' => __('Table', 'customtables'),
+			'id' => __('Id', 'customtables')
 		);
 	}
 
@@ -309,7 +300,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
 	 */
 	public function no_items()
 	{
-		_e('No fields found.', $this->plugin_text_domain);
+		_e('No fields found.', 'customtables');
 	}
 
 	/**
@@ -539,8 +530,8 @@ class Admin_Field_List extends Libraries\WP_List_Table
 	{
 		$page = common::inputGetCmd('page');
 
-		wp_die(__('Invalid Nonce', $this->plugin_text_domain),
-			__('Error', $this->plugin_text_domain),
+		wp_die(__('Invalid Nonce', 'customtables'),
+			__('Error', 'customtables'),
 			array(
 				'response' => 403,
 				'back_link' => esc_url(add_query_arg(array('page' => wp_unslash($page)), admin_url('users.php'))),

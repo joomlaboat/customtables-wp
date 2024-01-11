@@ -76,8 +76,8 @@ else
                     <tr class="form-field form-required">
                         <th scope="row">
                             <label for="tablename">
-                                <?php echo __('Table Name', $this->plugin_text_domain); ?>
-                                <span class="description">(<?php echo __('required', $this->plugin_text_domain); ?>)</span>
+                                <?php echo __('Table Name', 'customtables'); ?>
+                                <span class="description">(<?php echo __('required', 'customtables'); ?>)</span>
                             </label>
                         </th>
                         <td>
@@ -102,9 +102,9 @@ else
                         <tr class="form-field<?php echo(!$moreThanOneLang ? ' form-required' : ''); ?>">
                             <th scope="row">
                                 <label for="<?php echo $id; ?>">
-                                    <?php echo __('Table Title', $this->plugin_text_domain); ?>
+                                    <?php echo __('Table Title', 'customtables'); ?>
                                     <?php if (!$moreThanOneLang): ?>
-                                        <span class="description">(<?php echo __('required', $this->plugin_text_domain); ?>)</span>
+                                        <span class="description">(<?php echo __('required', 'customtables'); ?>)</span>
                                     <?php endif; ?>
                                     <br/>
                                     <b><?php echo $lang->title; ?></b>

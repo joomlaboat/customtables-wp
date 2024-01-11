@@ -17,15 +17,15 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
         <h1 id="add-new-user">
             <?php
             if (isset($this->admin_record_edit->ct->Table) and $this->admin_record_edit->ct->Table->tablename !== null) {
-                _e('Custom Tables - Table', $this->plugin_text_domain);
+                _e('Custom Tables - Table', 'customtables');
                 echo ' "' . $this->admin_record_edit->ct->Table->tabletitle . '" - ';
                 if ($this->admin_record_edit->listing_id === null)
                     _e('Add New Record');
                 else
                     _e('Edit Record');
             } else {
-                _e('Custom Tables - Records', $this->plugin_text_domain);
-                echo '<div class="error"><p>' . __('Table not selected or not found.', $this->plugin_text_domain) . '</p></div>';
+                _e('Custom Tables - Records', 'customtables');
+                echo '<div class="error"><p>' . __('Table not selected or not found.', 'customtables') . '</p></div>';
             }
             ?>
         </h1>

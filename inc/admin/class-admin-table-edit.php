@@ -10,33 +10,19 @@ use WP_Error;
 
 class Admin_Table_Edit
 {
-	/**
-	 * The text domain of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      string $plugin_text_domain The text domain of this plugin.
-	 */
-	public $plugin_text_domain;
 	public CT $ct;
 	public $helperListOfTables;
 	public ?int $tableId;
 	public WP_Error $errors;
 
 	/**
-	 *
-	 *
-	 * @param string $plugin_text_domain Text domain of the plugin.
-	 *
 	 * @since 1.0.0
 	 */
-	public function __construct($plugin_text_domain)
+	public function __construct()
 	{
 		require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoftables.php');
 		$this->ct = new CT;
 		$this->helperListOfTables = new \CustomTables\ListOfTables($this->ct);
-		$this->plugin_text_domain = $plugin_text_domain;
-
 		$this->tableId = common::inputGetInt('table');
 
 		if ($this->tableId === 0)

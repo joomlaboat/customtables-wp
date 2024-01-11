@@ -10,7 +10,7 @@ $documentation = new \CustomTables\Documentation(true,true);
 ?>
 
 <div class="wrap ct_doc">
-    <h2><?php _e( 'Custom Tables - Documentation', $this->plugin_text_domain); ?></h2>
+    <h2><?php _e( 'Custom Tables - Documentation', 'customtables'); ?></h2>
     <h2 class="nav-tab-wrapper wp-clearfix">
         <button data-toggle="tab" data-tabs=".gtabs.demo" data-tab=".tab-1" class="nav-tab nav-tab-active" >Field Types</button>
         <button data-toggle="tab" data-tabs=".gtabs.demo" data-tab=".tab-2" class="nav-tab" >Layouts</button>

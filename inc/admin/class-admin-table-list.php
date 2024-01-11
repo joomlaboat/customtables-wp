@@ -25,13 +25,9 @@ use ESTables;
 class Admin_Table_List extends Libraries\WP_List_Table
 {
     /**
-     * The text domain of this plugin.
-     *
      * @since    1.0.0
      * @access   private
-     * @var      string $plugin_text_domain The text domain of this plugin.
      */
-    public string $plugin_text_domain;
     public CT $ct;
     public ListOfTables $helperListOfTables;
 
@@ -43,17 +39,13 @@ class Admin_Table_List extends Libraries\WP_List_Table
 
     /**
 	 * Call the parent constructor to override the defaults $args
-	 * 
-	 * @param string $plugin_text_domain	Text domain of the plugin.	
-	 * 
 	 * @since 1.0.0
 	 */
-    public function __construct($plugin_text_domain)
+    public function __construct()
     {
         require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoftables.php');
         $this->ct = new CT;
         $this->helperListOfTables = new ListOfTables($this->ct);
-        $this->plugin_text_domain = $plugin_text_domain;
 
 	    $whereClause = new MySQLWhereClause();
 	    $whereClause->addCondition('published', -2,'!=');
@@ -184,18 +176,18 @@ class Admin_Table_List extends Libraries\WP_List_Table
             $item['fieldcount'] = '<a class="button action" aria-describedby="tip-tablerecords' . $item['id'] . '" href="'
                 . 'admin.php?page=customtables-fields&table=' . $item['id'] . '">'
                 . $item['fieldcount']
-                . ' ' . __('Fields', $this->plugin_text_domain) . '</a>';
+                . ' ' . __('Fields', 'customtables') . '</a>';
 
 
             if (!$table_exists)
-                $item['recordcount'] = __('No Table', $this->plugin_text_domain);
+                $item['recordcount'] = __('No Table', 'customtables');
             elseif (($item['customtablename'] !== null and $item['customtablename'] != '') and ($item['customidfield'] === null or $item['customidfield'] == ''))
-                $item['recordcount'] = __('No Primary Key', $this->plugin_text_domain);
+                $item['recordcount'] = __('No Primary Key', 'customtables');
             else {
                 $item['recordcount'] = '<a class="button action" aria-describedby="tip-tablerecords' . $item['id'] . '" href="'
                     . 'admin.php?page=customtables-records&table=' . $item['id'] . '">'
                     . listOfTables::getNumberOfRecords($item['realtablename'], $item['realidfieldname'])
-                    . ' ' . __('Records', $this->plugin_text_domain) . '</a>';
+                    . ' ' . __('Records', 'customtables') . '</a>';
             }
 
             $newData[] = $item;
@@ -215,12 +207,11 @@ class Admin_Table_List extends Libraries\WP_List_Table
     {
         return array(
             'cb' => '<input type="checkbox" />',
-            'tablename' => __('Table Name', $this->plugin_text_domain),
-            'tabletitle' => __('Table Title', $this->plugin_text_domain),
-            'fieldcount' => __('Fields', $this->plugin_text_domain),
-            'recordcount' => __('Records', $this->plugin_text_domain),
-            //'published' => __('Status', $this->plugin_text_domain),
-            'id' => __('Id', $this->plugin_text_domain)
+            'tablename' => __('Table Name', 'customtables'),
+            'tabletitle' => __('Table Title', 'customtables'),
+            'fieldcount' => __('Fields', 'customtables'),
+            'recordcount' => __('Records', 'customtables'),
+            'id' => __('Id', 'customtables')
         );
     }
 
@@ -276,7 +267,7 @@ class Admin_Table_List extends Libraries\WP_List_Table
      */
     public function no_items(): void
     {
-        _e('No tables found.', $this->plugin_text_domain);
+        _e('No tables found.', 'customtables');
     }
 
     /**
@@ -485,8 +476,8 @@ class Admin_Table_List extends Libraries\WP_List_Table
     public function invalid_nonce_redirect()
     {
 	    $page = common::inputGetCmd('page');
-        wp_die(__('Invalid Nonce', $this->plugin_text_domain),
-            __('Error', $this->plugin_text_domain),
+        wp_die(__('Invalid Nonce', 'customtables'),
+            __('Error', 'customtables'),
             array(
                 'response' => 403,
                 'back_link' => esc_url(add_query_arg(array('page' => wp_unslash($page)), admin_url('users.php'))),

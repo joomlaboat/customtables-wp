@@ -12,13 +12,9 @@ use CustomTables\Tables;
 class Admin_Field_Edit
 {
     /**
-     * The text domain of this plugin.
-     *
      * @since    1.0.0
      * @access   private
-     * @var      string $plugin_text_domain The text domain of this plugin.
      */
-    public $plugin_text_domain;
     public CT $ct;
     public $helperListOfFields;
 	public ?int $tableId;
@@ -28,18 +24,13 @@ class Admin_Field_Edit
     public array $allTables;
 
     /**
-	 *
-	 *
-	 * @param string $plugin_text_domain	Text domain of the plugin.
-	 *
 	 * @since 1.0.0
 	 */
-    public function __construct($plugin_text_domain)
+    public function __construct()
     {
         require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoffields.php');
         $this->ct = new CT;
         $this->helperListOfFields = new \CustomTables\ListOfFields($this->ct);
-        $this->plugin_text_domain = $plugin_text_domain;
 	    $this->tableId = common::inputGetInt('table');
         $this->fieldId = null;
         $this->fieldRow=['tableid' => null,'fieldname' => null , 'fieldtitle' => null, 'type' => null, 'typeparams' => null, 'isrequired' => null,

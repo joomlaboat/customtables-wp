@@ -15,15 +15,15 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
         <h1 id="add-new-user">
             <?php
             if (isset($this->admin_field_edit->ct->Table) and $this->admin_field_edit->ct->Table->tablename !== null) {
-                _e('Custom Tables - Table', $this->plugin_text_domain);
+                _e('Custom Tables - Table', 'customtables');
                 echo ' "' . $this->admin_field_edit->ct->Table->tabletitle . '" - ';
                 if ($this->admin_field_edit->fieldId == 0)
                     _e('Add New Field');
                 else
                     _e('Edit Field');
             } else {
-                _e('Custom Tables - Fields', $this->plugin_text_domain);
-                echo '<div class="error"><p>' . __('Table not selected or not found.', $this->plugin_text_domain) . '</p></div>';
+                _e('Custom Tables - Fields', 'customtables');
+                echo '<div class="error"><p>' . __('Table not selected or not found.', 'customtables') . '</p></div>';
             }
             ?>
         </h1>
@@ -95,8 +95,8 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                         <tr class="form-field form-required">
                             <th scope="row">
                                 <label for="fieldname">
-                                    <?php echo __('Field Name', $this->plugin_text_domain); ?>
-                                    <span class="description">(<?php echo __('required', $this->plugin_text_domain); ?>)</span>
+                                    <?php echo __('Field Name', 'customtables'); ?>
+                                    <span class="description">(<?php echo __('required', 'customtables'); ?>)</span>
                                 </label>
                             </th>
                             <td>
@@ -121,9 +121,9 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                             <tr class="form-field<?php echo(!$moreThanOneLang ? ' form-required' : ''); ?>">
                                 <th scope="row">
                                     <label for="<?php echo $id; ?>">
-                                        <?php echo __('Field Title', $this->plugin_text_domain); ?>
+                                        <?php echo __('Field Title', 'customtables'); ?>
                                         <?php if (!$moreThanOneLang): ?>
-                                            <span class="description">(<?php echo __('required', $this->plugin_text_domain); ?>)</span>
+                                            <span class="description">(<?php echo __('required', 'customtables'); ?>)</span>
                                         <?php endif; ?>
                                         <br/>
                                         <b><?php echo $lang->title; ?></b>
@@ -142,8 +142,8 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                         <tr class="form-field form-required">
                             <th scope="row">
                                 <label for="type">
-                                    <?php echo __('Field Type', $this->plugin_text_domain); ?>
-                                    <span class="description">(<?php echo __('required', $this->plugin_text_domain); ?>)</span>
+                                    <?php echo __('Field Type', 'customtables'); ?>
+                                    <span class="description">(<?php echo __('required', 'customtables'); ?>)</span>
                                 </label>
                             </th>
                             <td>
@@ -165,8 +165,8 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                         <tr class="form-field form-required">
                             <th scope="row">
                                 <label for="typeparams">
-                                    <?php echo __('Type Parameters', $this->plugin_text_domain); ?>
-                                    <span class="description">(<?php echo __('required', $this->plugin_text_domain); ?>)</span>
+                                    <?php echo __('Type Parameters', 'customtables'); ?>
+                                    <span class="description">(<?php echo __('required', 'customtables'); ?>)</span>
                                 </label>
                             </th>
                             <td>

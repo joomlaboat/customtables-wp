@@ -39,7 +39,7 @@ class Catalog
 	function render(string|int|null $layoutName = null, $limit = 0): string
 	{
 		if ($this->ct->Env->frmt == 'html')
-			$this->ct->loadJSAndCSS();
+			common::loadJSAndCSS($this->ct->Params, $this->ct->Env);
 
 		if ($this->ct->Env->legacySupport) {
 
