@@ -23,9 +23,9 @@ else
         <h1 id="add-new-user">
             <?php
             if ($this->admin_table_edit->tableId == 0)
-                _e('Add New Custom Table');
+                esc_html_e('Add New Custom Table');
             else
-                _e('Edit Custom Table');
+                esc_html_e('Edit Custom Table');
             ?>
         </h1>
 
@@ -66,9 +66,9 @@ else
             <p><?php
 
                 if ($this->admin_table_edit->tableId === null)
-                    _e('Create a brand new custom table.');
+                    esc_html_e('Create a brand new custom table.');
                 else
-                    _e('Edit custom table.');
+                    esc_html_e('Edit custom table.');
                 ?>
             </p>
             <form method="post" name="createtable" id="createtable" class="validate" novalidate="novalidate">
@@ -80,8 +80,8 @@ else
                     <tr class="form-field form-required">
                         <th scope="row">
                             <label for="tablename">
-                                <?php echo __('Table Name', 'customtables'); ?>
-                                <span class="description">(<?php echo __('required', 'customtables'); ?>)</span>
+                                <?php echo esc_html(__('Table Name', 'customtables')); ?>
+                                <span class="description">(<?php echo esc_html(__('required', 'customtables')); ?>)</span>
                             </label>
                         </th>
                         <td>
@@ -106,9 +106,9 @@ else
                         <tr class="form-field<?php echo(!$moreThanOneLang ? ' form-required' : ''); ?>">
                             <th scope="row">
                                 <label for="<?php echo $id; ?>">
-                                    <?php echo __('Table Title', 'customtables'); ?>
+                                    <?php echo esc_html(__('Table Title', 'customtables')); ?>
                                     <?php if (!$moreThanOneLang): ?>
-                                        <span class="description">(<?php echo __('required', 'customtables'); ?>)</span>
+                                        <span class="description">(<?php echo esc_html(__('required', 'customtables')); ?>)</span>
                                     <?php endif; ?>
                                     <br/>
                                     <b><?php echo $lang->title; ?></b>

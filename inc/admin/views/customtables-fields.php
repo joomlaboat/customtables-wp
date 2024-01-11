@@ -20,19 +20,19 @@ $page = common::inputGetCmd('page');
     <h1 class="wp-heading-inline">
         <?php
         if (isset($this->admin_field_list->ct->Table) and $this->admin_field_list->ct->Table->tablename !== null) {
-            _e('Custom Tables - Table', 'customtables');
+            esc_html_e('Custom Tables - Table', 'customtables');
             echo ' "' . $this->admin_field_list->ct->Table->tabletitle . '" - ';
-            _e('Fields', 'customtables');
+            esc_html_e('Fields', 'customtables');
         } else {
-            _e('Custom Tables - Fields', 'customtables');
-            echo '<div class="error"><p>' . __('Table not selected or not found.', 'customtables') . '</p></div>';
+            esc_html_e('Custom Tables - Fields', 'customtables');
+            echo '<div class="error"><p>' . esc_html(__('Table not selected or not found.', 'customtables')) . '</p></div>';
         }
         ?></h1>
 
     <?php
     if (isset($this->admin_field_list->ct->Table) and $this->admin_field_list->ct->Table->tablename !== null) {
         echo '<a href="admin.php?page=customtables-fields-edit&table='.$this->admin_field_list->tableId.'&field=0" class="page-title-action">'
-            . __('Add New', 'customtables') . '</a>';
+            . esc_html(__('Add New', 'customtables')) . '</a>';
     }
     ?>
 

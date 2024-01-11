@@ -234,7 +234,7 @@ class Admin_Layout_List extends Libraries\WP_List_Table
 	 */
 	public function no_items(): void
 	{
-		_e('No layouts found.', 'customtables');
+		esc_html_e('No layouts found.', 'customtables');
 	}
 
 	/**

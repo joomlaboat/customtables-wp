@@ -266,7 +266,7 @@ class Admin_Table_List extends Libraries\WP_List_Table
      */
     public function no_items(): void
     {
-        _e('No tables found.', 'customtables');
+        esc_html_e('No tables found.', 'customtables');
     }
 
     /**

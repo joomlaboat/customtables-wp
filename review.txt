@@ -1,31 +1,3 @@
-## Variables and options must be escaped when echo'd
-
-Much related to sanitizing everything, all variables that are echoed need to be escaped when they're echoed, so it can't hijack users or (worse) admin screens. There are many esc_*() functions you can use to make sure you don't show people the wrong data, as well as some that will allow you to echo HTML safely.
-
-At this time, we ask you escape all $-variables, options, and any sort of generated data when it is being echoed. That means you should not be escaping when you build a variable, but when you output it at the end. We call this 'escaping late.'
-
-Note: The functions _e and _ex outputs the translation without escaping, please use an alternative function that escapes the output.
-
-    An alternative to _e would be esc_html_e, esc_attr_e or simply using __ wrapped by a escaping function and inside an echo.
-    An alternative to _ex would be using _x wrapped by a escaping function and inside an echo.
-
-Examples:
-
-<h2><?php esc_html_e('Settings page', 'plugin-slug'); ?></h2>
- <h2><?php echo esc_html(__('Settings page', 'plugin-slug')); ?></h2>
- <h2><?php echo esc_html(_x('Settings page', 'Settings page title', 'plugin-slug')); ?></h2>
-
-
-Example(s) from your plugin:
-
-
-customtables/inc/admin/views/customtables-records-edit.php:21 _e('Add New Record');
-customtables/inc/admin/views/customtables-records.php:15 _e('Custom Tables - Table', $this->plugin_text_domain);
-customtables/inc/admin/views/customtables-records-edit.php:75 _e('Edit record.');
-customtables/inc/libraries/class-wp-list-table.php:342 _e( 'No items found.' );
-
-
-... out of a total of 32 coincidences.
 
 ## Generic function/class/define/namespace/option names
 

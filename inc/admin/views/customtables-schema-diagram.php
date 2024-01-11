@@ -26,17 +26,15 @@ $diagram = new Diagram();
     <style>
         #canvas_container {
             width: 100%;
-            min-height: <?php echo (count($diagram->tables)>50 ? '4000' : '2000'); ?>px;
+            min-height: <?php echo count($diagram->tables)>50 ? '4000' : '2000'; ?>px;
             border: 1px solid #aaa;
         }
     </style>
     <div id="canvas_container"></div>
 
     <script>
-
         TableCategoryID = null;
         AllTables = <?php echo wp_json_encode($diagram->tables); ?>;
-
     </script>
 
 <?php /*

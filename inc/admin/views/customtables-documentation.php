@@ -10,13 +10,14 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+use CustomTables\Documentation;
+
 include_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-documentation.php');
-$documentation = new \CustomTables\Documentation(true,true);
+$documentation = new Documentation(true,true);
 
 ?>
-
 <div class="wrap ct_doc">
-    <h2><?php _e( 'Custom Tables - Documentation', 'customtables'); ?></h2>
+    <h2><?php esc_html_e( 'Custom Tables - Documentation', 'customtables'); ?></h2>
     <h2 class="nav-tab-wrapper wp-clearfix">
         <button data-toggle="tab" data-tabs=".gtabs.demo" data-tab=".tab-1" class="nav-tab nav-tab-active" >Field Types</button>
         <button data-toggle="tab" data-tabs=".gtabs.demo" data-tab=".tab-2" class="nav-tab" >Layouts</button>
@@ -41,6 +42,4 @@ $documentation = new \CustomTables\Documentation(true,true);
 
         </div>
     </div>
-
 </div>
-

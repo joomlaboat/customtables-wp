@@ -47,7 +47,7 @@ define(CTWP . 'PLUGIN_TEXT_DOMAIN', 'customtables');
 
 $path = PLUGIN_NAME_DIR . 'libraries' . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR;
 require_once($path . 'loader.php');
-CTLoader(false, true, PLUGIN_NAME_DIR);
+CustomTablesLoader(false, true, PLUGIN_NAME_DIR);
 
 require_once(PLUGIN_NAME_DIR . 'inc/libraries/autoloader.php');
 

@@ -306,7 +306,7 @@ class Admin_Record_List extends Libraries\WP_List_Table
      */
     public function no_items(): void
     {
-        _e('No records found.', 'customtables');
+        esc_html_e('No records found.', 'customtables');
     }
 
     /**

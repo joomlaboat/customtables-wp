@@ -167,48 +167,17 @@ class ListOfLayouts
 		$data['layoutcss'] = common::inputPostRow('layoutcss', null, 'create-edit-layout');//$sets[] = 'layoutcss=' . database::quote(common::inputGetRow('layoutcss'), true);
 		$data['layoutjs'] = common::inputPostRow('layoutjs', null, 'create-edit-layout');//$sets[] = 'layoutjs=' . database::quote(common::inputGetRow('layoutjs'), true);
 
-		// set the metadata to the Item Data
-		/*
-		if (isset($data['metadata']) && isset($data['metadata']['author'])) {
-			$data['metadata']['author'] = $filter->clean($data['metadata']['author'], 'TRIM');
+		try {
+			if ($layoutId !== null) {
+				$whereClauseUpdate = new MySQLWhereClause();
+				$whereClauseUpdate->addCondition('id', $layoutId);
 
-			$metadata = new Registry($data['metadata']);
-			$data['metadata'] = (string)$metadata;
+				database::update('#__customtables_layouts', $data, $whereClauseUpdate);
+			} else
+				database::insert('#__customtables_layouts', $data);
+		} catch (Exception $e) {
+			return false;
 		}
-
-		// Set the Params Items to data
-		if (isset($data['params']) && is_array($data['params'])) {
-			$params = new Registry($data['params']);
-			$data['params'] = (string)$params;
-		}
-*/
-		// Alter the unique field for save as copy
-		/*
-		if (common::inputGetCmd('task') === 'save2copy') {
-			// Automatic handling of other unique fields
-			$uniqueFields = $this->getUniqueFields();
-			if (CustomtablesHelper::checkArray($uniqueFields)) {
-				foreach ($uniqueFields as $uniqueField) {
-					$data[$uniqueField] = $this->generateUnique($uniqueField, $data[$uniqueField]);
-				}
-			}
-		}
-		*/
-
-		//$Layouts = new Layouts($this->ct);
-		//$Layouts->storeAsFile($data);
-
-		//try {
-		if ($layoutId !== null) {
-			$whereClauseUpdate = new MySQLWhereClause();
-			$whereClauseUpdate->addCondition('id', $layoutId);
-
-			database::update('#__customtables_layouts', $data, $whereClauseUpdate);
-		} else
-			database::insert('#__customtables_layouts', $data);
-		//} catch (Exception $e) {
-		//	return false;
-		//}
 		return true;
 	}
 }

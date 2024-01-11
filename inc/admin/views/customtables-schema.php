@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 
 <div class="wrap ct_doc">
-    <h2><?php _e('Custom Tables - Database Schema', 'customtables'); ?></h2>
+    <h2><?php esc_html_e('Custom Tables - Database Schema', 'customtables'); ?></h2>
 
     <h2 class="nav-tab-wrapper wp-clearfix">
         <button data-toggle="tab" data-tabs=".gtabs.demo" data-tab=".tab-1" class="nav-tab nav-tab-active">Diagram</button>

@@ -19,8 +19,8 @@ $result = IntegrityChecks::check($this->admin_layout_list->ct, true, false);
 
 ?>
 <div class="wrap">
-    <h1 class="wp-heading-inline"><?php _e('Custom Tables - Layouts', 'customtables'); ?></h1>
-    <a href="admin.php?page=customtables-layouts-edit&layout=0" class="page-title-action"><?php _e('Add New', 'customtables'); ?></a>
+    <h1 class="wp-heading-inline"><?php esc_html_e('Custom Tables - Layouts', 'customtables'); ?></h1>
+    <a href="admin.php?page=customtables-layouts-edit&layout=0" class="page-title-action"><?php esc_html_e('Add New', 'customtables'); ?></a>
 
     <hr class="wp-header-end">
 

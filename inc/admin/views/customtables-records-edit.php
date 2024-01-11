@@ -19,15 +19,15 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
         <h1 id="add-new-user">
             <?php
             if (isset($this->admin_record_edit->ct->Table) and $this->admin_record_edit->ct->Table->tablename !== null) {
-                _e('Custom Tables - Table', 'customtables');
-                echo ' "' . $this->admin_record_edit->ct->Table->tabletitle . '" - ';
+                esc_html_e('Custom Tables - Table', 'customtables');
+                echo ' "' . esc_html($this->admin_record_edit->ct->Table->tabletitle) . '" - ';
                 if ($this->admin_record_edit->listing_id === null)
-                    _e('Add New Record');
+                    esc_html_e('Add New Record');
                 else
-                    _e('Edit Record');
+                    esc_html_e('Edit Record');
             } else {
-                _e('Custom Tables - Records', 'customtables');
-                echo '<div class="error"><p>' . __('Table not selected or not found.', 'customtables') . '</p></div>';
+                esc_html_e('Custom Tables - Records', 'customtables');
+                echo '<div class="error"><p>' . esc_html(__('Table not selected or not found.', 'customtables')) . '</p></div>';
             }
             ?>
         </h1>
@@ -37,7 +37,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                 <ul>
                     <?php
                     foreach ($errors->get_error_messages() as $err) {
-                        echo "<li>$err</li>\n";
+                        echo "<li>" . esc_html($err) ."</li>\n";
                     }
                     ?>
                 </ul>
@@ -47,7 +47,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 
         if (!empty($messages)) {
             foreach ($messages as $msg) {
-                echo '<div id="message" class="updated notice is-dismissible"><p>' . $msg . '</p></div>';
+                echo '<div id="message" class="updated notice is-dismissible"><p>' . esc_html($msg) . '</p></div>';
             }
         }
         ?>
@@ -56,7 +56,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
             <div class="error">
                 <?php
                 foreach ($add_user_errors->get_error_messages() as $message) {
-                    echo "<p>$message</p>";
+                    echo "<p>".esc_html($message)."</p>";
                 }
                 ?>
             </div>
@@ -74,9 +74,9 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                 <p><?php
 
                     if ($this->admin_record_edit->listing_id === null)
-                        _e('Create a brand new record.');
+                        esc_html_e('Create a brand new record.');
                     else
-                        _e('Edit record.');
+                        esc_html_e('Edit record.');
                     ?>
                 </p>
 
@@ -85,7 +85,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                     echo '
                     <form method="post" name="createrecord" id="createrecord" class="validate" novalidate="novalidate">
                     <input name="action" type="hidden" value="createrecord"/>
-                    <input name="table" type="hidden" value="'.$this->admin_record_edit->tableId.'"/>';
+                    <input name="table" type="hidden" value="'.esc_html($this->admin_record_edit->tableId).'"/>';
                     echo wp_nonce_field('create-edit-record' );
 
                     $buttonText = ($this->admin_record_edit->listing_id == 0) ? __('Add New Record') : __('Save Record');
@@ -95,16 +95,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 
                     echo $editForm->render($this->admin_record_edit->recordRow, $this->admin_record_edit->formLink, 'adminForm',false);
 
-
-                    ?>
-
-
-
-
-
-
-
-                    <?php submit_button($buttonText, 'primary', 'createrecord', true, array('id' => 'createrecordsub')); ?>
+                    submit_button($buttonText, 'primary', 'createrecord', true, array('id' => 'createrecordsub')); ?>
                 </form>
             <?php endif; ?>
         <?php } // End if (current_user_can('install_plugins')) ?>

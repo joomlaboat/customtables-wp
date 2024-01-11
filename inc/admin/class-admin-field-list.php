@@ -299,7 +299,7 @@ class Admin_Field_List extends Libraries\WP_List_Table
 	 */
 	public function no_items()
 	{
-		_e('No fields found.', 'customtables');
+		esc_html_e('No fields found.', 'customtables');
 	}
 
 	/**

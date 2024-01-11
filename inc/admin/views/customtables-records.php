@@ -19,12 +19,12 @@ $page = common::inputGetCmd('page');
     <h1 class="wp-heading-inline">
         <?php
         if (isset($this->admin_record_list->ct->Table) and $this->admin_record_list->ct->Table->tablename !== null) {
-            _e('Custom Tables - Table', 'customtables');
-            echo ' "' . $this->admin_record_list->ct->Table->tabletitle . '" - ';
-            _e('Records', 'customtables');
+            esc_html_e('Custom Tables - Table', 'customtables');
+            echo esc_html(' "' . $this->admin_record_list->ct->Table->tabletitle . '" - ');
+            esc_html_e('Records', 'customtables');
         } else {
-            _e('Custom Tables - Records', 'customtables');
-            echo '<div class="error"><p>' . __('Table not selected or not found.', 'customtables') . '</p></div>';
+            esc_html_e('Custom Tables - Records', 'customtables');
+            echo '<div class="error"><p>' . esc_html(__('Table not selected or not found.', 'customtables')) . '</p></div>';
         }
         ?></h1>
 
@@ -40,7 +40,7 @@ $page = common::inputGetCmd('page');
     <div id="customtables">
         <div id="customtables-post-body">
             <form id="customtables-admin-record-list-form" method="post">
-                <input type="hidden" name="page" value="<?php echo $page; ?>"/>
+                <input type="hidden" name="page" value="<?php echo esc_html($page); ?>"/>
                 <?php
                 $this->admin_record_list->search_box(__('Find', 'customtables'), 'nds-record-find');
                 $this->admin_record_list->views();
