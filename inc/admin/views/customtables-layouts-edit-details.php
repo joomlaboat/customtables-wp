@@ -40,7 +40,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
                 <span class="description">(<?php echo esc_html(__('required', 'customtables')); ?>)</span>
             </label>
         </th>
-        <td>
+        <th>
 
             <?php
 
@@ -48,19 +48,19 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
             $Layouts = new Layouts($this->admin_layout_edit->ct);
             $types = $Layouts->layoutTypeTranslation();
 
-            $options = '';
+            $options_escaped = '';
 
             foreach ($types as $key => $type) {
-                $options .= '<option value="' . $key . '"';
+	            $options_escaped .= '<option value="' . esc_html($key) . '"';
                 if ($key == $selectedType) {
-                    $options .= ' selected';
+	                $options_escaped .= ' selected';
                 }
-                $options .= '>' . $type . '</option>';
+	            $options_escaped .= '>' . esc_html($type) . '</option>';
             }
             ?>
 
             <select name="layouttype" id="layouttype">
-                <?php echo $options; ?>
+                <?php echo $options_escaped; ?>
             </select>
 
             <?php
@@ -76,9 +76,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
                 * COM_CUSTOMTABLES_LAYOUTS_JSON = "JSON File"
              */
             ?>
-        </td>
+        </th>
 
-        <!-- Layout Type -->
+        <!-- Table -->
         <th scope="row" style="text-align: right;">
             <label for="layoutname">
                 <?php echo esc_html(__('Table', 'customtables')); ?>
@@ -86,14 +86,15 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
             </label>
         </th>
         <td>
-
             <?php
 
             $whereClause = new MySQLWhereClause();
             $whereClause->addCondition('published', 1);
 
-            echo Forms::renderHTMLSelectBoxFromDB('table',$this->admin_layout_edit->layoutRow['tableid'] ?? 0, true,'#__customtables_tables',
-                ['id', 'tablename'], $whereClause, 'tablename',['onchange="loadFieldsUpdate(\'WordPress\');"']) ?>
+            $list_of_tables_safe = Forms::renderHTMLSelectBoxFromDB('table',$this->admin_layout_edit->layoutRow['tableid'] ?? 0, true,'#__customtables_tables',
+	            ['id', 'tablename'], $whereClause, 'tablename',['onchange="loadFieldsUpdate(\'WordPress\');"']);
+
+            echo $list_of_tables_safe; ?>
         </td>
     </tr>
 </table>

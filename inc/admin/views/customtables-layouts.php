@@ -34,7 +34,7 @@ $result = IntegrityChecks::check($this->admin_layout_list->ct, true, false);
     <div id="customtables">
         <div id="customtables-post-body">
             <form id="customtables-admin-layout-list-form" method="post">
-                <input type="hidden" name="page" value="<?php echo $page; ?>" />
+                <input type="hidden" name="page" value="<?php echo esc_html($page); ?>" />
                 <?php
                 $this->admin_layout_list->search_box( __( 'Find', 'customtables' ), 'nds-layout-find');
                 $this->admin_layout_list->views();

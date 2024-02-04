@@ -15,10 +15,8 @@ if (!defined('_JEXEC') and !defined('WPINC')) {
 	die('Restricted access');
 }
 
-use CT_FieldTypeTag_FileBox;
 use CT_FieldTypeTag_imagegallery;
 use Exception;
-use Joomla\CMS\Factory;
 use CustomTables\ctProHelpers;
 use Twig\Loader\ArrayLoader;
 use Twig\TwigFunction;
@@ -69,7 +67,7 @@ class TwigProcessor
 
 		if (!class_exists('Twig\Loader\ArrayLoader')) {
 			$this->errorMessage = 'Twig not loaded. Go to Global Configuration/ Custom Tables Configuration to enable it.';
-			Factory::getApplication()->enqueueMessage($this->errorMessage, 'error');
+			common::enqueueMessage($this->errorMessage);
 			return;
 		}
 
@@ -474,7 +472,10 @@ class fieldObject
 
 		} elseif ($this->field->type == 'filebox') {
 
-			$files = CT_FieldTypeTag_FileBox::getFileBoxRows($this->ct->Table->tablename, $this->field->fieldname, $this->ct->Table->record[$this->ct->Table->realidfieldname]);
+			require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR
+				. 'customtables' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'inputbox' . DIRECTORY_SEPARATOR . 'filebox.php');
+			
+			$files = InputBox_filebox::getFileBoxRows($this->ct->Table->tablename, $this->field->fieldname, $this->ct->Table->record[$this->ct->Table->realidfieldname]);
 			$fileList = [];
 			foreach ($files as $file)
 				$fileList[] = $file->fileid . '.' . $file->file_ext;

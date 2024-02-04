@@ -20,8 +20,9 @@ use CustomTables\MySQLWhereClause;
 use CustomTablesWP\Inc\Libraries;
 use CustomTables\ListOfTables;
 use ESTables;
+use WP_List_Table;
 
-class Admin_Table_List extends Libraries\WP_List_Table
+class Admin_Table_List extends WP_List_Table
 {
     /**
      * @since    1.0.0

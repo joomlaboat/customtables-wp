@@ -22,14 +22,14 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 <div class="gtabs layouteditorTabs" >
 
     <div class="gtab active layoutcode-tab" style="margin-left:-20px;">
-        <textarea id="layoutcode" name="layoutcode"><?php echo $this->admin_layout_edit->layoutRow['layoutcode'] ?? ''; ?></textarea>
+        <textarea id="layoutcode" name="layoutcode"><?php echo esc_textarea($this->admin_layout_edit->layoutRow['layoutcode']) ?? ''; ?></textarea>
     </div>
 
     <div class="gtab layoutmobile-tab" style="margin-left:-20px;">
         <textarea id="layoutmobile" name="layoutmobile"><?php
 
             if(isset($this->admin_layout_edit->layoutRow['layoutmobile']))
-                echo $this->admin_layout_edit->layoutRow['layoutmobile'] ?? '';
+                echo esc_textarea($this->admin_layout_edit->layoutRow['layoutmobile']) ?? '';
 
         ?></textarea>
     </div>
@@ -38,7 +38,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
         <textarea id="layoutcss" name="layoutcss"><?php
 
             if(isset($this->admin_layout_edit->layoutRow['layoutcss']))
-                echo $this->admin_layout_edit->layoutRow['layoutcss'] ?? '';
+                echo esc_textarea($this->admin_layout_edit->layoutRow['layoutcss']) ?? '';
 
         ?></textarea>
     </div>
@@ -47,7 +47,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
         <textarea id="layoutjs" name="layoutjs"><?php
 
             if(isset($this->admin_layout_edit->layoutRow['layoutjs']))
-                echo $this->admin_layout_edit->layoutRow['layoutjs'] ?? '';
+                echo esc_textarea($this->admin_layout_edit->layoutRow['layoutjs']) ?? '';
 
             ?></textarea>
     </div>

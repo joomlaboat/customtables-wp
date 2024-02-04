@@ -117,8 +117,18 @@ if (version_compare(PHP_VERSION, $min_php, '>=')) {
 
 $page = common::inputGetCmd('page','');
 
+function enqueue_codemirror() {
+
+	$version = '1.1.0';
+	wp_enqueue_style('customtables-js-modal', plugin_dir_url(__FILE__) . '../../../libraries/customtables/media/css/modal.css', false,$version);
+	wp_enqueue_style('customtables-js-layouteditor', plugin_dir_url(__FILE__) . '../../../libraries/customtables/media/css/layouteditor.css', false, $version);
+
+	wp_enqueue_script('customtables-js-layoutwizard', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/layoutwizard.js', array(), $version, false);
+	wp_enqueue_script('customtables-js-layouteditor', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/layouteditor.js', array(), $version, false);
+}
+
 if ($page == 'customtables-layouts-edit')
-	add_action('admin_enqueue_scripts', 'enqueue_codemirror');
+	add_action('admin_enqueue_scripts', 'CustomTablesWP\enqueue_codemirror');
 
 // Function to generate real content based on block attributes
 function customtables_dynamic_block_block_init()

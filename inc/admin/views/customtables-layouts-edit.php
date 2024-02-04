@@ -57,7 +57,7 @@ $onPageLoads = array();
 
         if (!empty($messages)) {
             foreach ($messages as $msg) {
-                echo '<div id="message" class="updated notice is-dismissible"><p>' . $msg . '</p></div>';
+                echo '<div id="message" class="updated notice is-dismissible"><p>' . esc_html($msg) . '</p></div>';
             }
         }
         ?>

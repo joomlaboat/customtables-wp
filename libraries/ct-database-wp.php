@@ -899,11 +899,11 @@ class database
 	{
 		global $wpdb;
 
-		$possibleTypes = ['varchar','tinytext','text','mediumtext','longtext','tinyblob','blob','mediumblob',
-			'longblob','char','int','bigint','numeric','decimal','smallint','tinyint','date','TIMESTAMP','datetime'];
+		$possibleTypes = ['varchar', 'tinytext', 'text', 'mediumtext', 'longtext', 'tinyblob', 'blob', 'mediumblob',
+			'longblob', 'char', 'int', 'bigint', 'numeric', 'decimal', 'smallint', 'tinyint', 'date', 'TIMESTAMP', 'datetime'];
 
-		if(in_array($PureFieldType['data_type'],$possibleTypes))
-			throw new Exception('Change Column type: unsupported column type');
+		if (!in_array($PureFieldType['data_type'], $possibleTypes))
+			throw new Exception('Change Column type: unsupported column type "' . $PureFieldType['data_type'] . '"');
 
 		if ($comment === null)
 			$comment = $newColumnName;
@@ -920,26 +920,28 @@ class database
 		} else {
 			$attributes = [];
 			$type = $PureFieldType['data_type'];
-			if (($PureFieldType['length'] ?? '') != '') {
-				$type .= '(%d)';
-				$attributes [] = (int)$PureFieldType['length'];
-			}
 
-			if (($PureFieldType['default'] ?? '') != '')
-			{
+			if (($PureFieldType['length'] ?? '') != '') {
 				if (str_contains($PureFieldType['length'], ',')) {
 					$parts = explode(',', $PureFieldType['length']);
-					$partsInt = [];
-					foreach ($parts as $part)
-						$partsInt[] = (int)$part;
+					$placeholders = [];
 
-					$type .= '(' . implode(',', $partsInt) . ')';
-				} else
-					$type .= '(' . (int)$PureFieldType['length'] . ')';
+					foreach ($parts as $part) {
+						$placeholders [] = '%d';
+						$attributes [] = (int)$part;
+					}
+					$type .= '(' . implode(',', $placeholders) . ')';
+				} else {
+					$type .= '(%d)';
+					$attributes [] = (int)$PureFieldType['length'];
+				}
 			}
 
 			if ($PureFieldType['is_unsigned'] ?? false)
 				$type .= ' UNSIGNED';
+
+			if (($PureFieldType['default'] ?? '') != '')
+				$attributes [] = $PureFieldType['default'];
 
 			$attributes [] = $comment;
 

@@ -21,7 +21,7 @@ class common
 {
 	public static function enqueueMessage($text, $type): void
 	{
-		echo '<div class="success-message">' . $text . '</div>';
+		echo '<div class="success-message">' .esc_html($text) . '</div>';
 	}
 
 	public static function translate(string $text, int|float $value = null): string

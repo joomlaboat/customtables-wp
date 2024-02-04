@@ -27,12 +27,18 @@ $documentation = new Documentation(true,true);
     <div class="gtabs demo" >
         <div class="gtab active tab-1">
             <h3><?php echo CustomTables\common::translate('COM_CUSTOMTABLES_TABLEFIELDTYPES_DESC'); ?></h3><br/>
-            <?php echo $documentation->getFieldTypes(); ?>
+            <?php
+            $documentation_safe = $documentation->getFieldTypes();
+            echo $documentation_safe;
+            ?>
         </div>
 
         <div class="gtab tab-2">
             <h3><?php echo CustomTables\common::translate('COM_CUSTOMTABLES_LAYOUTTAGS'); ?></h3><br/>
-            <?php echo $documentation->getLayoutTags(); ?>
+            <?php
+            $documentation_safe = $documentation->getLayoutTags();
+            echo $documentation_safe;
+            ?>
         </div>
 
         <div class="gtab tab-3"><h1>More about CustomTables</h1>

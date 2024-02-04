@@ -44,7 +44,7 @@ else
 
         if (!empty($messages)) {
             foreach ($messages as $msg) {
-                echo '<div id="message" class="updated notice is-dismissible"><p>' . $msg . '</p></div>';
+                echo '<div id="message" class="updated notice is-dismissible"><p>' . esc_html($msg) . '</p></div>';
             }
         }
         ?>
@@ -100,23 +100,23 @@ else
                         $cssclass = ($moreThanOneLang ? 'form-control valid form-control-success' : 'form-control required valid form-control-success');
                         $att = ($moreThanOneLang ? '' : ' required ');
 
-                        $vlu = isset($item_array[$id]) ? $item_array[$id] : ($this->admin_table_edit->ct->Table !== null ? $this->admin_table_edit->ct->Table->tablerow[$id] : '');
+                        $vlu = $item_array[$id] ?? ($this->admin_table_edit->ct->Table !== null ? $this->admin_table_edit->ct->Table->tablerow[$id] : '');
                         ?>
 
                         <tr class="form-field<?php echo(!$moreThanOneLang ? ' form-required' : ''); ?>">
                             <th scope="row">
-                                <label for="<?php echo $id; ?>">
+                                <label for="<?php echo esc_html($id); ?>">
                                     <?php echo esc_html(__('Table Title', 'customtables')); ?>
                                     <?php if (!$moreThanOneLang): ?>
                                         <span class="description">(<?php echo esc_html(__('required', 'customtables')); ?>)</span>
                                     <?php endif; ?>
                                     <br/>
-                                    <b><?php echo $lang->title; ?></b>
+                                    <b><?php echo esc_html($lang->title); ?></b>
                                 </label>
                             </th>
                             <td>
-                                <input name="<?php echo $id; ?>" type="text" id="<?php echo $id; ?>"
-                                       value="<?php echo $vlu; ?>" maxlength="255"/>
+                                <input name="<?php echo esc_html($id); ?>" type="text" id="<?php echo esc_html($id); ?>"
+                                       value="<?php echo esc_html($vlu); ?>" maxlength="255"/>
                             </td>
                         </tr>
 

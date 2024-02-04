@@ -16,9 +16,9 @@ use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\MySQLWhereClause;
-use CustomTablesWP\Inc\Libraries;
+use WP_List_Table;
 
-class Admin_Record_List extends Libraries\WP_List_Table
+class Admin_Record_List extends WP_List_Table
 {
     public CT $ct;
     public ?int $tableId;

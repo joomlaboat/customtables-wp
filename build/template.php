@@ -35,15 +35,9 @@ use CustomTables\Layouts;
             $ct = new CT(null, false);
             $ct->getTable($attributes['table']);
             $layouts = new Layouts($ct);
-            echo $layouts->renderMixedLayout((int)$attributes['layout']);
 
-
-            /**
-             * The wp_kses_post function is used to ensure any HTML that is not allowed in a post will be escaped.
-             * @see https://developer.wordpress.org/reference/functions/wp_kses_post/
-             * @see https://developer.wordpress.org/themes/theme-security/data-sanitization-escaping/#escaping-securing-output
-             */
-            //echo wp_kses_post( str_replace('xxx','yyy',$attributes['message']) ).'w';
+            $mixedLayout_safe = $layouts->renderMixedLayout((int)$attributes['layout'];
+            echo wp_kses_post($mixedLayout_safe);
         }
         else
         {

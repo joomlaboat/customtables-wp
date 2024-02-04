@@ -20,7 +20,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 			<?php
 			if (isset($this->admin_field_edit->ct->Table) and $this->admin_field_edit->ct->Table->tablename !== null) {
 				esc_html_e('Custom Tables - Table', 'customtables');
-				echo esc_html(' "' . $this->admin_field_edit->ct->Table->tabletitle . '" - ');
+				echo ' "' . esc_html($this->admin_field_edit->ct->Table->tabletitle) . '" - ';
 				if ($this->admin_field_edit->fieldId == 0)
 					esc_html_e('Add New Field');
 				else
@@ -85,7 +85,8 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 					if ($this->admin_field_edit->ct->Env->advancedTagProcessor)
 						echo 'proversion=true;' . PHP_EOL;
 
-					echo 'all_tables=' . wp_json_encode($this->admin_field_edit->allTables) . ';' . PHP_EOL;
+                    //resulting line example: all_tables=[["29","kot3","kot3"],["30","kot5","kot5"],["31","kot6","kot6"],["25","test1","Test 1"]];
+					echo 'all_tables=' . wp_kses_post(wp_json_encode($this->admin_field_edit->allTables)) . ';' . PHP_EOL;
 					?>
                 </script>
 
@@ -93,7 +94,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                     <input name="action" type="hidden" value="createfield"/>
                     <input name="table" type="hidden"
                            value="<?php echo esc_html($this->admin_field_edit->tableId); ?>"/>
-					<?php wp_nonce_field('create-edit-field', '_wpnonce'); ?>
+					<?php wp_nonce_field('create-edit-field'); ?>
 
                     <table class="form-table" role="presentation">
                         <!-- Field Name Field -->
@@ -125,7 +126,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 
                             <tr class="form-field<?php echo(!$moreThanOneLang ? ' form-required' : ''); ?>">
                                 <th scope="row">
-                                    <label for="<?php echo $id; ?>">
+                                    <label for="<?php echo esc_html($id); ?>">
 										<?php echo esc_html(__('Field Title', 'customtables')); ?>
 										<?php if (!$moreThanOneLang): ?>
                                             <span class="description">(<?php echo esc_html(__('required', 'customtables')); ?>)</span>
@@ -178,7 +179,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                                 <div class="typeparams_box" id="typeparams_box"></div>
                                 <br/>
                                 <input type="text" name="typeparams" id="typeparams" class=""
-                                       readonly="readonly" maxlength="1024" value="<?php echo $this->admin_field_edit->fieldRow['typeparams'] ?>">
+                                       readonly="readonly" maxlength="1024" value="<?php echo esc_html($this->admin_field_edit->fieldRow['typeparams']); ?>">
                             </td>
                         </tr>
                     </table>

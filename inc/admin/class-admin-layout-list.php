@@ -18,10 +18,10 @@ use CustomTables\database;
 use CustomTables\Layouts;
 use CustomTables\ListOfLayouts;
 use CustomTables\MySQLWhereClause;
-use CustomTablesWP\Inc\Libraries;
 use Exception;
+use WP_List_Table;
 
-class Admin_Layout_List extends Libraries\WP_List_Table
+class Admin_Layout_List extends WP_List_Table
 {
 	/**
 	 * @since    1.0.0

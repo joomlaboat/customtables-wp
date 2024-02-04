@@ -88,8 +88,6 @@ final class OptimizerNodeVisitor implements NodeVisitorInterface
      * Optimizes print nodes.
      *
      * It replaces:
-     *
-     *   * "echo $this->render(Parent)Block()" with "$this->display(Parent)Block()"
      */
     private function optimizePrintNode(Node $node): Node
     {

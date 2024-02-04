@@ -92,8 +92,8 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 
                     $editForm = new Edit($this->admin_record_edit->ct);
                     $editForm->layoutContent = $this->admin_record_edit->pageLayout;
-
-                    echo $editForm->render($this->admin_record_edit->recordRow, $this->admin_record_edit->formLink, 'adminForm',false);
+                    $editForm_render_safe = $editForm->render($this->admin_record_edit->recordRow, $this->admin_record_edit->formLink, 'adminForm',false);
+                    echo wp_kses_post($editForm_render_safe);
 
                     submit_button($buttonText, 'primary', 'createrecord', true, array('id' => 'createrecordsub')); ?>
                 </form>

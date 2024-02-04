@@ -17,9 +17,9 @@ use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\Fields;
 use CustomTables\MySQLWhereClause;
-use CustomTablesWP\Inc\Libraries;
+use WP_List_Table;
 
-class Admin_Field_List extends Libraries\WP_List_Table
+class Admin_Field_List extends WP_List_Table
 {
 	/**
 	 * @since    1.0.0
