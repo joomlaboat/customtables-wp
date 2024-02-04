@@ -2,35 +2,6 @@ WordPress Plugin Review Team - 1/9/2024 - Completed
 
 WordPress Plugin Review Team - 1/16/2024:
 
-# Looks like there are elements not using common prefixes.
-
-customtables/libraries/customtables/helpers/tables.php:23 class ESTables
-
-
-## Allowing Direct File Access to plugin files
-
-Direct file access is when someone directly queries your file. This can be done by simply entering the complete path to the file in the URL bar of the browser but can also be done by doing a POST request directly to the file. For files that only contain a PHP class the risk of something funky happening when directly accessed is pretty small. For files that contain procedural code, functions and function calls, the chance of security risks is a lot bigger.
-
-You can avoid this by putting this code at the top of all PHP files that could potentially execute code if accessed directly :
-
-             if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
-
-
-Example(s) from your plugin:
-
-
-customtables/libraries/customtables/helpers/imagemethods.php:18
-customtables/libraries/customtables/html/pagination.php:12
-customtables/libraries/customtables/utilities/exportusergroups.php:17
-customtables/build/template.php:30
-customtables/libraries/customtables/helpers/compareimages.php:12
-customtables/libraries/customtables/helpers/misc.php:12
-customtables/libraries/customtables/helpers/findsimilarimage.php:14
-customtables/libraries/customtables/datatypes/filemethods.php:11
-
-
-... out of a total of 14 coincidences.
-
 ## Unsafe SQL calls
 
 When making database calls, it's highly important to protect your code from SQL injection vulnerabilities. You need to update your code to use wpdb calls and prepare() with your queries to protect them.

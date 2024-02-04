@@ -14,6 +14,8 @@
  * @param WP_Block $block_instance The instance of the WP_Block class that represents the block being rendered.
  */
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 use CustomTables\Catalog;
 use CustomTables\CT;
 use CustomTables\Layouts;
@@ -36,7 +38,7 @@ use CustomTables\Layouts;
             $ct->getTable($attributes['table']);
             $layouts = new Layouts($ct);
 
-            $mixedLayout_safe = $layouts->renderMixedLayout((int)$attributes['layout'];
+            $mixedLayout_safe = $layouts->renderMixedLayout((int)$attributes['layout']);
             echo wp_kses_post($mixedLayout_safe);
         }
         else
