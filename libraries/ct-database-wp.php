@@ -105,6 +105,7 @@ class MySQLWhereClause
 		if (count($placeholders) == 0)
 			return $whereString;
 
+		//$whereString already contains the placeholders like (%s, %d, %f),and the number is matching with replacement variables;
 		return $wpdb->prepare($whereString, $placeholders);
 	}
 
@@ -132,13 +133,20 @@ class MySQLWhereClause
 		}
 
 		// Process nested OR conditions
-		if (count($this->nestedOrConditions) > 0) {
-			foreach ($this->nestedOrConditions as $nestedOrCondition) {
-				$where [] = '(' . $nestedOrCondition->getWhereClause('OR') . ')';
-				$nestedValues = $nestedOrCondition->getWhereClausePlaceholderValues();
-				$this->placeholderValues = array_merge($this->placeholderValues, $nestedValues);
-			}
+		$orWhere = [];
+		foreach ($this->nestedOrConditions as $nestedOrCondition) {
+			if ($nestedOrCondition->countConditions() == 1)
+				$orWhere [] = $nestedOrCondition->getWhereClause('OR');
+			else
+				$orWhere [] = '(' . $nestedOrCondition->getWhereClause('OR') . ')';
+
+			$nestedValues = $nestedOrCondition->getWhereClausePlaceholderValues();
+			$this->placeholderValues = array_merge($this->placeholderValues, $nestedValues);
 		}
+
+		if (count($orWhere) > 0)
+			$where [] = implode(' OR ', $orWhere);
+
 		return implode(' ' . $logicalOperator . ' ', $where);
 	}
 
@@ -154,6 +162,9 @@ class MySQLWhereClause
 				$where [] = $condition['field'] . ' IS NULL';
 			} elseif ($condition['operator'] == 'NOT NULL') {
 				$where [] = $condition['field'] . ' IS NOT NULL';
+			} elseif ($condition['operator'] == 'LIKE') {
+				$where [] = $condition['field'] . ' LIKE ' . $this->getPlaceholder($condition['value']);
+				$this->placeholderValues[] = $condition['value'];
 			} elseif ($condition['operator'] == 'INSTR') {
 				if ($condition['sanitized']) {
 					$where [] = 'INSTR(' . $condition['field'] . ',' . $condition['value'] . ')';
@@ -210,6 +221,11 @@ class MySQLWhereClause
 	{
 		return $this->placeholderValues ?? [];
 	}
+
+	public function countConditions(): int
+	{
+		return count($this->conditions) + count($this->orConditions) + count($this->nestedConditions) + count($this->nestedOrConditions);
+	}
 }
 
 class database
@@ -218,23 +234,6 @@ class database
 	{
 		global $wpdb;
 		return $wpdb->prefix;
-	}
-
-	public static function getDataBaseName(): ?string
-	{
-		return DB_NAME;
-	}
-
-	/**
-	 * @throws Exception
-	 * @since 3.2.2
-	 */
-	public static function setQuery($query): void
-	{
-		global $wpdb;
-		$wpdb->query(str_replace('#__', $wpdb->prefix, $query));
-		if ($wpdb->last_error !== '')
-			throw new Exception($wpdb->last_error);
 	}
 
 	/**
@@ -261,9 +260,8 @@ class database
 			$columnPlaceHolder[] = '%i';
 
 		$values = [];
-		foreach ($dataHolders->values as $value)
-		{
-			if($value !== null)
+		foreach ($dataHolders->values as $value) {
+			if ($value !== null)
 				$values[] = $value;
 		}
 
@@ -431,7 +429,7 @@ class database
 			. (!empty($groupBy) != '' ? ' GROUP BY ' . $groupBy : '')
 			. (!empty($order) ? ' ORDER BY ' . $order . ($orderBy !== null and strtolower($orderBy) == 'desc' ? ' DESC' : '') : '')
 			. (!empty($limit) ? ' LIMIT %d' : '')//Use of single explicit placeholder is needed for WPCS verification because it thinks that $placeholders is a single variable, but it's an array
-			. (!empty($limitStart) ? ' OFFSET ' . $limitStart : '');
+			. (!empty($limitStart) ? ' OFFSET ' . (int)$limitStart : '');
 
 		if (count($placeholders) > 0)
 			$query = $wpdb->prepare($query, ...$placeholders);
@@ -497,17 +495,20 @@ class database
 		return self::loadObjectList($table, $selects, $whereClause, $order, $orderBy, $limit, $limitStart, 'COLUMN', $groupBy, $returnQueryString);
 	}
 
-	public static function getTableStatus(string $database, string $tablename, bool $addPrefix = true): array
+	public static function getTableStatus(string $tableName, string $type = 'table'): array
 	{
 		global $wpdb;
-		$dbPrefix = $wpdb->prefix;
 
-		if ($addPrefix)
-			$realTableName = $dbPrefix . 'customtables_table_' . $tablename;
+		if ($type == 'gallery')
+			$realTableName = $wpdb->prefix . 'customtables_gallery_' . $tableName;
+		elseif ($type == 'filebox')
+			$realTableName = $wpdb->prefix . 'customtables_filebox_' . $tableName;
+		elseif ($type == 'native')
+			$realTableName = $tableName;
 		else
-			$realTableName = $tablename;
+			$realTableName = $wpdb->prefix . 'customtables_' . $tableName;
 
-		return $wpdb->get_results($wpdb->prepare("SHOW TABLE STATUS FROM %i LIKE %s", $database, $realTableName));; // phpcs:ignore WordPress.DB.PreparedSQL.NotEnoughReplacements
+		return $wpdb->get_results($wpdb->prepare("SHOW TABLE STATUS FROM " . DB_NAME . " LIKE %s", $realTableName));
 	}
 
 	public static function getTableIndex(string $tableName, string $fieldName): array
@@ -576,6 +577,384 @@ class database
 		}
 	}
 
+	/**
+	 * @throws Exception
+	 * @since 1.1.2
+	 */
+	public static function deleteRecord(string $tableName, string $realIdFieldName, $id): void
+	{
+		global $wpdb;
+
+		if (is_int($id)) {
+			$wpdb->query(
+				$wpdb->prepare('DELETE FROM %i WHERE %i=%d', $tableName, $realIdFieldName, $id)
+			);
+		} else {
+			$wpdb->query(
+				$wpdb->prepare('DELETE FROM %i WHERE %i=%s', $tableName, $realIdFieldName, $id)
+			);
+		}
+
+		if ($wpdb->last_error !== '')
+			throw new Exception($wpdb->last_error);
+	}
+
+	public static function deleteTableLessFields(): void
+	{
+		global $wpdb;
+
+		$wpdb->query('DELETE FROM #__customtables_fields AS f WHERE (SELECT id FROM #__customtables_tables AS t WHERE t.id = f.tableid) IS NULL');
+
+		if ($wpdb->last_error !== '')
+			throw new Exception($wpdb->last_error);
+	}
+
+	/**
+	 * @throws Exception
+	 * @1.1.2
+	 */
+	public static function dropTableIfExists(string $tableName, string $type = 'table'): void
+	{
+		global $wpdb;
+
+		if ($type == 'gallery')
+			$realTableName = $wpdb->prefix . 'customtables_gallery_' . strtolower(trim(preg_replace("/[^a-zA-Z_\d]/", "", $tableName)));
+		elseif ($type == 'filebox')
+			$realTableName = $wpdb->prefix . 'customtables_filebox_' . strtolower(trim(preg_replace("/[^a-zA-Z_\d]/", "", $tableName)));
+		else
+			$realTableName = $wpdb->prefix . 'customtables_' . strtolower(trim(preg_replace("/[^a-zA-Z_\d]/", "", $tableName)));
+
+		$serverType = self::getServerType();
+
+		$wpdb->query('DROP TABLE IF EXISTS ' . $wpdb->_escape($realTableName));
+
+		if ($wpdb->last_error !== '')
+			throw new Exception($wpdb->last_error);
+
+		if ($serverType == 'postgresql') {
+
+			$wpdb->query('DROP SEQUENCE IF EXISTS `' . $wpdb->_escape($realTableName) . '._seq` CASCADE');
+
+			if ($wpdb->last_error !== '')
+				throw new Exception($wpdb->last_error);
+		}
+	}
+
+	/**
+	 * @throws Exception
+	 * @1.1.2
+	 */
+	public static function dropColumn(string $realTableName, string $columnName): void
+	{
+		global $wpdb;
+
+		$wpdb->query('SET foreign_key_checks = 0');
+
+		if ($wpdb->last_error !== '')
+			throw new Exception($wpdb->last_error);
+
+		$wpdb->query(
+			$wpdb->prepare('ALTER TABLE %i DROP COLUMN %i', $realTableName, $columnName)
+		);
+
+		if ($wpdb->last_error !== '')
+			throw new Exception($wpdb->last_error);
+
+		$wpdb->query('SET foreign_key_checks = 1');
+
+		if ($wpdb->last_error !== '')
+			throw new Exception($wpdb->last_error);
+	}
+
+	/**
+	 * @throws Exception
+	 * @since 1.1.2
+	 */
+	public static function addForeignKey(string $realTableName, string $columnName, string $join_with_table_name, string $join_with_table_field): void
+	{
+		global $wpdb;
+
+		$wpdb->query(
+			$wpdb->prepare('ALTER TABLE %i ADD FOREIGN KEY (%i) REFERENCES %i (%i) ON DELETE RESTRICT ON UPDATE RESTRICT',
+				$realTableName, $columnName, self::getDataBaseName() . '.' . $join_with_table_name, $join_with_table_field)
+		);
+
+		if ($wpdb->last_error !== '')
+			throw new Exception($wpdb->last_error);
+	}
+
+	public static function getDataBaseName(): ?string
+	{
+		return DB_NAME;
+	}
+
+	/**
+	 * @throws Exception
+	 * @since 1.1.2
+	 */
+	public static function dropForeignKey(string $realTableName, string $constrance): void
+	{
+		global $wpdb;
+
+		$wpdb->query('SET foreign_key_checks = 0');
+
+		if ($wpdb->last_error !== '')
+			throw new Exception($wpdb->last_error);
+
+		$wpdb->query(
+			$wpdb->prepare('ALTER TABLE %i DROP FOREIGN KEY %i', $realTableName, $constrance)
+		);
+
+		if ($wpdb->last_error !== '')
+			throw new Exception($wpdb->last_error);
+
+		$wpdb->query('SET foreign_key_checks = 1');
+
+		if ($wpdb->last_error !== '')
+			throw new Exception($wpdb->last_error);
+	}
+
+	/**
+	 * @throws Exception
+	 * @since 1.1.2
+	 */
+	public static function setTableInnoDBEngine(string $realTableName, string $comment): void
+	{
+		global $wpdb;
+
+		$wpdb->query(
+			$wpdb->prepare('ALTER TABLE %i ENGINE = InnoDB', $realTableName)
+		);
+
+		if ($wpdb->last_error !== '')
+			throw new Exception($wpdb->last_error);
+	}
+
+	/**
+	 * @throws Exception
+	 * @since 1.1.2
+	 */
+	public static function changeTableComment(string $realTableName, string $comment): void
+	{
+		global $wpdb;
+
+		$wpdb->query(
+			$wpdb->prepare('ALTER TABLE %i COMMENT %s', $realTableName, $comment)
+		);
+
+		if ($wpdb->last_error !== '')
+			throw new Exception($wpdb->last_error);
+	}
+
+	/**
+	 * @throws Exception
+	 * @since 1.1.2
+	 */
+	public static function addIndex(string $realTableName, string $columnName): void
+	{
+		global $wpdb;
+
+		$wpdb->query(
+			$wpdb->prepare('ALTER TABLE %i ADD INDEX (%i)', $realTableName, $columnName)
+		);
+
+		if ($wpdb->last_error !== '')
+			throw new Exception($wpdb->last_error);
+	}
+
+	/**
+	 * @throws Exception
+	 * @since 1.1.2
+	 */
+	public static function addColumn(string $realTableName, string $columnName, string $type, ?bool $nullable, ?string $extra = null, ?string $comment = null): void
+	{
+		global $wpdb;
+
+		if ($comment === null)
+			$comment = $columnName;
+
+		$wpdb->query(
+			$wpdb->prepare('ALTER TABLE %i ADD COLUMN %i ' . $type
+				. ($nullable !== null ? ($nullable ? ' NULL' : ' NOT NULL') : '')
+				. ($extra !== null ? ' ' . $extra : '')
+				. ' COMMENT %s'
+				, $realTableName, $columnName, $comment)
+		);
+
+		if ($wpdb->last_error !== '')
+			throw new Exception($wpdb->last_error);
+	}
+
+	/**
+	 * @throws Exception
+	 * @since 1.1.2
+	 */
+	public static function createTable(string $realTableName, string $privateKey, array $columns, string $comment, array $keys = null, string $primaryKeyType = 'int'): void
+	{
+		global $wpdb;
+
+		if (self::getServerType() == 'postgresql') {
+
+			$wpdb->query(
+				$wpdb->prepare('CREATE SEQUENCE IF NOT EXISTS %i', $realTableName . '_seq')
+			);
+			if ($wpdb->last_error !== '')
+				throw new Exception($wpdb->last_error);
+
+			$allColumns = array_merge([$privateKey . ' ' . $primaryKeyType . ' NOT NULL DEFAULT nextval (\'' . $realTableName . '_seq\')'], $columns);
+
+			$wpdb->query(
+				$wpdb->prepare('CREATE TABLE IF NOT EXISTS %i(' . implode(',', $allColumns) . ')', $realTableName)
+			);
+
+			if ($wpdb->last_error !== '')
+				throw new Exception($wpdb->last_error);
+
+			$wpdb->query(
+				$wpdb->prepare('ALTER SEQUENCE %i RESTART WITH 1', $realTableName . '_seq')
+			);
+			if ($wpdb->last_error !== '')
+				throw new Exception($wpdb->last_error);
+
+		} else {
+
+			$primaryKeyTypeString = 'INT';//(11)
+			if ($primaryKeyType !== 'int')
+				$primaryKeyTypeString = $primaryKeyType;
+
+			$allColumns = array_merge(['`' . $privateKey . '` ' . $primaryKeyTypeString . ' NOT NULL AUTO_INCREMENT'], $columns, ['PRIMARY KEY  (`id`)']);
+
+			if ($keys !== null)
+				$allColumns = array_merge($allColumns, $keys);
+
+			$wpdb->query(
+				$wpdb->prepare('CREATE TABLE IF NOT EXISTS %i(' . implode(',', $allColumns) . ')'
+					. ' ENGINE=InnoDB COMMENT=%s'
+					. ' DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci AUTO_INCREMENT=1;', $realTableName, $comment)
+			);
+			if ($wpdb->last_error !== '')
+				throw new Exception($wpdb->last_error);
+		}
+	}
+
+	/**
+	 * @throws Exception
+	 * @since 1.1.2
+	 */
+	public static function copyCTTable(string $newTableName, string $oldTableName): void
+	{
+		global $wpdb;
+
+		$realNewTableName = '#__customtables_table_' . $newTableName;
+
+		if (self::getServerType() == 'postgresql') {
+
+			$wpdb->query(
+				$wpdb->prepare('CREATE SEQUENCE IF NOT EXISTS %i', $realNewTableName . '_seq')
+			);
+
+			if ($wpdb->last_error !== '')
+				throw new Exception($wpdb->last_error);
+
+			$wpdb->query(
+				$wpdb->prepare('CREATE TABLE %i AS TABLE %i', $realNewTableName, '#__customtables_table_' . $oldTableName)
+			);
+
+			if ($wpdb->last_error !== '')
+				throw new Exception($wpdb->last_error);
+
+
+			$wpdb->query(
+				$wpdb->prepare('ALTER SEQUENCE %i RESTART WITH 1', $realNewTableName . '_seq')
+			);
+
+			if ($wpdb->last_error !== '')
+				throw new Exception($wpdb->last_error);
+
+		} else {
+
+			$wpdb->query(
+				$wpdb->prepare('CREATE TABLE %i AS SELECT * FROM %i', '#__customtables_table_' . $newTableName, '#__customtables_table_' . $oldTableName)
+			);
+
+			if ($wpdb->last_error !== '')
+				throw new Exception($wpdb->last_error);
+		}
+
+		$wpdb->query(
+			$wpdb->prepare('ALTER TABLE %i ADD PRIMARY KEY (id)', $realNewTableName)
+		);
+
+		if ($wpdb->last_error !== '')
+			throw new Exception($wpdb->last_error);
+
+		database::changeColumn($realNewTableName, 'id', 'id', 'INT UNSIGNED', false, null, 'AUTO_INCREMENT', 'Primary Key');
+	}
+
+	/**
+	 * @throws Exception
+	 * @since 1.1.2
+	 */
+	public static function changeColumn(string $realTableName, string $oldColumnName, string $newColumnName, $PureFieldType, ?string $comment = null): void
+	{
+		global $wpdb;
+
+		$possibleTypes = ['varchar','tinytext','text','mediumtext','longtext','tinyblob','blob','mediumblob',
+			'longblob','char','int','bigint','numeric','decimal','smallint','tinyint','date','TIMESTAMP','datetime'];
+
+		if(in_array($PureFieldType['data_type'],$possibleTypes))
+			throw new Exception('Change Column type: unsupported column type');
+
+		if ($comment === null)
+			$comment = $newColumnName;
+
+		if (self::getServerType() == 'postgresql') {
+			if ($oldColumnName != $newColumnName)
+				dbDelta("ALTER TABLE `{$realTableName}` RENAME COLUMN `{$oldColumnName}` TO `{$newColumnName}`");
+
+			dbDelta("ALTER TABLE `{$realTableName}` ALTER COLUMN `{$newColumnName}` " . $PureFieldType['data_type']);
+
+			if ($wpdb->last_error !== '')
+				throw new Exception($wpdb->last_error);
+
+		} else {
+			$attributes = [];
+			$type = $PureFieldType['data_type'];
+			if (($PureFieldType['length'] ?? '') != '') {
+				$type .= '(%d)';
+				$attributes [] = (int)$PureFieldType['length'];
+			}
+
+			if (($PureFieldType['default'] ?? '') != '')
+			{
+				if (str_contains($PureFieldType['length'], ',')) {
+					$parts = explode(',', $PureFieldType['length']);
+					$partsInt = [];
+					foreach ($parts as $part)
+						$partsInt[] = (int)$part;
+
+					$type .= '(' . implode(',', $partsInt) . ')';
+				} else
+					$type .= '(' . (int)$PureFieldType['length'] . ')';
+			}
+
+			if ($PureFieldType['is_unsigned'] ?? false)
+				$type .= ' UNSIGNED';
+
+			$attributes [] = $comment;
+
+			$wpdb->query($wpdb->prepare("ALTER TABLE `{$realTableName}` CHANGE `{$oldColumnName}` `{$newColumnName}`"
+				. ' ' . $type
+				. (($PureFieldType['is_nullable'] ?? false) ? ' NULL' : ' NOT NULL')
+				. (($PureFieldType['default'] ?? '') != "" ? ' DEFAULT %s' : '')
+				. (($PureFieldType['autoincrement'] ?? false) ? ' AUTO_INCREMENT' : '')
+				. ' COMMENT %s', ...$attributes));
+
+			if ($wpdb->last_error !== '')
+				throw new Exception($wpdb->last_error);
+		}
+	}
+
 	public static function quote($value, bool $row = false): ?string
 	{
 		global $wpdb;
@@ -589,8 +968,30 @@ class database
 		//    %f for floating-point numbers
 	}
 
-	public static function quoteName($value)
+	/**
+	 * @throws Exception
+	 * @since 1.1.2
+	 */
+	public static function renameTable(string $oldCTTableName, string $newCTTableName, string $type = 'table'): void
 	{
-		return $value;
+		global $wpdb;
+
+		//Validation
+		if ($type == 'gallery') {
+			$oldTableName = $wpdb->prefix . 'customtables_gallery_' . strtolower(trim(preg_replace("/[^a-zA-Z_\d]/", "", $oldCTTableName)));
+			$newTableName = $wpdb->prefix . 'customtables_gallery_' . strtolower(trim(preg_replace("/[^a-zA-Z_\d]/", "", $newCTTableName)));
+		} elseif ($type == 'filebox') {
+			$oldTableName = $wpdb->prefix . 'customtables_filebox_' . strtolower(trim(preg_replace("/[^a-zA-Z_\d]/", "", $oldCTTableName)));
+			$newTableName = $wpdb->prefix . 'customtables_filebox_' . strtolower(trim(preg_replace("/[^a-zA-Z_\d]/", "", $newCTTableName)));
+		} else {
+			$oldTableName = $wpdb->prefix . 'customtables_table_' . strtolower(trim(preg_replace("/[^a-zA-Z_\d]/", "", $oldCTTableName)));
+			$newTableName = $wpdb->prefix . 'customtables_table_' . strtolower(trim(preg_replace("/[^a-zA-Z_\d]/", "", $newCTTableName)));
+		}
+		$dbName = DB_NAME;
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query("RENAME TABLE `$dbName`.`$oldTableName` TO `$dbName`.`$newTableName`");
+
+		if ($wpdb->last_error !== '')
+			throw new Exception($wpdb->last_error);
 	}
 }

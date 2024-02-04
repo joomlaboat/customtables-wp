@@ -449,9 +449,9 @@ class Admin_Field_List extends Libraries\WP_List_Table
 		$the_table_action = $this->current_action($filter_action, $action, $action2);
 
 		if ('restore' === $the_table_action) {
-			$nonce = wp_unslash($_REQUEST['_wpnonce']);
+
 			// verify the nonce.
-			if (!wp_verify_nonce($nonce, 'restore_nonce')) {
+			if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'restore_nonce')) {
 				$this->invalid_nonce_redirect();
 			} else {
 				$fieldId = common::inputGetInt('field');
@@ -467,9 +467,8 @@ class Admin_Field_List extends Libraries\WP_List_Table
 
 		if ('trash' === $the_table_action) {
 
-			$nonce = wp_unslash($_REQUEST['_wpnonce']);
 			// verify the nonce.
-			if (!wp_verify_nonce($nonce, 'trash_nonce')) {
+			if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'trash_nonce')) {
 				$this->invalid_nonce_redirect();
 			} else {
 				$fieldId = common::inputGetInt('field');
@@ -484,9 +483,8 @@ class Admin_Field_List extends Libraries\WP_List_Table
 		}
 
 		if ('delete' === $the_table_action) {
-			$nonce = wp_unslash($_REQUEST['_wpnonce']);
 			// verify the nonce.
-			if (!wp_verify_nonce($nonce, 'delete_nonce')) {
+			if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'delete_nonce')) {
 				$this->invalid_nonce_redirect();
 			} else {
 				$fieldId = common::inputGetInt('field');
@@ -574,11 +572,10 @@ class Admin_Field_List extends Libraries\WP_List_Table
 
 	function handle_field_actions_edit()
 	{
-		$nonce = wp_unslash($_REQUEST['_wpnonce']);
-		if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
+		if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
 			$this->invalid_nonce_redirect();
 		} else {
-			$field_id = isset($_POST['field']) ? $_POST['field'][0] : '';
+			$field_id = isset($_POST['field']) ? intval($_POST['field'][0]) : '';
 			// Redirect to the edit page with the appropriate parameters
 			$this->graceful_redirect('admin.php?page=customtables-fields-edit&action=edit&table=' . $this->tableId . '&field=' . $field_id);
 		}
@@ -586,12 +583,13 @@ class Admin_Field_List extends Libraries\WP_List_Table
 
 	function handle_field_actions_publish(int $state): void
 	{
-		$nonce = wp_unslash($_REQUEST['_wpnonce']);
 		// verify the nonce.
-		if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
+		if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
 			$this->invalid_nonce_redirect();
 		} else {
-			$fields = (isset($_POST['field']) ? $_POST['field'] : []);
+
+			$fields = (isset($_POST['field']) && is_array($_POST['field'])) ? common::sanitize_post_field_array($_POST['field']) : [];
+
 			foreach ($fields as $field) {
 
 				$whereClauseUpdate = new MySQLWhereClause();
@@ -609,11 +607,12 @@ class Admin_Field_List extends Libraries\WP_List_Table
 
 	function handle_field_actions_delete()
 	{
-		$nonce = wp_unslash($_REQUEST['_wpnonce']);
-		if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
+		if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
 			$this->invalid_nonce_redirect();
 		} else {
-			$fields = (isset($_POST['field']) ? $_POST['field'] : []);
+
+			$fields = (isset($_POST['field']) && is_array($_POST['field'])) ? common::sanitize_post_field_array($_POST['field']) : [];
+
 			if (count($fields) > 0) {
 				foreach ($fields as $fieldId)
 					Fields::deleteField_byID($this->ct, $fieldId);

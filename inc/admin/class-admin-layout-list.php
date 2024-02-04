@@ -19,6 +19,7 @@ use CustomTables\Layouts;
 use CustomTables\ListOfLayouts;
 use CustomTables\MySQLWhereClause;
 use CustomTablesWP\Inc\Libraries;
+use Exception;
 
 class Admin_Layout_List extends Libraries\WP_List_Table
 {
@@ -367,9 +368,8 @@ class Admin_Layout_List extends Libraries\WP_List_Table
 		$the_layout_action = $this->current_action($filter_action,$action,$action2);
 
 		if ('restore' === $the_layout_action) {
-			$nonce = wp_unslash($_REQUEST['_wpnonce']);
 			// verify the nonce.
-			if (!wp_verify_nonce($nonce, 'restore_nonce')) {
+			if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'restore_nonce')) {
 				$this->invalid_nonce_redirect();
 			} else {
 				$layoutId = common::inputGetInt('layout');
@@ -384,9 +384,8 @@ class Admin_Layout_List extends Libraries\WP_List_Table
 		}
 
 		if ('trash' === $the_layout_action) {
-			$nonce = wp_unslash($_REQUEST['_wpnonce']);
 			// verify the nonce.
-			if (!wp_verify_nonce($nonce, 'trash_nonce')) {
+			if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'trash_nonce')) {
 				$this->invalid_nonce_redirect();
 			} else {
 				$layoutId = common::inputGetInt('layout');
@@ -401,9 +400,8 @@ class Admin_Layout_List extends Libraries\WP_List_Table
 		}
 
 		if ('delete' === $the_layout_action) {
-			$nonce = wp_unslash($_REQUEST['_wpnonce']);
 			// verify the nonce.
-			if (!wp_verify_nonce($nonce, 'delete_nonce')) {
+			if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'delete_nonce')) {
 				$this->invalid_nonce_redirect();
 			} else {
 				$layoutId = common::inputGetInt('layout');
@@ -486,11 +484,10 @@ class Admin_Layout_List extends Libraries\WP_List_Table
 
 	function handle_layout_actions_edit()
 	{
-		$nonce = wp_unslash($_REQUEST['_wpnonce']);
-		if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
+		if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
 			$this->invalid_nonce_redirect();
 		} else {
-			$layout_id = (int)(isset($_POST['layout']) ? $_POST['layout'][0] : '');
+			$layout_id = (int)(isset($_POST['layout']) ? intval($_POST['layout'][0]) : '');
 			// Redirect to the edit page with the appropriate parameters
 			$this->graceful_redirect('admin.php?page=customtables-layouts-edit&action=edit&layout=' . $layout_id);
 		}
@@ -498,9 +495,8 @@ class Admin_Layout_List extends Libraries\WP_List_Table
 
 	function handle_layout_actions_publish(int $state): void
 	{
-		$nonce = wp_unslash($_REQUEST['_wpnonce']);
 		// verify the nonce.
-		if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
+		if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
 			$this->invalid_nonce_redirect();
 		} else {
 			$layouts = ($_POST['layout'] ?? []);
@@ -522,15 +518,23 @@ class Admin_Layout_List extends Libraries\WP_List_Table
 
 	function handle_layout_actions_delete()
 	{
-		$nonce = wp_unslash($_REQUEST['_wpnonce']);
 		// verify the nonce.
-		if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
+		if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
 			$this->invalid_nonce_redirect();
 		} else {
-			$layouts = ($_POST['layout'] ?? []);
+
+			$layouts = (isset($_POST['layout']) && is_array($_POST['layout'])) ? common::sanitize_post_field_array($_POST['layout']) : [];
+
+			global $wpdb;
+
 			if (count($layouts) > 0) {
-				foreach ($layouts as $layoutId)
-					database::setQuery('DELETE FROM #__customtables_layouts WHERE id=' . $layoutId);
+				foreach ($layouts as $layoutId) {
+
+					$wpdb->query($wpdb->prepare('DELETE FROM #__customtables_layouts WHERE id=%d',(int)$layoutId));
+
+					if ($wpdb->last_error !== '')
+						throw new Exception($wpdb->last_error);
+				}
 
 				$this->graceful_redirect();
 			}

@@ -12,6 +12,8 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 //include ('customtables-fields-edit-help.php');
 
+require_once ABSPATH . 'wp-admin/admin-header.php';
+
 ?>
     <div class="wrap">
         <h1 id="add-new-user">
@@ -175,8 +177,8 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
                             <td>
                                 <div class="typeparams_box" id="typeparams_box"></div>
                                 <br/>
-                                <input type="text" name="typeparams" id="typeparams" value="" class=""
-                                       readonly="readonly" maxlength="1024">
+                                <input type="text" name="typeparams" id="typeparams" class=""
+                                       readonly="readonly" maxlength="1024" value="<?php echo $this->admin_field_edit->fieldRow['typeparams'] ?>">
                             </td>
                         </tr>
                     </table>

@@ -1,1 +1,178 @@
 WordPress Plugin Review Team - 1/9/2024 - Completed
+
+WordPress Plugin Review Team - 1/16/2024:
+
+## Variables and options must be escaped when echo'd
+
+Much related to sanitizing everything, all variables that are echoed need to be escaped when they're echoed, so it can't hijack users or (worse) admin screens. There are many esc_*() functions you can use to make sure you don't show people the wrong data, as well as some that will allow you to echo HTML safely.
+
+At this time, we ask you escape all $-variables, options, and any sort of generated data when it is being echoed. That means you should not be escaping when you build a variable, but when you output it at the end. We call this 'escaping late.'
+
+Besides protecting yourself from a possible XSS vulnerability, escaping late makes sure that you're keeping the future you safe. While today your code may be only outputted hardcoded content, that may not be true in the future. By taking the time to properly escape when you echo, you prevent a mistake in the future from becoming a critical security issue.
+
+This remains true of options you've saved to the database. Even if you've properly sanitized when you saved, the tools for sanitizing and escaping aren't interchangeable. Sanitizing makes sure it's safe for processing and storing in the database. Escaping makes it safe to output.
+
+Also keep in mind that sometimes a function is echoing when it should really be returning content instead. This is a common mistake when it comes to returning JSON encoded content. Very rarely is that actually something you should be echoing at all. Echoing is because it needs to be on the screen, read by a human. Returning (which is what you would do with an API) can be json encoded, though remember to sanitize when you save to that json object!
+
+There are a number of options to secure all types of content (html, email, etc). Yes, even HTML needs to be properly escaped.
+
+https://developer.wordpress.org/apis/security/escaping/
+
+Remember: You must use the most appropriate functions for the context. There is pretty much an option for everything you could echo. Even echoing HTML safely.
+
+Example(s) from your plugin:
+
+
+customtables/inc/admin/views/customtables-documentation.php:30 <?php echo $documentation->getFieldTypes(); ?>
+customtables/inc/admin/views/customtables-fields.php:24 echo ' "' . $this->admin_field_list->ct->Table->tabletitle . '" - ';
+customtables/inc/admin/views/customtables-layouts-edit-editors.php:50 echo $this->admin_layout_edit->layoutRow['layoutjs'] ?? '';
+customtables/inc/libraries/class-wp-list-table.php:1049 echo call_user_func(array($this, 'column_' . $column_name), $item);
+customtables/inc/admin/views/customtables-tables-edit.php:47 echo '<div id="message"><p>' . $msg . '</p></div>';
+customtables/inc/admin/views/customtables-fields.php:46 echo '<div id="message">' . $result . '</div>';
+customtables/inc/admin/views/customtables-fields-edit.php:86 echo 'all_tables=' . wp_json_encode($this->admin_field_edit->allTables) . ';' . PHP_EOL;
+customtables/inc/admin/views/customtables-layouts-edit.php:60 echo '<div id="message"><p>' . $msg . '</p></div>';
+
+
+... out of a total of 66 coincidences.
+
+Note: The function __ retrieves the translation without escaping, please either:
+
+    Use an alternative function that escapes the resulting value such as esc_html__ or esc_attr__.
+    Or wrap the __ function with a proper escaping function such as esc_html, esc_attr, wp_kses_post, etc.
+
+Examples:
+
+<h2><?php echo esc_html__('Settings page', 'plugin-slug'); ?></h2>
+ <h2><?php echo esc_html(__('Settings page', 'plugin-slug')); ?></h2>
+
+
+Example(s) from your plugin:
+
+
+customtables/inc/libraries/class-wp-list-table.php:628 echo '<label for="bulk-action-selector-' . esc_attr($which) . '">' . __('Select bulk action') . '</label>';
+ -----> __('Select bulk action')
+customtables/inc/libraries/class-wp-list-table.php:1301 __('No comments')
+customtables/inc/libraries/class-wp-list-table.php:630 echo '<option value="-1">' . __('Bulk Actions') . "</option>\n";
+
+
+
+## Generic function/class/define/namespace/option names
+
+All plugins must have unique function names, namespaces, defines, class and option names. This prevents your plugin from conflicting with other plugins or themes. We need you to update your plugin to use more unique and distinct names.
+
+A good way to do this is with a prefix. For example, if your plugin is called "Easy Custom Post Types" then you could use names like these:
+
+    function ecpt_save_post()
+    define( 'ECPT_LICENSE', true );
+    class ECPT_Admin{}
+    namespace ECPT;
+    update_option( 'ecpt_settings', $settings );
+
+
+Don't try to use two (2) or three (3) letter prefixes anymore. We host nearly 100-thousand plugins on WordPress.org alone. There are tens of thousands more outside our servers. Believe us, you’re going to run into conflicts.
+
+You also need to avoid the use of __ (double underscores), wp_ , or _ (single underscore) as a prefix. Those are reserved for WordPress itself. You can use them inside your classes, but not as stand-alone function.
+
+Please remember, if you're using _n() or __() for translation, that's fine. We're only talking about functions you've created for your plugin, not the core functions from WordPress. In fact, those core features are why you need to not use those prefixes in your own plugin! You don't want to break WordPress for your users.
+
+Related to this, using if (!function_exists('NAME')) { around all your functions and classes sounds like a great idea until you realize the fatal flaw. If something else has a function with the same name and their code loads first, your plugin will break. Using if-exists should be reserved for shared libraries only.
+
+Remember: Good prefix names are unique and distinct to your plugin. This will help you and the next person in debugging, as well as prevent conflicts.
+
+Analysis result:
+
+
+# This plugin is using the prefix "customtableswp" for 5 element(s).
+# This plugin is using the prefix "customtables" for 6 element(s).
+
+# Looks like there are elements not using common prefixes.
+customtables/inc/admin/views/customtables-layouts-edit-head.php:13 function enqueue_codemirror
+customtables/libraries/customtables/datatypes/filebox.php:20 class CT_FieldTypeTag_FileBox
+customtables/libraries/customtables/layouteditor/layouteditor.php:63 function renderEditor
+customtables/libraries/customtables/layouteditor/layouteditor.php:121 function getKnownLanguages
+customtables/libraries/customtables/layouteditor/layouteditor.php:139 function render_onPageLoads
+customtables/libraries/customtables/html/pagination.php:30 class JESPagination
+customtables/libraries/customtables/html/pagination.php:554 class JESPaginationObject
+customtables/libraries/customtables/utilities/exportusergroups.php:23 class ImportExportUserGroups
+customtables/libraries/customtables/views/edit.php:23 class Edit
+customtables/libraries/customtables/helpers/findsimilarimage.php:18 class FindSimilarImage
+customtables/libraries/customtables/helpers/compareimages.php:16 class compareImages
+customtables/libraries/customtables/helpers/tables.php:23 class ESTables
+customtables/libraries/customtables/helpers/misc.php:24 class JoomlaBasicMisc
+
+
+
+## Allowing Direct File Access to plugin files
+
+Direct file access is when someone directly queries your file. This can be done by simply entering the complete path to the file in the URL bar of the browser but can also be done by doing a POST request directly to the file. For files that only contain a PHP class the risk of something funky happening when directly accessed is pretty small. For files that contain procedural code, functions and function calls, the chance of security risks is a lot bigger.
+
+You can avoid this by putting this code at the top of all PHP files that could potentially execute code if accessed directly :
+
+             if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+
+Example(s) from your plugin:
+
+
+customtables/libraries/customtables/helpers/imagemethods.php:18
+customtables/libraries/customtables/html/pagination.php:12
+customtables/libraries/customtables/utilities/exportusergroups.php:17
+customtables/build/template.php:30
+customtables/libraries/customtables/helpers/compareimages.php:12
+customtables/libraries/customtables/helpers/misc.php:12
+customtables/libraries/customtables/helpers/findsimilarimage.php:14
+customtables/libraries/customtables/datatypes/filemethods.php:11
+
+
+... out of a total of 14 coincidences.
+
+## Unsafe SQL calls
+
+When making database calls, it's highly important to protect your code from SQL injection vulnerabilities. You need to update your code to use wpdb calls and prepare() with your queries to protect them.
+
+Please review the following:
+
+    https://developer.wordpress.org/reference/classes/wpdb/#protect-queries-against-sql-injection-attacks
+    https://codex.wordpress.org/Data_Validation#Database
+    https://make.wordpress.org/core/2012/12/12/php-warning-missing-argument-2-for-wpdb-prepare/
+    https://ottopress.com/2013/better-know-a-vulnerability-sql-injection/
+
+Example(s) from your plugin:
+
+customtables/libraries/ct-database-wp.php:429 $query = "SELECT " . implode(',', $selects) . " FROM " . $realTableName
+
+. ($whereString != '' ? ' WHERE ' . $whereString : '')
+. (!empty($groupBy) != '' ? ' GROUP BY ' . $groupBy : '')
+. (!empty($order) ? ' ORDER BY ' . $order . ($orderBy !== null and strtolower($orderBy) == 'desc' ? ' DESC' : '') : '')
+. (!empty($limit) ? ' LIMIT %d' : '')//Use of single explicit placeholder is needed for WPCS verification because it thinks that $placeholders is a single variable, but it's an array
+. (!empty($limitStart) ? ' OFFSET ' . $limitStart : '');
+customtables/libraries/ct-database-wp.php:437 $query = $wpdb->prepare($query, ...$placeholders);
+customtables/libraries/ct-database-wp.php:444 $results = $wpdb->get_results($query, $output_type_temp);// phpcs:ignore WordPress.DB.PreparedSQL -- Ignore Prepared SQL warnings
+
+-----> $wpdb->get_results($query, $output_type_temp)
+                                              # There is a call to a wpdb::prepare() function, but it's not in the same execution context as the query call.
+                                              # You cannot add calls like "implode(',', $selects)" directly to the SQL query.
+                                              # Using wpdb::prepare($query, $args) you will need to include placeholders for each variable within the query and include the variables in the second parameter.
+                                              # You cannot add calls like "implode(',', $selects)" directly to the SQL query. You need to use wpdb::prepare.
+                                              # Remember that using wpdb::prepare($query, $args) you will need to include placeholders for each variable within the query and include the variables in the second parameter.
+                                              # The SQL query needs to be included in a wpdb::prepare($query, $args) function.
+
+
+... out of a total of 4 coincidences.
+
+Note: Passing individual values to wpdb::prepare using placeholders is fairly straightforward, but what if we need to pass an array of values instead?
+
+You'll need to create a placeholder for each item of the array and pass all the corresponding values to those placeholders, this seems tricky, but here is a snippet to do so.
+
+
+$wordcamp_id_placeholders = implode( ', ', array_fill( 0, count( $wordcamp_ids ), '%d' ) );
+$prepare_values = array_merge( array( $new_status ), $wordcamp_ids );
+
+$wpdb->query( $wpdb->prepare( "             UPDATE `$table_name`             SET `post_status` = %s             WHERE ID IN ( $wordcamp_id_placeholders )",             $prepare_values         ) );
+
+There is a core ticket that could make this easier in the future: https://core.trac.wordpress.org/ticket/54042
+
+Example(s) from your plugin:
+
+
+customtables/libraries/ct-database-wp.php:429 $query = "SELECT " . implode(',', $selects) . " FROM " . $realTableName

@@ -126,19 +126,14 @@ class ImportTables
 		}
 
 		//Create mysql table
-		$tabletitle = $table_new['tabletitle'] ?? $table_new['tabletitle_1'];
+		$tableTitle = $table_new['tabletitle'] ?? $table_new['tabletitle_1'];
 
-		$query = '
-                CREATE TABLE IF NOT EXISTS #__customtables_table_' . $tablename . '
-                (
-                	id int(10) NOT NULL auto_increment,
-                	published tinyint(1) DEFAULT "1",
-                	PRIMARY KEY  (id)
-                ) ENGINE=InnoDB COMMENT="' . $tabletitle . '" DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci AUTO_INCREMENT=1;
-        ';
-
-		database::setQuery($query);
-
+		$columns = [
+			'id int(10) NOT NULL auto_increment',
+			'published tinyint(1) DEFAULT "1"',
+			'PRIMARY KEY  (id)',
+		];
+		database::createTable('#__customtables_table_' . $tablename, $columns, $tableTitle);
 		ImportTables::updateTableCategory($tableid, $table_new, $categoryname);
 		return $tableid;
 	}
@@ -186,7 +181,6 @@ class ImportTables
 			database::update($mySQLTableName, $data, $whereClauseUpdate);
 
 			//$query = 'UPDATE ' . $mySQLTableName . ' SET ' . implode(', ', $sets) . ' WHERE id=' . (int)$rows_old['id'];
-			//database::setQuery($query);
 		}
 	}
 
@@ -220,35 +214,6 @@ class ImportTables
 		return '';
 	}
 
-	/*
-	protected static function dbQuoteByType($value, $type = null): float|int|string|null
-	{
-		if ($type === null) {
-			if ($value === null)
-				return 'NULL';
-
-			if (is_numeric($value)) {
-				if (floor($value) != $value)
-					$type = 'float';
-				else
-					$type = 'int';
-			} else
-				$type = 'string';
-		}
-
-		if ($type == '' or $type == 'string')
-			return database::quote($value);
-
-		if ($type == 'int')
-			return (int)$value;
-
-		if ($type == 'float')
-			return (float)$value;
-
-		return null;
-	}
-	*/
-
 	/**
 	 * @throws Exception
 	 * @since 3.2.2
@@ -273,13 +238,11 @@ class ImportTables
 
 		foreach ($keys as $key) {
 			$isOk = false;
-			//$type = null;
 
 			if (isset($field_conversion_map[$key])) {
 				$isOk = true;
 				if (is_array($field_conversion_map[$key])) {
 					$fieldname = $field_conversion_map[$key]['name'];
-					//$type = $field_conversion_map[$key]['type'];
 				} else
 					$fieldname = $field_conversion_map[$key];
 			} elseif (count($field_conversion_map) > 0 and in_array($key, $field_conversion_map)) {
@@ -394,7 +357,6 @@ class ImportTables
 			database::update('#__customtables_tables', $data, $whereClauseUpdate);
 
 			//$query = 'UPDATE ' . $mysqlTableName . ' SET tablecategory=' . (int)$categoryId . ' WHERE id=' . (int)$tableid;
-			//database::setQuery($query);
 		}
 	}
 
@@ -413,12 +375,10 @@ class ImportTables
 
 		if (is_null($value))
 			$whereClause->addCondition($fieldname, null, 'NULL');
-		//$query = 'SELECT * FROM ' . $mysqlTableName . ' WHERE ' . $fieldname . ' IS NULL';
 		else
 			$whereClause->addCondition($fieldname, $value);
-		//$query = 'SELECT * FROM ' . $mysqlTableName . ' WHERE ' . $fieldname . '=' . database::quote($value);
 
-		$rows = database::loadAssocList($mysqlTableName, ['*'], $whereClause, null, null);
+		$rows = database::loadAssocList($mysqlTableName, ['*'], $whereClause);
 		if (count($rows) == 0)
 			return 0;
 
@@ -457,7 +417,8 @@ class ImportTables
 		$field_new['tableid'] = $tableid;//replace tableid
 		$fieldName = $field_new['fieldname'];
 
-		$field_old = Fields::getFieldAssocByName($fieldName, $tableid);
+		$field_old = Fields::getFieldRowByName($fieldName, $tableid);
+
 		if (is_array($field_old) and count($field_old) > 0) {
 			$fieldid = $field_old['id'];
 			ImportTables::updateRecords('fields', $field_new, $field_old);
@@ -765,11 +726,11 @@ class ImportTables
 
 		if (!is_array($menutype_old) or count($menutype_old) == 0) {
 			//Create new menu type
-			$inserts = array();
-			$inserts[] = 'asset_id=0';
-			$inserts[] = 'menutype=' . database::quote($menutype);
-			$inserts[] = 'title=' . database::quote($menutype_title);
-			$inserts[] = 'description=' . database::quote('Menu Type created by CustomTables');
+			$data = [];
+			$data['asset_id=0'];
+			$data['menutype'] = $menutype;
+			$data['title'] = $menutype_title;
+			$data['description'] = 'Menu Type created by CustomTables';
 		}
 	}
 

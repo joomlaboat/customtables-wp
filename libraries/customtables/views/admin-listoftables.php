@@ -113,25 +113,10 @@ class ListOfTables
 		$table_row = ESTables::getTableRowByID($tableId);
 
 		if (isset($table_row->tablename) and (!isset($table_row->customtablename))) // do not delete third-party tables
-		{
-			$realtablename = database::getDBPrefix() . 'customtables_table_' . $table_row->tablename; //not available for custom tablenames
-			$serverType = database::getServerType();
-			if ($serverType == 'postgresql')
-				$query = 'DROP TABLE IF EXISTS ' . $realtablename;
-			else
-				$query = 'DROP TABLE IF EXISTS ' . database::quoteName($realtablename);
+			database::dropTableIfExists($table_row->tablename);
 
-			database::setQuery($query);
-			$serverType = database::getServerType();
-
-			if ($serverType == 'postgresql') {
-				$query = 'DROP SEQUENCE IF EXISTS ' . $realtablename . '_seq CASCADE';
-				database::setQuery($query);
-			}
-		}
-		database::setQuery('DELETE FROM #__customtables_tables WHERE id=' . $tableId);
-
-		Fields::deleteTableLessFields();
+		database::deleteRecord('#__customtables_tables', 'id', $tableId);
+		database::deleteTableLessFields();
 		return true;
 	}
 
@@ -254,7 +239,7 @@ class ListOfTables
 			if (common::inputPostString('customtablename', null, 'create-edit-table') == '')//do not rename real table if it's a third-party table - not part of the Custom Tables
 			{
 				//This function will find the old Table Name of existing table and rename MySQL table.
-				ESTables::renameTableIfNeeded($tableId, $database, $dbPrefix, $newTableName);
+				ESTables::renameTableIfNeeded($tableId, $newTableName);
 				$data['tablename'] = $newTableName;
 			}
 

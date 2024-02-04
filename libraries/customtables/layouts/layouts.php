@@ -220,7 +220,6 @@ class Layouts
 				database::update('#__customtables_layouts', $data, $whereClauseUpdate);
 
 				//$query = 'UPDATE #__customtables_layouts SET ' . $fieldName . '="' . addslashes($content) . '",modified=FROM_UNIXTIME(' . $file_ts . ') WHERE id=' . $layout_id;
-				//database::setQuery($query);
 				return $content;
 			}
 		} else {
@@ -273,13 +272,10 @@ class Layouts
 
 			if ($layout_id == 0) {
 				$whereClauseUpdate->addCondition('layoutname', $layoutName);
-				//$query = 'UPDATE #__customtables_layouts SET modified=FROM_UNIXTIME(' . $file_ts . ') WHERE layoutname=' . database::quote($layoutName);
 			} else {
 				$whereClauseUpdate->addCondition('id', $layout_id);
-				//$query = 'UPDATE #__customtables_layouts SET modified=FROM_UNIXTIME(' . $file_ts . ') WHERE id=' . $layout_id;
 			}
 			database::update('#__customtables_layouts', $data, $whereClauseUpdate);
-			//database::setQuery($query);
 		}
 		return true;
 	}
@@ -555,8 +551,10 @@ class Layouts
 	 */
 	protected function renderCatalog(): string
 	{
-		if ($this->ct->Env->frmt == 'html')
-			common::loadJSAndCSS($this->ct->Params, $this->ct->Env);
+		if ($this->ct->Env->frmt == 'html') {
+			if (defined('_JEXEC'))
+				common::loadJSAndCSS($this->ct->Params, $this->ct->Env);
+		}
 
 		// -------------------- Table
 
@@ -613,7 +611,7 @@ class Layouts
 		if ($this->ct->Params->listing_id !== null)
 			$this->ct->applyLimits(1);
 		else
-			$this->ct->applyLimits($this->ct->Params->limit);
+			$this->ct->applyLimits($this->ct->Params->limit ?? 0);
 
 		$this->ct->LayoutVariables['layout_type'] = $this->layoutType;
 

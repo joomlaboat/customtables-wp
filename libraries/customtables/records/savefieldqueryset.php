@@ -187,10 +187,10 @@ class SaveFieldQuerySet
 
 			case 'text':
 
-				$value = ComponentHelper::filterText(common::inputPost($this->field->comesfieldname, null, 'raw'));
+				$value = common::inputPost($this->field->comesfieldname, null, 'raw');
 
 				if (isset($value)) {
-					$this->setNewValue($value);
+					$this->setNewValue(ComponentHelper::filterText($value));
 					return;
 				}
 				break;
@@ -315,10 +315,6 @@ class SaveFieldQuerySet
 
 				if ($to_delete == 'true') {
 					$this->setNewValue(null);
-
-					//$query = 'SELECT ' . $this->field->realfieldname . ' FROM ' . $this->field->ct->Table->realtablename
-					//. ' WHERE ' . $this->ct->Table->realidfieldname . ' = ' . database::quote($listing_id);
-
 					$whereClause = new MySQLWhereClause();
 					$whereClause->addCondition($this->ct->Table->realidfieldname, $listing_id);
 
@@ -440,6 +436,7 @@ class SaveFieldQuerySet
 
 			case 'email':
 				$value = common::inputPostString($this->field->comesfieldname, null, 'create-edit-record');
+
 				if (isset($value)) {
 					$value = trim($value ?? '');
 					if (Email::checkEmail($value))
@@ -690,9 +687,6 @@ class SaveFieldQuerySet
 
 	protected function checkIfAliasExists(?string $exclude_id, string $value, string $realfieldname): bool
 	{
-		//$query = 'SELECT count(' . $this->ct->Table->realidfieldname . ') AS c FROM ' . $this->ct->Table->realtablename . ' WHERE '
-		//. $this->ct->Table->realidfieldname . '!=' . database::quote($exclude_id) . ' AND ' . $realfieldname . '=' . database::quote($value) . ' LIMIT 1';
-
 		$whereClause = new MySQLWhereClause();
 		$whereClause->addCondition($this->ct->Table->realidfieldname, $exclude_id, '!=');
 		$whereClause->addCondition($realfieldname, $value);
@@ -767,33 +761,22 @@ class SaveFieldQuerySet
 	function checkIfFieldAlreadyInTheList(string $realFieldName): bool
 	{
 		return isset($this->row_new[$realFieldName]);
-		/*
-	foreach ($this->saveQuery as $query) {
-		$parts = explode('=', $query);
-
-		if ($parts[0] == $fieldName)
-			return true;
-	}
-	return false;
-		*/
 	}
 
 	public static function getUserIP(): string
 	{
-		if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER) && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-			if (strpos($_SERVER['HTTP_X_FORWARDED_FOR'], ',') > 0) {
-				if ($_SERVER['HTTP_X_FORWARDED_FOR'] == '')
-					return '';
-
-				$address = explode(",", $_SERVER['HTTP_X_FORWARDED_FOR']);
-
-				return trim($address[0]);
-			} else {
-				return $_SERVER['HTTP_X_FORWARDED_FOR'];
-			}
-		} else {
-			return $_SERVER['REMOTE_ADDR'];
-		}
+		if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)) {
+			$forwardAddress = common::getServerParam('HTTP_X_FORWARDED_FOR');
+			if (!empty($forwardAddress)) {
+				if (str_contains($forwardAddress, ',')) {
+					$address = explode(",", $forwardAddress);
+					return trim($address[0]);
+				} else
+					return $forwardAddress;
+			} else
+				return common::getServerParam('REMOTE_ADDR');
+		} else
+			return common::getServerParam('REMOTE_ADDR');
 	}
 
 	/**
@@ -825,7 +808,8 @@ class SaveFieldQuerySet
 			} else {
 				$this->setNewValue($value);
 			}
-
+		} elseif ($fieldRow['type'] == 'ordering') {
+			$this->setNewValue(0);
 		} elseif ($fieldRow['type'] == 'virtual') {
 
 			$storage = $this->field->params[1] ?? '';
@@ -996,9 +980,6 @@ class SaveFieldQuerySet
 					$whereClauseUpdate = new MySQLWhereClause();
 					$whereClauseUpdate->addCondition($this->ct->Table->realidfieldname, $listing_id);
 					database::update($this->ct->Table->realtablename, $data, $whereClauseUpdate);
-
-					//$query = 'UPDATE ' . $this->ct->Table->realtablename . ' SET es_' . $fieldname . '=' . $status . ' WHERE ' . $this->ct->Table->realidfieldname . '=' . database::quote($listing_id);
-					//database::setQuery($query);
 					return;
 				}
 			}

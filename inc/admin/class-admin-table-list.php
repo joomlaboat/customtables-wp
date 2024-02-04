@@ -401,9 +401,8 @@ class Admin_Table_List extends Libraries\WP_List_Table
 	    $the_table_action = $this->current_action($filter_action,$action,$action2);
 
         if ('restore' === $the_table_action) {
-            $nonce = wp_unslash($_REQUEST['_wpnonce']);
             // verify the nonce.
-            if (!wp_verify_nonce($nonce, 'restore_nonce')) {
+            if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'restore_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
 	            $tableId = common::inputGetInt('table');
@@ -418,9 +417,8 @@ class Admin_Table_List extends Libraries\WP_List_Table
         }
 
         if ('trash' === $the_table_action) {
-            $nonce = wp_unslash($_REQUEST['_wpnonce']);
             // verify the nonce.
-            if (!wp_verify_nonce($nonce, 'trash_nonce')) {
+            if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'trash_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
 	            $tableId = common::inputGetInt('table');
@@ -435,9 +433,8 @@ class Admin_Table_List extends Libraries\WP_List_Table
         }
 
         if ('delete' === $the_table_action) {
-            $nonce = wp_unslash($_REQUEST['_wpnonce']);
             // verify the nonce.
-            if (!wp_verify_nonce($nonce, 'delete_nonce')) {
+            if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'delete_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
 	            $tableId = common::inputGetInt('table');
@@ -519,11 +516,10 @@ class Admin_Table_List extends Libraries\WP_List_Table
 
     function handle_table_actions_edit()
     {
-	    $nonce = wp_unslash($_REQUEST['_wpnonce']);
-	    if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
+	    if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
 		    $this->invalid_nonce_redirect();
 	    } else {
-		    $table_id = (int)(isset($_POST['table']) ? $_POST['table'][0] : '');
+		    $table_id = (int)(isset($_POST['table']) ? intval($_POST['table'][0]) : '');
 		    // Redirect to the edit page with the appropriate parameters
 		    $this->graceful_redirect('admin.php?page=customtables-tables-edit&action=edit&table=' . $table_id);
 	    }
@@ -531,12 +527,12 @@ class Admin_Table_List extends Libraries\WP_List_Table
 
     function handle_table_actions_publish(int $state): void
     {
-        $nonce = wp_unslash($_REQUEST['_wpnonce']);
         // verify the nonce.
-        if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
+        if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
             $this->invalid_nonce_redirect();
         } else {
-            $tables = ($_POST['table'] ?? []);
+
+	        $tables = (isset($_POST['table']) && is_array($_POST['table'])) ? common::sanitize_post_field_array($_POST['table']) : [];
 
             foreach ($tables as $table) {
 
@@ -555,12 +551,13 @@ class Admin_Table_List extends Libraries\WP_List_Table
 
     function handle_table_actions_delete()
     {
-	    $nonce = wp_unslash($_REQUEST['_wpnonce']);
 	    // verify the nonce.
-	    if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
+	    if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
 		    $this->invalid_nonce_redirect();
 	    } else {
-		    $tables = ($_POST['table'] ?? []);
+
+		    $tables = (isset($_POST['table']) && is_array($_POST['table'])) ? common::sanitize_post_field_array($_POST['table']) : [];
+
 		    if (count($tables) > 0) {
 			    foreach ($tables as $tableId)
 				    $this->helperListOfTables->deleteTable($tableId);

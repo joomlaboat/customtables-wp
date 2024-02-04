@@ -21,19 +21,21 @@ class common
 {
 	public static function enqueueMessage($text, $type): void
 	{
-		echo esc_html('<div class="success-message">' . $text . '</div>');
+		echo '<div class="success-message">' . $text . '</div>';
 	}
 
-	public static function translate(string $text, int|float $value = null)
+	public static function translate(string $text, int|float $value = null): string
 	{
-		return __($text, 'customtables');
+		if ($value !== null)
+			return sprintf(esc_html__($text, 'customtables'), $value);
+		else
+			return esc_html__($text, 'customtables');
 	}
 
 	public static function inputPostString($parameter, ?string $default, string $action): ?string
 	{
 		if (isset($_POST['_wpnonce'])) {
-			$nonce = wp_unslash($_POST['_wpnonce']);
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, $action))
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_POST['_wpnonce'], $action))
 				return $default;
 		}
 
@@ -44,51 +46,24 @@ class common
 		return sanitize_text_field($source);
 	}
 
-	public static function inputGetString($parameter, $default = null)
-	{
-		if (isset($_GET['_wpnonce'])) {
-			$nonce = wp_unslash($_GET['_wpnonce']);
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'get')) {
-				//return $default;
-			}
-		}
-
-		if (!isset($_GET[$parameter]))
-			return $default;
-
-		$value = $_GET[$parameter];
-
-		//$value = get_query_var($parameter);
-
-		if ($value === null)
-			return $default;
-
-		$source = wp_strip_all_tags(wp_unslash($value));
-		return sanitize_text_field($source);
-	}
-
 	public static function inputPostFloat($parameter, ?float $default, string $action): ?float
 	{
 		if (isset($_POST['_wpnonce'])) {
-			$nonce = wp_unslash($_POST['_wpnonce']);
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, $action))
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_POST['_wpnonce'], $action))
 				return $default;
 		}
 
-		// Allow a-z, 0-9, underscore, dot, dash. Also remove leading dots from result.
 		if (!isset($_POST[$parameter]))
 			return $default;
 
 		// Only use the first floating point value
-		preg_match('/-?\d+(\.\d+)?/', (string)$_POST[$parameter], $matches);
-		return @ (float)$matches[0];
+		return (float)$_POST[$parameter];
 	}
 
-	public static function inputGetFloat($parameter, ?float $default = null)
+	public static function inputGetFloat($parameter, ?float $default = null): ?float
 	{
 		if (isset($_GET['_wpnonce'])) {
-			$nonce = wp_unslash($_GET['_wpnonce']);
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'get')) {
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_GET['_wpnonce'], 'get')) {
 				//return $default;
 			}
 		}
@@ -96,53 +71,40 @@ class common
 		if (!isset($_GET[$parameter]))
 			return $default;
 
-		$value = $_GET[$parameter];
-
-		if ($value === null)
-			return $default;
-
 		// Only use the first floating point value
-		preg_match('/-?\d+(\.\d+)?/', (string)$value, $matches);
-		return @ (float)$matches[0];
+		return (float)$_GET[$parameter];
 	}
 
 	public static function inputPostInt($parameter, ?int $default, string $action): ?int
 	{
 		if (isset($_POST['_wpnonce'])) {
-			$nonce = wp_unslash($_POST['_wpnonce']);
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, $action))
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_POST['_wpnonce'], $action))
 				return $default;
 		}
 
-		// Allow a-z, 0-9, underscore, dot, dash. Also remove leading dots from result.
 		if (!isset($_POST[$parameter]))
 			return $default;
 
-		preg_match('/-?\d+/', (string)$_POST[$parameter], $matches);
-		return @ (int)$matches[0];
+		return (int)$_POST[$parameter];
 	}
 
 	public static function inputPostUInt($parameter, ?int $default, string $action): ?int
 	{
 		if (isset($_POST['_wpnonce'])) {
-			$nonce = wp_unslash($_POST['_wpnonce']);
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, $action))
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_POST['_wpnonce'], $action))
 				return $default;
 		}
 
-		// Allow a-z, 0-9, underscore, dot, dash. Also remove leading dots from result.
 		if (!isset($_POST[$parameter]))
 			return $default;
 
-		preg_match('/-?\d+/', (string)$_POST[$parameter], $matches);
-		return @ abs((int)$matches[0]);
+		return (int)$_POST[$parameter];
 	}
 
 	public static function inputGetUInt($parameter, ?int $default = null)
 	{
 		if (isset($_GET['_wpnonce'])) {
-			$nonce = wp_unslash($_GET['_wpnonce']);
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'get')) {
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_GET['_wpnonce'], 'get')) {
 				//return $default;
 			}
 		}
@@ -150,23 +112,14 @@ class common
 		if (!isset($_GET[$parameter]))
 			return $default;
 
-		$value = $_GET[$parameter];
-
-		if ($value === null)
-			return $default;
-
-		preg_match('/-?\d+/', (string)$_GET[$parameter], $matches);
-		return @ abs((int)$matches[0]);
+		return (int)$_GET[$parameter];
 	}
 
 	public static function inputPostCmd(string $parameter, ?string $default, string $action): ?string
 	{
 		if (isset($_POST['_wpnonce'])) {
-			$nonce = wp_unslash($_POST['_wpnonce']);
-
 			if (function_exists('\wp_verify_nonce')) {
-
-				if (!wp_verify_nonce($nonce, $action))
+				if (!wp_verify_nonce($_POST['_wpnonce'], $action))
 					return null;
 			}
 		}
@@ -175,15 +128,14 @@ class common
 		if (!isset($_POST[$parameter]))
 			return $default;
 
-		$result = (string)preg_replace('/[^A-Z\d_\.-]/i', '', $_POST[$parameter]);
+		$result = (string)preg_replace('/[^A-Z\d_\.-]/i', '', sanitize_key($_POST[$parameter]));
 		return ltrim($result, '.');
 	}
 
 	public static function inputGetCmd(string $parameter, ?string $default = null)
 	{
 		if (isset($_GET['_wpnonce'])) {
-			$nonce = wp_unslash($_GET['_wpnonce']);
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'get')) {
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_GET['_wpnonce'], 'get')) {
 				//return $default;
 			}
 		}
@@ -191,26 +143,17 @@ class common
 		if (!isset($_GET[$parameter]))
 			return $default;
 
-		$value = $_GET[$parameter];
-
-		//$value = get_query_var($parameter);
-
-		if ($value === null)
-			return $default;
-
-		$result = (string)preg_replace('/[^A-Z\d_\.-]/i', '', $value);
+		$result = (string)preg_replace('/[^A-Z\d_\.-]/i', '', sanitize_key($_GET[$parameter]));
 		return ltrim($result, '.');
 	}
 
 	public static function inputPostRow(string $parameter, ?string $default, string $action)
 	{
 		if (isset($_POST['_wpnonce'])) {
-			$nonce = wp_unslash($_POST['_wpnonce']);
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, $action))
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_POST['_wpnonce'], $action))
 				return $default;
 		}
 
-		// Allow a-z, 0-9, underscore, dot, dash. Also remove leading dots from result.
 		if (!isset($_POST[$parameter]))
 			return $default;
 
@@ -220,8 +163,7 @@ class common
 	public static function inputGetRow(string $parameter, ?string $default = null)
 	{
 		if (isset($_GET['_wpnonce'])) {
-			$nonce = wp_unslash($_GET['_wpnonce']);
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'get')) {
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_GET['_wpnonce'], 'get')) {
 				//return $default;
 			}
 		}
@@ -229,21 +171,13 @@ class common
 		if (!isset($_GET[$parameter]))
 			return $default;
 
-		$value = $_GET[$parameter];
-
-		//$value = get_query_var($parameter);
-
-		if ($value === null)
-			return $default;
-
-		return stripslashes($value);
+		return stripslashes($_GET[$parameter]);
 	}
 
 	public static function inputPostBase64(string $parameter, ?string $default, string $action)
 	{
 		if (isset($_POST['_wpnonce'])) {
-			$nonce = wp_unslash($_POST['_wpnonce']);
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, $action))
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_POST['_wpnonce'], $action))
 				return $default;
 		}
 
@@ -252,14 +186,13 @@ class common
 			return $default;
 
 		// Allow a-z, 0-9, slash, plus, equals.
-		return (string)preg_replace('/[^A-Z\d\/+=]/i', '', $_POST[$parameter]);
+		return (string)preg_replace('/[^A-Z\d\/+=]/i', '', sanitize_text_field($_POST[$parameter]));
 	}
 
 	public static function inputGetBase64(string $parameter, ?string $default = null)
 	{
 		if (isset($_GET['_wpnonce'])) {
-			$nonce = wp_unslash($_GET['_wpnonce']);
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'get')) {
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_GET['_wpnonce'], 'get')) {
 				//return $default;
 			}
 		}
@@ -267,22 +200,14 @@ class common
 		if (!isset($_GET[$parameter]))
 			return $default;
 
-		$value = $_GET[$parameter];
-
-		//$value = get_query_var($parameter);
-
-		if ($value === null)
-			return $default;
-
 		// Allow a-z, 0-9, slash, plus, equals.
-		return (string)preg_replace('/[^A-Z\d\/+=]/i', '', $value);
+		return (string)preg_replace('/[^A-Z\d\/+=]/i', '', sanitize_text_field($_GET[$parameter]));
 	}
 
 	public static function inputGetWord(string $parameter, ?string $default = null)
 	{
 		if (isset($_GET['_wpnonce'])) {
-			$nonce = wp_unslash($_GET['_wpnonce']);
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'get')) {
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_GET['_wpnonce'], 'get')) {
 				//return $default;
 			}
 		}
@@ -290,22 +215,14 @@ class common
 		if (!isset($_GET[$parameter]))
 			return $default;
 
-		$value = $_GET[$parameter];
-
-		//$value = get_query_var($parameter);
-
-		if ($value === null)
-			return $default;
-
 		// Only allow characters a-z, and underscores
-		return (string)preg_replace('/[^A-Z_]/i', '', $value);
+		return (string)preg_replace('/[^A-Z_]/i', '', sanitize_text_field($_GET[$parameter]));
 	}
 
 	public static function inputPostAlnum(string $parameter, ?string $default, string $action)
 	{
 		if (isset($_POST['_wpnonce'])) {
-			$nonce = wp_unslash($_POST['_wpnonce']);
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, $action))
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_POST['_wpnonce'], $action))
 				return $default;
 		}
 
@@ -314,14 +231,13 @@ class common
 			return $default;
 
 		// Allow a-z and 0-9 only
-		return (string)preg_replace('/[^A-Z\d]/i', '', $_POST[$parameter]);
+		return (string)preg_replace('/[^A-Z\d]/i', '', sanitize_text_field($_POST[$parameter]));
 	}
 
 	public static function inputGetAlnum(string $parameter, ?string $default = null)
 	{
 		if (isset($_GET['_wpnonce'])) {
-			$nonce = wp_unslash($_GET['_wpnonce']);
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($nonce, 'get')) {
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_GET['_wpnonce'], 'get')) {
 				//return $default;
 			}
 		}
@@ -329,13 +245,8 @@ class common
 		if (!isset($_GET[$parameter]))
 			return $default;
 
-		$value = $_GET[$parameter];
-
-		if ($value === null)
-			return $default;
-
 		// Allow a-z and 0-9 only
-		return (string)preg_replace('/[^A-Z\d]/i', '', $value);
+		return (string)preg_replace('/[^A-Z\d]/i', '', sanitize_text_field($_GET[$parameter]));
 	}
 
 	public static function inputPost($parameter, $default = null, $filter = null)
@@ -519,8 +430,7 @@ class common
 	public static function inputGetInt(string $parameter, ?int $default = null): ?int
 	{
 		if (isset($_GET['_wpnonce'])) {
-			$nonce = wp_unslash($_GET['_wpnonce'] ?? '');
-			if (function_exists('\wp_verify_nonce') and !\wp_verify_nonce($nonce, 'get')) {
+			if (function_exists('\wp_verify_nonce') and !\wp_verify_nonce($_GET['_wpnonce'], 'get')) {
 				//return $default;
 			}
 		}
@@ -566,7 +476,7 @@ class common
 	public static function curPageURL(): string
 	{
 		$WebsiteRoot = str_replace(site_url(), '', home_url());
-		$RequestURL = $_SERVER["REQUEST_URI"];
+		$RequestURL = sanitize_text_field($_SERVER["REQUEST_URI"]);
 
 		if ($WebsiteRoot !== '' && str_ends_with($WebsiteRoot, '/')) {
 			if ($RequestURL !== '' && $RequestURL[0] === '/') {
@@ -575,6 +485,11 @@ class common
 		}
 
 		return $WebsiteRoot . $RequestURL;
+	}
+
+	public static function getServerParam(string $param)
+	{
+		return sanitize_text_field($_SERVER[$param]);
 	}
 
 	public static function inputGet(string $parameter, $default, string $filter)
@@ -603,20 +518,20 @@ class common
 	{
 		global $wp_filesystem;
 
-		if ( ! function_exists( 'WP_Filesystem' ) ) {
+		if (!function_exists('WP_Filesystem')) {
 			require_once ABSPATH . '/wp-admin/includes/file.php';
 		}
 
 		WP_Filesystem();
 
-		if ( ! $wp_filesystem ) {
+		if (!$wp_filesystem) {
 			return 'Unable to initialize WP_Filesystem.';
 		}
 
 		try {
 			$result = $wp_filesystem->put_contents($filePath, $content);
 
-			if ( ! $result ) {
+			if (!$result) {
 				throw new Exception('Failed to write content to file.');
 			}
 
@@ -631,20 +546,20 @@ class common
 	{
 		global $wp_filesystem;
 
-		if ( ! function_exists( 'WP_Filesystem' ) ) {
+		if (!function_exists('WP_Filesystem')) {
 			require_once ABSPATH . '/wp-admin/includes/file.php';
 		}
 
 		WP_Filesystem();
 
-		if ( ! $wp_filesystem ) {
+		if (!$wp_filesystem) {
 			return 'Unable to initialize WP_Filesystem.';
 		}
 
 		try {
 			$content = $wp_filesystem->get_contents($filePath);
 
-			if ( $content === false ) {
+			if ($content === false) {
 				throw new Exception('Failed to read content from file.');
 			}
 
@@ -695,5 +610,32 @@ class common
 			return explode(' and ', $b);
 		}
 		return null;
+	}
+
+	public static function inputGetString($parameter, $default = null)
+	{
+		if (isset($_GET['_wpnonce'])) {
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_GET['_wpnonce'], 'get')) {
+				//return $default;
+			}
+		}
+
+		if (!isset($_GET[$parameter]))
+			return $default;
+
+		return sanitize_text_field($_GET[$parameter]);
+	}
+
+	public static function sanitize_post_field_array($input) {
+		$sanitized_array = [];
+		foreach ($input as $item) {
+			// Ensure the item is an integer and meets any other criteria you have
+			$sanitized_item = intval($item);
+			// Add additional checks as needed
+			// if ($sanitized_item meets condition) {
+			$sanitized_array[] = $sanitized_item;
+			// }
+		}
+		return $sanitized_array;
 	}
 }

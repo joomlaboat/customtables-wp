@@ -15,7 +15,7 @@
 
 namespace CustomTablesWP\Inc\Admin;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use CustomTableList;
 use CustomTables\common;
@@ -240,8 +240,8 @@ class Admin
 
 			case 'customtables-api-tables':
 				$whereClause = new MySQLWhereClause();
-				$whereClause->addCondition('published',1);
-				$tablesRows = database::loadAssocList('#__customtables_tables',['id','tablename'],$whereClause,'tablename');
+				$whereClause->addCondition('published', 1);
+				$tablesRows = database::loadAssocList('#__customtables_tables', ['id', 'tablename'], $whereClause, 'tablename');
 				$tables = [];
 				$tables[] = ['label' => '- Select Table', 'value' => null];
 				foreach ($tablesRows as $tablesRow) {
@@ -252,8 +252,8 @@ class Admin
 
 			case 'customtables-api-layouts':
 				$whereClause = new MySQLWhereClause();
-				$whereClause->addCondition('published',1);
-				$layoutsRows = database::loadAssocList('#__customtables_layouts',['id','layoutname'],$whereClause,'layoutname');
+				$whereClause->addCondition('published', 1);
+				$layoutsRows = database::loadAssocList('#__customtables_layouts', ['id', 'layoutname'], $whereClause, 'layoutname');
 				$layouts = [];
 				$layouts[] = ['label' => '- Select Layout', 'value' => null];
 				foreach ($layoutsRows as $layoutsRow) {
@@ -275,8 +275,8 @@ class Admin
 				$tableId = common::inputGetInt('table');
 				$page_hook = add_submenu_page(
 					'customtables',                     // Parent Menu Slug
-					__(($tableId === 0 ? 'Add Table' : 'Edit Table') . ' - CustomTables', 'customtables'), // Page Title
-					__(($tableId === 0 ? ' -- Add' : ' -- Edit'), 'customtables'),                     // Menu Title
+					($tableId === 0 ? __('Add Table', 'customtables') : __('Edit Table', 'customtables')) . ' - CustomTables', // Page Title
+					' -- ' . ($tableId === 0 ? __('Add', 'customtables') : __('Edit', 'customtables')),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-tables-edit',                               // Menu Slug
 					array($this, 'load_customtablesAdminTablesEdit'),        // Callback Function
@@ -289,7 +289,7 @@ class Admin
 				$page_hook = add_submenu_page(
 					'customtables',                     // Parent Menu Slug
 					__('Fields - CustomTables', 'customtables'), // Page Title
-					__(' - Fields', 'customtables'),                     // Menu Title
+					' - ' . __('Fields', 'customtables'),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-fields',                               // Menu Slug 'customtables-fields'
 					array($this, 'load_admin_field_list'),        // Callback Function
@@ -305,7 +305,7 @@ class Admin
 				add_submenu_page(
 					'customtables',                     // Parent Menu Slug
 					__('Fields - CustomTables', 'customtables'), // Page Title
-					__(' - Fields', 'customtables'),                     // Menu Title
+					' - ' . __('Fields', 'customtables'),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-fields&table=' . $tableId,                               // Menu Slug
 					array($this, 'load_admin_field_list'),        // Callback Function
@@ -315,8 +315,8 @@ class Admin
 				$fieldId = common::inputGetInt('field');
 				$page_hook = add_submenu_page(
 					'customtables',                     // Parent Menu Slug
-					__(($fieldId == 0 ? 'Add Field' : 'Edit Field') . ' - CustomTables', 'customtables'), // Page Title
-					__(($fieldId == 0 ? ' -- Add' : ' -- Edit'), 'customtables'),                     // Menu Title
+					($fieldId == 0 ? __('Add Field', 'customtables') : __('Edit Field', 'customtables')) . ' - CustomTables', // Page Title
+					' -- ' . ($fieldId == 0 ? __('Add', 'customtables') : __('Edit', 'customtables')),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-fields-edit',                               // Menu Slug
 					array($this, 'load_customtablesAdminFieldsEdit'),        // Callback Function
@@ -330,7 +330,7 @@ class Admin
 				$page_hook = add_submenu_page(
 					'customtables',                     // Parent Menu Slug
 					__('Records - CustomTables', 'customtables'), // Page Title
-					__(' - Records', 'customtables'),                     // Menu Title
+					' - ' . __('Records', 'customtables'),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-records',                               // Menu Slug 'customtables-fields'
 					array($this, 'load_admin_record_list'),        // Callback Function
@@ -345,7 +345,7 @@ class Admin
 				add_submenu_page(
 					'customtables',                     // Parent Menu Slug
 					__('Records - CustomTables', 'customtables'), // Page Title
-					__(' - Records', 'customtables'),                     // Menu Title
+					' - ' . __('Records', 'customtables'),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-records&table=' . $tableId,                               // Menu Slug
 					array($this, 'load_admin_record_list'),        // Callback Function
@@ -355,8 +355,8 @@ class Admin
 				$id = common::inputGetInt('id');
 				$page_hook = add_submenu_page(
 					'customtables',                     // Parent Menu Slug
-					__(($id == 0 ? 'Add Record' : 'Edit Record') . ' - CustomTables', 'customtables'), // Page Title
-					__(($id == 0 ? ' -- Add' : ' -- Edit'), 'customtables'),                     // Menu Title
+					($id == 0 ? __('Add Record', 'customtables') : __('Edit Record', 'customtables')) . ' - CustomTables', // Page Title
+					' -- ' . ($id == 0 ? __('Add', 'customtables') : __('Edit', 'customtables')),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-records-edit',                               // Menu Slug
 					array($this, 'load_customtablesAdminRecordsEdit'),        // Callback Function
@@ -370,8 +370,8 @@ class Admin
 				$layoutId = common::inputGetInt('layout');
 				$page_hook = add_submenu_page(
 					'customtables',                     // Parent Menu Slug
-					__(($layoutId == 0 ? 'Add Layout' : 'Edit Layout') . ' - CustomTables', 'customtables'), // Page Title
-					__(($layoutId == 0 ? ' -- Add' : ' -- Edit'), 'customtables'),                     // Menu Title
+					($layoutId == 0 ? __('Add Layout', 'customtables') : __('Edit Layout', 'customtables')) . ' - CustomTables', // Page Title
+					' -- ' . ($layoutId == 0 ? __('Add', 'customtables') : __('Edit', 'customtables')),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-layouts-edit',                               // Menu Slug
 					array($this, 'load_customtablesAdminLayoutsEdit'),        // Callback Function
