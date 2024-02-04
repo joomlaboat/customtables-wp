@@ -12,7 +12,9 @@
 use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\database;
+use CustomTables\TableHelper;
 use CustomTables\Filtering;
+use CustomTables\FindSimilarImage;
 use CustomTables\MySQLWhereClause;
 
 if (!defined('_JEXEC') and !defined('WPINC')) {
@@ -639,7 +641,7 @@ class CustomTablesImageMethods
 			if (isset($pair[2])) {
 
 				$tablename = str_replace('#__customtables_table_', '', $realtablename);
-				$tableRow = ESTables::getTableRowByNameAssoc($tablename);
+				$tableRow = TableHelper::getTableRowByNameAssoc($tablename);
 				$newCt = new CT();
 				$newCt->setTable($tableRow);
 				$f = new Filtering($newCt);

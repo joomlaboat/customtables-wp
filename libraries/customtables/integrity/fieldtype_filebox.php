@@ -17,9 +17,9 @@ if (!defined('_JEXEC') and !defined('WPINC')) {
 
 use CustomTables\common;
 use CustomTables\CT;
+use CustomTables\TableHelper;
 use CustomTables\Fields;
 use CustomTables\IntegrityChecks;
-use ESTables;
 
 class IntegrityFieldType_FileBox extends IntegrityChecks
 {
@@ -27,7 +27,7 @@ class IntegrityFieldType_FileBox extends IntegrityChecks
 	{
 		$filebox_table_name = '#__customtables_filebox_' . $ct->Table->tablename . '_' . $fieldname;
 
-		if (!ESTables::checkIfTableExists($filebox_table_name)) {
+		if (!TableHelper::checkIfTableExists($filebox_table_name)) {
 			Fields::CreateFileBoxTable($ct->Table->tablename, $fieldname);
 			common::enqueueMessage(common::translate('File Box Table "' . $filebox_table_name . '" created.'));
 		}

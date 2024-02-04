@@ -15,7 +15,6 @@ if (!defined('_JEXEC') and !defined('WPINC')) {
 }
 
 use DateTime;
-use ESTables;
 use Exception;
 use LayoutProcessor;
 
@@ -1076,7 +1075,7 @@ class LinkJoinFilters
 		else
 			return '<p style="color:white;background-color:red;">sqljoin: field not set</p>';
 
-		$tableRow = ESTables::getTableRowByNameAssoc($tablename);
+		$tableRow = TableHelper::getTableRowByNameAssoc($tablename);
 		if (!is_array($tableRow))
 			return '<p style="color:white;background-color:red;">sqljoin: table "' . $tablename . '" not found</p>';
 

@@ -153,8 +153,6 @@ class Admin_Field_List extends WP_List_Table
 
 		$newData = [];
 		foreach ($data as $item) {
-			//$field_exists = ESTables::checkIfTableExists($item['realfieldname']);
-
 			if ($item['published'] == -2)
 				$label = '<span>' . $item['fieldname'] . '</span>';
 			else

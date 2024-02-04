@@ -16,8 +16,6 @@ if (!defined('_JEXEC') and !defined('WPINC')) {
 }
 
 use Exception;
-use ESTables;
-
 use Joomla\CMS\Router\Route;
 use LayoutProcessor;
 
@@ -197,7 +195,7 @@ class Twig_Record_Tags
 	{
 		if ($sj_tablename === null or $sj_tablename == '') return '';
 
-		$tableRow = ESTables::getTableRowByNameAssoc($sj_tablename);
+		$tableRow = TableHelper::getTableRowByNameAssoc($sj_tablename);
 
 		if (!is_array($tableRow)) return '';
 
@@ -525,7 +523,7 @@ class Twig_Record_Tags
 			return null;
 		}
 
-		$tableRow = ESTables::getTableRowByNameAssoc($tableName);
+		$tableRow = TableHelper::getTableRowByNameAssoc($tableName);
 		if (!is_array($tableRow)) {
 			$this->ct->errors[] = '{{ record.count("' . $tableName . '") }} - Table not found.';
 			return null;
@@ -822,7 +820,7 @@ class Twig_Tables_Tags
 
 		$join_ct = new CT;
 		$tables = new Tables($join_ct);
-		$tableRow = ESTables::getTableRowByNameAssoc($table);
+		$tableRow = TableHelper::getTableRowByNameAssoc($table);
 		$join_ct->setTable($tableRow);
 
 		if (is_numeric($record_id_or_filter) and (int)$record_id_or_filter > 0) {

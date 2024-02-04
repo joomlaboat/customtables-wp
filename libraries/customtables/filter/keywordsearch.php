@@ -191,7 +191,7 @@ class CustomTablesKeywordSearch
 					break;
 				}
 			}
-			//$fieldrow = ESTables::FieldRowByName($f, $this->ct->Table->fields);//2011.6.1
+			//$fieldrow = TableHelper::FieldRowByName($f, $this->ct->Table->fields);//2011.6.1
 
 			//any
 			$keyword_arr = explode(' ', $keywords);

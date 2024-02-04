@@ -4,8 +4,6 @@ WordPress Plugin Review Team - 1/16/2024:
 
 # Looks like there are elements not using common prefixes.
 
-customtables/libraries/customtables/helpers/findsimilarimage.php:18 class FindSimilarImage
-customtables/libraries/customtables/helpers/compareimages.php:16 class compareImages
 customtables/libraries/customtables/helpers/tables.php:23 class ESTables
 
 

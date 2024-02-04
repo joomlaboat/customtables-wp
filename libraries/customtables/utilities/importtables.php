@@ -11,7 +11,6 @@
 namespace CustomTables;
 
 use Exception;
-use ESTables;
 use JTableNested;
 
 // no direct access
@@ -111,7 +110,7 @@ class ImportTables
 
 		$tablename = $table_new['tablename'];
 
-		$table_old = ESTables::getTableRowByNameAssoc($tablename);
+		$table_old = TableHelper::getTableRowByNameAssoc($tablename);
 
 		if (is_array($table_old) and count($table_old) > 0) {
 			$tableid = $table_old['id'];

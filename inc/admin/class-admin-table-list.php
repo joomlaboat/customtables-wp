@@ -17,9 +17,9 @@ use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\Fields;
 use CustomTables\MySQLWhereClause;
+use CustomTables\TableHelper;
 use CustomTablesWP\Inc\Libraries;
 use CustomTables\ListOfTables;
-use ESTables;
 use WP_List_Table;
 
 class Admin_Table_List extends WP_List_Table
@@ -137,7 +137,7 @@ class Admin_Table_List extends WP_List_Table
 
         $newData = [];
         foreach ($data as $item) {
-            $table_exists = ESTables::checkIfTableExists($item['realtablename']);
+            $table_exists = TableHelper::checkIfTableExists($item['realtablename']);
 
             if ($item['published'] == -2)
                 $label = '<span>' . $item['tablename'] . '</span>';
