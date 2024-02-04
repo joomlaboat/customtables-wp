@@ -8,6 +8,8 @@
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
+use CustomTables\Edit;
+
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 //include ('customtables-records-edit-help.php');
@@ -65,10 +67,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 
         <?php
         if (current_user_can('install_plugins')) {
-            ?>
 
-
-            <?php
             if (isset($this->admin_record_edit->ct->Table) and $this->admin_record_edit->ct->Table->tablename !== null):
                 ?>
                 <p><?php
@@ -93,7 +92,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                     $editForm = new Edit($this->admin_record_edit->ct);
                     $editForm->layoutContent = $this->admin_record_edit->pageLayout;
                     $editForm_render_safe = $editForm->render($this->admin_record_edit->recordRow, $this->admin_record_edit->formLink, 'adminForm',false);
-                    echo wp_kses_post($editForm_render_safe);
+                    echo $editForm_render_safe;
 
                     submit_button($buttonText, 'primary', 'createrecord', true, array('id' => 'createrecordsub')); ?>
                 </form>

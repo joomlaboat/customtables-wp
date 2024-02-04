@@ -4,18 +4,9 @@ WordPress Plugin Review Team - 1/16/2024:
 
 # Looks like there are elements not using common prefixes.
 
-customtables/libraries/customtables/layouteditor/layouteditor.php:63 function renderEditor
-customtables/libraries/customtables/layouteditor/layouteditor.php:121 function getKnownLanguages
-customtables/libraries/customtables/layouteditor/layouteditor.php:139 function render_onPageLoads
-customtables/libraries/customtables/html/pagination.php:30 class JESPagination
-customtables/libraries/customtables/html/pagination.php:554 class JESPaginationObject
-customtables/libraries/customtables/utilities/exportusergroups.php:23 class ImportExportUserGroups
-customtables/libraries/customtables/views/edit.php:23 class Edit
 customtables/libraries/customtables/helpers/findsimilarimage.php:18 class FindSimilarImage
 customtables/libraries/customtables/helpers/compareimages.php:16 class compareImages
 customtables/libraries/customtables/helpers/tables.php:23 class ESTables
-customtables/libraries/customtables/helpers/misc.php:24 class JoomlaBasicMisc
-
 
 
 ## Allowing Direct File Access to plugin files
