@@ -395,12 +395,12 @@ class common
 		return $string;
 	}
 
-	public static function ctJsonEncode($argument): bool|string
+	public static function ctJsonEncode($argument): string
 	{
 		return wp_json_encode($argument);
 	}
 
-	public static function ctStripTags($argument): bool|string
+	public static function ctStripTags($argument): string
 	{
 		return wp_strip_all_tags($argument);
 	}

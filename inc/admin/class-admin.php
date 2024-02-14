@@ -264,8 +264,11 @@ class Admin
 
 			case 'customtables-api-preview':
 				$attributesString = common::inputGetString('attributes');
-				$attributesDecoded = urldecode($attributesString);
+				$attributesDecoded = stripslashes(urldecode($attributesString));
 				$attributes = json_decode($attributesDecoded);
+				if($attributes === null)
+					die('Table not found, probably deleted.');
+
 				$ct = new CT(null, false);
 				$ct->getTable($attributes->table);
 				$layouts = new Layouts($ct);
