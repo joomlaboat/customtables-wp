@@ -47,15 +47,15 @@ class Admin_Record_List extends WP_List_Table
 
 	            $whereClause = new MySQLWhereClause();
 	            $whereClause->addCondition('published', -2,'!=');
-	            $this->count_all = database::loadColumn($this->ct->Table->realtablename,['COUNT(' . $this->ct->Table->realidfieldname . ') AS c'], $whereClause)[0] ?? 0;
+	            $this->count_all = database::loadColumn($this->ct->Table->realtablename,['COUNT_ROWS'], $whereClause)[0] ?? 0;
 
 	            $whereClause = new MySQLWhereClause();
 	            $whereClause->addCondition('published', -2);
-	            $this->count_trashed = database::loadColumn($this->ct->Table->realtablename,['COUNT(' . $this->ct->Table->realidfieldname . ') AS c'], $whereClause)[0] ?? 0;
+	            $this->count_trashed = database::loadColumn($this->ct->Table->realtablename,['COUNT_ROWS'], $whereClause)[0] ?? 0;
 
 	            $whereClause = new MySQLWhereClause();
 	            $whereClause->addCondition('published', 1);
-	            $this->count_published = database::loadColumn($this->ct->Table->realtablename,['COUNT(' . $this->ct->Table->realidfieldname . ') AS c'], $whereClause)[0] ?? 0;
+	            $this->count_published = database::loadColumn($this->ct->Table->realtablename,['COUNT_ROWS'], $whereClause)[0] ?? 0;
             }
         }
 

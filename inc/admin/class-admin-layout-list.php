@@ -47,18 +47,15 @@ class Admin_Layout_List extends WP_List_Table
 
 		$whereClause = new MySQLWhereClause();
 		$whereClause->addCondition('published', -2,'!=');
-		$this->count_all = database::loadColumn('#__customtables_layouts',['COUNT(id) AS c'], $whereClause)[0] ?? 0;
-		//$this->count_all = database::loadColumn('SELECT COUNT(id) FROM #__customtables_layouts WHERE published!=-2')[0] ?? 0;
+		$this->count_all = database::loadColumn('#__customtables_layouts',['COUNT_ROWS'], $whereClause)[0] ?? 0;
 
 		$whereClause = new MySQLWhereClause();
 		$whereClause->addCondition('published', -2);
-		$this->count_trashed = database::loadColumn('#__customtables_layouts',['COUNT(id) AS c'], $whereClause)[0] ?? 0;
-		//$this->count_trashed = database::loadColumn('SELECT COUNT(id) FROM #__customtables_layouts WHERE published=-2')[0] ?? 0;
+		$this->count_trashed = database::loadColumn('#__customtables_layouts',['COUNT_ROWS'], $whereClause)[0] ?? 0;
 
 		$whereClause = new MySQLWhereClause();
 		$whereClause->addCondition('published', 1);
-		$this->count_published = database::loadColumn('#__customtables_layouts',['COUNT(id) AS c'], $whereClause)[0] ?? 0;
-		//$this->count_published = database::loadColumn('SELECT COUNT(id) FROM #__customtables_layouts WHERE published=1')[0] ?? 0;
+		$this->count_published = database::loadColumn('#__customtables_layouts',['COUNT_ROWS'], $whereClause)[0] ?? 0;
 
 		$this->count_unpublished = $this->count_all - $this->count_published;
 

@@ -51,20 +51,18 @@ class Admin_Field_List extends WP_List_Table
 			$whereClause = new MySQLWhereClause();
 			$whereClause->addCondition('tableid', $this->tableId);
 			$whereClause->addCondition('published', -2, '!=');
-			$this->count_all = database::loadColumn('#__customtables_fields', ['COUNT(id) AS c'], $whereClause)[0] ?? 0;
-			//$this->count_all = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE tableid='.$this->tableId.' AND published!=-2')[0] ?? 0;
+			$this->count_all = database::loadColumn('#__customtables_fields', ['COUNT_ROWS'], $whereClause)[0] ?? 0;
 
 			$whereClause = new MySQLWhereClause();
 			$whereClause->addCondition('tableid', $this->tableId);
 			$whereClause->addCondition('published', -2);
-			$this->count_trashed = database::loadColumn('#__customtables_fields', ['COUNT(id) AS c'], $whereClause)[0] ?? 0;
-			//$this->count_trashed = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE tableid='.$this->tableId.' AND published=-2')[0] ?? 0;
+			$this->count_trashed = database::loadColumn('#__customtables_fields', ['COUNT_ROWS'], $whereClause)[0] ?? 0;
 
 			$whereClause = new MySQLWhereClause();
 			$whereClause->addCondition('tableid', $this->tableId);
 			$whereClause->addCondition('published', 1);
-			$this->count_published = database::loadColumn('#__customtables_fields', ['COUNT(id) AS c'], $whereClause)[0] ?? 0;
-			//$this->count_published = database::loadColumn('SELECT COUNT(id) FROM #__customtables_fields WHERE tableid='.$this->tableId.' AND published=1')[0] ?? 0;
+			$this->count_published = database::loadColumn('#__customtables_fields', ['COUNT_ROWS'], $whereClause)[0] ?? 0;
+
 		} else {
 			$this->count_all = 0;
 			$this->count_trashed = 0;

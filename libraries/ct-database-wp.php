@@ -16,6 +16,7 @@ if (!defined('WPINC')) {
 }
 
 use Exception;
+use WP_User_Query;
 
 class MySQLWhereClause
 {
@@ -385,11 +386,109 @@ class database
 	 * @throws Exception
 	 * @since 3.2.2
 	 */
-	public static function loadAssocList(string  $table, array $selects, MySQLWhereClause $whereClause, ?string $order = null,
-	                                     ?string $orderBy = null, ?int $limit = null,
-	                                     ?int    $limitStart = null, string $groupBy = null)
+	public static function loadRowList(string  $table, array $selects, MySQLWhereClause $whereClause,
+	                                   ?string $order = null, ?string $orderBy = null,
+	                                   ?int    $limit = null, ?int $limitStart = null,
+	                                   string  $groupBy = null, bool $returnQueryString = false): array
 	{
-		return self::loadObjectList($table, $selects, $whereClause, $order, $orderBy, $limit, $limitStart, 'ARRAY_A', $groupBy);
+		return self::loadObjectList($table, $selects, $whereClause, $order, $orderBy, $limit, $limitStart, 'ROW_LIST', $groupBy, $returnQueryString);
+	}
+
+	protected static function sanitizeSelects(array $selectsRaw, string $realTableName): string
+	{
+		global $wpdb;
+		$serverType = database::getServerType();
+
+		$selects = [];
+
+		foreach ($selectsRaw as $select) {
+
+			if ($select == '*') {
+				$selects[] = '*';
+			} elseif ($select == 'LISTING_PUBLISHED') {
+				$selects[] = '`' . $realTableName . '`.`published` AS listing_published';
+			} elseif ($select == 'LISTING_PUBLISHED_1') {
+				$selects[] = '1 AS listing_published';
+			} elseif ($select == 'COUNT_ROWS') {
+				$selects[] = 'COUNT(*) AS record_count';
+			} elseif ($select == 'MODIFIED_BY') {
+				$selects[] = '(SELECT display_name FROM ' . $wpdb->prefix . 'users AS u WHERE u.ID=a.modified_by LIMIT 1) AS modifiedby';
+			} elseif ($select == 'LAYOUT_SIZE') {
+				$selects[] = 'LENGTH(layoutcode) AS layout_size';
+			} elseif ($select == 'GROUP_TITLE') {
+				$selects[] = '(SELECT `title` FROM `' . $wpdb->prefix . 'usergroups` AS g WHERE g.id = m.group_id LIMIT 1) AS group_title';
+			} elseif ($select == 'TABLE_TITLE') {
+				$selects[] = '(SELECT tabletitle FROM `' . $wpdb->prefix . 'customtables_tables` AS tables WHERE tables.id=a.tableid) AS tabletitle';
+			} elseif ($select == 'TABLE_NAME') {
+				$selects[] = '(SELECT tablename FROM `' . $wpdb->prefix . 'customtables_tables` AS tables WHERE tables.id=a.tableid) AS TABLE_NAME';
+			} elseif ($select == 'CATEGORY_NAME') {
+				$selects[] = '(SELECT `categoryname` FROM `' . $wpdb->prefix . 'customtables_categories` AS categories WHERE categories.id=tablecategory LIMIT 1) AS categoryname';
+			} elseif ($select == 'FIELD_COUNT') {
+				$selects[] = '(SELECT COUNT(fields.id) FROM ' . $wpdb->prefix . 'customtables_fields AS fields WHERE fields.tableid=a.id AND fields.published=1 LIMIT 1) AS fieldcount';
+			} elseif ($select == 'MODIFIED_TIMESTAMP') {
+				if ($serverType == 'postgresql')
+					$selects [] = 'CASE WHEN modified IS NULL THEN extract(epoch FROM created) ELSE extract(epoch FROM modified) AS modified_timestamp';
+				else
+					$selects [] = 'IF(modified IS NULL,UNIX_TIMESTAMP(created),UNIX_TIMESTAMP(modified)) AS modified_timestamp';
+			} elseif ($select == 'REAL_FIELD_NAME') {
+				if ($serverType == 'postgresql')
+					$selects[] = 'CASE WHEN customfieldname!="" THEN customfieldname ELSE CONCAT("es_",fieldname) END AS realfieldname';
+				else
+					$selects[] = 'IF(customfieldname!="", customfieldname, CONCAT("es_",fieldname)) AS realfieldname';
+			} elseif ($select == 'REAL_TABLE_NAME') {
+				if ($serverType == 'postgresql') {
+					$selects[] = 'CASE WHEN customtablename!="" THEN customtablename ELSE CONCAT("' . $wpdb->prefix . 'customtables_table_", tablename) END AS realtablename';
+				} else {
+					$selects[] = 'IF((customtablename IS NOT NULL AND customtablename!=""), customtablename, CONCAT("' . $wpdb->prefix . 'customtables_table_", tablename)) AS realtablename';
+				}
+			} elseif ($select == 'REAL_ID_FIELD_NAME') {
+				if ($serverType == 'postgresql') {
+					$selects[] = 'CASE WHEN customidfield!="" THEN customidfield ELSE "id" END AS realidfieldname';
+				} else {
+					$selects[] = 'IF(customidfield!="", customidfield, "id") AS realidfieldname';
+				}
+			} elseif ($select == 'PUBLISHED_FIELD_FOUND') {
+				$selects[] = '1 AS published_field_found';
+			} elseif (str_contains($select, 'CUSTOM_VALUE')) {
+				$parts = explode('_', $select);
+				if (count($parts) == 5) {
+
+					$selectTable = str_replace('#__', $wpdb->prefix, $parts[3]);//Joomla way
+					$selectTable = preg_replace('/[^a-zA-Z0-9_]/', '', $selectTable);
+					$selectField = preg_replace('/[^a-zA-Z0-9_]/', '', $parts[4]);
+
+					if ($parts[2] == 'COUNT')
+						$selects[] = 'COUNT(`' . $selectTable . '`.`' . $selectField . '`) AS vlu';
+					if ($parts[2] == 'SUM')
+						$selects[] = 'SUM(`' . $selectTable . '`.`' . $selectField . '`) AS vlu';
+					if ($parts[2] == 'AVG')
+						$selects[] = 'AVG(`' . $selectTable . '`.`' . $selectField . '`) AS vlu';
+					if ($parts[2] == 'MIN')
+						$selects[] = 'MIN(`' . $selectTable . '`.`' . $selectField . '`) AS vlu';
+					if ($parts[2] == 'MAX')
+						$selects[] = 'MAX(`' . $selectTable . '`.`' . $selectField . '`) AS vlu';
+					if ($parts[2] == 'VALUE')
+						$selects[] = '`' . $selectTable . '`.`' . $selectField . '` AS vlu';
+				}
+			} else {
+				$parts = explode('.', $select);
+				if (count($parts) == 2) {
+					$selectTable = str_replace('#__', $wpdb->prefix, $parts[0]);//Joomla way
+					$selectTable = preg_replace('/[^a-zA-Z0-9_]/', '', $selectTable);
+
+					if($parts[1]=='*')
+						$selects[] = "" . $selectTable . ".*";
+					else {
+						$column_name = preg_replace('/[^a-zA-Z0-9_]/', '', $parts[1]);
+						$selects[] = "`" . $selectTable . "`.`" . $column_name . "`";
+					}
+				} else {
+					$column_name = preg_replace('/[^a-zA-Z0-9_]/', '', $select);
+					$selects[] = "`" . $column_name . "`";
+				}
+			}
+		}
+		return implode(',', $selects);
 	}
 
 	/**
@@ -403,13 +502,16 @@ class database
 	{
 		global $wpdb;
 
-		$selects = [];
-		foreach ($selectsRaw as $s) {
-			$selects[] = str_replace('#__', $wpdb->prefix, $s);
-		}
-
 		//Tables name may have Joomla prefix as this Library is cross-platform (Joomla and WordPress)
+
 		$realTableName = str_replace('#__', $wpdb->prefix, $table);
+
+		if($realTableName != 'information_schema.columns' and $realTableName != 'information_schema.tables')
+			$realTableName = preg_replace('/[^a-zA-Z0-9_ ]/', '', $realTableName);
+
+		//Select columns sanitation
+		$selects_sanitized = self::sanitizeSelects($selectsRaw, $realTableName);
+
 		$whereString = $whereClause->getWhereClause();// Returns the "where" clause with %d,%f,%s placeholders
 		$placeholders = $whereClause->getWhereClausePlaceholderValues();//Values
 
@@ -424,7 +526,7 @@ class database
 		//$realTableName is internal and cannot be manipulated
 		//Where values sanitized properly in MySQLWhereClause class
 
-		$query = "SELECT " . implode(',', $selects) . " FROM " . $realTableName
+		$query = "SELECT $selects_sanitized FROM " . $realTableName
 			. ($whereString != '' ? ' WHERE ' . $whereString : '')
 			. (!empty($groupBy) != '' ? ' GROUP BY ' . $groupBy : '')
 			. (!empty($order) ? ' ORDER BY ' . $order . ($orderBy !== null and strtolower($orderBy) == 'desc' ? ' DESC' : '') : '')
@@ -471,16 +573,15 @@ class database
 		return null;
 	}
 
-	/**
-	 * @throws Exception
-	 * @since 3.2.2
-	 */
-	public static function loadRowList(string  $table, array $selects, MySQLWhereClause $whereClause,
-	                                   ?string $order = null, ?string $orderBy = null,
-	                                   ?int    $limit = null, ?int $limitStart = null,
-	                                   string  $groupBy = null, bool $returnQueryString = false): array
+	public static function getServerType(): ?string
 	{
-		return self::loadObjectList($table, $selects, $whereClause, $order, $orderBy, $limit, $limitStart, 'ROW_LIST', $groupBy, $returnQueryString);
+		if (str_contains(DB_HOST, 'mysql')) {
+			return 'mysql';
+		} elseif (str_contains(DB_HOST, 'pgsql')) {
+			return 'postgresql';
+		} else {
+			return 'Unknown';
+		}
 	}
 
 	/**
@@ -529,12 +630,6 @@ class database
 		return $wpdb->get_results($wpdb->prepare("SHOW CREATE TABLE %i", $tableName), 'ARRAY_A');
 	}
 
-	public static function getExistingFields($tableName): array
-	{
-		global $wpdb;
-		return $wpdb->get_results($wpdb->prepare("SHOW COLUMNS FROM %i", $tableName), 'ARRAY_A');
-	}
-
 	public static function getFieldType(string $realtablename, $realfieldname)
 	{
 		global $wpdb;
@@ -542,12 +637,13 @@ class database
 		$realtablename = self::realTableName($realtablename);
 		$serverType = self::getServerType();
 
-		if ($serverType == 'postgresql')
-			$query = 'SELECT data_type FROM information_schema.columns WHERE table_name = %i AND column_name = %i';
-		else
-			$query = 'SHOW COLUMNS FROM %i WHERE `field` = %i';
-
-		$rows = $wpdb->get_results($wpdb->prepare($query, $realtablename, $realfieldname), 'ARRAY_A');
+		if ($serverType == 'postgresql') {
+			$query = 'SELECT `data_type` FROM `information_schema`.`columns` WHERE `table_name` = %s AND `column_name` = %s';
+			$rows = $wpdb->get_results($wpdb->prepare($query, $realtablename, $realfieldname), 'ARRAY_A');
+		} else {
+			$query = 'SHOW COLUMNS FROM ' . $realtablename . ' WHERE `field` = %s';
+			$rows = $wpdb->get_results($wpdb->prepare($query, $realfieldname), 'ARRAY_A');
+		}
 
 		if (count($rows) == 0)
 			return '';
@@ -564,17 +660,6 @@ class database
 	{
 		global $wpdb;
 		return str_replace('#__', $wpdb->prefix, $tableName);
-	}
-
-	public static function getServerType(): ?string
-	{
-		if (str_contains(DB_HOST, 'mysql')) {
-			return 'mysql';
-		} elseif (str_contains(DB_HOST, 'pgsql')) {
-			return 'postgresql';
-		} else {
-			return 'Unknown';
-		}
 	}
 
 	/**
@@ -910,9 +995,9 @@ class database
 
 		if (self::getServerType() == 'postgresql') {
 			if ($oldColumnName != $newColumnName)
-				dbDelta("ALTER TABLE `{$realTableName}` RENAME COLUMN `{$oldColumnName}` TO `{$newColumnName}`");
+				$wpdb->query("ALTER TABLE `{$realTableName}` RENAME COLUMN `{$oldColumnName}` TO `{$newColumnName}`");
 
-			dbDelta("ALTER TABLE `{$realTableName}` ALTER COLUMN `{$newColumnName}` " . $PureFieldType['data_type']);
+			$wpdb->query("ALTER TABLE `{$realTableName}` ALTER COLUMN `{$newColumnName}` " . $PureFieldType['data_type']);
 
 			if ($wpdb->last_error !== '')
 				throw new Exception($wpdb->last_error);
@@ -995,5 +1080,51 @@ class database
 
 		if ($wpdb->last_error !== '')
 			throw new Exception($wpdb->last_error);
+	}
+
+	public static function getExistingFields(string $tablename, $add_table_prefix = true): array
+	{
+		global $wpdb;
+
+		$tablename = preg_replace('/[^a-zA-Z0-9_]/', '', $tablename);
+
+		if ($add_table_prefix)
+			$realtablename = $wpdb->prefix . 'customtables_table_' . $tablename;
+		else
+			$realtablename = $tablename;
+
+		$serverType = database::getServerType();
+
+		if ($serverType == 'postgresql') {
+			$results = $wpdb->get_results($wpdb->prepare('SELECT
+				`column_name`,`data_type`,`is_nullable`,`column_default` FROM `information_schema.columns` WHERE `table_name`=%s', $realtablename)
+			);
+
+		} else {
+			$results = $wpdb->get_results($wpdb->prepare('SELECT
+				`COLUMN_NAME` AS column_name,
+				`DATA_TYPE` AS data_type,
+				`COLUMN_TYPE` AS column_type,
+				IF(`COLUMN_TYPE` LIKE "%unsigned", "YES", "NO") AS is_unsigned,
+				`IS_NULLABLE` AS is_nullable,
+				`COLUMN_DEFAULT` AS column_default,
+				`EXTRA` AS extra FROM `information_schema`.`COLUMNS` WHERE `TABLE_SCHEMA`=%s AND `TABLE_NAME`=%s', DB_NAME, $realtablename), 'ARRAY_A');
+		}
+
+		if ($wpdb->last_error !== '')
+			throw new Exception($wpdb->last_error);
+
+		return $results;
+	}
+
+	/**
+	 * @throws Exception
+	 * @since 3.2.2
+	 */
+	public static function loadAssocList(string  $table, array $selects, MySQLWhereClause $whereClause, ?string $order = null,
+	                                     ?string $orderBy = null, ?int $limit = null,
+	                                     ?int    $limitStart = null, string $groupBy = null)
+	{
+		return self::loadObjectList($table, $selects, $whereClause, $order, $orderBy, $limit, $limitStart, 'ARRAY_A', $groupBy);
 	}
 }
