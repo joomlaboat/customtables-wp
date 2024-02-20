@@ -16,7 +16,6 @@ if (!defined('WPINC')) {
 }
 
 use Exception;
-use WP_User_Query;
 
 class MySQLWhereClause
 {
@@ -324,7 +323,6 @@ class database
 	 *
 	 * @param string $tableName The name of the table to update.
 	 * @param array $data An associative array of data to update. Keys represent column names, values represent new values.
-	 * @param array $where An associative array specifying which rows to update. Keys represent column names, values represent conditions for the update.
 	 *
 	 * @return bool True if the update operation is successful, otherwise false.
 	 * @throws Exception If an error occurs during the update operation.
@@ -375,13 +373,6 @@ class database
 		return true;
 	}
 
-	public static function getVersion(): ?float
-	{
-		global $wpdb;
-		$result = $wpdb->get_results('select @@version', 'ARRAY_A');
-		return floatval($result[0]['@@version']);
-	}
-
 	/**
 	 * @throws Exception
 	 * @since 3.2.2
@@ -389,9 +380,9 @@ class database
 	public static function loadRowList(string  $table, array $selects, MySQLWhereClause $whereClause,
 	                                   ?string $order = null, ?string $orderBy = null,
 	                                   ?int    $limit = null, ?int $limitStart = null,
-	                                   string  $groupBy = null, bool $returnQueryString = false): array
+	                                   string  $groupBy = null): array
 	{
-		return self::loadObjectList($table, $selects, $whereClause, $order, $orderBy, $limit, $limitStart, 'ROW_LIST', $groupBy, $returnQueryString);
+		return self::loadObjectList($table, $selects, $whereClause, $order, $orderBy, $limit, $limitStart, 'ROW_LIST', $groupBy);
 	}
 
 	/**
@@ -410,7 +401,7 @@ class database
 		$realTableName = str_replace('#__', $wpdb->prefix, $table);
 
 		if ($realTableName != 'information_schema.columns' and $realTableName != 'information_schema.tables')
-			$realTableName = preg_replace('/[^a-zA-Z0-9_ ]/', '', $realTableName);
+			$realTableName = preg_replace('/[^a-zA-Z\d_ ]/', '', $realTableName);
 
 		//Select columns sanitation
 		$selects_sanitized = self::sanitizeSelects($selectsRaw, $realTableName);
@@ -437,14 +428,14 @@ class database
 			. (!empty($limitStart) ? ' OFFSET ' . (int)$limitStart : '');
 
 		if (count($placeholders) > 0)
-			$query = $wpdb->prepare($query_safe, ...$placeholders);//$query_safe already clean and sanitized
+			$query_safe = $wpdb->prepare($query_safe, ...$placeholders);//$query_safe already clean and sanitized
 
 		$output_type_temp = $output_type;
 
 		if ($output_type == 'ROW_LIST' or $output_type == 'COLUMN')
 			$output_type_temp = 'ARRAY_A';
 
-		$results = $wpdb->get_results($query, $output_type_temp);// phpcs:ignore WordPress.DB.PreparedSQL -- Ignore Prepared SQL warnings
+		$results = $wpdb->get_results($query_safe, $output_type_temp);// phpcs:ignore WordPress.DB.PreparedSQL -- Ignore Prepared SQL warnings
 
 		if ($wpdb->last_error !== '')
 			throw new Exception($wpdb->last_error);
@@ -613,9 +604,9 @@ class database
 	public static function loadColumn(string  $table, array $selects, MySQLWhereClause $whereClause,
 	                                  ?string $order = null, ?string $orderBy = null,
 	                                  ?int    $limit = null, ?int $limitStart = null,
-	                                  string  $groupBy = null, bool $returnQueryString = false): array
+	                                  string  $groupBy = null): array
 	{
-		return self::loadObjectList($table, $selects, $whereClause, $order, $orderBy, $limit, $limitStart, 'COLUMN', $groupBy, $returnQueryString);
+		return self::loadObjectList($table, $selects, $whereClause, $order, $orderBy, $limit, $limitStart, 'COLUMN', $groupBy);
 	}
 
 	public static function getTableStatus(string $tableName, string $type = 'table'): array
@@ -645,12 +636,6 @@ class database
 		$fieldName_safe = preg_replace('/[^a-zA-Z0-9_]/', '', $fieldName);
 
 		return $wpdb->get_results($wpdb->prepare("SHOW INDEX FROM $tableName_safe WHERE Key_name = %s", $fieldName_safe));//Table name already sanitized.
-	}
-
-	public static function showTables(): array
-	{
-		global $wpdb;
-		return $wpdb->get_results('SHOW TABLES', 'ARRAY_A');
 	}
 
 	public static function showCreateTable($tableName): array
@@ -722,6 +707,10 @@ class database
 			throw new Exception($wpdb->last_error);
 	}
 
+	/**
+	 * @throws Exception
+	 * @1.1.2
+	 */
 	public static function deleteTableLessFields(): void
 	{
 		global $wpdb;
@@ -854,7 +843,7 @@ class database
 	 * @throws Exception
 	 * @since 1.1.2
 	 */
-	public static function setTableInnoDBEngine(string $realTableName, string $comment): void
+	public static function setTableInnoDBEngine(string $realTableName): void
 	{
 		global $wpdb;
 
@@ -1186,7 +1175,7 @@ class database
 	 */
 	public static function loadAssocList(string  $table, array $selects, MySQLWhereClause $whereClause, ?string $order = null,
 	                                     ?string $orderBy = null, ?int $limit = null,
-	                                     ?int    $limitStart = null, string $groupBy = null)
+	                                     ?int    $limitStart = null, string $groupBy = null): ?array
 	{
 		return self::loadObjectList($table, $selects, $whereClause, $order, $orderBy, $limit, $limitStart, 'ARRAY_A', $groupBy);
 	}
