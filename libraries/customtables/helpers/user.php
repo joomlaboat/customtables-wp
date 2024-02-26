@@ -11,12 +11,11 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Exception;
 use JApplicationHelper;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\User\User;
 use Joomla\CMS\User\UserFactoryInterface;
 use Joomla\CMS\Version;
@@ -163,7 +162,7 @@ class CTUser
 
 		if (Email::sendEmail($user_email, $subject, $messageBody)) {
 			//clean exit
-			common::enqueueMessage(common::translate('User password has been reset and sent to the email "' . $user_email . '"'));
+			common::enqueueMessage(Text::sprintf("User password has been reset and sent to the email '%s'", $user_email));
 			return true;
 		}
 
@@ -236,7 +235,7 @@ class CTUser
 	public static function CreateUser(string $realtablename, string $realidfieldname, string $email, string $name, string $usergroups, string $listing_id, string $useridfieldname): bool
 	{
 		if ($name == '') {
-			common::enqueueMessage(common::translate('COM_CUSTOMTABLES_USERACCOUNT_NAME_NOT_SET'));
+			common::enqueueMessage(__("User name field not set.", "customtables"));
 			return false;
 		}
 
@@ -245,7 +244,7 @@ class CTUser
 		$articleId = 0;
 
 		if (!@Email::checkEmail($email)) {
-			common::enqueueMessage(common::translate('COM_CUSTOMTABLES_INCORRECT_EMAIL') . ' "' . $email . '"');
+			common::enqueueMessage(__("Incorrect Email", "customtables") . ' "' . $email . '"');
 			return false;
 		}
 
@@ -258,9 +257,9 @@ class CTUser
 
 		if ($realUserId !== null) {
 			CTUser::UpdateUserField($realtablename, $realidfieldname, $useridfieldname, $realUserId, $listing_id);
-			common::enqueueMessage(common::translate('COM_CUSTOMTABLES_USER_CREATE_PSW_SENT'));
+			common::enqueueMessage(__("New user created. Password sent to his/her email.", "customtables"));
 		} else {
-			$msg = common::translate('COM_CUSTOMTABLES_ERROR_USER_NOTCREATED');
+			$msg = __("This User cannot be created:", "customtables");
 			common::enqueueMessage($msg);
 		}
 		return true;
@@ -273,7 +272,7 @@ class CTUser
 	static public function CreateUserAccount(string $fullName, string $username, string $password, string $email, string $group_names, string &$msg): ?int
 	{
 		if ($fullName == '') {
-			$msg = common::translate('COM_CUSTOMTABLES_USERACCOUNT_NAME_NOT_SET');
+			$msg = __("User name field not set.", "customtables");
 			return null;
 		}
 
@@ -322,9 +321,9 @@ class CTUser
 				$version = (int)$version_object->getShortVersion();
 
 				if ($version < 4)
-					$msg = common::translate('COM_USERS_REGISTRATION_BIND_FAILED') . ': ' . $user->getError() ?? '';
+					$msg = __("COM_USERS_REGISTRATION_BIND_FAILED", "customtables") . ': ' . $user->getError() ?? '';
 				else
-					$msg = common::translate('COM_USERS_REGISTRATION_BIND_FAILED') . ': ' . implode(',', $user->getErrors());
+					$msg = __("COM_USERS_REGISTRATION_BIND_FAILED", "customtables") . ': ' . implode(',', $user->getErrors());
 			}
 
 			return null;
@@ -340,9 +339,9 @@ class CTUser
 			$version = (int)$version_object->getShortVersion();
 
 			if ($version < 4)
-				$msg = common::translate('COM_USERS_REGISTRATION_SAVE_FAILED') . ': ' . $user->getError() ?? '';
+				$msg = __("COM_USERS_REGISTRATION_SAVE_FAILED", "customtables") . ': ' . $user->getError() ?? '';
 			else
-				$msg = common::translate('COM_USERS_REGISTRATION_SAVE_FAILED') . ': ' . implode(',', $user->getErrors());
+				$msg = __("COM_USERS_REGISTRATION_SAVE_FAILED", "customtables") . ': ' . implode(',', $user->getErrors());
 
 			return null;
 		}
@@ -376,11 +375,11 @@ class CTUser
 
 		$config = Factory::getConfig();
 		$siteName = $config->get('sitename');
-		$subject = common::translate('COM_USERS_EMAIL_ACCOUNT_DETAILS');
+		$subject = __("COM_USERS_EMAIL_ACCOUNT_DETAILS", "customtables");
 		$emailSubject = str_replace('{NAME}', $fullName, $subject);
 		$emailSubject = str_replace('{SITENAME}', $siteName, $emailSubject);
 
-		$body = common::translate('COM_USERS_EMAIL_REGISTERED_BODY');
+		$body = __("COM_USERS_EMAIL_REGISTERED_BODY", "customtables");
 		$UriBase = Uri::base();
 
 		$emailBody = str_replace('{NAME}', $fullName, $body);

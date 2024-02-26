@@ -279,7 +279,7 @@ class Admin
 				$page_hook = add_submenu_page(
 					'customtables',                     // Parent Menu Slug
 					($tableId === 0 ? __('Add Table', 'customtables') : __('Edit Table', 'customtables')) . ' - CustomTables', // Page Title
-					' -- ' . ($tableId === 0 ? __('Add', 'customtables') : __('Edit', 'customtables')),                     // Menu Title
+					' -- ' . ($tableId === 0 ? __('Add', 'customtables') : __('Edit')),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-tables-edit',                               // Menu Slug
 					array($this, 'load_customtablesAdminTablesEdit'),        // Callback Function
@@ -298,8 +298,6 @@ class Admin
 					array($this, 'load_admin_field_list'),        // Callback Function
 					2                                                        // Position
 				);
-				//$url = add_query_arg(array('table' => $tableId), admin_url('admin.php?page=customtables-fields'));
-				//echo "<script>jQuery(document).ready(function() { jQuery('#toplevel_page_customtables-fields').attr('href', '$url'); });</script>";
 				add_action('load-' . $page_hook, array($this, 'preload_admin_field_list'));
 				break;
 
@@ -319,7 +317,7 @@ class Admin
 				$page_hook = add_submenu_page(
 					'customtables',                     // Parent Menu Slug
 					($fieldId == 0 ? __('Add Field', 'customtables') : __('Edit Field', 'customtables')) . ' - CustomTables', // Page Title
-					' -- ' . ($fieldId == 0 ? __('Add', 'customtables') : __('Edit', 'customtables')),                     // Menu Title
+					' -- ' . ($fieldId == 0 ? __('Add', 'customtables') : __('Edit')),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-fields-edit',                               // Menu Slug
 					array($this, 'load_customtablesAdminFieldsEdit'),        // Callback Function
@@ -359,7 +357,7 @@ class Admin
 				$page_hook = add_submenu_page(
 					'customtables',                     // Parent Menu Slug
 					($id == 0 ? __('Add Record', 'customtables') : __('Edit Record', 'customtables')) . ' - CustomTables', // Page Title
-					' -- ' . ($id == 0 ? __('Add', 'customtables') : __('Edit', 'customtables')),                     // Menu Title
+					' -- ' . ($id == 0 ? __('Add', 'customtables') : __('Edit')),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-records-edit',                               // Menu Slug
 					array($this, 'load_customtablesAdminRecordsEdit'),        // Callback Function
@@ -374,7 +372,7 @@ class Admin
 				$page_hook = add_submenu_page(
 					'customtables',                     // Parent Menu Slug
 					($layoutId == 0 ? __('Add Layout', 'customtables') : __('Edit Layout', 'customtables')) . ' - CustomTables', // Page Title
-					' -- ' . ($layoutId == 0 ? __('Add', 'customtables') : __('Edit', 'customtables')),                     // Menu Title
+					' -- ' . ($layoutId == 0 ? __('Add', 'customtables') : __('Edit')),                     // Menu Title
 					'manage_options',                                         // Capability
 					'customtables-layouts-edit',                               // Menu Slug
 					array($this, 'load_customtablesAdminLayoutsEdit'),        // Callback Function

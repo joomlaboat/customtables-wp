@@ -11,9 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Exception;
 
@@ -52,7 +50,7 @@ class InputBox_usergroup extends BaseInputBox
 
 		// Optional default option
 		$selected = (0 === (int)$value) ? ' selected' : '';
-		$select .= '<option value=""' . $selected . '> - ' . common::translate('COM_CUSTOMTABLES_SELECT') . '</option>';
+		$select .= '<option value=""' . $selected . '> - ' . __("Select", "customtables") . '</option>';
 
 		// Generate options for each file in the folder
 		foreach ($options as $option) {

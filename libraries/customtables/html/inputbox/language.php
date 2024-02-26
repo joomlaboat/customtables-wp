@@ -11,9 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 class InputBox_language extends BaseInputBox
 {
@@ -43,7 +41,7 @@ class InputBox_language extends BaseInputBox
 
 		// Optional default option
 		$selected = (0 === $value) ? ' selected' : '';
-		$select .= '<option value=""' . $selected . '> - ' . common::translate('COM_CUSTOMTABLES_SELECT_LANGUAGE') . '</option>';
+		$select .= '<option value=""' . $selected . '> - ' . __("Select Language", "customtables") . '</option>';
 
 		// Generate options for each file in the folder
 		foreach ($lang->LanguageList as $language) {

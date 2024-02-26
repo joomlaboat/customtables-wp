@@ -19,23 +19,15 @@ use RecursiveIteratorIterator;
 
 class common
 {
-	public static function enqueueMessage($text, $type): void
+	public static function enqueueMessage($text, string $type = 'error'): void
 	{
 		echo '<div class="success-message">' .esc_html($text) . '</div>';
-	}
-
-	public static function translate(string $text, int|float $value = null): string
-	{
-		if ($value !== null)
-			return sprintf(esc_html__($text, 'customtables'), $value);
-		else
-			return esc_html__($text, 'customtables');
 	}
 
 	public static function inputPostString($parameter, ?string $default, string $action): ?string
 	{
 		if (isset($_POST['_wpnonce'])) {
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_POST['_wpnonce'], $action))
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
 				return $default;
 		}
 
@@ -49,7 +41,7 @@ class common
 	public static function inputPostFloat($parameter, ?float $default, string $action): ?float
 	{
 		if (isset($_POST['_wpnonce'])) {
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_POST['_wpnonce'], $action))
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
 				return $default;
 		}
 
@@ -63,7 +55,7 @@ class common
 	public static function inputGetFloat($parameter, ?float $default = null): ?float
 	{
 		if (isset($_GET['_wpnonce'])) {
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_GET['_wpnonce'], 'get')) {
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
 				//return $default;
 			}
 		}
@@ -78,7 +70,7 @@ class common
 	public static function inputPostInt($parameter, ?int $default, string $action): ?int
 	{
 		if (isset($_POST['_wpnonce'])) {
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_POST['_wpnonce'], $action))
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
 				return $default;
 		}
 
@@ -91,7 +83,7 @@ class common
 	public static function inputPostUInt($parameter, ?int $default, string $action): ?int
 	{
 		if (isset($_POST['_wpnonce'])) {
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_POST['_wpnonce'], $action))
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
 				return $default;
 		}
 
@@ -104,7 +96,7 @@ class common
 	public static function inputGetUInt($parameter, ?int $default = null)
 	{
 		if (isset($_GET['_wpnonce'])) {
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_GET['_wpnonce'], 'get')) {
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
 				//return $default;
 			}
 		}
@@ -119,7 +111,7 @@ class common
 	{
 		if (isset($_POST['_wpnonce'])) {
 			if (function_exists('\wp_verify_nonce')) {
-				if (!wp_verify_nonce($_POST['_wpnonce'], $action))
+				if (!wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
 					return null;
 			}
 		}
@@ -135,7 +127,7 @@ class common
 	public static function inputGetCmd(string $parameter, ?string $default = null)
 	{
 		if (isset($_GET['_wpnonce'])) {
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_GET['_wpnonce'], 'get')) {
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
 				//return $default;
 			}
 		}
@@ -150,7 +142,7 @@ class common
 	public static function inputPostRow(string $parameter, ?string $default, string $action)
 	{
 		if (isset($_POST['_wpnonce'])) {
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_POST['_wpnonce'], $action))
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
 				return $default;
 		}
 
@@ -163,7 +155,7 @@ class common
 	public static function inputGetRow(string $parameter, ?string $default = null)
 	{
 		if (isset($_GET['_wpnonce'])) {
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_GET['_wpnonce'], 'get')) {
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
 				//return $default;
 			}
 		}
@@ -177,7 +169,7 @@ class common
 	public static function inputPostBase64(string $parameter, ?string $default, string $action)
 	{
 		if (isset($_POST['_wpnonce'])) {
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_POST['_wpnonce'], $action))
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
 				return $default;
 		}
 
@@ -192,7 +184,7 @@ class common
 	public static function inputGetBase64(string $parameter, ?string $default = null)
 	{
 		if (isset($_GET['_wpnonce'])) {
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_GET['_wpnonce'], 'get')) {
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
 				//return $default;
 			}
 		}
@@ -207,7 +199,7 @@ class common
 	public static function inputGetWord(string $parameter, ?string $default = null)
 	{
 		if (isset($_GET['_wpnonce'])) {
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_GET['_wpnonce'], 'get')) {
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
 				//return $default;
 			}
 		}
@@ -222,7 +214,7 @@ class common
 	public static function inputPostAlnum(string $parameter, ?string $default, string $action)
 	{
 		if (isset($_POST['_wpnonce'])) {
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_POST['_wpnonce'], $action))
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
 				return $default;
 		}
 
@@ -237,7 +229,7 @@ class common
 	public static function inputGetAlnum(string $parameter, ?string $default = null)
 	{
 		if (isset($_GET['_wpnonce'])) {
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_GET['_wpnonce'], 'get')) {
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
 				//return $default;
 			}
 		}
@@ -430,7 +422,7 @@ class common
 	public static function inputGetInt(string $parameter, ?int $default = null): ?int
 	{
 		if (isset($_GET['_wpnonce'])) {
-			if (function_exists('\wp_verify_nonce') and !\wp_verify_nonce($_GET['_wpnonce'], 'get')) {
+			if (function_exists('\wp_verify_nonce') and !\wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
 				//return $default;
 			}
 		}
@@ -615,7 +607,7 @@ class common
 	public static function inputGetString($parameter, $default = null)
 	{
 		if (isset($_GET['_wpnonce'])) {
-			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce($_GET['_wpnonce'], 'get')) {
+			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
 				//return $default;
 			}
 		}

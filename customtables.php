@@ -9,7 +9,7 @@
  * Plugin URI:        https://ct4.us/
  * GitHub:            https://github.com/joomlaboat/customtables-wp
  * Description:       CRUD solution for WordPress.
- * Version:           1.1.2
+ * Version:           1.1.3
  * Author:            Ivan Komlev
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt

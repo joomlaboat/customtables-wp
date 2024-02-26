@@ -11,9 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 class InputBox_checkbox extends BaseInputBox
 {
@@ -55,7 +53,7 @@ class InputBox_checkbox extends BaseInputBox
 				$attributes['checked'] = 'checked';
 
 			$input1 = '<input ' . self::attributes2String($attributes) . ' />'
-				. '<label for="' . $attributes['id'] . '0">' . common::translate('COM_CUSTOMTABLES_NO') . '</label>';
+				. '<label for="' . $attributes['id'] . '0">' . __("No", "customtables") . '</label>';
 
 			$attributes = [];
 			$attributes['id'] = $element_id . '1';
@@ -68,7 +66,7 @@ class InputBox_checkbox extends BaseInputBox
 				$attributes['checked'] = 'checked';
 
 			$input2 = '<input ' . self::attributes2String($attributes) . ' />'
-				. '<label for="' . $attributes['id'] . '">' . common::translate('COM_CUSTOMTABLES_YES') . '</label>';
+				. '<label for="' . $attributes['id'] . '">' . __("Yes", "customtables") . '</label>';
 
 			$span = '<span class="toggle-outside"><span class="toggle-inside"></span></span>';
 

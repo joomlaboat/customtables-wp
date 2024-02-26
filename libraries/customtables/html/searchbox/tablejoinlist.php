@@ -11,9 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use CustomTables\ProInputBoxTableJoin;
 use CustomTables\ProInputBoxTableJoinList;
@@ -95,7 +93,7 @@ class Search_tablejoinlist extends BaseSearch
 				);
 
 			} else {
-				return common::translate('COM_CUSTOMTABLES_AVAILABLE');
+				return __("Available in PRO Version", "customtables");
 			}
 		} else {
 			return 'Table Join List field type is not supported by WordPress version of the Custom Tables yet.';

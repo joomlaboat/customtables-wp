@@ -11,9 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 //use CustomTablesImageMethods;
 use Exception;
@@ -70,7 +68,7 @@ class record
 
 		if (($this->ct->LayoutVariables['captcha'] ?? null)) {
 			if (!$this->check_captcha()) {
-				$this->ct->Params->msgItemIsSaved = 'COM_CUSTOMTABLES_INCORRECT_CAPTCHA';
+				$this->ct->Params->msgItemIsSaved = "Incorrect Captcha";
 				return false;
 			}
 		}

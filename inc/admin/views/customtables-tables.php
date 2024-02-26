@@ -15,7 +15,6 @@ use CustomTables\IntegrityChecks;
 
 $page = common::inputGetCmd('page');
 $result = IntegrityChecks::check($this->admin_table_list->ct, true, false);
-
 ?>
 <div class="wrap">
     <h1 class="wp-heading-inline"><?php esc_html_e('Custom Tables - Tables', 'customtables'); ?></h1>
@@ -24,7 +23,7 @@ $result = IntegrityChecks::check($this->admin_table_list->ct, true, false);
 
     <?php if (count($result) > 0): ?>
         <ol>
-            <li><?php echo implode('</li><li>', $result); ?></li>
+            <li><?php echo wp_kses_post(implode('</li><li>', $result)); ?></li>
         </ol>
         <hr/>
     <?php endif; ?>

@@ -149,7 +149,7 @@ class Admin_Record_List extends WP_List_Table
         //$this->ct->applyLimits($limit);
 
         if (!$this->ct->getRecords()) {
-            //$this->ct->app->enqueueMessage(JoomlaBasicMisc::JTextExtended('COM_CUSTOMTABLES_ERROR_TABLE_NOT_FOUND'), 'error');
+            //$this->ct->app->enqueueMessage(JoomlaBasicMisc::JTextExtended('Table not found.'), 'error');
             die('Table not found');
         }
 
@@ -270,24 +270,24 @@ class Admin_Record_List extends WP_List_Table
 
         $actions = [];
         if ($this->current_status === 'trash') {
-            $actions['restore'] = sprintf('<a href="' . $url . '&action=restore&table=%s&id=%s&_wpnonce=%s">' . __('Restore', 'customtables') . '</a>',
+            $actions['restore'] = sprintf('<a href="' . $url . '&action=restore&table=%s&id=%s&_wpnonce=%s">' . __('Restore') . '</a>',
                 $this->tableId,
                 $item['id'],
                 urlencode(wp_create_nonce('restore_nonce'))
             );
 
-            $actions['delete'] = sprintf('<a href="' . $url . '&action=delete&table=%s&id=%s&_wpnonce=%s">' . __('Delete Permanently', 'customtables') . '</a>',
+            $actions['delete'] = sprintf('<a href="' . $url . '&action=delete&table=%s&id=%s&_wpnonce=%s">' . __('Delete Permanently') . '</a>',
                 $this->tableId,
                 $item['id'],
                 urlencode(wp_create_nonce('delete_nonce'))
             );
         } else {
-            $actions['edit'] = sprintf('<a href="?page=customtables-records-edit&action=edit&table=%s&id=%s">' . __('Edit', 'customtables') . '</a>',
+            $actions['edit'] = sprintf('<a href="?page=customtables-records-edit&action=edit&table=%s&id=%s">' . __('Edit') . '</a>',
                 $this->tableId,
                 $item['id']
             );
 
-            $actions['trash'] = sprintf('<a href="' . $url . '&action=trash&table=%s&id=%s&_wpnonce=%s">' . __('Trash', 'customtables') . '</a>',
+            $actions['trash'] = sprintf('<a href="' . $url . '&action=trash&table=%s&id=%s&_wpnonce=%s">' . __('Trash') . '</a>',
                 $this->tableId,
                 $item['id'],
                 urlencode(wp_create_nonce('trash_nonce'))
@@ -396,7 +396,7 @@ class Admin_Record_List extends WP_List_Table
         $actions = [];
 
         if ($this->current_status != 'trash')
-            $actions['customtables-records-edit'] = __('Edit', 'customtables');
+            $actions['customtables-records-edit'] = __('Edit');
 
         if ($this->current_status == '' or $this->current_status == 'all') {
             $actions['customtables-records-publish'] = __('Publish', 'customtables');
@@ -407,11 +407,11 @@ class Admin_Record_List extends WP_List_Table
             $actions['customtables-records-unpublish'] = __('Draft', 'customtables');
 
         if ($this->current_status != 'trash')
-            $actions['customtables-records-trash'] = __('Move to Trash', 'customtables');
+            $actions['customtables-records-trash'] = __('Move to Trash');
 
         if ($this->current_status == 'trash') {
-            $actions['customtables-records-restore'] = __('Restore', 'customtables');
-            $actions['customtables-records-delete'] = __('Delete Permanently', 'customtables');
+            $actions['customtables-records-restore'] = __('Restore');
+            $actions['customtables-records-delete'] = __('Delete Permanently');
         }
         return $actions;
     }
@@ -432,15 +432,12 @@ class Admin_Record_List extends WP_List_Table
          */
 
         // check for individual row actions
-	    $filter_action = $_REQUEST['filter_action'] ?? null;
-	    $action = $_REQUEST['action'] ?? null;
-	    $action2 = $_REQUEST['action2'] ?? null;
-	    $the_table_action = $this->current_action($filter_action,$action,$action2);
+	    $the_table_action = esc_html(wp_strip_all_tags($this->current_action()));
 
         if ($this->ct->Table->published_field_found) {
             if ('restore' === $the_table_action) {
                 // verify the nonce.
-                if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'restore_nonce')) {
+                if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'restore_nonce')) {
                     $this->invalid_nonce_redirect();
                 } else {
 	                $recordId = common::inputGetInt('id');
@@ -456,7 +453,7 @@ class Admin_Record_List extends WP_List_Table
 
             if ('trash' === $the_table_action) {
                 // verify the nonce.
-                if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'trash_nonce')) {
+                if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'trash_nonce')) {
                     $this->invalid_nonce_redirect();
                 } else {
 	                $recordId = common::inputGetInt('id');
@@ -473,7 +470,7 @@ class Admin_Record_List extends WP_List_Table
 
         if ('delete' === $the_table_action) {
             // verify the nonce.
-            if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'delete_nonce')) {
+            if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'delete_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
 	            $recordId = common::inputGetCmd('id');
@@ -563,7 +560,7 @@ class Admin_Record_List extends WP_List_Table
 
     function handle_record_actions_edit()
     {
-	    if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
+	    if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
 		    $this->invalid_nonce_redirect();
 	    } else {
 		    $recordId = (int)(isset($_POST['ids']) ? intval($_POST['id'][0]) : '');
@@ -575,7 +572,7 @@ class Admin_Record_List extends WP_List_Table
     function handle_record_actions_publish(int $state): void
     {
         // verify the nonce.
-        if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
+        if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
             $this->invalid_nonce_redirect();
         } else {
 
@@ -599,7 +596,7 @@ class Admin_Record_List extends WP_List_Table
     function handle_record_actions_delete()
     {
 	    // verify the nonce.
-	    if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
+	    if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
 		    $this->invalid_nonce_redirect();
 	    } else {
 

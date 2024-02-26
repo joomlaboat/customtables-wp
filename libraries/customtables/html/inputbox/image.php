@@ -11,9 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use CT_FieldTypeTag_image;
 use CustomTablesImageMethods;
@@ -101,6 +99,6 @@ class InputBox_image extends BaseInputBox
                 ' . $ct_getUploader . '
            </script>
            ' . $inputBoxFieldName . $inputBoxFieldName_FileName
-			. common::translate('COM_CUSTOMTABLES_PERMITTED_MAX_FILE_SIZE') . ': ' . CTMiscHelper::formatSizeUnits($max_file_size) . '</div>';
+			. __("Permitted Max. File Size", "customtables") . ': ' . CTMiscHelper::formatSizeUnits($max_file_size) . '</div>';
 	}
 }

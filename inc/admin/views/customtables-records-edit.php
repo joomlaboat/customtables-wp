@@ -92,7 +92,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                     $editForm = new Edit($this->admin_record_edit->ct);
                     $editForm->layoutContent = $this->admin_record_edit->pageLayout;
                     $editForm_render_safe = $editForm->render($this->admin_record_edit->recordRow, $this->admin_record_edit->formLink, 'adminForm',false);
-                    echo $editForm_render_safe;
+                    echo $editForm_render_safe;//Rendered by the CT library
 
                     submit_button($buttonText, 'primary', 'createrecord', true, array('id' => 'createrecordsub')); ?>
                 </form>

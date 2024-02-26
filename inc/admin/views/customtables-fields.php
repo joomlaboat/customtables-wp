@@ -31,7 +31,7 @@ $page = common::inputGetCmd('page');
 
     <?php
     if (isset($this->admin_field_list->ct->Table) and $this->admin_field_list->ct->Table->tablename !== null) {
-        echo '<a href="admin.php?page=customtables-fields-edit&table='.$this->admin_field_list->tableId.'&field=0" class="page-title-action">'
+        echo '<a href="admin.php?page=customtables-fields-edit&table='.esc_html($this->admin_field_list->tableId).'&field=0" class="page-title-action">'
             . esc_html(__('Add New', 'customtables')) . '</a>';
     }
     ?>
@@ -42,8 +42,9 @@ $page = common::inputGetCmd('page');
     if ($this->admin_field_list->tableId != 0) {
         $link = 'admin.php?page=customtables-fields&table=' . $this->admin_field_list->tableId;
         $result_clean = IntegrityFields::checkFields($this->admin_field_list->ct, $link);
+
         if($result_clean !== '')
-            echo '<div id="message" class="updated notice is-dismissible">' . $result_clean . '</div>';
+            echo '<div id="message" class="updated notice is-dismissible">' . wp_kses_post($result_clean) . '</div>';
     }
     ?>
 
@@ -52,7 +53,6 @@ $page = common::inputGetCmd('page');
         <div id="customtables-post-body">
             <form id="customtables-admin-field-list-form" method="post">
                 <input type="hidden" name="page" value="<?php echo esc_html($page); ?>"/>
-	            <?php //wp_nonce_field('fields', '_wpnonce'); ?>
                 <?php
                 $this->admin_field_list->search_box(__('Find', 'customtables'), 'nds-field-find');
                 $this->admin_field_list->views();

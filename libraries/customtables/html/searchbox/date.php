@@ -11,9 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use DateTime;
 
@@ -86,12 +84,12 @@ jQuery(document).ready(function($) {
 
 		$start = '<input onblur="' . $jsOnChange . '" onchange="' . $jsOnChange . '" value="' . $valueStart . '" type="text"'
 			. ' class="' . $this->attributes['class'] . '" id="' . $this->objectName . '_start"'
-			. ' placeholder="' . $this->field->title . ' - ' . common::translate('COM_CUSTOMTABLES_START') . '"'
+			. ' placeholder="' . $this->field->title . ' - ' . __("Start", "customtables") . '"'
 			. ' style="display:inline-block;width:49%;margin-left:0;margin-right:0;float:left;">';
 
 		$end = '<input onblur="' . $jsOnChange . '" onchange="' . $jsOnChange . '" value="' . $valueEnd . '" type="text"'
 			. ' class="' . $this->attributes['class'] . '" id="' . $this->objectName . '_end"'
-			. ' placeholder="' . $this->field->title . ' - ' . common::translate('COM_CUSTOMTABLES_END') . '"'
+			. ' placeholder="' . $this->field->title . ' - ' . __("End", "customtables") . '"'
 			. ' style="display:inline-block;width:49%;margin-left:0;margin-right:0;float:right;">';
 
 		return $hidden . '<div style="position: relative;">' . $start . $end . '</div>';

@@ -11,9 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Exception;
 
@@ -90,7 +88,7 @@ class Value_user extends BaseValue
 					return $row[$field];
 			} else {
 				if ($value != 0)
-					return common::translate('COM_CUSTOMTABLES_FIELDS_USER_NOT_FOUND');
+					return __("User not found", "customtables");
 			}
 		}
 		return '';

@@ -10,7 +10,7 @@
 
 namespace CustomTablesWP\Inc\Admin;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use CustomTables\common;
 use CustomTables\CT;
@@ -259,24 +259,24 @@ class Admin_Field_List extends WP_List_Table
 
 		$actions = [];
 		if ($this->current_status === 'trash') {
-			$actions['restore'] = sprintf('<a href="' . $url . '&action=restore&table=%s&field=%s&_wpnonce=%s">' . __('Restore', 'customtables') . '</a>',
+			$actions['restore'] = sprintf('<a href="' . $url . '&action=restore&table=%s&field=%s&_wpnonce=%s">' . __('Restore') . '</a>',
 				$this->tableId,
 				$item['id'],
 				urlencode(wp_create_nonce('restore_nonce'))
 			);
 
-			$actions['delete'] = sprintf('<a href="' . $url . '&action=delete&table=%s&field=%s&_wpnonce=%s">' . __('Delete Permanently', 'customtables') . '</a>',
+			$actions['delete'] = sprintf('<a href="' . $url . '&action=delete&table=%s&field=%s&_wpnonce=%s">' . __('Delete Permanently') . '</a>',
 				$this->tableId,
 				$item['id'],
 				urlencode(wp_create_nonce('delete_nonce'))
 			);
 		} else {
-			$actions['edit'] = sprintf('<a href="?page=customtables-fields-edit&action=edit&table=%s&field=%s">' . __('Edit', 'customtables') . '</a>',
+			$actions['edit'] = sprintf('<a href="?page=customtables-fields-edit&action=edit&table=%s&field=%s">' . __('Edit') . '</a>',
 				$this->tableId,
 				$item['id']
 			);
 
-			$actions['trash'] = sprintf('<a href="' . $url . '&action=trash&table=%s&field=%s&_wpnonce=%s">' . __('Trash', 'customtables') . '</a>',
+			$actions['trash'] = sprintf('<a href="' . $url . '&action=trash&table=%s&field=%s&_wpnonce=%s">' . __('Trash') . '</a>',
 				$this->tableId,
 				$item['id'],
 				urlencode(wp_create_nonce('trash_nonce'))
@@ -348,10 +348,18 @@ class Admin_Field_List extends WP_List_Table
 	{
 		$views = $this->get_views();
 
+		$allowed_html = array(
+			'a' => array(
+				'href' => array(),
+				'title' => array(),
+				'class' => array()
+			)
+		);
+
 		if (!empty($views)) {
 			echo '<ul class="subsubsub">';
 			foreach ($views as $view) {
-				echo '<li>' . $view . '</li>';
+				echo '<li>' . wp_kses($view, $allowed_html) . '</li>';
 			}
 			echo '</ul>';
 		}
@@ -401,7 +409,7 @@ class Admin_Field_List extends WP_List_Table
 		$actions = [];
 
 		if ($this->current_status != 'trash')
-			$actions['customtables-fields-edit'] = __('Edit', 'customtables');
+			$actions['customtables-fields-edit'] = __('Edit');
 
 		if ($this->current_status == '' or $this->current_status == 'all') {
 			$actions['customtables-fields-publish'] = __('Publish', 'customtables');
@@ -412,11 +420,11 @@ class Admin_Field_List extends WP_List_Table
 			$actions['customtables-fields-unpublish'] = __('Draft', 'customtables');
 
 		if ($this->current_status != 'trash')
-			$actions['customtables-fields-trash'] = __('Move to Trash', 'customtables');
+			$actions['customtables-fields-trash'] = __('Move to Trash');
 
 		if ($this->current_status == 'trash') {
-			$actions['customtables-fields-restore'] = __('Restore', 'customtables');
-			$actions['customtables-fields-delete'] = __('Delete Permanently', 'customtables');
+			$actions['customtables-fields-restore'] = __('Restore');
+			$actions['customtables-fields-delete'] = __('Delete Permanently');
 		}
 		return $actions;
 	}
@@ -429,25 +437,13 @@ class Admin_Field_List extends WP_List_Table
 	 */
 	function handle_field_actions()
 	{
-		/*
-		 * Note: Field bulk_actions can be identified by checking $REQUEST['action'] and $REQUEST['action2']
-		 *
-		 * action - is set if checkbox from top-most select-all is set, otherwise returns -1
-		 * action2 - is set if checkbox the bottom-most select-all checkbox is set, otherwise returns -1
-		 */
-
 		// check for individual row actions
-		$filter_action = $_REQUEST['filter_action'] ?? null;
-		echo '$filter_action=' . $filter_action . '<br/>';
-
-		$action = $_REQUEST['action'] ?? null;
-		$action2 = $_REQUEST['action2'] ?? null;
-		$the_table_action = $this->current_action($filter_action, $action, $action2);
+		$the_table_action = esc_html(wp_strip_all_tags($this->current_action()));
 
 		if ('restore' === $the_table_action) {
 
 			// verify the nonce.
-			if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'restore_nonce')) {
+			if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'restore_nonce')) {
 				$this->invalid_nonce_redirect();
 			} else {
 				$fieldId = common::inputGetInt('field');
@@ -464,7 +460,7 @@ class Admin_Field_List extends WP_List_Table
 		if ('trash' === $the_table_action) {
 
 			// verify the nonce.
-			if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'trash_nonce')) {
+			if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'trash_nonce')) {
 				$this->invalid_nonce_redirect();
 			} else {
 				$fieldId = common::inputGetInt('field');
@@ -480,7 +476,7 @@ class Admin_Field_List extends WP_List_Table
 
 		if ('delete' === $the_table_action) {
 			// verify the nonce.
-			if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'delete_nonce')) {
+			if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'delete_nonce')) {
 				$this->invalid_nonce_redirect();
 			} else {
 				$fieldId = common::inputGetInt('field');
@@ -568,7 +564,7 @@ class Admin_Field_List extends WP_List_Table
 
 	function handle_field_actions_edit()
 	{
-		if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
+		if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
 			$this->invalid_nonce_redirect();
 		} else {
 			$field_id = isset($_POST['field']) ? intval($_POST['field'][0]) : '';
@@ -580,7 +576,7 @@ class Admin_Field_List extends WP_List_Table
 	function handle_field_actions_publish(int $state): void
 	{
 		// verify the nonce.
-		if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
+		if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
 			$this->invalid_nonce_redirect();
 		} else {
 
@@ -603,7 +599,7 @@ class Admin_Field_List extends WP_List_Table
 
 	function handle_field_actions_delete()
 	{
-		if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
+		if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
 			$this->invalid_nonce_redirect();
 		} else {
 

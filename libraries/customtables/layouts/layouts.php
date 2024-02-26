@@ -13,9 +13,7 @@ namespace CustomTables;
 /* All tags already implemented using Twig */
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Exception;
 use LayoutProcessor;
@@ -441,16 +439,16 @@ class Layouts
 	{
 		if (defined('_JEXEC')) {
 			return array(
-				1 => 'COM_CUSTOMTABLES_LAYOUTS_SIMPLE_CATALOG',
-				5 => 'COM_CUSTOMTABLES_LAYOUTS_CATALOG_PAGE',
-				6 => 'COM_CUSTOMTABLES_LAYOUTS_CATALOG_ITEM',
-				2 => 'COM_CUSTOMTABLES_LAYOUTS_EDIT_FORM',
-				4 => 'COM_CUSTOMTABLES_LAYOUTS_DETAILS',
-				3 => 'COM_CUSTOMTABLES_LAYOUTS_RECORD_LINK',
-				7 => 'COM_CUSTOMTABLES_LAYOUTS_EMAIL_MESSAGE',
-				8 => 'COM_CUSTOMTABLES_LAYOUTS_XML',
-				9 => 'COM_CUSTOMTABLES_LAYOUTS_CSV',
-				10 => 'COM_CUSTOMTABLES_LAYOUTS_JSON'
+				1 => "Simple Catalog",
+				5 => "Catalog Page",
+				6 => "Catalog Item",
+				2 => "Edit form",
+				4 => "Details",
+				3 => "Record Link",
+				7 => "Email Message",
+				8 => "XML File",
+				9 => "CSV File",
+				10 => "JSON File"
 			);
 		}
 
@@ -460,7 +458,7 @@ class Layouts
 			//6 => 'Catalog Item',
 			2 => 'Edit Form',
 			4 => 'Details',
-			//3 => 'COM_CUSTOMTABLES_LAYOUTS_DETAILS',
+			//3 => "Details",
 			//7 => 'Email Message',
 			//8 => 'XML File',
 			//9 => 'CSV File',
@@ -595,7 +593,7 @@ class Layouts
 		if (!$this->ct->getRecords()) {
 
 			if (defined('_JEXEC'))
-				$this->ct->errors[] = common::translate('COM_CUSTOMTABLES_ERROR_TABLE_NOT_FOUND');
+				$this->ct->errors[] = __("Table not found.", "customtables");
 
 			return 'CustomTables: Records not loaded.';
 		}

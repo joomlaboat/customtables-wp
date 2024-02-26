@@ -4,8 +4,8 @@ Donate link: https://ct4.us/
 Tags: custom tables, custom fields, database, data table, form builder, catalog, forms, database management, custom data
 Requires at least: 6.0
 Tested up to: 6.3.2
-Stable tag: 1.1.2
-Requires PHP: 7.4
+Stable tag: 1.1.3
+Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -49,3 +49,7 @@ or any other type of data that you need to display on your site.
 == Upgrade Notice ==
 = 1.1.2 =
 * Plugin Check Errors reviewed and fixed where possible.
+
+== Upgrade Notice ==
+= 1.1.3 =
+* Plugin Check - More issues reviewed and fixed.

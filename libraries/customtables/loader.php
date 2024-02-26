@@ -9,9 +9,7 @@
  **/
 
 // If this file is called directly, abort.
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;

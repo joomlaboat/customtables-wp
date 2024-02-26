@@ -11,9 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use CustomTablesImageMethods;
 use Exception;
@@ -113,9 +111,9 @@ class Value
 				return $rowValue;
 			case 'googlemapcoordinates':
 
-				if ($option_list[0] == 'map') {
+				if (count($option_list) == 0 or $option_list[0] == 'map') {
 
-					$parts = explode(',', $rowValue);
+					$parts = explode(',', $rowValue ?? '');
 					$lat = $parts[0];
 					$lng = $parts[1] ?? '';
 					if ($lat == '' or $lng == '')
@@ -129,7 +127,7 @@ class Value
 					if (!str_contains($height, '%') and !str_contains($height, 'px'))
 						$height .= 'px';
 
-					$zoom = (int)$option_list[3] ?? '10';
+					$zoom = (count($option_list) > 3 ? (int)$option_list[3] ?? '10' : '10');
 					if ($zoom == 0)
 						$zoom = 10;
 
@@ -267,9 +265,9 @@ class Value
 
 			case 'checkbox':
 				if ((int)$rowValue)
-					return common::translate('COM_CUSTOMTABLES_YES');
+					return __("Yes", "customtables");
 				else
-					return common::translate('COM_CUSTOMTABLES_NO');
+					return __("No", "customtables");
 
 			case 'date':
 			case 'lastviewtime':
@@ -316,7 +314,7 @@ class Value
 		if ($orderby_pair[0] == $this->field->realfieldname and $isEditable)
 			$iconClass = '';
 		else
-			$iconClass = ' inactive tip-top hasTooltip" title="' . HTMLHelper::_('tooltipText', 'COM_CUSTOMTABLES_FIELD_ORDERING_DISABLED');
+			$iconClass = ' inactive tip-top hasTooltip" title="' . HTMLHelper::_('tooltipText', "Please sort by ordering field to enable reordering");
 
 		if ($this->ct->Env->version < 4)
 			$result = '<span class="sortable-handler' . $iconClass . '"><i class="ctIconOrdering"></i></span>';

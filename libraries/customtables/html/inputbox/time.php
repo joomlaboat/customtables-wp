@@ -11,9 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use DateInterval;
 use DateTime;
@@ -188,7 +186,7 @@ class InputBox_time extends BaseInputBox
 	 */
 	protected function do_render(int $value): string
 	{
-		$options = [];//array(array('id' => '', 'name' => '- ' . common::translate('COM_CUSTOMTABLES_SELECT')));
+		$options = [];//array(array('id' => '', 'name' => '- ' . __("Select", "customtables")));
 
 		$parameters = self::getParameters($this->field->params);
 

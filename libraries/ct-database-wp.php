@@ -709,7 +709,7 @@ class database
 
 	/**
 	 * @throws Exception
-	 * @1.1.2
+	 * @since 1.1.2
 	 */
 	public static function deleteTableLessFields(): void
 	{
@@ -723,7 +723,7 @@ class database
 
 	/**
 	 * @throws Exception
-	 * @1.1.2
+	 * @since 1.1.2
 	 */
 	public static function dropTableIfExists(string $tableName, string $type = 'table'): void
 	{
@@ -754,7 +754,7 @@ class database
 
 	/**
 	 * @throws Exception
-	 * @1.1.2
+	 * @since 1.1.2
 	 */
 	public static function dropColumn(string $tableName, string $fieldName): void
 	{

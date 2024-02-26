@@ -50,7 +50,7 @@ class RecordToolbar
 
 				case 'refresh':
 					$rid = 'esRefreshIcon' . $this->rid;
-					$alt = common::translate('COM_CUSTOMTABLES_REFRESH');
+					$alt = __("Refresh", "customtables");
 
 					if ($this->ct->Env->toolbarIcons != '')
 						$img = '<i class="ba-btn-transition ' . $this->ct->Env->toolbarIcons . ' fa-sync" data-icon="' . $this->ct->Env->toolbarIcons . ' fa-sync" title="' . $alt . '"></i>';
@@ -96,7 +96,7 @@ class RecordToolbar
 		if (defined('WPINC'))
 			return 'CustomTables: Edit Icons not supported in WP yet.';
 
-		$alt = common::translate('COM_CUSTOMTABLES_EDIT');
+		$alt = __("Edit", "customtables");
 
 		if ($this->ct->Env->toolbarIcons != '')
 			$img = '<i class="ba-btn-transition ' . $this->ct->Env->toolbarIcons . ' fa-pen" data-icon="' . $this->ct->Env->toolbarIcons . ' fa-pen" title="' . $alt . '"></i>';
@@ -181,7 +181,7 @@ class RecordToolbar
 	{
 		$Label = 'Would you like to copy (' . $this->firstFieldValueLabel() . ')?';
 
-		$alt = common::translate('COM_CUSTOMTABLES_COPY');
+		$alt = __("Copy", "customtables");
 
 		if ($this->ct->Env->toolbarIcons != '')
 			$img = '<i class="ba-btn-transition ' . $this->ct->Env->toolbarIcons . ' fa-copy" data-icon="' . $this->ct->Env->toolbarIcons . ' fa-copy" title="' . $alt . '"></i>';
@@ -263,7 +263,7 @@ class RecordToolbar
 			else
 				$img = '<img src="' . $this->iconPath . 'key-add.png" border="0" alt="' . $alt . '" title="' . $alt . '">';
 
-			$resetLabel = common::translate('COM_CUSTOMTABLES_USERWILLBECREATED') . ' ' . $this->firstFieldValueLabel();
+			$resetLabel = __("Do you want to create a new User Account for", "customtables") . ' ' . $this->firstFieldValueLabel();
 			$action = 'ctCreateUser("' . $resetLabel . '", ' . $this->listing_id . ', "' . $rid . '",' . ($this->ct->Params->ModuleId ?? 0) . ')';
 		} else {
 			$user_full_name = ucwords(strtolower($userRow['name']));
@@ -286,7 +286,7 @@ class RecordToolbar
 	{
 		$deleteLabel = $this->firstFieldValueLabel();
 
-		$alt = common::translate('COM_CUSTOMTABLES_DELETE');
+		$alt = __("Delete", "customtables");
 
 		if ($this->ct->Env->toolbarIcons != '')
 			$img = '<i class="ba-btn-transition ' . $this->ct->Env->toolbarIcons . ' fa-trash" data-icon="' . $this->ct->Env->toolbarIcons . ' fa-trash" title="' . $alt . '"></i>';
@@ -305,7 +305,7 @@ class RecordToolbar
 
 			if ($this->row['listing_published']) {
 				$link = 'javascript:ctPublishRecord(' . $this->Table->tableid . ',\'' . $this->listing_id . '\', \'' . $rid . '\',0,' . $this->ct->Params->ModuleId . ');';
-				$alt = common::translate('COM_CUSTOMTABLES_UNPUBLISH');
+				$alt = __("Unpublish", "customtables");
 
 				if ($this->ct->Env->toolbarIcons != '')
 					$img = '<i class="ba-btn-transition ' . $this->ct->Env->toolbarIcons . ' fa-check-circle" data-icon="' . $this->ct->Env->toolbarIcons . ' fa-check-circle" title="' . $alt . '"></i>';
@@ -313,7 +313,7 @@ class RecordToolbar
 					$img = '<img src="' . $this->iconPath . 'publish.png" border="0" alt="' . $alt . '" title="' . $alt . '">';
 			} else {
 				$link = 'javascript:ctPublishRecord(' . $this->Table->tableid . ',\'' . $this->listing_id . '\', \'' . $rid . '\',1,' . $this->ct->Params->ModuleId . ');';
-				$alt = common::translate('COM_CUSTOMTABLES_PUBLISH');
+				$alt = __("Publish", "customtables");
 
 				if ($this->ct->Env->toolbarIcons != '')
 					$img = '<i class="ba-btn-transition ' . $this->ct->Env->toolbarIcons . ' fa-ban" data-icon="' . $this->ct->Env->toolbarIcons . ' fa-ban" title="' . $alt . '"></i>';
@@ -323,7 +323,7 @@ class RecordToolbar
 			return '<div id="' . $rid . '" class="toolbarIcons"><a href="' . $link . '">' . $img . '</a></div>';
 		} else {
 			if (!$this->row['listing_published'])
-				return common::translate('COM_CUSTOMTABLES_PUBLISHED');
+				return __("Published", "customtables");
 		}
 		return '';
 	}

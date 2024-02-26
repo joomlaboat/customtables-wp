@@ -11,14 +11,15 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Exception;
 use Joomla\CMS\Helper\ModuleHelper;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Router\Route;
+use Joomla\CMS\Version;
 use Joomla\Registry\Registry;
+use JRoute;
 
 class Params
 {
@@ -292,9 +293,15 @@ class Params
 
 		if (!$blockExternalVars and common::inputGetCmd('returnto'))
 			$this->returnTo = common::getReturnToURL();
-		else
-			$this->returnTo = $menu_params->get('returnto');
-
+		else {
+			//$this->returnTo = JRoute::_(Joomla\CMS\Router\Route::_('index.php?Itemid=' . $this->ItemId));
+			$version_object = new Version;
+			$this->version = (int)$version_object->getShortVersion();
+			if ($this->version >= 4)
+				$this->returnTo = Route::_(sprintf('index.php/?option=com_customtables&Itemid=%d', $this->ItemId));
+			else
+				$this->returnTo = $menu_params->get('returnto');
+		}
 		$this->requiredLabel = $menu_params->get('requiredlabel');
 		$this->msgItemIsSaved = $menu_params->get('msgitemissaved');
 

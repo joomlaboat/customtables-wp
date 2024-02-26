@@ -11,9 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 class InputBox_filebox extends BaseInputBox
 {
@@ -41,7 +39,7 @@ class InputBox_filebox extends BaseInputBox
 				$result = '<div style="width:100%;overflow:scroll;background-image: url(\'components/com_customtables/libraries/customtables/media/images/icons/bg.png\');">'
 					. $manageButton . '<br/>' . $vlu . '</div>';
 			} else
-				$result = common::translate('COM_CUSTOMTABLES_FILE_NO_FILES') . ' ' . $manageButton;
+				$result = __("No Files", "customtables") . ' ' . $manageButton;
 
 			return $result;
 		}

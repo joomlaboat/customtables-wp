@@ -11,9 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 class Search_published extends BaseSearch
 {
@@ -27,10 +25,10 @@ class Search_published extends BaseSearch
 	{
 		$result = '';
 
-		$published = common::translate('COM_CUSTOMTABLES_PUBLISHED');
-		$unpublished = common::translate('COM_CUSTOMTABLES_UNPUBLISHED');
-		$any = $published . ' ' . common::translate('COM_CUSTOMTABLES_AND') . ' ' . $unpublished;
-		$translations = array($any, $published, common::translate('COM_CUSTOMTABLES_UNPUBLISHED'));
+		$published = __("Published", "customtables");
+		$unpublished = __("Unpublished", "customtables");
+		$any = $published . ' ' . __("and", "customtables") . ' ' . $unpublished;
+		$translations = array($any, $published, __("Unpublished", "customtables"));
 		$this->getOnChangeAttributeString();
 
 		$result .= '<select'

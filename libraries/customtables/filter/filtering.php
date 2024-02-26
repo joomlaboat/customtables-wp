@@ -10,12 +10,11 @@
 
 namespace CustomTables;
 
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use DateTime;
 use Exception;
+use Joomla\CMS\Language\Text;
 use LayoutProcessor;
 
 class Filtering
@@ -166,8 +165,7 @@ class Filtering
 
 						if ($this->ct->Env->legacySupport) {
 
-							require_once(JPATH_SITE . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_customtables'
-								. DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . 'layout.php');
+							require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'layout.php');
 							$LayoutProc = new LayoutProcessor($this->ct);
 							$LayoutProc->layout = $value;
 							$value = $LayoutProc->fillLayout();
@@ -230,9 +228,8 @@ class Filtering
 			}
 		}
 
-		if ($logic_operator == '') {
-			$this->ct->errors[] = common::translate('Search parameter "' . $param . '" is incorrect');
-		}
+		if ($logic_operator == '')
+			$this->ct->errors[] = Text::sprintf("Search parameter '%s' is incorrect", $param);
 	}
 
 	/**
@@ -315,7 +312,7 @@ class Filtering
 						$this->PathValue[] = $fieldrow['fieldtitle' . $this->ct->Languages->Postfix];
 					} else {
 						$whereClause->addOrCondition($this->ct->Table->realtablename . '.' . $fieldrow['realfieldname'], 0);
-						$this->PathValue[] = common::translate('COM_CUSTOMTABLES_NOT') . ' ' . $fieldrow['fieldtitle' . $this->ct->Languages->Postfix];
+						$this->PathValue[] = __("not", "customtables") . ' ' . $fieldrow['fieldtitle' . $this->ct->Languages->Postfix];
 					}
 				}
 				return $whereClause;
@@ -388,15 +385,15 @@ class Filtering
 
 					if ($esr_selector == 'multi' or $esr_selector == 'checkbox' or $esr_selector == 'multibox') {
 						if ($comparison_operator == '!=')
-							$opt_title = common::translate('COM_CUSTOMTABLES_NOT_CONTAINS');
+							$opt_title = __("Not Contains", "customtables");
 						elseif ($comparison_operator == '=')
-							$opt_title = common::translate('COM_CUSTOMTABLES_CONTAINS');
+							$opt_title = __("Contains", "customtables");
 						elseif ($comparison_operator == '==')
-							$opt_title = common::translate('COM_CUSTOMTABLES_IS');
+							$opt_title = __("COM_CUSTOMTABLES_IS", "customtables");
 						elseif ($comparison_operator == '!==')
-							$opt_title = common::translate('COM_CUSTOMTABLES_ISNOT');
+							$opt_title = __("COM_CUSTOMTABLES_ISNOT", "customtables");
 						else
-							$opt_title = common::translate('COM_CUSTOMTABLES_UNKNOWN_OPERATION');
+							$opt_title = __("Unknown Operation", "customtables");
 					} elseif ($esr_selector == 'radio' or $esr_selector == 'single')
 						$opt_title = ':';
 
@@ -417,7 +414,7 @@ class Filtering
 							$whereClause->addOrCondition($esr_table_full . '.' . $fieldrow['realfieldname'], $valueNew);
 							$whereClause->addOrCondition($esr_table_full . '.' . $fieldrow['realfieldname'], ',' . $valueNew . ',');//exact value
 						} else
-							$opt_title = common::translate('COM_CUSTOMTABLES_UNKNOWN_OPERATION');
+							$opt_title = __("Unknown Operation", "customtables");
 
 						if ($comparison_operator == '!=' or $comparison_operator == '=') {
 							$this->PathValue[] = $fieldrow['fieldtitle'
@@ -463,7 +460,7 @@ class Filtering
 
 						if ($valueNew != '') {
 							if ($comparison_operator == '!=') {
-								$opt_title = common::translate('COM_CUSTOMTABLES_NOT');
+								$opt_title = __("not", "customtables");
 								$whereClause->addOrCondition($esr_table_full . '.' . $fieldrow['realfieldname'], $valueNew, '!=');
 								$this->PathValue[] = $fieldrow['fieldtitle' . $this->ct->Languages->Postfix]
 									. ' '
@@ -702,10 +699,10 @@ class Filtering
 			return $whereClause;
 
 		if ($valueArr[0] != '')
-			$valueTitle .= common::translate('COM_CUSTOMTABLES_FROM') . ' ' . $valueArr[0] . ' ';
+			$valueTitle .= __("From", "customtables") . ' ' . $valueArr[0] . ' ';
 
 		if ($valueArr[1] != '')
-			$valueTitle .= common::translate('COM_CUSTOMTABLES_TO') . ' ' . $valueArr[1];
+			$valueTitle .= __("To", "customtables") . ' ' . $valueArr[1];
 
 		$this->PathValue[] = $fieldTitle . ': ' . $valueTitle;
 
@@ -871,21 +868,21 @@ class Filtering
 		if ($valueStart and $valueEnd) {
 			//Breadcrumbs
 			$this->PathValue[] = $title1 . ' '
-				. common::translate('COM_CUSTOMTABLES_DATE_FROM') . ' ' . $titleStart . ' '
-				. common::translate('COM_CUSTOMTABLES_DATE_TO') . ' ' . $titleEnd;
+				. __("from", "customtables") . ' ' . $titleStart . ' '
+				. __("to", "customtables") . ' ' . $titleEnd;
 
 			$whereClause->addCondition($fieldrow1['realfieldname'], $valueStart, '>=');
 			$whereClause->addCondition($fieldrow1['realfieldname'], $valueEnd, '<=');
 			//return '(' . $fieldrow1['realfieldname'] . '>=' . $valueStart . ' AND ' . $fieldrow1['realfieldname'] . '<=' . $valueEnd . ')';
 		} elseif ($valueStart and $valueEnd === null) {
 			$this->PathValue[] = $title1 . ' '
-				. common::translate('COM_CUSTOMTABLES_FROM') . ' ' . $titleStart;
+				. __("From", "customtables") . ' ' . $titleStart;
 
 			$whereClause->addCondition($fieldrow1['realfieldname'], $valueStart, '>=');
 			//return $fieldrow1['realfieldname'] . '>=' . $valueStart;
 		} elseif ($valueStart === null and $valueEnd) {
 			$this->PathValue[] = $title1 . ' '
-				. common::translate('COM_CUSTOMTABLES_TO') . ' ' . $valueEnd;
+				. __("To", "customtables") . ' ' . $valueEnd;
 
 			$whereClause->addCondition($fieldrow1['realfieldname'], $valueEnd, '<=');
 			//return $fieldrow1['realfieldname'] . '<=' . $valueEnd;
@@ -997,22 +994,22 @@ class Filtering
 			//value
 			if ($value == '{year}') {
 				return ['query' => 'year()',
-					'caption' => common::translate('COM_CUSTOMTABLES_THIS_YEAR')];
+					'caption' => __("this year", "customtables")];
 			}
 
 			if ($value == '{month}') {
 				return ['query' => 'month()',
-					'caption' => common::translate('COM_CUSTOMTABLES_THIS_MONTH')];
+					'caption' => __("this month", "customtables")];
 			}
 
 			if ($value == '{day}') {
 				return ['query' => 'day()',
-					'caption' => common::translate('COM_CUSTOMTABLES_THIS_DAY')];
+					'caption' => __("this day", "customtables")];
 			}
 
 			if (trim(strtolower($value)) == 'null') {
 				return ['query' => 'NULL',
-					'caption' => common::translate('COM_CUSTOMTABLES_DATE_NOT_SET')];
+					'caption' => __("not set", "customtables")];
 			}
 
 			$options = array();
@@ -1029,10 +1026,10 @@ class Filtering
 			if ($option != '') {
 				//%m/%d/%Y %H:%i
 				return ['query' => 'DATE_FORMAT(now(), ' . database::quote($option) . ')',
-					'caption' => common::translate('COM_CUSTOMTABLES_DATE_NOW') . ' (' . $option . ')'];
+					'caption' => __("now", "customtables") . ' (' . $option . ')'];
 			} else {
 				return ['query' => 'now()',
-					'caption' => common::translate('COM_CUSTOMTABLES_DATE_NOW')];
+					'caption' => __("now", "customtables")];
 			}
 		}
 	}
@@ -1100,13 +1097,13 @@ class LinkJoinFilters
 
 		$result .= '
 		<script>
-			ctTranslates["COM_CUSTOMTABLES_SELECT"] = "- ' . common::translate('COM_CUSTOMTABLES_SELECT') . '";
+			ctTranslates["Select"] = "- ' . __("Select", "customtables") . '";
 			ctInputBoxRecords_current_value["' . $control_name . '"]="";
 		</script>
 		';
 
 		$result .= '<select id="' . $control_name . 'SQLJoinLink" onchange="ctInputbox_UpdateSQLJoinLink(\'' . $control_name . '\',\'' . $control_name_postfix . '\')">';
-		$result .= '<option value="">- ' . common::translate('COM_CUSTOMTABLES_SELECT') . '</option>';
+		$result .= '<option value="">- ' . __("Select", "customtables") . '</option>';
 
 		foreach ($rows as $row) {
 			if ($row[$tableRow['realidfieldname']] == $filterValue or str_contains($filterValue, ',' . $row[$tableRow['realidfieldname']] . ','))

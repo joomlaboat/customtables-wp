@@ -11,9 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use CT_FieldTypeTag_file;
 use ESFileUploader;
@@ -186,8 +184,8 @@ class InputBox_file extends BaseInputBox
 			. $script
 			. '<input type="hidden" name="' . $field->prefix . $field->fieldname . '" id="' . $field->prefix . $field->fieldname . '" value="" />'
 			. '<input type="hidden" name="' . $field->prefix . $field->fieldname . '_filename" id="' . $field->prefix . $field->fieldname . '_filename" value="" />'
-			. common::translate('COM_CUSTOMTABLES_PERMITTED_FILE_TYPES') . ': ' . $accepted_file_types . '<br/>'
-			. common::translate('COM_CUSTOMTABLES_PERMITTED_MAX_FILE_SIZE') . ': ' . CTMiscHelper::formatSizeUnits($max_file_size)
+			. __("Permitted File Types", "customtables") . ': ' . $accepted_file_types . '<br/>'
+			. __("Permitted Max. File Size", "customtables") . ': ' . CTMiscHelper::formatSizeUnits($max_file_size)
 			. '</div>';
 	}
 }

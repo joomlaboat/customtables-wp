@@ -11,9 +11,7 @@
 
 namespace CustomTables\Integrity;
 
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use CustomTables\common;
 use CustomTables\CT;
@@ -22,6 +20,7 @@ use CustomTables\TableHelper;
 use CustomTables\Fields;
 use CustomTables\IntegrityChecks;
 use Exception;
+use Joomla\CMS\Language\Text;
 
 class IntegrityFields extends IntegrityChecks
 {
@@ -110,7 +109,6 @@ class IntegrityFields extends IntegrityChecks
 				} elseif ($projected_field['type'] == 'imagegallery') {
 					if ($existingFieldName == $projected_field['realfieldname']) {
 						IntegrityFieldType_Gallery::checkGallery($ct, $projected_field['fieldname']);
-
 						$projected_data_type = Fields::getProjectedFieldType($projected_field['type'], $projected_field['typeparams']);
 						$found_field = $projected_field['realfieldname'];
 						$found = true;
@@ -119,7 +117,6 @@ class IntegrityFields extends IntegrityChecks
 				} elseif ($projected_field['type'] == 'filebox') {
 					if ($existingFieldName == $projected_field['realfieldname']) {
 						IntegrityFieldType_FileBox::checkFileBox($ct, $projected_field['fieldname']);
-
 						$projected_data_type = Fields::getProjectedFieldType($projected_field['type'], $projected_field['typeparams']);
 						$found_field = $projected_field['realfieldname'];
 						$found = true;
@@ -195,8 +192,8 @@ class IntegrityFields extends IntegrityChecks
 						$PureFieldType = Fields::makeProjectedFieldType($projected_data_type);
 
 						if (Fields::fixMYSQLField($ct->Table->realtablename, $real_field_name, $PureFieldType, $msg, $projected_field['fieldtitle'])) {
-							$result .= '<p>' . common::translate('COM_CUSTOMTABLES_FIELD') . ' <span style="color:green;">'
-								. $nice_field_name . '</span> ' . common::translate('COM_CUSTOMTABLES_FIELD_FIXED') . '.</p>';
+							$result .= '<p>' . __("Field", "customtables") . ' <span style="color:green;">'
+								. $nice_field_name . '</span> ' . __("fixed", "customtables") . '.</p>';
 						} else {
 							common::enqueueMessage($msg);
 						}
@@ -211,10 +208,10 @@ class IntegrityFields extends IntegrityChecks
 
 						$existing_field_type_string = Fields::projectedFieldTypeToString($ExistingFieldConvertedType);
 
-						$result .= '<p>' . common::translate('COM_CUSTOMTABLES_FIELD') . ' <span style="color:orange;">' . $nice_field_name . '</span>'
-							. ' ' . common::translate('COM_CUSTOMTABLES_FIELD_HAS_WRONG_TYPE') . ' <span style="color:red;">'
-							. $existing_field_type_string . '</span> ' . common::translate('COM_CUSTOMTABLES_FIELD_INSTEAD_OF') . ' <span style="color:green;">'
-							. Fields::projectedFieldTypeToString($projected_data_type) . '</span> <a href="' . $link . 'task=fixfieldtype&fieldname=' . $existingFieldName . '">' . common::translate('COM_CUSTOMTABLES_FIELD_TOFIX') . '</a></p>';
+						$result .= '<p>' . __("Field", "customtables") . ' <span style="color:orange;">' . $nice_field_name . '</span>'
+							. ' ' . __("has wrong type", "customtables") . ' <span style="color:red;">'
+							. $existing_field_type_string . '</span> ' . __("instead of", "customtables") . ' <span style="color:green;">'
+							. Fields::projectedFieldTypeToString($projected_data_type) . '</span> <a href="' . $link . 'task=fixfieldtype&fieldname=' . $existingFieldName . '">' . __("Fix?", "customtables") . '</a></p>';
 					}
 				}
 			}
@@ -313,6 +310,6 @@ class IntegrityFields extends IntegrityChecks
 		$PureFieldType = Fields::getPureFieldType($fieldType, $typeParams);
 		$fieldTypeString = fields::projectedFieldTypeToString($PureFieldType);
 		Fields::AddMySQLFieldNotExist($realtablename, $realfieldname, $fieldTypeString, '');
-		common::enqueueMessage(common::translate('Field "' . $realfieldname . '" added.'), 'notice');
+		common::enqueueMessage(Text::sprintf("Field `%s` has been added.", $realfieldname), 'notice');
 	}
 }

@@ -37,7 +37,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                 <ul>
 					<?php
 					foreach ($errors->get_error_messages() as $err) {
-						echo esc_html("<li>" . esc_html($err) . "</li>\n");
+						echo "<li>" . esc_html($err) . "</li>";
 					}
 					?>
                 </ul>
@@ -56,7 +56,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
             <div class="error">
 				<?php
 				foreach ($add_user_errors->get_error_messages() as $message) {
-					echo "<p>".esc_html($message)."</p>";
+					echo "<p>" . esc_html($message) . "</p>";
 				}
 				?>
             </div>
@@ -83,9 +83,9 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                 <script>
 					<?php
 					if ($this->admin_field_edit->ct->Env->advancedTagProcessor)
-						echo 'proversion=true;' . PHP_EOL;
+						echo esc_js('proversion=true;' . PHP_EOL);
 
-                    //resulting line example: all_tables=[["29","kot3","kot3"],["30","kot5","kot5"],["31","kot6","kot6"],["25","test1","Test 1"]];
+					//resulting line example: all_tables=[["29","kot3","kot3"],["30","kot5","kot5"],["31","kot6","kot6"],["25","test1","Test 1"]];
 					echo 'all_tables=' . wp_kses_post(wp_json_encode($this->admin_field_edit->allTables)) . ';' . PHP_EOL;
 					?>
                 </script>
@@ -124,7 +124,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 							$vlu = $this->admin_field_edit->fieldRow[$id] ?? null;
 							?>
 
-                            <tr class="form-field<?php echo(!$moreThanOneLang ? ' form-required' : ''); ?>">
+                            <tr class="form-field<?php echo esc_html(!$moreThanOneLang ? ' form-required' : ''); ?>">
                                 <th scope="row">
                                     <label for="<?php echo esc_html($id); ?>">
 										<?php echo esc_html(__('Field Title', 'customtables')); ?>
@@ -179,14 +179,15 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                                 <div class="typeparams_box" id="typeparams_box"></div>
                                 <br/>
                                 <input type="text" name="typeparams" id="typeparams" class=""
-                                       readonly="readonly" maxlength="1024" value="<?php echo esc_html($this->admin_field_edit->fieldRow['typeparams']); ?>">
+                                       readonly="readonly" maxlength="1024"
+                                       value="<?php echo esc_html($this->admin_field_edit->fieldRow['typeparams']); ?>">
                             </td>
                         </tr>
                     </table>
 
                     <!-- Submit Button -->
 					<?php
-					$buttonText = ($this->admin_field_edit->fieldId == 0) ? __('Add New Field') : __('Save Field');
+					$buttonText = ($this->admin_field_edit->fieldId == 0) ? __('Add New Field', 'customtables') : __('Save Field', 'customtables');
 					submit_button($buttonText, 'primary', 'createfield', true, array('id' => 'createfieldsub'));
 					?>
 

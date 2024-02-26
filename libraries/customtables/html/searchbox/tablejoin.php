@@ -11,9 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Exception;
 use Joomla\CMS\HTML\HTMLHelper;
@@ -59,12 +57,12 @@ class Search_tablejoin extends BaseSearch
 		$typeParams = $this->field->params;
 
 		if (count($typeParams) < 1) {
-			common::enqueueMessage(common::translate('COM_CUSTOMTABLES_ERROR_TABLE_NOT_SPECIFIED'));
+			common::enqueueMessage(__("Table not specified.", "customtables"));
 			return '';
 		}
 
 		if (count($typeParams) < 2) {
-			common::enqueueMessage(common::translate('COM_CUSTOMTABLES_ERROR_UNKNOWN_FIELD_LAYOUT'));
+			common::enqueueMessage(__("Unknown field/layout parameter.", "customtables"));
 			return '';
 		}
 
@@ -80,7 +78,7 @@ class Search_tablejoin extends BaseSearch
 			$allowUnpublished = false;
 
 		if (TableHelper::getTableID($tableName) == '') {
-			common::enqueueMessage(common::translate('COM_CUSTOMTABLES_ERROR_TABLE_NOT_FOUND'));
+			common::enqueueMessage(__("Table not found.", "customtables"));
 			return '';
 		}
 
@@ -164,7 +162,7 @@ class Search_tablejoin extends BaseSearch
 		if (count($pair) == 2) {
 			$layout_mode = true;
 			if ($pair[0] != 'layout' and $pair[0] != 'tablelesslayout') {
-				common::enqueueMessage(common::translate('COM_CUSTOMTABLES_ERROR_UNKNOWN_FIELD_LAYOUT') . ' search_tablejoin.php' . $field . '"');
+				common::enqueueMessage(__("Unknown field/layout parameter.", "customtables") . ' search_tablejoin.php' . $field . '"');
 				return array();
 			}
 
@@ -172,7 +170,7 @@ class Search_tablejoin extends BaseSearch
 			$layoutcode = $Layouts->getLayout($pair[1]);
 
 			if (!isset($layoutcode) or $layoutcode == '') {
-				common::enqueueMessage(common::translate('COM_CUSTOMTABLES_ERROR_LAYOUT_NOT_FOUND') . ' search_tablejoin.php' . $pair[1] . '"');
+				common::enqueueMessage(__("Layout not found or is empty.", "customtables") . ' search_tablejoin.php' . $pair[1] . '"');
 				return array();
 			}
 		}
@@ -252,7 +250,7 @@ class Search_tablejoin extends BaseSearch
 
 		$htmlresult_select = '<SELECT ' . BaseInputBox::attributes2String($this->attributes) . '>';
 
-		$htmlresult_select .= '<option value="">- ' . common::translate('COM_CUSTOMTABLES_SELECT') . ' ' . $this->attributes['data-label'] . '</option>';
+		$htmlresult_select .= '<option value="">- ' . __("Select", "customtables") . ' ' . $this->attributes['data-label'] . '</option>';
 
 		foreach ($list_values as $list_value) {
 			if ($list_value[2] == 0)//if unpublished
@@ -265,7 +263,7 @@ class Search_tablejoin extends BaseSearch
 		}
 
 		if ($addNoValue)
-			$htmlresult_select .= '<option value="-1"' . ((int)$current_value == -1 ? ' selected="SELECTED"' : '') . '>- ' . common::translate('COM_CUSTOMTABLES_NOT_SPECIFIED') . '</option>';
+			$htmlresult_select .= '<option value="-1"' . ((int)$current_value == -1 ? ' selected="SELECTED"' : '') . '>- ' . __("Not Specified", "customtables") . '</option>';
 
 		$htmlresult_select .= '</SELECT>';
 

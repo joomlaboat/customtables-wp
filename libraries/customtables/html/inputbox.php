@@ -11,9 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Exception;
 use tagProcessor_General;
@@ -50,7 +48,6 @@ class Inputbox
 	{
 		$this->ct = &$ct;
 		$this->isTwig = $isTwig;
-
 		$this->cssclass = $option_list[0] ?? '';
 		$this->attributes = str_replace('****quote****', '"', $option_list[1] ?? '');//Optional Parameter
 
@@ -192,7 +189,7 @@ class Inputbox
 						$inputBoxRenderer = new ProInputBoxTableJoin($this->ct, $this->field, $this->row, $this->option_list, $this->attributesArray);
 						return $inputBoxRenderer->render($value, $this->defaultValue);
 					} else {
-						return common::translate('COM_CUSTOMTABLES_AVAILABLE');
+						return __("Available in PRO Version", "customtables");
 					}
 				} else {
 					return 'Table Join field type is not supported by WordPress version of the Custom Tables yet.';
@@ -210,7 +207,7 @@ class Inputbox
 						$inputBoxRenderer = new ProInputBoxTableJoinList($this->ct, $this->field, $this->row, $this->option_list, $this->attributesArray);
 						return $inputBoxRenderer->render($value, $this->defaultValue);
 					} else {
-						return common::translate('COM_CUSTOMTABLES_AVAILABLE');
+						return __("Available in PRO Version", "customtables");
 					}
 				} else {
 					return 'Table Join List field type is not supported by WordPress version of the Custom Tables yet.';
@@ -332,7 +329,7 @@ abstract class BaseInputBox
 
 		// Optional default option
 		$selected = ($value == '' ? ' selected' : '');
-		$select .= '<option value=""' . $selected . '> - ' . common::translate('COM_CUSTOMTABLES_SELECT') . '</option>';
+		$select .= '<option value=""' . $selected . '> - ' . __("Select", "customtables") . '</option>';
 
 		// Generate options for each file in the folder
 		foreach ($options as $option) {

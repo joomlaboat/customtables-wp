@@ -11,9 +11,7 @@
 
 namespace CustomTables\Integrity;
 
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use CustomTables;
 use CustomTables\common;

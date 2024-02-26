@@ -245,14 +245,14 @@ class Admin_Table_List extends WP_List_Table
             $url .= '&status=' . $this->current_status;
 
         if ($this->current_status == 'trash') {
-            $actions['restore'] = sprintf('<a href="' . $url . '&action=restore&table=%s&_wpnonce=%s">' . __('Restore', 'customtables') . '</a>',
+            $actions['restore'] = sprintf('<a href="' . $url . '&action=restore&table=%s&_wpnonce=%s">' . __('Restore') . '</a>',
                 $item['id'], urlencode(wp_create_nonce('restore_nonce')));
 
-            $actions['delete'] = sprintf('<a href="' . $url . '&action=delete&table=%s&_wpnonce=%s">' . __('Delete Permanently', 'customtables') . '</a>',
+            $actions['delete'] = sprintf('<a href="' . $url . '&action=delete&table=%s&_wpnonce=%s">' . __('Delete Permanently') . '</a>',
                 $item['id'], urlencode(wp_create_nonce('delete_nonce')));
         } else {
-            $actions['edit'] = sprintf('<a href="?page=customtables-tables-edit&action=edit&table=%s">' . __('Edit', 'customtables') . '</a>', $item['id']);
-            $actions['trash'] = sprintf('<a href="' . $url . '&action=trash&table=%s&_wpnonce=%s">' . __('Trash', 'customtables') . '</a>',
+            $actions['edit'] = sprintf('<a href="?page=customtables-tables-edit&action=edit&table=%s">' . __('Edit') . '</a>', $item['id']);
+            $actions['trash'] = sprintf('<a href="' . $url . '&action=trash&table=%s&_wpnonce=%s">' . __('Trash') . '</a>',
                 $item['id'], urlencode(wp_create_nonce('trash_nonce')));
         }
         return sprintf('%1$s %2$s', $item['tablename'], $this->row_actions($actions));
@@ -359,7 +359,7 @@ class Admin_Table_List extends WP_List_Table
         $actions = [];
 
         if ($this->current_status != 'trash')
-            $actions['customtables-tables-edit'] = __('Edit', 'customtables');
+            $actions['customtables-tables-edit'] = __('Edit');
 
         if ($this->current_status == '' or $this->current_status == 'all') {
             $actions['customtables-tables-publish'] = __('Publish', 'customtables');
@@ -370,11 +370,11 @@ class Admin_Table_List extends WP_List_Table
             $actions['customtables-tables-unpublish'] = __('Draft', 'customtables');
 
         if ($this->current_status != 'trash')
-            $actions['customtables-tables-trash'] = __('Move to Trash', 'customtables');
+            $actions['customtables-tables-trash'] = __('Move to Trash');
 
         if ($this->current_status == 'trash') {
-            $actions['customtables-tables-restore'] = __('Restore', 'customtables');
-            $actions['customtables-tables-delete'] = __('Delete Permanently', 'customtables');
+            $actions['customtables-tables-restore'] = __('Restore');
+            $actions['customtables-tables-delete'] = __('Delete Permanently');
         }
         return $actions;
     }
@@ -396,14 +396,11 @@ class Admin_Table_List extends WP_List_Table
          */
 
         // check for individual row actions
-	    $filter_action = $_REQUEST['filter_action'] ?? null;
-	    $action = $_REQUEST['action'] ?? null;
-	    $action2 = $_REQUEST['action2'] ?? null;
-	    $the_table_action = $this->current_action($filter_action,$action,$action2);
+	    $the_table_action = esc_html(wp_strip_all_tags($this->current_action()));
 
         if ('restore' === $the_table_action) {
             // verify the nonce.
-            if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'restore_nonce')) {
+            if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'restore_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
 	            $tableId = common::inputGetInt('table');
@@ -419,7 +416,7 @@ class Admin_Table_List extends WP_List_Table
 
         if ('trash' === $the_table_action) {
             // verify the nonce.
-            if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'trash_nonce')) {
+            if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'trash_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
 	            $tableId = common::inputGetInt('table');
@@ -435,7 +432,7 @@ class Admin_Table_List extends WP_List_Table
 
         if ('delete' === $the_table_action) {
             // verify the nonce.
-            if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'delete_nonce')) {
+            if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'delete_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
 	            $tableId = common::inputGetInt('table');
@@ -517,7 +514,7 @@ class Admin_Table_List extends WP_List_Table
 
     function handle_table_actions_edit()
     {
-	    if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
+	    if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
 		    $this->invalid_nonce_redirect();
 	    } else {
 		    $table_id = (int)(isset($_POST['table']) ? intval($_POST['table'][0]) : '');
@@ -529,7 +526,7 @@ class Admin_Table_List extends WP_List_Table
     function handle_table_actions_publish(int $state): void
     {
         // verify the nonce.
-        if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
+        if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
             $this->invalid_nonce_redirect();
         } else {
 
@@ -553,7 +550,7 @@ class Admin_Table_List extends WP_List_Table
     function handle_table_actions_delete()
     {
 	    // verify the nonce.
-	    if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
+	    if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
 		    $this->invalid_nonce_redirect();
 	    } else {
 

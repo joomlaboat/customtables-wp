@@ -13,9 +13,7 @@ namespace CustomTables;
 // no direct access
 use Exception;
 
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 class Diagram
 {

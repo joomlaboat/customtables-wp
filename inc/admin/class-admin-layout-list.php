@@ -10,7 +10,7 @@
 
 namespace CustomTablesWP\Inc\Admin;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use CustomTables\common;
 use CustomTables\CT;
@@ -46,16 +46,16 @@ class Admin_Layout_List extends WP_List_Table
 		$this->helperListOfLayouts = new ListOfLayouts($this->ct);
 
 		$whereClause = new MySQLWhereClause();
-		$whereClause->addCondition('published', -2,'!=');
-		$this->count_all = database::loadColumn('#__customtables_layouts',['COUNT_ROWS'], $whereClause)[0] ?? 0;
+		$whereClause->addCondition('published', -2, '!=');
+		$this->count_all = database::loadColumn('#__customtables_layouts', ['COUNT_ROWS'], $whereClause)[0] ?? 0;
 
 		$whereClause = new MySQLWhereClause();
 		$whereClause->addCondition('published', -2);
-		$this->count_trashed = database::loadColumn('#__customtables_layouts',['COUNT_ROWS'], $whereClause)[0] ?? 0;
+		$this->count_trashed = database::loadColumn('#__customtables_layouts', ['COUNT_ROWS'], $whereClause)[0] ?? 0;
 
 		$whereClause = new MySQLWhereClause();
 		$whereClause->addCondition('published', 1);
-		$this->count_published = database::loadColumn('#__customtables_layouts',['COUNT_ROWS'], $whereClause)[0] ?? 0;
+		$this->count_published = database::loadColumn('#__customtables_layouts', ['COUNT_ROWS'], $whereClause)[0] ?? 0;
 
 		$this->count_unpublished = $this->count_all - $this->count_published;
 
@@ -128,8 +128,7 @@ class Admin_Layout_List extends WP_List_Table
 
 		try {
 			$data = $this->helperListOfLayouts->getListQuery($published, $search, null, null, $orderby, $order);
-		}catch(\Exception $exception)
-		{
+		} catch (\Exception $exception) {
 
 		}
 
@@ -210,14 +209,14 @@ class Admin_Layout_List extends WP_List_Table
 			$url .= '&status=' . $this->current_status;
 
 		if ($this->current_status == 'trash') {
-			$actions['restore'] = sprintf('<a href="' . $url . '&action=restore&layout=%s&_wpnonce=%s">' . __('Restore', 'customtables') . '</a>',
+			$actions['restore'] = sprintf('<a href="' . $url . '&action=restore&layout=%s&_wpnonce=%s">' . __('Restore') . '</a>',
 				$item['id'], urlencode(wp_create_nonce('restore_nonce')));
 
-			$actions['delete'] = sprintf('<a href="' . $url . '&action=delete&layout=%s&_wpnonce=%s">' . __('Delete Permanently', 'customtables') . '</a>',
+			$actions['delete'] = sprintf('<a href="' . $url . '&action=delete&layout=%s&_wpnonce=%s">' . __('Delete Permanently') . '</a>',
 				$item['id'], urlencode(wp_create_nonce('delete_nonce')));
 		} else {
-			$actions['edit'] = sprintf('<a href="?page=customtables-layouts-edit&action=edit&layout=%s">' . __('Edit', 'customtables') . '</a>', $item['id']);
-			$actions['trash'] = sprintf('<a href="' . $url . '&action=trash&layout=%s&_wpnonce=%s">' . __('Trash', 'customtables') . '</a>',
+			$actions['edit'] = sprintf('<a href="?page=customtables-layouts-edit&action=edit&layout=%s">' . __('Edit') . '</a>', $item['id']);
+			$actions['trash'] = sprintf('<a href="' . $url . '&action=trash&layout=%s&_wpnonce=%s">' . __('Trash') . '</a>',
 				$item['id'], urlencode(wp_create_nonce('trash_nonce')));
 		}
 		return sprintf('%1$s %2$s', $item['layoutname'], $this->row_actions($actions));
@@ -271,10 +270,18 @@ class Admin_Layout_List extends WP_List_Table
 	{
 		$views = $this->get_views();
 
+		$allowed_html = array(
+			'a' => array(
+				'href' => array(),
+				'title' => array(),
+				'class' => array()
+			)
+		);
+
 		if (!empty($views)) {
 			echo '<ul class="subsubsub">';
 			foreach ($views as $view) {
-				echo '<li>' . $view . '</li>';
+				echo '<li>' . wp_kses($view, $allowed_html) . '</li>';
 			}
 			echo '</ul>';
 		}
@@ -323,7 +330,7 @@ class Admin_Layout_List extends WP_List_Table
 		$actions = [];
 
 		if ($this->current_status != 'trash')
-			$actions['customtables-layouts-edit'] = __('Edit', 'customtables');
+			$actions['customtables-layouts-edit'] = __('Edit');
 
 		if ($this->current_status == '' or $this->current_status == 'all') {
 			$actions['customtables-layouts-publish'] = __('Publish', 'customtables');
@@ -334,11 +341,11 @@ class Admin_Layout_List extends WP_List_Table
 			$actions['customtables-layouts-unpublish'] = __('Draft', 'customtables');
 
 		if ($this->current_status != 'trash')
-			$actions['customtables-layouts-trash'] = __('Move to Trash', 'customtables');
+			$actions['customtables-layouts-trash'] = __('Move to Trash');
 
 		if ($this->current_status == 'trash') {
-			$actions['customtables-layouts-restore'] = __('Restore', 'customtables');
-			$actions['customtables-layouts-delete'] = __('Delete Permanently', 'customtables');
+			$actions['customtables-layouts-restore'] = __('Restore');
+			$actions['customtables-layouts-delete'] = __('Delete Permanently');
 		}
 		return $actions;
 	}
@@ -351,22 +358,12 @@ class Admin_Layout_List extends WP_List_Table
 	 */
 	function handle_layout_actions()
 	{
-		/*
-		 * Note: Layout bulk_actions can be identified by checking $REQUEST['action'] and $REQUEST['action2']
-		 *
-		 * action - is set if checkbox from top-most select-all is set, otherwise returns -1
-		 * action2 - is set if checkbox the bottom-most select-all checkbox is set, otherwise returns -1
-		 */
-
 		// check for individual row actions
-		$filter_action = $_REQUEST['filter_action'] ?? null;
-		$action = $_REQUEST['action'] ?? null;
-		$action2 = $_REQUEST['action2'] ?? null;
-		$the_layout_action = $this->current_action($filter_action,$action,$action2);
+		$the_layout_action = esc_html(wp_strip_all_tags($this->current_action()));
 
 		if ('restore' === $the_layout_action) {
 			// verify the nonce.
-			if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'restore_nonce')) {
+			if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'restore_nonce')) {
 				$this->invalid_nonce_redirect();
 			} else {
 				$layoutId = common::inputGetInt('layout');
@@ -375,14 +372,13 @@ class Admin_Layout_List extends WP_List_Table
 				$whereClauseUpdate->addCondition('id', $layoutId);
 
 				database::update('#__customtables_layouts', ['published' => 0], $whereClauseUpdate);
-				//echo '<div id="message" class="updated notice is-dismissible"><p>1 layout restored from the Trash.</p></div>';
 				$this->graceful_redirect();
 			}
 		}
 
 		if ('trash' === $the_layout_action) {
 			// verify the nonce.
-			if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'trash_nonce')) {
+			if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'trash_nonce')) {
 				$this->invalid_nonce_redirect();
 			} else {
 				$layoutId = common::inputGetInt('layout');
@@ -391,19 +387,17 @@ class Admin_Layout_List extends WP_List_Table
 				$whereClauseUpdate->addCondition('id', $layoutId);
 
 				database::update('#__customtables_layouts', ['published' => -2], $whereClauseUpdate);
-				//echo '<div id="message" class="updated notice is-dismissible"><p>1 layout moved to the Trash.</p></div>';
 				$this->graceful_redirect();
 			}
 		}
 
 		if ('delete' === $the_layout_action) {
 			// verify the nonce.
-			if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'delete_nonce')) {
+			if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'delete_nonce')) {
 				$this->invalid_nonce_redirect();
 			} else {
 				$layoutId = common::inputGetInt('layout');
 				database::setQuery('DELETE FROM #__customtables_layouts WHERE id=' . $layoutId);
-				//echo '<div id="message" class="updated notice is-dismissible"><p>1 layout permanently deleted.</p></div>';
 				$this->graceful_redirect();
 			}
 		}
@@ -471,8 +465,8 @@ class Admin_Layout_List extends WP_List_Table
 
 	function is_layout_action($action): bool
 	{
-		$action1 = common::inputPostCmd('action','','bulk-' . $this->_args['plural']);
-		$action2 = common::inputPostCmd('action2','','bulk-' . $this->_args['plural']);
+		$action1 = common::inputPostCmd('action', '', 'bulk-' . $this->_args['plural']);
+		$action2 = common::inputPostCmd('action2', '', 'bulk-' . $this->_args['plural']);
 		if ($action1 === $action || $action2 === $action)
 			return true;
 
@@ -481,7 +475,7 @@ class Admin_Layout_List extends WP_List_Table
 
 	function handle_layout_actions_edit()
 	{
-		if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
+		if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
 			$this->invalid_nonce_redirect();
 		} else {
 			$layout_id = (int)(isset($_POST['layout']) ? intval($_POST['layout'][0]) : '');
@@ -493,7 +487,7 @@ class Admin_Layout_List extends WP_List_Table
 	function handle_layout_actions_publish(int $state): void
 	{
 		// verify the nonce.
-		if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
+		if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
 			$this->invalid_nonce_redirect();
 		} else {
 			$layouts = ($_POST['layout'] ?? []);
@@ -516,7 +510,7 @@ class Admin_Layout_List extends WP_List_Table
 	function handle_layout_actions_delete()
 	{
 		// verify the nonce.
-		if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-' . $this->_args['plural'])) {
+		if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
 			$this->invalid_nonce_redirect();
 		} else {
 
@@ -527,7 +521,7 @@ class Admin_Layout_List extends WP_List_Table
 			if (count($layouts) > 0) {
 				foreach ($layouts as $layoutId) {
 
-					$wpdb->query($wpdb->prepare('DELETE FROM #__customtables_layouts WHERE id=%d',(int)$layoutId));
+					$wpdb->query($wpdb->prepare('DELETE FROM #__customtables_layouts WHERE id=%d', (int)$layoutId));
 
 					if ($wpdb->last_error !== '')
 						throw new Exception($wpdb->last_error);

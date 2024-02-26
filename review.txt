@@ -1,3 +1,16 @@
 WordPress Plugin Review Team - 1/9/2024 - Completed
 
 WordPress Plugin Review Team - 1/16/2024 - Completed (Partly)
+
+WordPress Plugin Review Team - 2/17/2024 - Completed (Partly)
+
+Continues with this:
+What if we want to include a dynamic value inside the translation? Easy, you need to add a placeholder which will be part of the string and change it after the gettext function does its magic, you can use printf to do so, like this:
+
+printf(
+       /* translators: %s: First name of the user */
+       esc_html__( 'Hello %s, how are you?', 'plugin-slug' ),
+       esc_html( $user_firstname )
+ );
+You can read https://developer.wordpress.org/plugins/internationalization/how-to-internationalize-your-plugin/#text-domains for more information.
+-----------------------

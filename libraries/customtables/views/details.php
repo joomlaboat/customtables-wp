@@ -11,9 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Exception;
 use LayoutProcessor;
@@ -102,7 +100,7 @@ class Details
 		if (!is_null($this->ct->Params->recordsTable) and !is_null($this->ct->Params->recordsUserIdField) and !is_null($this->ct->Params->recordsField)) {
 			if (!$this->checkRecordUserJoin($this->ct->Params->recordsTable, $this->ct->Params->recordsUserIdField, $this->ct->Params->recordsField, $this->ct->Params->listing_id)) {
 				//YOU ARE NOT AUTHORIZED TO ACCESS THIS SOURCE;
-				$this->ct->errors[] = common::translate('COM_CUSTOMTABLES_NOT_AUTHORIZED');
+				$this->ct->errors[] = __("Not authorized", "customtables");
 				return false;
 			}
 		}
@@ -120,8 +118,7 @@ class Details
 				//Parse using layout
 				if ($this->ct->Env->legacySupport) {
 
-					require_once(JPATH_SITE . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_customtables'
-						. DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . 'layout.php');
+					require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'layout.php');
 					$LayoutProc = new LayoutProcessor($this->ct);
 					$LayoutProc->layout = $filter;
 					$filter = $LayoutProc->fillLayout(null, null, '[]', true);
@@ -175,7 +172,7 @@ class Details
 		if ($filter != '') {
 			$this->ct->setFilter($filter, 2); //2 = Show any - published and unpublished
 		} else {
-			$this->ct->errors[] = common::translate('COM_CUSTOMTABLES_ERROR_NOFILTER');
+			$this->ct->errors[] = __("No filter found. Administrator - Check menu item settings.", "customtables");
 			return null;
 		}
 
@@ -233,7 +230,7 @@ class Details
 	protected function getDataById($listing_id)
 	{
 		if (is_numeric($listing_id) and intval($listing_id) == 0) {
-			$this->ct->errors[] = common::translate('COM_CUSTOMTABLES_ERROR_NOFILTER');
+			$this->ct->errors[] = __("No filter found. Administrator - Check menu item settings.", "customtables");
 			return null;
 		}
 
@@ -298,8 +295,7 @@ class Details
 
 		if ($this->ct->Env->legacySupport) {
 
-			require_once(JPATH_SITE . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_customtables' . DIRECTORY_SEPARATOR
-				. 'libraries' . DIRECTORY_SEPARATOR . 'layout.php');
+			require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'layout.php');
 
 			$LayoutProc = new LayoutProcessor($this->ct);
 			$LayoutProc->layout = $layoutDetailsContent;

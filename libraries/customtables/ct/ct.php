@@ -11,14 +11,13 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('_JEXEC') and !defined('ABSPATH')) {
-	die('Restricted access');
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use CustomTablesImageMethods;
 use Exception;
 use Joomla\CMS\Factory;
 use CustomTablesKeywordSearch;
+use Joomla\CMS\Language\Text;
 use Joomla\Registry\Registry;
 use CustomTables\CustomPHP\CleanExecute;
 
@@ -265,8 +264,7 @@ class CT
 		if ($moduleId != 0) {
 			$keywordSearch = common::inputGetString('eskeysearch_' . $moduleId, '');
 			if ($keywordSearch != '') {
-				require_once(JPATH_SITE . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_customtables' . DIRECTORY_SEPARATOR
-					. 'libraries' . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'filter' . DIRECTORY_SEPARATOR . 'keywordsearch.php');
+				require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'filter' . DIRECTORY_SEPARATOR . 'keywordsearch.php');
 
 				$KeywordSearcher = new CustomTablesKeywordSearch($this);
 
@@ -641,13 +639,13 @@ class CT
 				//example: parents(children).user
 				$statement_parts = explode('.', $field);
 				if (count($statement_parts) != 2) {
-					$this->errors[] = common::translate('COM_CUSTOMTABLES_MENUITEM_USERID_FIELD_ERROR');
+					$this->errors[] = __("Menu Item - 'UserID Field name' parameter has a syntax error. Error is about '(' character. Correct example: parent(children).user", "customtables");
 					return $whereClause;
 				}
 
 				$table_parts = explode('(', $statement_parts[0]);
 				if (count($table_parts) != 2) {
-					$this->errors[] = common::translate('COM_CUSTOMTABLES_MENUITEM_USERID_FIELD_ERROR');
+					$this->errors[] = __("Menu Item - 'UserID Field name' parameter has a syntax error. Error is about '(' character. Correct example: parent(children).user", "customtables");
 					return $whereClause;
 				}
 
@@ -658,7 +656,7 @@ class CT
 				$parent_table_row = TableHelper::getTableRowByName($parent_tablename);
 
 				if (!is_object($parent_table_row)) {
-					$this->errors[] = common::translate('COM_CUSTOMTABLES_MENUITEM_TABLENOTFOUND_ERROR');
+					$this->errors[] = __("Menu Item - 'UserID Field name' parameter has an error: Table not found.", "customtables");
 					return $whereClause;
 				}
 
@@ -667,34 +665,31 @@ class CT
 				$parent_join_field_row = Fields::FieldRowByName($parent_join_field, $parent_table_fields);
 
 				if (count($parent_join_field_row) == 0) {
-					$this->errors[] = common::translate('COM_CUSTOMTABLES_MENUITEM_TABLENOTFOUND_ERROR');
+					$this->errors[] = __("Menu Item - 'UserID Field name' parameter has an error: Table not found.", "customtables");
 					return $whereClause;
 				}
 
 				if ($parent_join_field_row['type'] != 'sqljoin' and $parent_join_field_row['type'] != 'records') {
-					$this->errors[] = common::translate('Menu Item - "UserID Field name" parameter has an error: Wrong join field type "' . $parent_join_field_row['type'] . '". Accepted types: "sqljoin" and "records" .');
+					$this->errors[] = Text::sprintf("Menu Item - 'UserID Field name' parameter has an error: Wrong join field type '%s'. Accepted types: 'sqljoin' and 'records'.", $parent_join_field_row['type']);
 					return $whereClause;
 				}
 
 				//User field
-
 				$parent_user_field_row = Fields::FieldRowByName($parent_user_field, $parent_table_fields);
 
 				if (count($parent_user_field_row) == 0) {
-					$this->errors[] = common::translate('Menu Item - "UserID Field name" parameter has an error: User field "' . $parent_user_field . '" not found.');
+					$this->errors[] = Text::sprintf("Menu Item - 'UserID Field name' parameter has an error: User field '%s' not found.", $parent_user_field);
 					return $whereClause;
 				}
 
 				if ($parent_user_field_row['type'] != 'userid' and $parent_user_field_row['type'] != 'user') {
-					$this->errors[] = common::translate('Menu Item - "UserID Field name" parameter has an error: Wrong user field type "' . $parent_join_field_row['type'] . '". Accepted types: "userid" and "user" .');
+					$this->errors[] = Text::sprintf("Menu Item - 'UserID Field name' parameter has an error: Wrong user field type '%s'. Accepted types: 'userid' and 'user'.", $parent_join_field_row['type']);
 					return $whereClause;
 				}
 
 				$whereClauseParent = new MySQLWhereClause();
-				//$parent_wheres = [];
 
 				$whereClauseParent->addCondition('p.' . $parent_user_field_row['realfieldname'], $this->Env->user->id);
-				//$parent_wheres[] = 'p.' . $parent_user_field_row['realfieldname'] . '=' . $this->Env->user->id;
 
 				$fieldType = $parent_join_field_row['type'];
 				if ($fieldType != 'sqljoin' and $fieldType != 'records')
@@ -702,7 +697,6 @@ class CT
 
 				if ($fieldType == 'sqljoin') {
 					$whereClauseParent->addCondition('p.' . $parent_user_field_row['realfieldname'], 'c.listing_id', '=', true);
-//					$parent_wheres[] = 'p.' . $parent_join_field_row['realfieldname'] . '=c.listing_id';
 				}
 
 				if ($fieldType == 'records')
@@ -735,6 +729,5 @@ class CT
 		//$wheres[] = '(' . $wheres_owner_str . ')';
 
 		return $whereClause;
-		//return $wheres;
 	}
 }
