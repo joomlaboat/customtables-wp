@@ -494,7 +494,7 @@ class Admin_Layout_List extends WP_List_Table
 		if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
 			$this->invalid_nonce_redirect();
 		} else {
-			$layouts = ($_POST['layout'] ?? []);
+			$layouts = common::sanitize_post_field_array($_POST['layout'],'string');
 
 			foreach ($layouts as $layout) {
 

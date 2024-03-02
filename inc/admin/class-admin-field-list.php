@@ -48,6 +48,7 @@ class Admin_Field_List extends WP_List_Table
 		$this->helperListOfFields = new ListOfFields($this->ct);
 
 		$this->tableId = common::inputGetInt('table');
+
 		if ($this->tableId) {
 			$this->ct->getTable($this->tableId);
 

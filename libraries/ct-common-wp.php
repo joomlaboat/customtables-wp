@@ -410,7 +410,7 @@ class common
 			}
 
 			// Retrieve the value associated with the returnto key from the $_SESSION
-			return $_SESSION[$returnto_key] ?? '';
+			return sanitize_text_field($_SESSION[$returnto_key] ?? '');
 		} else
 			return $returnto_id;
 	}
@@ -426,7 +426,7 @@ class common
 		if (!isset($_GET[$parameter]))
 			return $default;
 
-		$value = $_GET[$parameter] ?? null;
+		$value = sanitize_key($_GET[$parameter] ?? null);
 
 		if ($value === null)
 			return $default;
@@ -617,16 +617,19 @@ class common
 		return sanitize_text_field($_GET[$parameter]);
 	}
 
-	public static function sanitize_post_field_array($input): array
+	public static function sanitize_post_field_array($input, string $type = 'int'): array
 	{
 		$sanitized_array = [];
 		foreach ($input as $item) {
 			// Ensure the item is an integer and meets any other criteria you have
-			$sanitized_item = intval($item);
-			// Add additional checks as needed
-			// if ($sanitized_item meets condition) {
+			if($type == 'int')
+				$sanitized_item = intval($item);
+			elseif($type == 'string')
+				$sanitized_item = sanitize_text_field($item);
+			else
+				$sanitized_item = null;
+
 			$sanitized_array[] = $sanitized_item;
-			// }
 		}
 		return $sanitized_array;
 	}
