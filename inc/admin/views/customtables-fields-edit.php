@@ -155,6 +155,13 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                             </th>
                             <td>
 								<?php
+
+								$allowed_html = array(
+									'option' => array(
+										'value' => array(),
+										'selected' => array())
+								);
+
 								$selectBoxOptions = [];
 
 								foreach ($this->admin_field_edit->fieldTypes as $type) {
@@ -162,7 +169,9 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 									$selectBoxOptions[] = '<option value="' . $type['name'] . '"' . ($selected ? 'selected="selected"' : '') . '>' . $type['label'] . '</option>';
 								}
 
-								echo '<select name="type" id="type" onchange="typeChanged();">' . implode('', $selectBoxOptions) . '</select>';
+								$selectBoxOptionsSafe = implode('', $selectBoxOptions);
+
+								echo '<select name="type" id="type" onchange="typeChanged();">' . wp_kses($selectBoxOptionsSafe, $allowed_html) . '</select>';
 								?>
                             </td>
                         </tr>
@@ -187,7 +196,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 
                     <!-- Submit Button -->
 					<?php
-					$buttonText = ($this->admin_field_edit->fieldId == 0) ? __('Add New Field', 'customtables') : __('Save Field', 'customtables');
+					$buttonText = ($this->admin_field_edit->fieldId == 0) ? esc_html(__('Add New Field', 'customtables')) : esc_html(__('Save Field', 'customtables'));
 					submit_button($buttonText, 'primary', 'createfield', true, array('id' => 'createfieldsub'));
 					?>
 

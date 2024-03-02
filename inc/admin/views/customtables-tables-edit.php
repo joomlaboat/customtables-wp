@@ -126,7 +126,7 @@ else
 
                 <!-- Submit Button -->
 				<?php
-				$buttonText = ($this->admin_table_edit->tableId == 0) ? __('Add New Table', 'customtables') : __('Save Table', 'customtables');
+				$buttonText = ($this->admin_table_edit->tableId == 0) ? esc_html(__('Add New Table', 'customtables')) : esc_html(__('Save Table', 'customtables'));
 				submit_button($buttonText, 'primary', 'createtable', true, array('id' => 'createtablesub'));
 				?>
             </form>

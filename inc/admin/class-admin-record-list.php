@@ -343,10 +343,20 @@ class Admin_Record_List extends WP_List_Table
     {
         $views = $this->get_views();
 
+	    $allowed_html = array(
+		    'a' => array(
+			    'href' => array(),
+			    'class' => array()
+		    ),
+		    'span' => array(
+			    'class' => array()
+		    )
+	    );
+
         if (!empty($views)) {
             echo '<ul class="subsubsub">';
             foreach ($views as $view) {
-                echo '<li>' . $view . '</li>';
+                echo '<li>' . wp_kses($view,$allowed_html) . '</li>';
             }
             echo '</ul>';
         }

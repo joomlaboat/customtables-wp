@@ -14,3 +14,118 @@ printf(
  );
 You can read https://developer.wordpress.org/plugins/internationalization/how-to-internationalize-your-plugin/#text-domains for more information.
 -----------------------
+
+
+WordPress Plugin Review Team - 3/2/2024
+
+## Variables and options must be escaped when echo'd
+
+Much related to sanitizing everything, all variables that are echoed need to be escaped when they're echoed, so it can't hijack users or (worse) admin screens. There are many esc_*() functions you can use to make sure you don't show people the wrong data, as well as some that will allow you to echo HTML safely.
+
+At this time, we ask you escape all $-variables, options, and any sort of generated data when it is being echoed. That means you should not be escaping when you build a variable, but when you output it at the end. We call this 'escaping late.'
+
+Besides protecting yourself from a possible XSS vulnerability, escaping late makes sure that you're keeping the future you safe. While today your code may be only outputted hardcoded content, that may not be true in the future. By taking the time to properly escape when you echo, you prevent a mistake in the future from becoming a critical security issue.
+
+This remains true of options you've saved to the database. Even if you've properly sanitized when you saved, the tools for sanitizing and escaping aren't interchangeable. Sanitizing makes sure it's safe for processing and storing in the database. Escaping makes it safe to output.
+
+Also keep in mind that sometimes a function is echoing when it should really be returning content instead. This is a common mistake when it comes to returning JSON encoded content. Very rarely is that actually something you should be echoing at all. Echoing is because it needs to be on the screen, read by a human. Returning (which is what you would do with an API) can be json encoded, though remember to sanitize when you save to that json object!
+
+There are a number of options to secure all types of content (html, email, etc). Yes, even HTML needs to be properly escaped.
+
+https://developer.wordpress.org/apis/security/escaping/
+
+Remember: You must use the most appropriate functions for the context. There is pretty much an option for everything you could echo. Even echoing HTML safely.
+
+Example(s) from your plugin:
+
+
+Note: The function __ retrieves the translation without escaping, please either:
+
+    Use an alternative function that escapes the resulting value such as esc_html__ or esc_attr__.
+    Or wrap the __ function with a proper escaping function such as esc_html, esc_attr, wp_kses_post, etc.
+
+Examples:
+
+<h2><?php echo esc_html__('Settings page', 'plugin-slug'); ?></h2>
+ <h2><?php echo esc_html(__('Settings page', 'plugin-slug')); ?></h2>
+
+
+Example(s) from your plugin:
+
+
+customtables/inc/admin/views/customtables-records.php:34 . __('Add New', 'customtables') . '</a>';
+customtables/inc/admin/views/customtables-documentation.php:49 <h3><?php echo __('Layout Tags', 'customtables'); ?></h3><br/>
+customtables/inc/admin/views/customtables-documentation.php:30 <h3><?php echo __('<p>A database field is a single piece of information from a record. A database record is a set of fields.</p> <p>The properties of a field describe the characteristics and behavior of data added to that field. A field\'s data type is the most important property because it determines what kind of data the field can store. </p> <p>Field Type Parameters - Tells additional details to the database about how to store a value and configures the general behavior of the input boxes.</p> <p>The field can be used in five different ways : </p> <p> 1. {{ fieldname }} or {{ fieldname(<i>params</i>) }} - Returns processed value of the field using the field type parameters. If it\'s a float field type then the returned value will be 123.00 for example instead of 123.<br/> 2. {{ fieldname.value }} or {{ fieldname(<i>params</i>) }} - Returns pure, unprocessed value of the field.<br/> 3. {{ fieldname.title }} - Returns the field title in current language.<br/> 4. {{ fieldname.label }} or {{ fieldname.label(<i>clickable</i> = true|false) }} - Renders the label HTML tags with the field title in current language. It can be clickable to sort the records by that field.<br/> 5. {{ fieldname.edit }} or {{ fieldname(<i>params</i>) }} - Returns an edit record input box and the params configures the appearance and functionality.<br/></p> <br/><p>Below is the list of parameters every field type accepts and how to use it : </p><br/>', 'customtables'); ?></h3><br/>
+
+
+## Internationalization: Don't use variables or defines as text, context or text domain parameters.
+
+In order to make a string translatable in your plugin you are using a set of special functions. These functions collectively are known as "gettext".
+
+There is a dedicated team in the WordPress community to translate and help other translating strings of WordPress core, plugins and themes to other languages.
+
+To make them be able to translate this plugin, please do not use variables or function calls for the text, context or text domain parameters of any gettext function, all of them NEED to be strings. Note that the translation parser reads the code without executing it, so it won't be able to read anything that is not a string within these functions.
+
+For example, if your gettext function looks like this...
+esc_html__( $greetings , 'plugin-slug' );
+...the translator won't be able to see anything to be translated as $greetings is not a string, it is not something that can be translated.
+You need to give them the literal string to be translated, so they can see it in the translation system and can translate it, the correct would be as follows...
+esc_html__( 'Hello, how are you?' , 'plugin-slug' );
+
+This also applies to the translation domain, this is a bad call:
+esc_html__( 'Hello, how are you?' , $plugin_slug );
+The fix here would be like this
+esc_html__( 'Hello, how are you?' , 'plugin-slug' );
+Also note that the translation domain needs to be the same as your plugin slug.
+
+What if we want to include a dynamic value inside the translation? Easy, you need to add a placeholder which will be part of the string and change it after the gettext function does its magic, you can use printf to do so, like this:
+
+printf(
+       /* translators: %s: First name of the user */
+       esc_html__( 'Hello %s, how are you?', 'plugin-slug' ),
+       esc_html( $user_firstname )
+ );
+
+
+You can read https://developer.wordpress.org/plugins/internationalization/how-to-internationalize-your-plugin/#text-domains for more information.
+
+Example(s) from your plugin:
+
+
+customtables/libraries/customtables/layouts/html_tags.php:287 __("COM_CUSTOMTABLES_' . strtoupper({$mode}) . '_SELECTED", "customtables");
+
+
+## Data Must be Sanitized, Escaped, and Validated
+
+When you include POST/GET/REQUEST/FILE calls in your plugin, it's important to sanitize, validate, and escape them. The goal here is to prevent a user from accidentally sending trash data through the system, as well as protecting them from potential security issues.
+
+SANITIZE: Data that is input (either by a user or automatically) must be sanitized as soon as possible. This lessens the possibility of XSS vulnerabilities and MITM attacks where posted data is subverted.
+
+VALIDATE: All data should be validated, no matter what. Even when you sanitize, remember that you don’t want someone putting in ‘dog’ when the only valid values are numbers.
+
+ESCAPE: Data that is output must be escaped properly when it is echo'd, so it can't hijack admin screens. There are many esc_*() functions you can use to make sure you don't show people the wrong data.
+
+To help you with this, WordPress comes with a number of sanitization and escaping functions. You can read about those here:
+
+    https://developer.wordpress.org/apis/security/sanitizing/
+    https://developer.wordpress.org/apis/security/escaping/
+
+
+Remember: You must use the most appropriate functions for the context. If you’re sanitizing email, use sanitize_email(), if you’re outputting HTML, use wp_kses_post(), and so on.
+
+An easy mantra here is this:
+
+Sanitize early
+Escape Late
+Always Validate
+
+Clean everything, check everything, escape everything, and never trust the users to always have input sane data. After all, users come from all walks of life.
+
+Example(s) from your plugin:
+
+
+customtables/libraries/ct-common-wp.php:433 $value = $_GET[$parameter] ?? null;
+customtables/inc/admin/class-admin-layout-list.php:493 $layouts = ($_POST['layout'] ?? []);
+customtables/libraries/ct-common-wp.php:417 return $_SESSION[$returnto_key] ?? '';
+
+

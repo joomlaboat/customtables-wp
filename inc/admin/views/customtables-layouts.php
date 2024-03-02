@@ -41,7 +41,7 @@ $allowed_html = array(
             <form id="customtables-admin-layout-list-form" method="post">
                 <input type="hidden" name="page" value="<?php echo esc_html($page); ?>"/>
 				<?php
-				$this->admin_layout_list->search_box(__('Find', 'customtables'), 'nds-layout-find');
+				$this->admin_layout_list->search_box(esc_html(__('Find', 'customtables')), 'nds-layout-find');
 				$this->admin_layout_list->views();
 				$this->admin_layout_list->display();
 				?>

@@ -54,7 +54,7 @@ $page = common::inputGetCmd('page');
             <form id="customtables-admin-field-list-form" method="post">
                 <input type="hidden" name="page" value="<?php echo esc_html($page); ?>"/>
                 <?php
-                $this->admin_field_list->search_box(__('Find', 'customtables'), 'nds-field-find');
+                $this->admin_field_list->search_box(esc_html(__('Find', 'customtables')), 'nds-field-find');
                 $this->admin_field_list->views();
                 $this->admin_field_list->display();
                 ?>

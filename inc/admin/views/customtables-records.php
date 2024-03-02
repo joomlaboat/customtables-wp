@@ -30,8 +30,9 @@ $page = common::inputGetCmd('page');
 
 	<?php
 	if (isset($this->admin_record_list->ct->Table) and $this->admin_record_list->ct->Table->tablename !== null) {
-		echo '<a href="admin.php?page=customtables-records-edit&table=' . esc_html((int)$this->admin_record_list->tableId) . '&id=0" class="page-title-action">'
-			. __('Add New', 'customtables') . '</a>';
+		echo '<a href="admin.php?page=customtables-records-edit&table=' . esc_html((int)$this->admin_record_list->tableId) . '&id=0" class="page-title-action">';
+		echo esc_html(__('Add New', 'customtables'));
+		echo '</a>';
 	}
 	?>
 
@@ -42,7 +43,7 @@ $page = common::inputGetCmd('page');
             <form id="customtables-admin-record-list-form" method="post">
                 <input type="hidden" name="page" value="<?php echo esc_html($page); ?>"/>
 				<?php
-				$this->admin_record_list->search_box(__('Find', 'customtables'), 'nds-record-find');
+				$this->admin_record_list->search_box(esc_html(__('Find', 'customtables')), 'nds-record-find');
 				$this->admin_record_list->views();
 				$this->admin_record_list->display();
 				?>
