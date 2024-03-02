@@ -16,48 +16,6 @@ You can read https://developer.wordpress.org/plugins/internationalization/how-to
 -----------------------
 
 
-WordPress Plugin Review Team - 3/2/2024
-
-## Variables and options must be escaped when echo'd
-
-Much related to sanitizing everything, all variables that are echoed need to be escaped when they're echoed, so it can't hijack users or (worse) admin screens. There are many esc_*() functions you can use to make sure you don't show people the wrong data, as well as some that will allow you to echo HTML safely.
-
-At this time, we ask you escape all $-variables, options, and any sort of generated data when it is being echoed. That means you should not be escaping when you build a variable, but when you output it at the end. We call this 'escaping late.'
-
-Besides protecting yourself from a possible XSS vulnerability, escaping late makes sure that you're keeping the future you safe. While today your code may be only outputted hardcoded content, that may not be true in the future. By taking the time to properly escape when you echo, you prevent a mistake in the future from becoming a critical security issue.
-
-This remains true of options you've saved to the database. Even if you've properly sanitized when you saved, the tools for sanitizing and escaping aren't interchangeable. Sanitizing makes sure it's safe for processing and storing in the database. Escaping makes it safe to output.
-
-Also keep in mind that sometimes a function is echoing when it should really be returning content instead. This is a common mistake when it comes to returning JSON encoded content. Very rarely is that actually something you should be echoing at all. Echoing is because it needs to be on the screen, read by a human. Returning (which is what you would do with an API) can be json encoded, though remember to sanitize when you save to that json object!
-
-There are a number of options to secure all types of content (html, email, etc). Yes, even HTML needs to be properly escaped.
-
-https://developer.wordpress.org/apis/security/escaping/
-
-Remember: You must use the most appropriate functions for the context. There is pretty much an option for everything you could echo. Even echoing HTML safely.
-
-Example(s) from your plugin:
-
-
-Note: The function __ retrieves the translation without escaping, please either:
-
-    Use an alternative function that escapes the resulting value such as esc_html__ or esc_attr__.
-    Or wrap the __ function with a proper escaping function such as esc_html, esc_attr, wp_kses_post, etc.
-
-Examples:
-
-<h2><?php echo esc_html__('Settings page', 'plugin-slug'); ?></h2>
- <h2><?php echo esc_html(__('Settings page', 'plugin-slug')); ?></h2>
-
-
-Example(s) from your plugin:
-
-
-customtables/inc/admin/views/customtables-records.php:34 . __('Add New', 'customtables') . '</a>';
-customtables/inc/admin/views/customtables-documentation.php:49 <h3><?php echo __('Layout Tags', 'customtables'); ?></h3><br/>
-customtables/inc/admin/views/customtables-documentation.php:30 <h3><?php echo __('<p>A database field is a single piece of information from a record. A database record is a set of fields.</p> <p>The properties of a field describe the characteristics and behavior of data added to that field. A field\'s data type is the most important property because it determines what kind of data the field can store. </p> <p>Field Type Parameters - Tells additional details to the database about how to store a value and configures the general behavior of the input boxes.</p> <p>The field can be used in five different ways : </p> <p> 1. {{ fieldname }} or {{ fieldname(<i>params</i>) }} - Returns processed value of the field using the field type parameters. If it\'s a float field type then the returned value will be 123.00 for example instead of 123.<br/> 2. {{ fieldname.value }} or {{ fieldname(<i>params</i>) }} - Returns pure, unprocessed value of the field.<br/> 3. {{ fieldname.title }} - Returns the field title in current language.<br/> 4. {{ fieldname.label }} or {{ fieldname.label(<i>clickable</i> = true|false) }} - Renders the label HTML tags with the field title in current language. It can be clickable to sort the records by that field.<br/> 5. {{ fieldname.edit }} or {{ fieldname(<i>params</i>) }} - Returns an edit record input box and the params configures the appearance and functionality.<br/></p> <br/><p>Below is the list of parameters every field type accepts and how to use it : </p><br/>', 'customtables'); ?></h3><br/>
-
-
 ## Internationalization: Don't use variables or defines as text, context or text domain parameters.
 
 In order to make a string translatable in your plugin you are using a set of special functions. These functions collectively are known as "gettext".

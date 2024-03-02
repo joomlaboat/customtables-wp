@@ -16,6 +16,7 @@ use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\Layouts;
 use CustomTables\ListOfLayouts;
+use Exception;
 
 class Admin_Layout_Edit
 {
@@ -28,7 +29,8 @@ class Admin_Layout_Edit
     public ?int $layoutId;
     public ?array $layoutRow;
 
-    /**
+	/**
+	 * @throws Exception
 	 * @since 1.0.0
 	 */
     public function __construct()
@@ -53,8 +55,8 @@ class Admin_Layout_Edit
         add_action('admin_enqueue_scripts', array($this, 'codemirror_enqueue_scripts'));
     }
 
-    function codemirror_enqueue_scripts($hook) {
-
+    function codemirror_enqueue_scripts($hook): void
+    {
         $cm_settings1['codeEditor_layoutcode'] = wp_enqueue_code_editor(array('mode'=>'text/html'));
         wp_localize_script('jquery', 'cm_settings_layoutcode', $cm_settings1);
         $cm_settings2['codeEditor_layoutmobile'] = wp_enqueue_code_editor(array('mode'=>'text/html'));

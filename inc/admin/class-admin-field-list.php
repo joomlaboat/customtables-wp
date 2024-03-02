@@ -16,7 +16,9 @@ use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\Fields;
+use CustomTables\ListOfFields;
 use CustomTables\MySQLWhereClause;
+use Exception;
 use WP_List_Table;
 
 class Admin_Field_List extends WP_List_Table
@@ -26,7 +28,7 @@ class Admin_Field_List extends WP_List_Table
 	 * @access   private
 	 */
 	public CT $ct;
-	public $helperListOfFields;
+	public ListOfFields $helperListOfFields;
 	public ?int $tableId;
 	public array $fieldTypes;
 	protected int $count_all;
@@ -36,13 +38,14 @@ class Admin_Field_List extends WP_List_Table
 	protected ?string $current_status;
 
 	/**
+	 * @throws Exception
 	 * @since 1.0.0
 	 */
 	public function __construct()
 	{
 		require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoffields.php');
 		$this->ct = new CT;
-		$this->helperListOfFields = new \CustomTables\ListOfFields($this->ct);
+		$this->helperListOfFields = new ListOfFields($this->ct);
 
 		$this->tableId = common::inputGetInt('table');
 		if ($this->tableId) {
@@ -86,7 +89,6 @@ class Admin_Field_List extends WP_List_Table
 			'ajax' => false,        // If true, the parent class will call the _js_vars() method in the footer
 		));
 
-
 		$this->fieldTypes = $this->helperListOfFields->getFieldTypesFromXML();
 	}
 
@@ -95,6 +97,7 @@ class Admin_Field_List extends WP_List_Table
 	 *
 	 * Query, filter data, handle sorting, and pagination, and any other data-manipulation required prior to rendering
 	 *
+	 * @throws Exception
 	 * @since   1.0.0
 	 */
 	function prepare_items()
@@ -103,7 +106,6 @@ class Admin_Field_List extends WP_List_Table
 
 		$columns = $this->get_columns();
 		$hidden = array(); // Columns to hide (optional)
-		//$sortable = array(); // Columns to make sortable (optional)
 		$sortable = $this->get_sortable_columns();
 
 		$this->_column_headers = array($columns, $hidden, $sortable);
@@ -123,10 +125,13 @@ class Admin_Field_List extends WP_List_Table
 		$this->items = array_slice($data, (($current_page - 1) * $per_page), $per_page);
 
 		// Set up actions
-		$this->process_bulk_action();
+		//$this->process_bulk_action();
 	}
 
-	function get_data()
+	/**
+	 * @throws Exception
+	 */
+	function get_data(): array
 	{
 		// Fetch and return your data here
 		if ($this->tableId === null or $this->ct->Table == null or $this->ct->Table->tablename === null)
@@ -145,7 +150,7 @@ class Admin_Field_List extends WP_List_Table
 
 		try {
 			$data = $this->helperListOfFields->getListQuery($this->tableId, $published, $search, null, $orderby, $order);
-		} catch (\Exception $exception) {
+		} catch (Exception $exception) {
 			$data = [];
 		}
 
@@ -196,7 +201,7 @@ class Admin_Field_List extends WP_List_Table
 			if ($type['name'] == $typeName)
 				return $type['label'];
 
-		return '<span style="color:red">Unknown Type</span>';
+		return '<span style="color:red;">Unknown Type</span>';
 	}
 
 	/**
@@ -207,7 +212,7 @@ class Admin_Field_List extends WP_List_Table
 	 * @since 1.0.0
 	 *
 	 */
-	function get_columns()
+	function get_columns(): array
 	{
 		return array(
 			'cb' => '<input type="checkbox" />',
@@ -233,14 +238,13 @@ class Admin_Field_List extends WP_List_Table
 	 * @since 1.1.0
 	 *
 	 */
-	protected function get_sortable_columns()
+	protected function get_sortable_columns(): array
 	{
-		$sortable_columns = array(
+		return array(
 			'fieldname' => array('fieldname', false),
 			'type' => array('type', false),
 			'id' => array('id', true)
 		);
-		return $sortable_columns;
 	}
 
 	/**
@@ -250,7 +254,7 @@ class Admin_Field_List extends WP_List_Table
 	 *
 	 * @return string The table row with the clickable tools added.
 	 */
-	function column_fieldname($item)
+	function column_fieldname(array $item): string
 	{
 		$url = 'admin.php?page=customtables-fields';
 		if ($this->current_status !== null) {
@@ -293,7 +297,7 @@ class Admin_Field_List extends WP_List_Table
 	 * @since   1.0.0
 	 *
 	 */
-	public function no_items()
+	public function no_items(): void
 	{
 		esc_html_e('No fields found.', 'customtables');
 	}
@@ -306,26 +310,12 @@ class Admin_Field_List extends WP_List_Table
 	 *
 	 * @return mixed
 	 */
-	function column_default($item, $column_name)
+	function column_default($item, $column_name): mixed
 	{
-		switch ($column_name) {
-			case 'fieldname':
-				return $item[$column_name];
-			case 'fieldtitle':
-				return $item[$column_name];
-			case 'type':
-				return $item[$column_name];
-			case 'typeparams':
-				return $item[$column_name];
-			case 'isrequired':
-				return $item[$column_name];
-			case 'table':
-				return $item[$column_name];
-			case 'id':
-				return $item[$column_name];
-			default:
-				return print_r($item, true);
-		}
+		return match ($column_name) {
+			'fieldtitle', 'type', 'typeparams', 'isrequired', 'table', 'id', 'fieldname' => $item[$column_name],
+			default => print_r($item, true),
+		};
 	}
 
 	/**
@@ -336,7 +326,7 @@ class Admin_Field_List extends WP_List_Table
 	 * @param object $item A row's data
 	 * @return string Text to be placed inside the column <td>.
 	 */
-	function column_cb($item)
+	function column_cb($item): string
 	{
 		return sprintf(
 			'<input type="checkbox" name="field[]" value="%s" />',
@@ -364,7 +354,7 @@ class Admin_Field_List extends WP_List_Table
 		}
 	}
 
-	public function get_views()
+	public function get_views(): array
 	{
 		$link = 'admin.php?page=customtables-fields&table=' . $this->tableId;
 
@@ -395,7 +385,7 @@ class Admin_Field_List extends WP_List_Table
 	 * @since    1.0.0
 	 *
 	 */
-	public function get_bulk_actions()
+	public function get_bulk_actions(): array
 	{
 		/*
 		 * on hitting apply in bulk actions the url params are set as
@@ -431,6 +421,7 @@ class Admin_Field_List extends WP_List_Table
 	/**
 	 * Process actions triggered by the user
 	 *
+	 * @throws Exception
 	 * @since    1.0.0
 	 *
 	 */
@@ -530,7 +521,7 @@ class Admin_Field_List extends WP_List_Table
 	/**
 	 * Stop execution, redirect and exit
 	 *
-	 * @param string $url
+	 * @param ?string $url
 	 *
 	 * @return void
 	 * @since    1.0.0
@@ -572,6 +563,9 @@ class Admin_Field_List extends WP_List_Table
 		}
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	function handle_field_actions_publish(int $state): void
 	{
 		// verify the nonce.
@@ -596,6 +590,9 @@ class Admin_Field_List extends WP_List_Table
 		}
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	function handle_field_actions_delete()
 	{
 		if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {

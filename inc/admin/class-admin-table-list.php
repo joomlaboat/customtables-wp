@@ -18,8 +18,8 @@ use CustomTables\database;
 use CustomTables\Fields;
 use CustomTables\MySQLWhereClause;
 use CustomTables\TableHelper;
-use CustomTablesWP\Inc\Libraries;
 use CustomTables\ListOfTables;
+use Exception;
 use WP_List_Table;
 
 class Admin_Table_List extends WP_List_Table
@@ -39,6 +39,7 @@ class Admin_Table_List extends WP_List_Table
 
 	/**
 	 * Call the parent constructor to override the defaults $args
+	 * @throws Exception
 	 * @since 1.0.0
 	 */
 	public function __construct()
@@ -83,6 +84,7 @@ class Admin_Table_List extends WP_List_Table
 	 *
 	 * Query, filter data, handle sorting, and pagination, and any other data-manipulation required prior to rendering
 	 *
+	 * @throws Exception
 	 * @since   1.0.0
 	 */
 	function prepare_items()
@@ -111,6 +113,9 @@ class Admin_Table_List extends WP_List_Table
 		$this->items = array_slice($data, (($current_page - 1) * $per_page), $per_page);
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	function get_data(): array
 	{
 		// Fetch and return your data here
@@ -126,11 +131,9 @@ class Admin_Table_List extends WP_List_Table
 			default => null
 		};
 
-		$data = [];
-
 		try {
 			$data = $this->helperListOfTables->getListQuery($published, $search, null, $orderby, $order);
-		} catch (\Exception $exception) {
+		} catch (Exception $exception) {
 			return [];
 		}
 
@@ -277,7 +280,7 @@ class Admin_Table_List extends WP_List_Table
 	 *
 	 * @return mixed
 	 */
-	function column_default($item, $column_name)
+	function column_default($item, $column_name): mixed
 	{
 		return match ($column_name) {
 			'tablename', 'tabletitle', 'fieldcount', 'recordcount', 'published', 'id' => $item[$column_name],
@@ -293,7 +296,7 @@ class Admin_Table_List extends WP_List_Table
 	 * @param object $item A row's data
 	 * @return string Text to be placed inside the column <td>.
 	 */
-	function column_cb($item)
+	function column_cb($item): string
 	{
 		return sprintf(
 			'<input type="checkbox" name="table[]" value="%s" />',
@@ -324,7 +327,7 @@ class Admin_Table_List extends WP_List_Table
 		}
 	}
 
-	public function get_views()
+	public function get_views(): array
 	{
 		$link = 'admin.php?page=customtables-tables';
 
@@ -391,6 +394,7 @@ class Admin_Table_List extends WP_List_Table
 	/**
 	 * Process actions triggered by the user
 	 *
+	 * @throws Exception
 	 * @since    1.0.0
 	 *
 	 */
@@ -532,6 +536,9 @@ class Admin_Table_List extends WP_List_Table
 		}
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	function handle_table_actions_publish(int $state): void
 	{
 		// verify the nonce.
@@ -556,6 +563,9 @@ class Admin_Table_List extends WP_List_Table
 		}
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	function handle_table_actions_delete()
 	{
 		// verify the nonce.

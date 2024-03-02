@@ -16,6 +16,7 @@ use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\Layouts;
 use CustomTables\record;
+use Exception;
 
 class Admin_Record_Edit
 {
@@ -31,6 +32,7 @@ class Admin_Record_Edit
 	public string $pageLayout;
 
 	/**
+	 * @throws Exception
 	 * @since 1.0.0
 	 */
 	public function __construct()
@@ -55,9 +57,7 @@ class Admin_Record_Edit
 				}
 			}
 		} else {
-			echo esc_html('Table ID: ' . $this->tableId . ' Not found.');
-			die;
-			return;
+			die(esc_html('Table ID: ' . $this->tableId . ' Not found.'));
 		}
 
 		$Layouts = new Layouts($this->ct);
@@ -68,6 +68,9 @@ class Admin_Record_Edit
 			. ($this->listing_id !== null ? '&id=' . $this->listing_id : '');
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	function handle_record_actions(): void
 	{
 		$action = common::inputPostCmd('action', '', 'create-edit-record');

@@ -16,6 +16,7 @@ use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\MySQLWhereClause;
+use Exception;
 use WP_List_Table;
 
 class Admin_Record_List extends WP_List_Table
@@ -30,7 +31,8 @@ class Admin_Record_List extends WP_List_Table
     protected ?string $current_status;
     protected ?string $firstFieldRealName;
 
-    /**
+	/**
+	 * @throws Exception
 	 * @since 1.0.0
 	 */
     public function __construct()
@@ -82,13 +84,14 @@ class Admin_Record_List extends WP_List_Table
             $this->firstFieldRealName = $this->ct->Table->fields[0]['realfieldname'];
     }
 
-    /**
-     * Prepares the list of items for displaying.
-     *
-     * Query, filter data, handle sorting, and pagination, and any other data-manipulation required prior to rendering
-     *
-     * @since   1.0.0
-     */
+	/**
+	 * Prepares the list of items for displaying.
+	 *
+	 * Query, filter data, handle sorting, and pagination, and any other data-manipulation required prior to rendering
+	 *
+	 * @throws Exception
+	 * @since   1.0.0
+	 */
     function prepare_items()
     {
         $data = $this->get_data(); // Fetch your data here
@@ -115,7 +118,10 @@ class Admin_Record_List extends WP_List_Table
         $this->items = array_slice($data, (($current_page - 1) * $per_page), $per_page);
     }
 
-    function get_data()
+	/**
+	 * @throws Exception
+	 */
+	function get_data()
     {
         // Fetch and return your data here
         if ($this->tableId === null or $this->ct->Table == null or $this->ct->Table->tablename === null)
@@ -318,7 +324,7 @@ class Admin_Record_List extends WP_List_Table
      * @return mixed
      */
 
-    function column_default($item, $column_name)
+    function column_default($item, $column_name): mixed
     {
         return $item[$column_name];
     }
@@ -426,12 +432,13 @@ class Admin_Record_List extends WP_List_Table
         return $actions;
     }
 
-    /**
-     * Process actions triggered by the user
-     *
-     * @since    1.0.0
-     *
-     */
+	/**
+	 * Process actions triggered by the user
+	 *
+	 * @throws Exception
+	 * @since    1.0.0
+	 *
+	 */
     function handle_record_actions()
     {
         /*
@@ -485,7 +492,7 @@ class Admin_Record_List extends WP_List_Table
             } else {
 	            $recordId = common::inputGetCmd('id');
                 if ($recordId !== null) {
-                    database::setQuery('DELETE FROM '.$this->ct->Table->realtablename.' WHERE '.$this->ct->Table->realidfieldname.'='.database::quote($recordId));
+					database::deleteRecord($this->ct->Table->realtablename,$this->ct->Table->realidfieldname,$recordId);
                     //echo '<div id="message" class="updated notice is-dismissible"><p>1 record permanently deleted.</p></div>';
                     $this->graceful_redirect();
                 } else {
@@ -579,7 +586,10 @@ class Admin_Record_List extends WP_List_Table
 	    }
     }
 
-    function handle_record_actions_publish(int $state): void
+	/**
+	 * @throws Exception
+	 */
+	function handle_record_actions_publish(int $state): void
     {
         // verify the nonce.
         if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
@@ -603,7 +613,10 @@ class Admin_Record_List extends WP_List_Table
         }
     }
 
-    function handle_record_actions_delete()
+	/**
+	 * @throws Exception
+	 */
+	function handle_record_actions_delete()
     {
 	    // verify the nonce.
 	    if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {

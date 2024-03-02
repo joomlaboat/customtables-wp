@@ -98,7 +98,11 @@ $onPageLoads = array();
 			?>
 
             <div id="allLayoutRaw"
-                 style="display:none;"><?php echo wp_json_encode(ListOfLayouts::getLayouts()); ?></div>
+                 style="display:none;"><?php try {
+		            echo wp_json_encode(ListOfLayouts::getLayouts());
+	            } catch (Exception $e) {
+                     echo 'Cannot load the list of Layouts.';
+	            } ?></div>
         </form>
 		<?php } // End if (current_user_can('install_plugins')) ?>
     </div>

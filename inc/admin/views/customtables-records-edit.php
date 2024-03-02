@@ -78,12 +78,11 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                         esc_html_e('Edit record.');
                     ?>
                 </p>
-
+                <form method="post" name="createrecord" id="createrecord" class="validate" novalidate="novalidate">
+                    <input name="action" type="hidden" value="createrecord"/>
                     <?php
 
                     echo '
-                    <form method="post" name="createrecord" id="createrecord" class="validate" novalidate="novalidate">
-                    <input name="action" type="hidden" value="createrecord"/>
                     <input name="table" type="hidden" value="'.esc_html($this->admin_record_edit->tableId).'"/>';
                     echo wp_nonce_field('create-edit-record' );
 

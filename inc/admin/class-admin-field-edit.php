@@ -14,10 +14,10 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use CustomTables\common;
 use CustomTables\CT;
-use CustomTables\Field;
 use CustomTables\Fields;
 use CustomTables\ListOfFields;
 use CustomTables\Tables;
+use Exception;
 
 class Admin_Field_Edit
 {
@@ -26,21 +26,22 @@ class Admin_Field_Edit
      * @access   private
      */
     public CT $ct;
-    public $helperListOfFields;
+    public ListOfFields $helperListOfFields;
 	public ?int $tableId;
     public ?int $fieldId;
     public array $fieldRow;
     public array $fieldTypes;
     public array $allTables;
 
-    /**
-	 * @since 1.0.0
+	/**
+	 * @throws Exception
+	 * @since 1.1.4
 	 */
     public function __construct()
     {
         require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoffields.php');
         $this->ct = new CT;
-        $this->helperListOfFields = new \CustomTables\ListOfFields($this->ct);
+        $this->helperListOfFields = new ListOfFields($this->ct);
 	    $this->tableId = common::inputGetInt('table');
         $this->fieldId = null;
         $this->fieldRow=['tableid' => null,'fieldname' => null , 'fieldtitle' => null, 'type' => null, 'typeparams' => null, 'isrequired' => null,
@@ -64,7 +65,7 @@ class Admin_Field_Edit
         $this->allTables = Tables::getAllTables();
     }
 
-    function handle_field_actions()
+    function handle_field_actions(): void
     {
 	    $action = common::inputPostCmd('action','','create-edit-field');
         if('createfield' === $action || 'savefield' === $action) {

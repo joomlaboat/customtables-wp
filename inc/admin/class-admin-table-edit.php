@@ -21,18 +21,19 @@ use WP_Error;
 class Admin_Table_Edit
 {
 	public CT $ct;
-	public $helperListOfTables;
+	public ListOfTables $helperListOfTables;
 	public ?int $tableId;
 	public WP_Error $errors;
 
 	/**
+	 * @throws Exception
 	 * @since 1.0.0
 	 */
 	public function __construct()
 	{
 		require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoftables.php');
 		$this->ct = new CT;
-		$this->helperListOfTables = new \CustomTables\ListOfTables($this->ct);
+		$this->helperListOfTables = new ListOfTables($this->ct);
 		$this->tableId = common::inputGetInt('table');
 
 		if ($this->tableId === 0)
@@ -46,7 +47,7 @@ class Admin_Table_Edit
 	 * @throws Exception
 	 * @1.1.1
 	 */
-	function handle_table_actions()
+	function handle_table_actions(): void
 	{
 		$action = common::inputPostCmd('action', '', 'create-edit-table');
 

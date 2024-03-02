@@ -159,14 +159,15 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 								$allowed_html = array(
 									'option' => array(
 										'value' => array(),
-										'selected' => array())
+										'selected' => array()
+                                    )
 								);
 
 								$selectBoxOptions = [];
 
 								foreach ($this->admin_field_edit->fieldTypes as $type) {
 									$selected = $this->admin_field_edit->fieldRow['type'] == $type['name'];
-									$selectBoxOptions[] = '<option value="' . $type['name'] . '"' . ($selected ? 'selected="selected"' : '') . '>' . $type['label'] . '</option>';
+									$selectBoxOptions[] = '<option value="' . $type['name'] . '"' . ($selected ? ' selected="selected"' : '') . '>' . $type['label'] . '</option>';
 								}
 
 								$selectBoxOptionsSafe = implode('', $selectBoxOptions);

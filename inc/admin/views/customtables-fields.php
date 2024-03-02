@@ -41,9 +41,14 @@ $page = common::inputGetCmd('page');
     <?php
     if ($this->admin_field_list->tableId != 0) {
         $link = 'admin.php?page=customtables-fields&table=' . $this->admin_field_list->tableId;
-        $result_clean = IntegrityFields::checkFields($this->admin_field_list->ct, $link);
+	    try {
+		    $result_clean = IntegrityFields::checkFields($this->admin_field_list->ct, $link);
+	    } catch (Exception $e) {
+		    echo '<div class="error">Error in integrity check.</div>';
+		    $result_clean = '';
+	    }
 
-        if($result_clean !== '')
+	    if($result_clean !== '')
             echo '<div id="message" class="updated notice is-dismissible">' . wp_kses_post($result_clean) . '</div>';
     }
     ?>

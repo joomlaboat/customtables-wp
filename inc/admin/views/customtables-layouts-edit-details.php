@@ -97,9 +97,6 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 			$whereClause = new MySQLWhereClause();
 			$whereClause->addCondition('published', 1);
 
-			$list_of_tables_safe = Forms::renderHTMLSelectBoxFromDB('table', $this->admin_layout_edit->layoutRow['tableid'] ?? 0, true, '#__customtables_tables',
-				['id', 'tablename'], $whereClause, 'tablename', ['onchange="loadFieldsUpdate(\'WordPress\');"']);
-
 			$allowed_html = array(
 				'select' => array(
 					'id' => array(),
@@ -109,7 +106,15 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 					'selected' => array())
 			);
 
-			echo wp_kses($list_of_tables_safe,$allowed_html); ?>
+			try {
+				$list_of_tables_safe = Forms::renderHTMLSelectBoxFromDB('table', $this->admin_layout_edit->layoutRow['tableid'] ?? 0, true, '#__customtables_tables',
+					['id', 'tablename'], $whereClause, 'tablename', ['onchange="loadFieldsUpdate(\'WordPress\');"']);
+
+				echo wp_kses($list_of_tables_safe, $allowed_html);
+			} catch (Exception $e) {
+				echo 'renderHTMLSelectBoxFromDB: could not load the list';
+			}
+			?>
         </td>
     </tr>
 </table>

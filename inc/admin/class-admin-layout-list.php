@@ -37,6 +37,7 @@ class Admin_Layout_List extends WP_List_Table
 	protected ?string $current_status;
 
 	/**
+	 * @throws Exception
 	 * @since 1.0.0
 	 */
 	public function __construct()
@@ -128,7 +129,7 @@ class Admin_Layout_List extends WP_List_Table
 
 		try {
 			$data = $this->helperListOfLayouts->getListQuery($published, $search, null, null, $orderby, $order);
-		} catch (\Exception $exception) {
+		} catch (Exception $exception) {
 
 		}
 
@@ -242,7 +243,7 @@ class Admin_Layout_List extends WP_List_Table
 	 *
 	 * @return mixed
 	 */
-	function column_default($item, $column_name)
+	function column_default($item, $column_name): mixed
 	{
 		return match ($column_name) {
 			'layoutname', 'layouttype', 'tabletitle', 'layout_size', 'modifiedby', 'modified', 'id' => $item[$column_name],
@@ -352,6 +353,7 @@ class Admin_Layout_List extends WP_List_Table
 	/**
 	 * Process actions triggered by the user
 	 *
+	 * @throws Exception
 	 * @since    1.0.0
 	 *
 	 */
@@ -483,6 +485,9 @@ class Admin_Layout_List extends WP_List_Table
 		}
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	function handle_layout_actions_publish(int $state): void
 	{
 		// verify the nonce.
@@ -506,6 +511,9 @@ class Admin_Layout_List extends WP_List_Table
 		}
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	function handle_layout_actions_delete()
 	{
 		// verify the nonce.
