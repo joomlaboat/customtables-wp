@@ -13,7 +13,6 @@ namespace CustomTables;
 use DateTime;
 use DateTimeZone;
 use Exception;
-use JoomlaBasicMisc;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
@@ -93,7 +92,7 @@ class common
 		return (int)$_POST[$parameter];
 	}
 
-	public static function inputGetUInt($parameter, ?int $default = null)
+	public static function inputGetUInt($parameter, ?int $default = null): ?int
 	{
 		if (isset($_GET['_wpnonce'])) {
 			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
@@ -124,7 +123,7 @@ class common
 		return ltrim($result, '.');
 	}
 
-	public static function inputGetCmd(string $parameter, ?string $default = null)
+	public static function inputGetCmd(string $parameter, ?string $default = null): ?string
 	{
 		if (isset($_GET['_wpnonce'])) {
 			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
@@ -139,7 +138,7 @@ class common
 		return ltrim($result, '.');
 	}
 
-	public static function inputPostRow(string $parameter, ?string $default, string $action)
+	public static function inputPostRow(string $parameter, ?string $default, string $action): ?string
 	{
 		if (isset($_POST['_wpnonce'])) {
 			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
@@ -166,7 +165,7 @@ class common
 		return stripslashes($_GET[$parameter]);
 	}
 
-	public static function inputPostBase64(string $parameter, ?string $default, string $action)
+	public static function inputPostBase64(string $parameter, ?string $default, string $action): ?string
 	{
 		if (isset($_POST['_wpnonce'])) {
 			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
@@ -181,7 +180,7 @@ class common
 		return (string)preg_replace('/[^A-Z\d\/+=]/i', '', sanitize_text_field($_POST[$parameter]));
 	}
 
-	public static function inputGetBase64(string $parameter, ?string $default = null)
+	public static function inputGetBase64(string $parameter, ?string $default = null): ?string
 	{
 		if (isset($_GET['_wpnonce'])) {
 			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
@@ -196,7 +195,7 @@ class common
 		return (string)preg_replace('/[^A-Z\d\/+=]/i', '', sanitize_text_field($_GET[$parameter]));
 	}
 
-	public static function inputGetWord(string $parameter, ?string $default = null)
+	public static function inputGetWord(string $parameter, ?string $default = null): ?string
 	{
 		if (isset($_GET['_wpnonce'])) {
 			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
@@ -211,7 +210,7 @@ class common
 		return (string)preg_replace('/[^A-Z_]/i', '', sanitize_text_field($_GET[$parameter]));
 	}
 
-	public static function inputPostAlnum(string $parameter, ?string $default, string $action)
+	public static function inputPostAlnum(string $parameter, ?string $default, string $action): ?string
 	{
 		if (isset($_POST['_wpnonce'])) {
 			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
@@ -226,7 +225,7 @@ class common
 		return (string)preg_replace('/[^A-Z\d]/i', '', sanitize_text_field($_POST[$parameter]));
 	}
 
-	public static function inputGetAlnum(string $parameter, ?string $default = null)
+	public static function inputGetAlnum(string $parameter, ?string $default = null): ?string
 	{
 		if (isset($_GET['_wpnonce'])) {
 			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
@@ -277,12 +276,9 @@ class common
 	{
 		$items = array();
 
-		if ($param === null)
-			return $items;
-
-		$a = JoomlaBasicMisc::csv_explode(' and ', $param, '"', true);
+		$a = CTMiscHelper::csv_explode(' and ', $param, '"', true);
 		foreach ($a as $b) {
-			$c = JoomlaBasicMisc::csv_explode(' or ', $b, '"', true);
+			$c = CTMiscHelper::csv_explode(' or ', $b, '"', true);
 
 			if (count($c) == 1)
 				$items[] = array('and', $b);
@@ -379,7 +375,7 @@ class common
 			$final = strlen($newString);
 			if ($initial != $final && $addTip) {
 				$title = self::shorten($string, 400, false);
-				return '<span class="hasTip" title="' . $title . '" style="cursor:help">' . trim($newString) . '...</span>';
+				return '<span class="hasTip" title="' . $title . '" style="cursor:help;">' . trim($newString) . '...</span>';
 			} elseif ($initial != $final && !$addTip) {
 				return trim($newString) . '...';
 			}
@@ -399,7 +395,7 @@ class common
 
 	public static function getReturnToURL(bool $decode = true): ?string
 	{
-		$returnto_id = common::inputGetInt('returnto', null);
+		$returnto_id = common::inputGetInt('returnto');
 
 		if (empty($returnto_id))
 			return null;
@@ -446,7 +442,7 @@ class common
 			// Get the current URL
 			//$current_url = esc_url_raw(home_url(add_query_arg(array(), $wp->request)));
 
-			$currentURL = JoomlaBasicMisc::curPageURL();
+			$currentURL = CTMiscHelper::curPageURL();
 		}
 
 		// Generate a unique identifier for the session variable
@@ -479,7 +475,7 @@ class common
 		return $WebsiteRoot . $RequestURL;
 	}
 
-	public static function getServerParam(string $param)
+	public static function getServerParam(string $param): string
 	{
 		return sanitize_text_field($_SERVER[$param]);
 	}
@@ -562,6 +558,9 @@ class common
 		return $content;
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public static function default_timezone_set(): void
 	{
 		$timezone_string = get_option('timezone_string');
@@ -618,7 +617,8 @@ class common
 		return sanitize_text_field($_GET[$parameter]);
 	}
 
-	public static function sanitize_post_field_array($input) {
+	public static function sanitize_post_field_array($input): array
+	{
 		$sanitized_array = [];
 		foreach ($input as $item) {
 			// Ensure the item is an integer and meets any other criteria you have

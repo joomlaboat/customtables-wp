@@ -106,6 +106,7 @@ function customtables_init()
 		//Make sure that this is called only when Custom Tables admin section is open
 		return customtables::init();
 	}
+	return null;
 }
 
 $min_php = '5.6.0';

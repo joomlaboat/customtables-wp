@@ -155,7 +155,7 @@ class Admin_Record_List extends WP_List_Table
         //$this->ct->applyLimits($limit);
 
         if (!$this->ct->getRecords()) {
-            //$this->ct->app->enqueueMessage(JoomlaBasicMisc::JTextExtended('Table not found.'), 'error');
+            //$this->ct->app->enqueueMessage(CTMiscHelper::JTextExtended('Table not found.'), 'error');
             die('Table not found');
         }
 
