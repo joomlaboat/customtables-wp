@@ -24,14 +24,14 @@ $page = common::inputGetCmd('page');
 			esc_html_e('Records', 'customtables');
 		} else {
 			esc_html_e('Custom Tables - Records', 'customtables');
-			echo '<div class="error"><p>' . esc_html(__('Table not selected or not found.', 'customtables')) . '</p></div>';
+			echo '<div class="error"><p>' . esc_html__('Table not selected or not found.', 'customtables') . '</p></div>';
 		}
 		?></h1>
 
 	<?php
 	if (isset($this->admin_record_list->ct->Table) and $this->admin_record_list->ct->Table->tablename !== null) {
 		echo '<a href="admin.php?page=customtables-records-edit&table=' . esc_html((int)$this->admin_record_list->tableId) . '&id=0" class="page-title-action">';
-		echo esc_html(__('Add New', 'customtables'));
+		echo esc_html__('Add New', 'customtables');
 		echo '</a>';
 	}
 	?>
@@ -43,7 +43,7 @@ $page = common::inputGetCmd('page');
             <form id="customtables-admin-record-list-form" method="post">
                 <input type="hidden" name="page" value="<?php echo esc_html($page); ?>"/>
 				<?php
-				$this->admin_record_list->search_box(esc_html(__('Find', 'customtables')), 'nds-record-find');
+				$this->admin_record_list->search_box(esc_html__('Find', 'customtables'), 'nds-record-find');
 				$this->admin_record_list->views();
 				$this->admin_record_list->display();
 				?>

@@ -80,8 +80,8 @@ else
                     <tr class="form-field form-required">
                         <th scope="row">
                             <label for="tablename">
-								<?php echo esc_html(__('Table Name', 'customtables')); ?>
-                                <span class="description">(<?php echo esc_html(__('required', 'customtables')); ?>)</span>
+								<?php echo esc_html__('Table Name', 'customtables'); ?>
+                                <span class="description">(<?php echo esc_html__('required', 'customtables'); ?>)</span>
                             </label>
                         </th>
                         <td>
@@ -106,9 +106,9 @@ else
                         <tr class="form-field<?php echo esc_html(!$moreThanOneLang ? ' form-required' : ''); ?>">
                             <th scope="row">
                                 <label for="<?php echo esc_html($id); ?>">
-									<?php echo esc_html(__('Table Title', 'customtables')); ?>
+									<?php echo esc_html__('Table Title', 'customtables'); ?>
 									<?php if (!$moreThanOneLang): ?>
-                                        <span class="description">(<?php echo esc_html(__('required', 'customtables')); ?>)</span>
+                                        <span class="description">(<?php echo esc_html__('required', 'customtables'); ?>)</span>
 									<?php endif; ?>
                                     <br/>
                                     <b><?php echo esc_html($lang->title); ?></b>
@@ -126,7 +126,7 @@ else
 
                 <!-- Submit Button -->
 				<?php
-				$buttonText = ($this->admin_table_edit->tableId == 0) ? esc_html(__('Add New Table', 'customtables')) : esc_html(__('Save Table', 'customtables'));
+				$buttonText = ($this->admin_table_edit->tableId == 0) ? esc_html__('Add New Table', 'customtables') : esc_html__('Save Table', 'customtables');
 				submit_button($buttonText, 'primary', 'createtable', true, array('id' => 'createtablesub'));
 				?>
             </form>

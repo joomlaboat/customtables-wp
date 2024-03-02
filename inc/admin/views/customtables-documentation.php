@@ -56,7 +56,7 @@ A field\'s data type is the most important property because it determines what k
         </div>
 
         <div class="gtab tab-2">
-            <h3><?php echo esc_html(__('Layout Tags', 'customtables')); ?></h3><br/>
+            <h3><?php echo esc_html__('Layout Tags', 'customtables'); ?></h3><br/>
 			<?php
 			$documentation_safe = str_replace('ct_readmoreClosed', '', $documentation->getLayoutTags());
 			echo wp_kses_post($documentation_safe);

@@ -27,7 +27,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 					esc_html_e('Edit Field');
 			} else {
 				esc_html_e('Custom Tables - Fields', 'customtables');
-				echo '<div class="error"><p>' . esc_html(__('Table not selected or not found.', 'customtables')) . '</p></div>';
+				echo '<div class="error"><p>' . esc_html__('Table not selected or not found.', 'customtables') . '</p></div>';
 			}
 			?>
         </h1>
@@ -101,8 +101,8 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                         <tr class="form-field form-required">
                             <th scope="row">
                                 <label for="fieldname">
-									<?php echo esc_html(__('Field Name', 'customtables')); ?>
-                                    <span class="description">(<?php echo esc_html(__('required', 'customtables')); ?>)</span>
+									<?php echo esc_html__('Field Name', 'customtables'); ?>
+                                    <span class="description">(<?php echo esc_html__('required', 'customtables'); ?>)</span>
                                 </label>
                             </th>
                             <td>
@@ -127,9 +127,9 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                             <tr class="form-field<?php echo esc_html(!$moreThanOneLang ? ' form-required' : ''); ?>">
                                 <th scope="row">
                                     <label for="<?php echo esc_html($id); ?>">
-										<?php echo esc_html(__('Field Title', 'customtables')); ?>
+										<?php echo esc_html__('Field Title', 'customtables'); ?>
 										<?php if (!$moreThanOneLang): ?>
-                                            <span class="description">(<?php echo esc_html(__('required', 'customtables')); ?>)</span>
+                                            <span class="description">(<?php echo esc_html__('required', 'customtables'); ?>)</span>
 										<?php endif; ?>
                                         <br/>
                                         <b><?php echo esc_html($lang->title); ?></b>
@@ -149,8 +149,8 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                         <tr class="form-field form-required">
                             <th scope="row">
                                 <label for="type">
-									<?php echo esc_html(__('Field Type', 'customtables')); ?>
-                                    <span class="description">(<?php echo esc_html(__('required', 'customtables')); ?>)</span>
+									<?php echo esc_html__('Field Type', 'customtables'); ?>
+                                    <span class="description">(<?php echo esc_html__('required', 'customtables'); ?>)</span>
                                 </label>
                             </th>
                             <td>
@@ -180,8 +180,8 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                         <tr class="form-field form-required">
                             <th scope="row">
                                 <label for="typeparams">
-									<?php echo esc_html(__('Type Parameters', 'customtables')); ?>
-                                    <span class="description">(<?php echo esc_html(__('required', 'customtables')); ?>)</span>
+									<?php echo esc_html__('Type Parameters', 'customtables'); ?>
+                                    <span class="description">(<?php echo esc_html__('required', 'customtables'); ?>)</span>
                                 </label>
                             </th>
                             <td>
@@ -196,7 +196,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 
                     <!-- Submit Button -->
 					<?php
-					$buttonText = ($this->admin_field_edit->fieldId == 0) ? esc_html(__('Add New Field', 'customtables')) : esc_html(__('Save Field', 'customtables'));
+					$buttonText = ($this->admin_field_edit->fieldId == 0) ? esc_html__('Add New Field', 'customtables') : esc_html__('Save Field', 'customtables');
 					submit_button($buttonText, 'primary', 'createfield', true, array('id' => 'createfieldsub'));
 					?>
 

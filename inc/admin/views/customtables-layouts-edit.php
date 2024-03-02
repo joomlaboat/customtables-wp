@@ -35,7 +35,7 @@ $onPageLoads = array();
 					esc_html_e('Edit Custom Layout');
 				?>
                 <div style="display: inline-block;margin-left:20px;"><?php
-					$buttonText = ($this->admin_layout_edit->layoutId == 0) ? esc_html(__('Save New Layout', 'customtables')) : esc_html(__('Save Layout', 'customtables'));
+					$buttonText = ($this->admin_layout_edit->layoutId == 0) ? esc_html__('Save New Layout', 'customtables') : esc_html__('Save Layout', 'customtables');
 					submit_button($buttonText, 'primary', 'ct-savelayout-top', false, array('id' => 'ct-savelayout-top'));
 					?>
                     <input class="button" type="button" onClick="showFieldTagModalForm();" value="Field Tags"/>
@@ -93,7 +93,7 @@ $onPageLoads = array();
 
             <!-- Submit Button -->
 			<?php
-			$buttonText = ($this->admin_layout_edit->layoutId == 0) ? esc_html(__('Add New Layout', 'customtables')) : esc_html(__('Save Layout', 'customtables'));
+			$buttonText = ($this->admin_layout_edit->layoutId == 0) ? esc_html__('Add New Layout', 'customtables') : esc_html__('Save Layout', 'customtables');
 			submit_button($buttonText, 'primary', 'ct-savelayout', true, array('id' => 'ct-savelayout'));
 			?>
 

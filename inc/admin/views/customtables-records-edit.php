@@ -29,7 +29,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                     esc_html_e('Edit Record');
             } else {
                 esc_html_e('Custom Tables - Records', 'customtables');
-                echo '<div class="error"><p>' . esc_html(__('Table not selected or not found.', 'customtables')) . '</p></div>';
+                echo '<div class="error"><p>' . esc_html__('Table not selected or not found.', 'customtables') . '</p></div>';
             }
             ?>
         </h1>

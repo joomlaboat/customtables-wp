@@ -211,13 +211,13 @@ class Admin_Field_List extends WP_List_Table
 	{
 		return array(
 			'cb' => '<input type="checkbox" />',
-			'fieldname' => esc_html(__('Field Name', 'customtables')),
-			'fieldtitle' => esc_html(__('Field Title', 'customtables')),
-			'type' => esc_html(__('Field Type', 'customtables')),
-			'typeparams' => esc_html(__('Type Parameters', 'customtables')),
-			'isrequired' => esc_html(__('Required', 'customtables')),
-			'table' => esc_html(__('Table', 'customtables')),
-			'id' => esc_html(__('Id', 'customtables'))
+			'fieldname' => esc_html__('Field Name', 'customtables'),
+			'fieldtitle' => esc_html__('Field Title', 'customtables'),
+			'type' => esc_html__('Field Type', 'customtables'),
+			'typeparams' => esc_html__('Type Parameters', 'customtables'),
+			'isrequired' => esc_html__('Required', 'customtables'),
+			'table' => esc_html__('Table', 'customtables'),
+			'id' => esc_html__('Id', 'customtables')
 		);
 	}
 
@@ -259,24 +259,24 @@ class Admin_Field_List extends WP_List_Table
 
 		$actions = [];
 		if ($this->current_status === 'trash') {
-			$actions['restore'] = sprintf('<a href="' . $url . '&action=restore&table=%s&field=%s&_wpnonce=%s">' . esc_html(__('Restore')) . '</a>',
+			$actions['restore'] = sprintf('<a href="' . $url . '&action=restore&table=%s&field=%s&_wpnonce=%s">' . esc_html__('Restore') . '</a>',
 				$this->tableId,
 				$item['id'],
 				urlencode(wp_create_nonce('restore_nonce'))
 			);
 
-			$actions['delete'] = sprintf('<a href="' . $url . '&action=delete&table=%s&field=%s&_wpnonce=%s">' . esc_html(__('Delete Permanently')) . '</a>',
+			$actions['delete'] = sprintf('<a href="' . $url . '&action=delete&table=%s&field=%s&_wpnonce=%s">' . esc_html__('Delete Permanently') . '</a>',
 				$this->tableId,
 				$item['id'],
 				urlencode(wp_create_nonce('delete_nonce'))
 			);
 		} else {
-			$actions['edit'] = sprintf('<a href="?page=customtables-fields-edit&action=edit&table=%s&field=%s">' . esc_html(__('Edit')) . '</a>',
+			$actions['edit'] = sprintf('<a href="?page=customtables-fields-edit&action=edit&table=%s&field=%s">' . esc_html__('Edit') . '</a>',
 				$this->tableId,
 				$item['id']
 			);
 
-			$actions['trash'] = sprintf('<a href="' . $url . '&action=trash&table=%s&field=%s&_wpnonce=%s">' . esc_html(__('Trash')) . '</a>',
+			$actions['trash'] = sprintf('<a href="' . $url . '&action=trash&table=%s&field=%s&_wpnonce=%s">' . esc_html__('Trash') . '</a>',
 				$this->tableId,
 				$item['id'],
 				urlencode(wp_create_nonce('trash_nonce'))
@@ -371,18 +371,18 @@ class Admin_Field_List extends WP_List_Table
 		$views = [];
 
 		$views['all'] = '<a href="' . admin_url($link) . '" class="' . (($this->current_status === 'all' or $this->current_status === null) ? 'current' : '') . '">'
-			. esc_html(__('All')) . ' <span class="count">(' . $this->count_all . ')</span></a>';
+			. esc_html__('All') . ' <span class="count">(' . $this->count_all . ')</span></a>';
 
 		if ($this->count_published > 0)
 			$views['published'] = '<a href="' . admin_url($link . '&status=published') . '" class="' . ($this->current_status === 'published' ? 'current' : '') . '">'
-				. esc_html(__('Published')) . ' <span class="count">(' . $this->count_published . ')</span></a>';
+				. esc_html__('Published') . ' <span class="count">(' . $this->count_published . ')</span></a>';
 
 		if ($this->count_unpublished > 0)
 			$views['unpublished'] = '<a href="' . admin_url($link . '&status=unpublished') . '" class="' . ($this->current_status === 'unpublished' ? 'current' : '') . '">'
-				. esc_html(__('Draft')) . ' <span class="count">(' . $this->count_unpublished . ')</span></a>';
+				. esc_html__('Draft') . ' <span class="count">(' . $this->count_unpublished . ')</span></a>';
 
 		if ($this->count_trashed > 0)
-			$views['trash'] = '<a href="' . admin_url($link . '&status=trash') . '" class="' . ($this->current_status === 'trash' ? 'current' : '') . '">' . esc_html(__('Trash'))
+			$views['trash'] = '<a href="' . admin_url($link . '&status=trash') . '" class="' . ($this->current_status === 'trash' ? 'current' : '') . '">' . esc_html__('Trash')
 				. ' <span class="count">(' . $this->count_trashed . ')</span></a>';
 
 		return $views;

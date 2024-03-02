@@ -170,13 +170,13 @@ class Admin_Layout_List extends WP_List_Table
 	{
 		return array(
 			'cb' => '<input type="checkbox" />',
-			'layoutname' => esc_html(__('Layout Name', 'customtables')),
-			'layouttype' => esc_html(__('Type', 'customtables')),
-			'tabletitle' => esc_html(__('Table', 'customtables')),
-			'layout_size' => esc_html(__('Size', 'customtables')),
-			'modifiedby' => esc_html(__('Modified By', 'customtables')),
-			'modified' => esc_html(__('Modified When', 'customtables')),
-			'id' => esc_html(__('Id', 'customtables'))
+			'layoutname' => esc_html__('Layout Name', 'customtables'),
+			'layouttype' => esc_html__('Type', 'customtables'),
+			'tabletitle' => esc_html__('Table', 'customtables'),
+			'layout_size' => esc_html__('Size', 'customtables'),
+			'modifiedby' => esc_html__('Modified By', 'customtables'),
+			'modified' => esc_html__('Modified When', 'customtables'),
+			'id' => esc_html__('Id', 'customtables')
 		);
 	}
 
@@ -209,14 +209,14 @@ class Admin_Layout_List extends WP_List_Table
 			$url .= '&status=' . $this->current_status;
 
 		if ($this->current_status == 'trash') {
-			$actions['restore'] = sprintf('<a href="' . $url . '&action=restore&layout=%s&_wpnonce=%s">' . esc_html(__('Restore')) . '</a>',
+			$actions['restore'] = sprintf('<a href="' . $url . '&action=restore&layout=%s&_wpnonce=%s">' . esc_html__('Restore') . '</a>',
 				$item['id'], urlencode(wp_create_nonce('restore_nonce')));
 
-			$actions['delete'] = sprintf('<a href="' . $url . '&action=delete&layout=%s&_wpnonce=%s">' . esc_html(__('Delete Permanently')) . '</a>',
+			$actions['delete'] = sprintf('<a href="' . $url . '&action=delete&layout=%s&_wpnonce=%s">' . esc_html__('Delete Permanently') . '</a>',
 				$item['id'], urlencode(wp_create_nonce('delete_nonce')));
 		} else {
-			$actions['edit'] = sprintf('<a href="?page=customtables-layouts-edit&action=edit&layout=%s">' . esc_html(__('Edit')) . '</a>', $item['id']);
-			$actions['trash'] = sprintf('<a href="' . $url . '&action=trash&layout=%s&_wpnonce=%s">' . esc_html(__('Trash')) . '</a>',
+			$actions['edit'] = sprintf('<a href="?page=customtables-layouts-edit&action=edit&layout=%s">' . esc_html__('Edit') . '</a>', $item['id']);
+			$actions['trash'] = sprintf('<a href="' . $url . '&action=trash&layout=%s&_wpnonce=%s">' . esc_html__('Trash') . '</a>',
 				$item['id'], urlencode(wp_create_nonce('trash_nonce')));
 		}
 		return sprintf('%1$s %2$s', $item['layoutname'], $this->row_actions($actions));
@@ -292,18 +292,18 @@ class Admin_Layout_List extends WP_List_Table
 		$views = [];
 
 		$views['all'] = '<a href="' . admin_url($link) . '" class="' . (($this->current_status === 'all' or $this->current_status === null) ? 'current' : '') . '">'
-			. esc_html(__('All')) . ' <span class="count">(' . $this->count_all . ')</span></a>';
+			. esc_html__('All') . ' <span class="count">(' . $this->count_all . ')</span></a>';
 
 		if ($this->count_published > 0)
 			$views['published'] = '<a href="' . admin_url($link . '&status=published') . '" class="' . ($this->current_status === 'published' ? 'current' : '') . '">'
-				. esc_html(__('Published')) . ' <span class="count">(' . $this->count_published . ')</span></a>';
+				. esc_html__('Published') . ' <span class="count">(' . $this->count_published . ')</span></a>';
 
 		if ($this->count_unpublished > 0)
 			$views['unpublished'] = '<a href="' . admin_url($link . '&status=unpublished') . '" class="' . ($this->current_status === 'unpublished' ? 'current' : '') . '">'
-				. esc_html(__('Draft')) . ' <span class="count">(' . $this->count_unpublished . ')</span></a>';
+				. esc_html__('Draft') . ' <span class="count">(' . $this->count_unpublished . ')</span></a>';
 
 		if ($this->count_trashed > 0)
-			$views['trash'] = '<a href="' . admin_url($link . '&status=trash') . '" class="' . ($this->current_status === 'trash' ? 'current' : '') . '">' . esc_html(__('Trash'))
+			$views['trash'] = '<a href="' . admin_url($link . '&status=trash') . '" class="' . ($this->current_status === 'trash' ? 'current' : '') . '">' . esc_html__('Trash')
 				. ' <span class="count">(' . $this->count_trashed . ')</span></a>';
 
 		return $views;
@@ -329,22 +329,22 @@ class Admin_Layout_List extends WP_List_Table
 		$actions = [];
 
 		if ($this->current_status != 'trash')
-			$actions['customtables-layouts-edit'] = esc_html(__('Edit'));
+			$actions['customtables-layouts-edit'] = esc_html__('Edit');
 
 		if ($this->current_status == '' or $this->current_status == 'all') {
-			$actions['customtables-layouts-publish'] = esc_html(__('Publish', 'customtables'));
-			$actions['customtables-layouts-unpublish'] = esc_html(__('Draft', 'customtables'));
+			$actions['customtables-layouts-publish'] = esc_html__('Publish', 'customtables');
+			$actions['customtables-layouts-unpublish'] = esc_html__('Draft', 'customtables');
 		} elseif ($this->current_status == 'unpublished')
-			$actions['customtables-layouts-publish'] = esc_html(__('Publish', 'customtables'));
+			$actions['customtables-layouts-publish'] = esc_html__('Publish', 'customtables');
 		elseif ($this->current_status == 'published')
-			$actions['customtables-layouts-unpublish'] = esc_html(__('Draft', 'customtables'));
+			$actions['customtables-layouts-unpublish'] = esc_html__('Draft', 'customtables');
 
 		if ($this->current_status != 'trash')
-			$actions['customtables-layouts-trash'] = esc_html(__('Move to Trash'));
+			$actions['customtables-layouts-trash'] = esc_html__('Move to Trash');
 
 		if ($this->current_status == 'trash') {
-			$actions['customtables-layouts-restore'] = esc_html(__('Restore'));
-			$actions['customtables-layouts-delete'] = esc_html(__('Delete Permanently'));
+			$actions['customtables-layouts-restore'] = esc_html__('Restore');
+			$actions['customtables-layouts-delete'] = esc_html__('Delete Permanently');
 		}
 		return $actions;
 	}

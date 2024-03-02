@@ -22,8 +22,8 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 				use CustomTables\Layouts;
 				use CustomTables\MySQLWhereClause;
 
-				echo esc_html(__('Layout Name', 'customtables')); ?>
-                <span class="description">(<?php echo esc_html(__('required', 'customtables')); ?>)</span>
+				echo esc_html__('Layout Name', 'customtables'); ?>
+                <span class="description">(<?php echo esc_html__('required', 'customtables'); ?>)</span>
             </label>
         </th>
         <td>
@@ -36,8 +36,8 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
         <!-- Layout Type -->
         <th scope="row" style="text-align: right;">
             <label for="layouttype">
-				<?php echo esc_html(__('Layout Type', 'customtables')); ?>
-                <span class="description">(<?php echo esc_html(__('required', 'customtables')); ?>)</span>
+				<?php echo esc_html__('Layout Type', 'customtables'); ?>
+                <span class="description">(<?php echo esc_html__('required', 'customtables'); ?>)</span>
             </label>
         </th>
         <th>
@@ -87,8 +87,8 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
         <!-- Table -->
         <th scope="row" style="text-align: right;">
             <label for="layoutname">
-				<?php echo esc_html(__('Table', 'customtables')); ?>
-                <span class="description">(<?php echo esc_html(__('required', 'customtables')); ?>)</span>
+				<?php echo esc_html__('Table', 'customtables'); ?>
+                <span class="description">(<?php echo esc_html__('required', 'customtables'); ?>)</span>
             </label>
         </th>
         <td>

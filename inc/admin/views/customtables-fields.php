@@ -25,14 +25,14 @@ $page = common::inputGetCmd('page');
             esc_html_e('Fields', 'customtables');
         } else {
             esc_html_e('Custom Tables - Fields', 'customtables');
-            echo '<div class="error"><p>' . esc_html(__('Table not selected or not found.', 'customtables')) . '</p></div>';
+            echo '<div class="error"><p>' . esc_html__('Table not selected or not found.', 'customtables') . '</p></div>';
         }
         ?></h1>
 
     <?php
     if (isset($this->admin_field_list->ct->Table) and $this->admin_field_list->ct->Table->tablename !== null) {
         echo '<a href="admin.php?page=customtables-fields-edit&table='.esc_html($this->admin_field_list->tableId).'&field=0" class="page-title-action">'
-            . esc_html(__('Add New', 'customtables')) . '</a>';
+            . esc_html__('Add New', 'customtables') . '</a>';
     }
     ?>
 
@@ -54,7 +54,7 @@ $page = common::inputGetCmd('page');
             <form id="customtables-admin-field-list-form" method="post">
                 <input type="hidden" name="page" value="<?php echo esc_html($page); ?>"/>
                 <?php
-                $this->admin_field_list->search_box(esc_html(__('Find', 'customtables')), 'nds-field-find');
+                $this->admin_field_list->search_box(esc_html__('Find', 'customtables'), 'nds-field-find');
                 $this->admin_field_list->views();
                 $this->admin_field_list->display();
                 ?>

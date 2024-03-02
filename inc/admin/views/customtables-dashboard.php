@@ -20,24 +20,24 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
     <a href="admin.php?page=customtables-tables" style="margin-right:30px;" class="button">
 
-        <img alt="<?php echo esc_html(__('Tables', 'customtables')); ?>"
+        <img alt="<?php echo esc_html__('Tables', 'customtables'); ?>"
              src="<?php echo esc_html(home_url()); ?>/wp-content/plugins/customtables/libraries/customtables/media/images/controlpanel/icons/listoftables.png"/>
-        <p style="text-align: center"><?php echo esc_html(__('Tables', 'customtables')); ?></p>
+        <p style="text-align: center"><?php echo esc_html__('Tables', 'customtables'); ?></p>
 
     </a>
 
     <a href="admin.php?page=customtables-layouts" style="margin-right:30px;" class="button">
-        <img alt="<?php echo esc_html(__('Layouts', 'customtables')); ?>"
+        <img alt="<?php echo esc_html__('Layouts', 'customtables'); ?>"
              src="<?php echo esc_html(home_url()) ?>/wp-content/plugins/customtables/libraries/customtables/media/images/controlpanel/icons/listoflayouts.png">
-        <p style="text-align: center"><?php echo esc_html(__('Layouts', 'customtables')); ?></p>
+        <p style="text-align: center"><?php echo esc_html__('Layouts', 'customtables'); ?></p>
         </button>
     </a>
 
 
     <a href="admin.php?page=customtables-documentation" class="button">
-        <img alt="<?php echo esc_html(__('Documentation', 'customtables')); ?>"
+        <img alt="<?php echo esc_html__('Documentation', 'customtables'); ?>"
              src="<?php echo esc_html(home_url()); ?>/wp-content/plugins/customtables/libraries/customtables/media/images/controlpanel/icons/documentation.png">
-        <p style="text-align: center"><?php echo esc_html(__('Documentation', 'customtables')); ?></p>
+        <p style="text-align: center"><?php echo esc_html__('Documentation', 'customtables'); ?></p>
         </button>
     </a>
 </div>
