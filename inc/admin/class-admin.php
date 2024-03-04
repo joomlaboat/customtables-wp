@@ -60,6 +60,7 @@ class Admin
 	private $admin_record_edit;
 	private $admin_layout_list;
 	private $admin_layout_edit;
+	private $admin_import_tables;
 
 	/**
 	 * Initialize the class and set its properties.
@@ -179,6 +180,18 @@ class Admin
 		);
 		add_action('load-' . $page_hook, array($this, 'preload_admin_layout_list'));
 
+		// Import Tables
+		$page_hook = add_submenu_page(
+			'customtables',                       // Parent Menu Slug
+			'Custom Tables - Import Tables',       // Page Title
+			'Import Tables',                       // Menu Title
+			'manage_options',                      // Capability
+			'customtables-import-tables',          // Menu Slug
+			array($this, 'load_customtablesAdminImportTables'), // Callback Function
+			4                                       // Position
+		);
+		add_action('load-' . $page_hook, array($this, 'preload_admin_import_tables'));
+
 		// Database Schema
 		add_submenu_page(
 			'customtables',                      // Parent Menu Slug
@@ -187,7 +200,7 @@ class Admin
 			'manage_options',                    // Capability
 			'customtables-schema',        // Menu Slug
 			array($this, 'load_customtablesAdminSchema'), // Callback Function
-			4                                    // Position
+			5                                    // Position
 		);
 
 		// Documentation
@@ -198,7 +211,7 @@ class Admin
 			'manage_options',                      // Capability
 			'customtables-documentation',          // Menu Slug
 			array($this, 'load_customtablesAdminDocumentation'), // Callback Function
-			5                                       // Position
+			6                                       // Position
 		);
 
 		// Edit Table Sub Sub Menu
@@ -633,5 +646,18 @@ class Admin
 	public function load_customtablesAdminDocumentation(): void
 	{
 		include_once('views' . DIRECTORY_SEPARATOR . 'customtables-documentation.php');
+	}
+
+	public function load_customtablesAdminImportTables(): void
+	{
+		// instantiate the Admin Layout List
+		include_once('views' . DIRECTORY_SEPARATOR . 'customtables-import-tables.php');
+	}
+
+	public function preload_admin_import_tables(): void
+	{
+		// instantiate the Admin Layout List
+		$this->admin_import_tables = new Admin_Import_Tables();
+		$this->admin_import_tables->handle_import_actions();
 	}
 }

@@ -139,60 +139,63 @@ class Admin_Table_List extends WP_List_Table
 
 		$newData = [];
 		foreach ($data as $item) {
-			$table_exists = TableHelper::checkIfTableExists($item['realtablename']);
 
-			if ($item['published'] == -2)
-				$label = '<span>' . $item['tablename'] . '</span>';
-			else
-				$label = '<a class="row-title" href="?page=customtables-tables-edit&action=edit&table=' . $item['id'] . '">' . $item['tablename'] . '</a>'
-					. (($this->current_status != 'unpublished' and $item['published'] == 0) ? ' — <span class="post-state">Draft</span>' : '');
+			if ($item['realtablename'] !== null) {
+				$table_exists = TableHelper::checkIfTableExists($item['realtablename']);
 
-			$item['tablename'] = '<strong>' . $label . '</strong>';
+				if ($item['published'] == -2)
+					$label = '<span>' . $item['tablename'] . '</span>';
+				else
+					$label = '<a class="row-title" href="?page=customtables-tables-edit&action=edit&table=' . $item['id'] . '">' . $item['tablename'] . '</a>'
+						. (($this->current_status != 'unpublished' and $item['published'] == 0) ? ' — <span class="post-state">Draft</span>' : '');
 
-			$result = '<ul style="list-style: none !important;margin-left:0;padding-left:0;">';
-			$moreThanOneLang = false;
-			foreach ($this->ct->Languages->LanguageList as $lang) {
-				$tableTitle = 'tabletitle';
-				$tableDescription = 'description';
+				$item['tablename'] = '<strong>' . $label . '</strong>';
 
-				if ($moreThanOneLang) {
-					$tableTitle .= '_' . $lang->sef;
-					$tableDescription .= '_' . $lang->sef;
+				$result = '<ul style="list-style: none !important;margin-left:0;padding-left:0;">';
+				$moreThanOneLang = false;
+				foreach ($this->ct->Languages->LanguageList as $lang) {
+					$tableTitle = 'tabletitle';
+					$tableDescription = 'description';
 
-					if (!array_key_exists($tableTitle, $item)) {
-						Fields::addLanguageField('#__customtables_tables', 'tabletitle', $tableTitle);
+					if ($moreThanOneLang) {
+						$tableTitle .= '_' . $lang->sef;
+						$tableDescription .= '_' . $lang->sef;
+
+						if (!array_key_exists($tableTitle, $item)) {
+							Fields::addLanguageField('#__customtables_tables', 'tabletitle', $tableTitle);
+						}
+
+						if (!array_key_exists($tableTitle, $item)) {
+							Fields::addLanguageField('#__customtables_tables', 'description', $tableDescription);
+						}
 					}
-
-					if (!array_key_exists($tableTitle, $item)) {
-						Fields::addLanguageField('#__customtables_tables', 'description', $tableDescription);
-					}
+					$result .= '<li>' . (count($this->ct->Languages->LanguageList) > 1 ? $lang->title . ': ' : '') . '<b>' . ($item[$tableTitle] ?? '') . '</b></li>';
+					$moreThanOneLang = true; //More than one language installed
 				}
-				$result .= '<li>' . (count($this->ct->Languages->LanguageList) > 1 ? $lang->title . ': ' : '') . '<b>' . ($item[$tableTitle] ?? '') . '</b></li>';
-				$moreThanOneLang = true; //More than one language installed
+
+				$result .= '</ul>';
+				$item['tabletitle'] = $result;
+
+
+				$item['fieldcount'] = '<a class="button action" aria-describedby="tip-tablerecords' . $item['id'] . '" href="'
+					. 'admin.php?page=customtables-fields&table=' . $item['id'] . '">'
+					. $item['fieldcount']
+					. ' ' . __('Fields', 'customtables') . '</a>';
+
+
+				if (!$table_exists)
+					$item['recordcount'] = __('No Table', 'customtables');
+				elseif (($item['customtablename'] !== null and $item['customtablename'] != '') and ($item['customidfield'] === null or $item['customidfield'] == ''))
+					$item['recordcount'] = __('No Primary Key', 'customtables');
+				else {
+					$item['recordcount'] = '<a class="button action" aria-describedby="tip-tablerecords' . $item['id'] . '" href="'
+						. 'admin.php?page=customtables-records&table=' . $item['id'] . '">'
+						. listOfTables::getNumberOfRecords($item['realtablename'], $item['realidfieldname'])
+						. ' ' . __('Records', 'customtables') . '</a>';
+				}
+
+				$newData[] = $item;
 			}
-
-			$result .= '</ul>';
-			$item['tabletitle'] = $result;
-
-
-			$item['fieldcount'] = '<a class="button action" aria-describedby="tip-tablerecords' . $item['id'] . '" href="'
-				. 'admin.php?page=customtables-fields&table=' . $item['id'] . '">'
-				. $item['fieldcount']
-				. ' ' . __('Fields', 'customtables') . '</a>';
-
-
-			if (!$table_exists)
-				$item['recordcount'] = __('No Table', 'customtables');
-			elseif (($item['customtablename'] !== null and $item['customtablename'] != '') and ($item['customidfield'] === null or $item['customidfield'] == ''))
-				$item['recordcount'] = __('No Primary Key', 'customtables');
-			else {
-				$item['recordcount'] = '<a class="button action" aria-describedby="tip-tablerecords' . $item['id'] . '" href="'
-					. 'admin.php?page=customtables-records&table=' . $item['id'] . '">'
-					. listOfTables::getNumberOfRecords($item['realtablename'], $item['realidfieldname'])
-					. ' ' . __('Records', 'customtables') . '</a>';
-			}
-
-			$newData[] = $item;
 		}
 		return $newData;
 	}

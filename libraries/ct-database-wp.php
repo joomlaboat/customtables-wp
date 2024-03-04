@@ -52,6 +52,7 @@ class MySQLWhereClause
 
 	public function addCondition($fieldName, $fieldValue, $operator = '=', $sanitized = false): void
 	{
+		global $wpdb;
 		$operator = strtoupper($operator);
 
 		$possibleOperators = ['=', '>', '<', '!=', '>=', '<=', 'LIKE', 'NULL', 'NOT NULL', 'INSTR', 'NOT INSTR', 'IN'];
@@ -61,8 +62,8 @@ class MySQLWhereClause
 		}
 
 		$this->conditions[] = [
-			'field' => $fieldName,
-			'value' => $fieldValue,
+			'field' => str_replace('#__', $wpdb->prefix, $fieldName),//Joomla way
+			'value' => str_replace('#__', $wpdb->prefix, $fieldValue),//Joomla way
 			'operator' => $operator,
 			'sanitized' => $sanitized
 		];
@@ -70,6 +71,7 @@ class MySQLWhereClause
 
 	public function addOrCondition($fieldName, $fieldValue, $operator = '=', $sanitized = false): void
 	{
+		global $wpdb;
 		$operator = strtoupper($operator);
 
 		$possibleOperators = ['=', '>', '<', '!=', '>=', '<=', 'LIKE', 'NULL', 'NOT NULL', 'INSTR', 'NOT INSTR', 'IN'];
@@ -79,8 +81,8 @@ class MySQLWhereClause
 		}
 
 		$this->orConditions[] = [
-			'field' => $fieldName,
-			'value' => $fieldValue,
+			'field' => str_replace('#__', $wpdb->prefix, $fieldName),//Joomla way
+			'value' => str_replace('#__', $wpdb->prefix, $fieldValue),//Joomla way
 			'operator' => $operator,
 			'sanitized' => $sanitized
 		];
@@ -106,7 +108,10 @@ class MySQLWhereClause
 			return $whereString;
 
 		//$whereString already contains the placeholders like (%s, %d, %f),and the number is matching with replacement variables;
-		return $wpdb->prepare($whereString, $placeholders);//Returns a WHERE clause with safe and clean parameters
+		if (count($placeholders) > 0)
+			return $wpdb->prepare($whereString, $placeholders);//Returns a WHERE clause with safe and clean parameters
+		else
+			return $whereString;
 	}
 
 	public function getWhereClause(string $logicalOperator = 'AND'): string
@@ -266,6 +271,9 @@ class database
 		}
 
 		$placeHolders = array_merge($dataHolders->columns, $values);
+
+		if(count($placeHolders) == 0)
+			throw new Exception('database->insert: placeHolders count equal 0.');
 
 		$wpdb->query(
 			$wpdb->prepare(
@@ -461,7 +469,8 @@ class database
 				// Extract a single column from the associative array of associative arrays{
 				return array_column($results, $firstColumnName);
 			} else {
-				return null;
+				//echo '$query_safe:'.$query_safe;
+				return [];
 			}
 		}
 		return null;
@@ -518,9 +527,9 @@ class database
 			} elseif ($select == 'TABLE_NAME') {
 				$selects[] = '(SELECT tablename FROM `' . $wpdb->prefix . 'customtables_tables` AS tables WHERE tables.id=a.tableid) AS TABLE_NAME';
 			} elseif ($select == 'FIELD_NAME') {
-				$selects[] = '(SELECT fieldname FROM #__customtables_fields AS fields WHERE fields.published=1 AND fields.tableid=a.tableid LIMIT 1) AS FIELD_NAME';
+				$selects[] = '(SELECT fieldname FROM `' . $wpdb->prefix . 'customtables_fields` AS fields WHERE fields.published=1 AND fields.tableid=a.tableid LIMIT 1) AS FIELD_NAME';
 			} elseif ($select == 'USER_NAME') {
-				$selects[] = '(SELECT name FROM #__users AS users WHERE users.id=a.userid) AS USER_NAME';
+				$selects[] = '(SELECT name FROM #__users AS users WHERE users.id=a.userid) AS USER_NAME';//TODO GET WP VERSION
 			} elseif ($select == 'CATEGORY_NAME') {
 				$selects[] = '(SELECT `categoryname` FROM `' . $wpdb->prefix . 'customtables_categories` AS categories WHERE categories.id=tablecategory LIMIT 1) AS categoryname';
 			} elseif ($select == 'FIELD_COUNT') {
@@ -604,7 +613,7 @@ class database
 	public static function loadColumn(string  $table, array $selects, MySQLWhereClause $whereClause,
 	                                  ?string $order = null, ?string $orderBy = null,
 	                                  ?int    $limit = null, ?int $limitStart = null,
-	                                  string  $groupBy = null): array
+	                                  string  $groupBy = null): ?array
 	{
 		return self::loadObjectList($table, $selects, $whereClause, $order, $orderBy, $limit, $limitStart, 'COLUMN', $groupBy);
 	}
@@ -715,7 +724,7 @@ class database
 	{
 		global $wpdb;
 
-		$wpdb->query('DELETE FROM #__customtables_fields AS f WHERE (SELECT id FROM #__customtables_tables AS t WHERE t.id = f.tableid) IS NULL');
+		$wpdb->query('DELETE FROM ' . $wpdb->prefix . 'customtables_fields AS f WHERE (SELECT id FROM ' . $wpdb->prefix . 'customtables_tables AS t WHERE t.id = f.tableid) IS NULL');
 
 		if ($wpdb->last_error !== '')
 			throw new Exception($wpdb->last_error);
@@ -898,12 +907,15 @@ class database
 		if ($comment === null)
 			$comment = $columnName;
 
+		$tableName_safe = str_replace('#__', $wpdb->prefix, $realTableName);//Joomla way
+		$tableName_safe = preg_replace('/[^a-zA-Z0-9_]/', '', $tableName_safe);
+
 		$wpdb->query(
 			$wpdb->prepare('ALTER TABLE %i ADD COLUMN %i ' . $type
 				. ($nullable !== null ? ($nullable ? ' NULL' : ' NOT NULL') : '')
 				. ($extra !== null ? ' ' . $extra : '')
 				. ' COMMENT %s'
-				, $realTableName, $columnName, $comment)
+				, $tableName_safe, $columnName, $comment)
 		);
 
 		if ($wpdb->last_error !== '')
@@ -917,14 +929,14 @@ class database
 	public static function createTable(string $newTableName, string $privateKey, array $columns, string $comment, array $keys = null, string $primaryKeyType = 'int'): void
 	{
 		global $wpdb;
-		if(!str_contains($newTableName,'customtables_table_'))
+		if (!str_contains($newTableName, 'customtables_table_'))
 			throw new Exception('Create New Table: prohibited table name, only Custom Tables can be created');
 
 		$tableName_safe = str_replace('#__', $wpdb->prefix, $newTableName);//Joomla way
 		$tableName_safe = preg_replace('/[^a-zA-Z0-9_]/', '', $tableName_safe);
 
 		if (self::getServerType() == 'postgresql') {
-			$tableNameSeq_safe = $tableName_safe. '_seq';
+			$tableNameSeq_safe = $tableName_safe . '_seq';
 
 			$wpdb->query("CREATE SEQUENCE IF NOT EXISTS `$tableNameSeq_safe`");//Table name sequence is sanitized
 			if ($wpdb->last_error !== '')
@@ -932,7 +944,7 @@ class database
 
 			$allColumns = array_merge([$privateKey . ' ' . $primaryKeyType . ' NOT NULL DEFAULT nextval (\'' . $tableNameSeq_safe . '\')'], $columns);
 
-			$wpdb->query('CREATE TABLE IF NOT EXISTS '.$tableName_safe.'(' . implode(',', $allColumns) . ')');//Table name is sanitized.
+			$wpdb->query('CREATE TABLE IF NOT EXISTS ' . $tableName_safe . '(' . implode(',', $allColumns) . ')');//Table name is sanitized.
 
 			if ($wpdb->last_error !== '')
 				throw new Exception($wpdb->last_error);
@@ -943,7 +955,7 @@ class database
 
 		} else {
 
-			$primaryKeyTypeString = 'INT';//(11)
+			$primaryKeyTypeString = 'INT UNSIGNED';//(11)
 			if ($primaryKeyType !== 'int')
 				$primaryKeyTypeString = $primaryKeyType;
 
@@ -953,7 +965,7 @@ class database
 				$allColumns = array_merge($allColumns, $keys);
 
 			$wpdb->query(
-				$wpdb->prepare('CREATE TABLE IF NOT EXISTS '.$tableName_safe.'(' . implode(',', $allColumns) . ')'
+				$wpdb->prepare('CREATE TABLE IF NOT EXISTS ' . $tableName_safe . '(' . implode(',', $allColumns) . ')'
 					. ' ENGINE=InnoDB COMMENT=%s'
 					. ' DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci AUTO_INCREMENT=1;', $comment)
 			);//Table name is sanitized.
@@ -978,7 +990,7 @@ class database
 
 		if (self::getServerType() == 'postgresql') {
 
-			$realNewTableNameSeq_safe = $realNewTableName_safe. '_seq';
+			$realNewTableNameSeq_safe = $realNewTableName_safe . '_seq';
 
 			$wpdb->query("CREATE SEQUENCE IF NOT EXISTS `$realNewTableNameSeq_safe`");//Nothing to prepare - all sanitized
 
@@ -1138,12 +1150,13 @@ class database
 	{
 		global $wpdb;
 
-		$tablename = preg_replace('/[^a-zA-Z0-9_]/', '', $tablename);
+		$realTableName_safe = str_replace('#__', $wpdb->prefix, $tablename);//Joomla way
+		$realTableName_safe = preg_replace('/[^a-zA-Z0-9_]/', '', $realTableName_safe);
 
 		if ($add_table_prefix)
-			$realtablename = $wpdb->prefix . 'customtables_table_' . $tablename;
+			$realtablename = $wpdb->prefix . 'customtables_table_' . $realTableName_safe;
 		else
-			$realtablename = $tablename;
+			$realtablename = $realTableName_safe;
 
 		$serverType = database::getServerType();
 
@@ -1153,14 +1166,16 @@ class database
 			);
 
 		} else {
-			$results = $wpdb->get_results($wpdb->prepare('SELECT
+			$query = $wpdb->prepare('SELECT
 				`COLUMN_NAME` AS column_name,
 				`DATA_TYPE` AS data_type,
 				`COLUMN_TYPE` AS column_type,
 				IF(`COLUMN_TYPE` LIKE %s, "YES", "NO") AS is_unsigned,
 				`IS_NULLABLE` AS is_nullable,
 				`COLUMN_DEFAULT` AS column_default,
-				`EXTRA` AS extra FROM `information_schema`.`COLUMNS` WHERE `TABLE_SCHEMA`=%s AND `TABLE_NAME`=%s', '"%unsigned"', DB_NAME, $realtablename), 'ARRAY_A');
+				`EXTRA` AS extra FROM `information_schema`.`COLUMNS` WHERE `TABLE_SCHEMA`=%s AND `TABLE_NAME`=%s', '%' . $wpdb->esc_like('unsigned') . '%', DB_NAME, $realtablename);
+
+			$results = $wpdb->get_results($query, 'ARRAY_A');
 		}
 
 		if ($wpdb->last_error !== '')
