@@ -148,6 +148,14 @@ class Admin_Layout_List extends WP_List_Table
 
 			$item['layoutname'] = '<strong>' . $label . '</strong>';
 
+			//Convert all Layout Types
+			if($item['layouttype'] == 5)
+				$item['layouttype'] = 1;
+
+			if($item['layouttype'] == 3 or $item['layouttype'] == 6)
+				$item['layouttype'] = 4;
+
+
 			if (isset($translations[$item['layouttype']])) {
 				$item['layouttype'] = $translations[$item['layouttype']];
 			} else {
