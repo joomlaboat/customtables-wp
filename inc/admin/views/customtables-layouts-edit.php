@@ -21,6 +21,12 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 $onPageLoads = array();
 
 ?>
+<?php if ($this->admin_layout_edit->ct->Env->advancedTagProcessor): ?>
+    <script>
+        proversion = true;
+    </script>
+<?php endif; ?>
+
     <div class="wrap">
 
         <form method="post" name="createlayout" id="createlayout" class="validate" novalidate="novalidate">
@@ -99,10 +105,10 @@ $onPageLoads = array();
 
             <div id="allLayoutRaw"
                  style="display:none;"><?php try {
-		            echo wp_json_encode(ListOfLayouts::getLayouts());
-	            } catch (Exception $e) {
-                     echo 'Cannot load the list of Layouts.';
-	            } ?></div>
+					echo wp_json_encode(ListOfLayouts::getLayouts());
+				} catch (Exception $e) {
+					echo 'Cannot load the list of Layouts.';
+				} ?></div>
         </form>
 		<?php } // End if (current_user_can('install_plugins')) ?>
     </div>

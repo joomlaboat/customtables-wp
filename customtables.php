@@ -31,7 +31,7 @@ define(__NAMESPACE__ . '\CTWP', __NAMESPACE__ . '\\');
 
 define(CTWP . 'PLUGIN_NAME', 'customtables');
 
-define(CTWP . 'PLUGIN_VERSION', '1.1.0');
+define(CTWP . 'PLUGIN_VERSION', '1.1.4');
 
 define(CTWP . 'PLUGIN_NAME_DIR', plugin_dir_path(__FILE__));
 
@@ -65,7 +65,7 @@ register_activation_hook(__FILE__, array(CTWP . 'Inc\Core\Activator', 'activate'
 register_deactivation_hook(__FILE__, array(CTWP . 'Inc\Core\Deactivator', 'deactivate'));
 
 /**
- * Plugin Singleton Container
+ * Plugin CustomTables Container
  *
  * Maintains a single copy of the plugin app object
  *

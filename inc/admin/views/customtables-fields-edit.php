@@ -207,6 +207,8 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                         //disableProField("jform_defaultvalue");
                         //disableProField("jform_valuerule");
                         //disableProField("jform_valuerulecaption");
+                        <?php else: ?>
+                        proversion = true;
 						<?php endif; ?>
                     </script>
 

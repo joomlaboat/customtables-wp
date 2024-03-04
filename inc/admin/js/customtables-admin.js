@@ -46,17 +46,19 @@
             let wpObject;
 
             //In reverse order because we need editor 0 to be active
-            wpObject = wp.codeEditor.initialize($('#layoutjs'), cm_settings_layoutjs);
-            addCMEvent(wpObject);
-            codemirror_editors[3] = wpObject;
+            if(proversion == true) {
+                wpObject = wp.codeEditor.initialize($('#layoutjs'), cm_settings_layoutjs);
+                addCMEvent(wpObject);
+                codemirror_editors[3] = wpObject;
 
-            wpObject = wp.codeEditor.initialize($('#layoutcss'), cm_settings_layoutcss);
-            addCMEvent(wpObject);
-            codemirror_editors[2] = wpObject;
+                wpObject = wp.codeEditor.initialize($('#layoutcss'), cm_settings_layoutcss);
+                addCMEvent(wpObject);
+                codemirror_editors[2] = wpObject;
 
-            wpObject = wp.codeEditor.initialize($('#layoutmobile'), cm_settings_layoutmobile);
-            addCMEvent(wpObject);
-            codemirror_editors[1] = wpObject;
+                wpObject = wp.codeEditor.initialize($('#layoutmobile'), cm_settings_layoutmobile);
+                addCMEvent(wpObject);
+                codemirror_editors[1] = wpObject;
+            }
 
             wpObject = wp.codeEditor.initialize($('#layoutcode'), cm_settings_layoutcode);
             addCMEvent(wpObject);
