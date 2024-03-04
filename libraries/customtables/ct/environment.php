@@ -58,7 +58,7 @@ class Environment
 				$plugin = PluginHelper::getPlugin('content', 'customtables');
 
 				if (!is_null($plugin) and is_object($plugin) > 0) {
-					$pluginParams = new Registry($plugin->params);
+					$pluginParams = new Registry($plugin->params);//Joomla specific
 					$this->CustomPHPEnabled = (int)$pluginParams->get("phpPlugin") == 1;
 				}
 			}
@@ -115,12 +115,12 @@ class Environment
 				$this->WebsiteRoot = '';
 		} else {
 			if (get_option('permalink_structure')) {
-				$website_root = home_url();
-				if (substr($website_root, -1) !== '/') {
-					$website_root .= '/';
+				$this->WebsiteRoot = home_url();
+				if (substr($this->WebsiteRoot, -1) !== '/') {
+					$this->WebsiteRoot .= '/';
 				}
 			} else {
-				$website_root = '';
+				$this->WebsiteRoot = '';
 			}
 		}
 

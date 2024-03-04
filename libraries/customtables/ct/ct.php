@@ -44,7 +44,7 @@ class CT
 	var $app;
 	var $document;
 
-	function __construct(?Registry $menuParams = null, $blockExternalVars = true, ?string $ModuleId = null, bool $enablePlugin = true)
+	function __construct(?array $menuParams = null, $blockExternalVars = true, ?string $ModuleId = null, bool $enablePlugin = true)
 	{
 		$this->errors = [];
 		$this->messages = [];
@@ -101,7 +101,7 @@ class CT
 		return false;
 	}
 
-	function setParams($menuParams = null, $blockExternalVars = true, ?string $ModuleId = null): void
+	function setParams(array $menuParams = null, $blockExternalVars = true, ?string $ModuleId = null): void
 	{
 		$this->Params->setParams($menuParams, $blockExternalVars, $ModuleId);
 	}

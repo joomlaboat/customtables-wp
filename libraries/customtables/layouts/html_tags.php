@@ -69,22 +69,27 @@ class Twig_Html_Tags
 		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
 			return ''; //Not permitted
 
-		if ($Alias_or_ItemId != '' and is_numeric($Alias_or_ItemId) and (int)$Alias_or_ItemId > 0)
-			$link = '/index.php?option=com_customtables&amp;view=edititem&amp;returnto=' . $this->ct->Env->encoded_current_url . '&amp;Itemid=' . $Alias_or_ItemId;
-		elseif ($Alias_or_ItemId != '')
-			$link = '/index.php/' . $Alias_or_ItemId . '?returnto=' . $this->ct->Env->encoded_current_url;
-		else
-			$link = '/index.php?option=com_customtables&amp;view=edititem&amp;returnto=' . $this->ct->Env->encoded_current_url
-				. '&amp;Itemid=' . $this->ct->Params->ItemId;
+		if (defined('_JEXEC')) {
+			if ($Alias_or_ItemId != '' and is_numeric($Alias_or_ItemId) and (int)$Alias_or_ItemId > 0)
+				$link = '/index.php?option=com_customtables&amp;view=edititem&amp;returnto=' . $this->ct->Env->encoded_current_url . '&amp;Itemid=' . $Alias_or_ItemId;
+			elseif ($Alias_or_ItemId != '')
+				$link = '/index.php/' . $Alias_or_ItemId . '?returnto=' . $this->ct->Env->encoded_current_url;
+			else
+				$link = '/index.php?option=com_customtables&amp;view=edititem&amp;returnto=' . $this->ct->Env->encoded_current_url
+					. '&amp;Itemid=' . $this->ct->Params->ItemId;
 
-		if (!is_null($this->ct->Params->ModuleId))
-			$link .= '&amp;ModuleId=' . $this->ct->Params->ModuleId;
+			if (!is_null($this->ct->Params->ModuleId))
+				$link .= '&amp;ModuleId=' . $this->ct->Params->ModuleId;
 
-		if (common::inputGetCmd('tmpl', '') != '')
-			$link .= '&amp;tmpl=' . common::inputGetCmd('tmpl', '');
+			if (common::inputGetCmd('tmpl', '') != '')
+				$link .= '&amp;tmpl=' . common::inputGetCmd('tmpl', '');
 
-		if (!is_null($this->ct->Params->ModuleId))
-			$link .= '&amp;ModuleId=' . $this->ct->Params->ModuleId;
+			if (!is_null($this->ct->Params->ModuleId))
+				$link .= '&amp;ModuleId=' . $this->ct->Params->ModuleId;
+		} elseif (defined('WPINC')) {
+			$link = common::curPageURL();
+			$link = CTMiscHelper::deleteURLQueryOption($link, 'view');
+		}
 
 		$alt = __("Add New", "customtables");
 
