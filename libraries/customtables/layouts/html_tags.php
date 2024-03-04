@@ -70,12 +70,15 @@ class Twig_Html_Tags
 			return ''; //Not permitted
 
 		if (defined('_JEXEC')) {
+
+			$link = CUSTOMTABLES_MEDIA_HOME_URL;
+
 			if ($Alias_or_ItemId != '' and is_numeric($Alias_or_ItemId) and (int)$Alias_or_ItemId > 0)
-				$link = '/index.php?option=com_customtables&amp;view=edititem&amp;returnto=' . $this->ct->Env->encoded_current_url . '&amp;Itemid=' . $Alias_or_ItemId;
+				$link .= '/index.php?option=com_customtables&amp;view=edititem&amp;returnto=' . $this->ct->Env->encoded_current_url . '&amp;Itemid=' . $Alias_or_ItemId;
 			elseif ($Alias_or_ItemId != '')
-				$link = '/index.php/' . $Alias_or_ItemId . '?returnto=' . $this->ct->Env->encoded_current_url;
+				$link .= '/index.php/' . $Alias_or_ItemId . '?returnto=' . $this->ct->Env->encoded_current_url;
 			else
-				$link = '/index.php?option=com_customtables&amp;view=edititem&amp;returnto=' . $this->ct->Env->encoded_current_url
+				$link .= '/index.php?option=com_customtables&amp;view=edititem&amp;returnto=' . $this->ct->Env->encoded_current_url
 					. '&amp;Itemid=' . $this->ct->Params->ItemId;
 
 			if (!is_null($this->ct->Params->ModuleId))
@@ -88,7 +91,8 @@ class Twig_Html_Tags
 				$link .= '&amp;ModuleId=' . $this->ct->Params->ModuleId;
 		} elseif (defined('WPINC')) {
 			$link = common::curPageURL();
-			$link = CTMiscHelper::deleteURLQueryOption($link, 'view');
+			$link = CTMiscHelper::deleteURLQueryOption($link, 'view' . $this->ct->Table->tableid);
+			$link .= (str_contains($link, '?') ? '&amp;' : '?') . 'view' . $this->ct->Table->tableid . '=edititem';
 		}
 
 		$alt = __("Add New", "customtables");
@@ -99,7 +103,7 @@ class Twig_Html_Tags
 			$img = '<img src="' . CUSTOMTABLES_MEDIA_WEBPATH . 'images/icons/new.png" alt="' . $alt . '" title="' . $alt . '" />';
 		}
 
-		return '<a href="' . CUSTOMTABLES_MEDIA_HOME_URL . $link . '" id="ctToolBarAddNew' . $this->ct->Table->tableid . '" class="toolbarIcons">' . $img . '</a>';
+		return '<a href="' . $link . '" id="ctToolBarAddNew' . $this->ct->Table->tableid . '" class="toolbarIcons">' . $img . '</a>';
 	}
 
 	function importcsv(): string
@@ -796,22 +800,27 @@ class Twig_Html_Tags
 
 	function button($type = 'save', $title = '', $redirectlink = null, $optional_class = '')
 	{
-		if ($this->ct->app->getName() == 'administrator')   //since   3.2
-			$formName = 'adminForm';
-		else {
-			if ($this->ct->Env->isModal)
-				$formName = 'ctEditModalForm';
+		if (defined('_JEXEC')) {
+			if ($this->ct->app->getName() == 'administrator')   //since   3.2
+				$formName = 'adminForm';
 			else {
-				$formName = 'ctEditForm';
-				$formName .= $this->ct->Params->ModuleId;
+				if ($this->ct->Env->isModal)
+					$formName = 'ctEditModalForm';
+				else {
+					$formName = 'ctEditForm';
+					$formName .= $this->ct->Params->ModuleId;
+				}
 			}
+
+		} elseif (defined('WPINC')) {
+			$formName = 'ctEditForm';
 		}
 
 		if ($this->ct->Env->frmt != '' and $this->ct->Env->frmt != 'html')
-			return '';
+			return '1';
 
 		if ($this->ct->Env->isPlugin)
-			return '';
+			return '2';
 
 		if ($redirectlink === null and !is_null($this->ct->Params->returnTo))
 			$redirectlink = $this->ct->Params->returnTo;

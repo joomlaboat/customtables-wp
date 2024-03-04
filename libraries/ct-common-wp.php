@@ -18,9 +18,12 @@ use RecursiveIteratorIterator;
 
 class common
 {
-	public static function enqueueMessage($text, string $type = 'error'): void
+	public static function enqueueMessage(string $text, string $type = 'error'): void
 	{
-		echo '<div class="success-message">' .esc_html($text) . '</div>';
+		if ($type == 'notice')
+			set_transient('plugin_success_message', $text, 60);
+		elseif ($type == 'error')
+			set_transient('plugin_error_message', $text, 60);
 	}
 
 	public static function inputPostString($parameter, ?string $default, string $action): ?string
@@ -138,7 +141,7 @@ class common
 		return ltrim($result, '.');
 	}
 
-	public static function inputPostRow(string $parameter, ?string $default, string $action): ?string
+	public static function inputPostRaw(string $parameter, ?string $default, string $action): ?string
 	{
 		if (isset($_POST['_wpnonce'])) {
 			if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
@@ -622,9 +625,9 @@ class common
 		$sanitized_array = [];
 		foreach ($input as $item) {
 			// Ensure the item is an integer and meets any other criteria you have
-			if($type == 'int')
+			if ($type == 'int')
 				$sanitized_item = intval($item);
-			elseif($type == 'string')
+			elseif ($type == 'string')
 				$sanitized_item = sanitize_text_field($item);
 			else
 				$sanitized_item = null;
@@ -632,5 +635,50 @@ class common
 			$sanitized_array[] = $sanitized_item;
 		}
 		return $sanitized_array;
+	}
+
+	public static function filterText(?string $text): string
+	{
+		if ($text === null)
+			return '';
+
+		$allowed_html = array(
+			'a' => array(
+				'href' => array(),
+				'title' => array()
+			),
+			'b' => array(),
+			'strong' => array(),
+			'em' => array(),
+			'i' => array(),
+			'u' => array(),
+			'br' => array(),
+			'p' => array(),
+			'ul' => array(),
+			'ol' => array(),
+			'li' => array(),
+			'blockquote' => array(),
+			'pre' => array(),
+			'code' => array(),
+			'div' => array(
+				'style' => array()
+			),
+			'hr' => array(
+				'style' => array()
+			),
+		);
+
+		return wp_kses($text, $allowed_html);
+	}
+
+	public static function redirect(string $link, ?string $msg = null): void
+	{
+		echo '<script>window.location.replace("' . esc_url($link) . '");</script>';
+		exit;
+	}
+
+	public static function loadJSAndCSS(Params $params, Environment $env): void
+	{
+		wp_enqueue_script('custom-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), '1.1.5', true);
 	}
 }

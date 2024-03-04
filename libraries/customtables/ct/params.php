@@ -84,7 +84,7 @@ class Params
 
 	var bool $blockExternalVars;
 
-	function __construct(array $menu_params = null, $blockExternalVars = false, ?string $ModuleId = null)
+	function __construct(?array $menu_params = null, $blockExternalVars = false, ?string $ModuleId = null)
 	{
 		$this->ModuleId = null;
 		$this->blockExternalVars = $blockExternalVars;
@@ -432,11 +432,14 @@ class Params
 
 	function setWPParams(array $menu_params = null, $blockExternalVars = true, ?string $ModuleId = null): void
 	{
-		$this->setDefault();
+
 	}
 
 	protected function constructWPParams(): void
 	{
 		$this->setDefault();
+
+		$this->returnTo = common::curPageURL();
+		$this->returnTo = CTMiscHelper::deleteURLQueryOption($this->returnTo, 'listing_id');
 	}
 }
