@@ -679,6 +679,6 @@ class common
 
 	public static function loadJSAndCSS(Params $params, Environment $env): void
 	{
-		wp_enqueue_script('custom-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), '1.1.5', true);
+
 	}
 }

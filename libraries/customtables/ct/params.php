@@ -19,7 +19,6 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Version;
 use Joomla\Registry\Registry;
-use JRoute;
 
 class Params
 {
@@ -114,7 +113,7 @@ class Params
 
 			if (!is_null($ModuleId)) {
 				$module = ModuleHelper::getModuleById($ModuleId);
-				$menu_params = new Registry;
+				$menu_params = new Registry;//Joomla Specific
 				$menu_params->loadString($module->params);
 				$blockExternalVars = false;
 				//Do not block external var parameters because this is the edit form or a task
@@ -133,7 +132,7 @@ class Params
 		$this->setParams($menu_params, $blockExternalVars, $ModuleId);
 	}
 
-	public static function menuParamsRegistry2Array(Registry $menu_params_registry)
+	public static function menuParamsRegistry2Array(Registry $menu_params_registry): array
 	{
 		$menu_params = [];
 		$menu_params['page_title'] = $menu_params_registry->get('page_title') ?? null;
@@ -243,7 +242,7 @@ class Params
 			$this->tableName = common::inputGetInt("tableid");//Used in Save Modal form content.
 
 		if ($this->tableName === null) {
-			$this->tableName = $menu_params['establename']; //Table name or id not sanitized
+			$this->tableName = $menu_params['establename'] ?? null; //Table name or id not sanitized
 			if ($this->tableName === null or $this->tableName === null)
 				$this->tableName = $menu_params['tableid']; //Used in the back-end
 		}

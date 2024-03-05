@@ -18,7 +18,6 @@ use Exception;
 use Joomla\CMS\Factory;
 use CustomTablesKeywordSearch;
 use Joomla\CMS\Language\Text;
-use Joomla\Registry\Registry;
 use CustomTables\CustomPHP\CleanExecute;
 
 class CT

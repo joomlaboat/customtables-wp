@@ -90,7 +90,6 @@ class Frontend {
 		 */
 
 		//wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/customtables-frontend.js', array( 'jquery' ), $this->version, false );
-
 	}
 }
 

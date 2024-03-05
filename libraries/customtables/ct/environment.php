@@ -16,7 +16,6 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Version;
 use Joomla\CMS\Factory;
-use Joomla\Registry\Registry;
 use Joomla\CMS\Component\ComponentHelper;
 
 class Environment
@@ -58,8 +57,8 @@ class Environment
 				$plugin = PluginHelper::getPlugin('content', 'customtables');
 
 				if (!is_null($plugin) and is_object($plugin) > 0) {
-					$pluginParams = new Registry($plugin->params);//Joomla specific
-					$this->CustomPHPEnabled = (int)$pluginParams->get("phpPlugin") == 1;
+					$pluginParamsArray = json_decode($plugin->params);
+					$this->CustomPHPEnabled = (int)$pluginParamsArray->phpPlugin == 1;
 				}
 			}
 			$this->field_prefix = 'es_';

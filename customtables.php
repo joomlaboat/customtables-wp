@@ -82,7 +82,9 @@ class customtables
 	 */
 	public static function init()
 	{
+		echo '11111111';
 		if (null == self::$init) {
+			echo '22222222222';
 			self::$init = new Inc\Core\Init();
 			self::$init->run();
 		}
@@ -131,6 +133,21 @@ function enqueue_codemirror() {
 
 if ($page == 'customtables-layouts-edit')
 	add_action('admin_enqueue_scripts', 'CustomTablesWP\enqueue_codemirror');
+
+function enqueue_frontend_scripts()
+{
+	wp_enqueue_script('ct-edit-form-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), '1.1.5', true);
+	wp_enqueue_script('ct-catalog-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/catalog.js', array(), '1.1.5', true);
+
+	// Add inline script after enqueuing the main script
+	wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url(home_url()) . '";');
+}
+
+if(!is_admin())
+{
+	echo 'Do the most important shit.';
+	add_action('wp_enqueue_scripts', 'CustomTablesWP\enqueue_frontend_scripts');
+}
 
 // Function to generate real content based on block attributes
 function customtables_dynamic_block_block_init()

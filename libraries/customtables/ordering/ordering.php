@@ -15,7 +15,6 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Exception;
 use Joomla\CMS\Factory;
-use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
 
 class Ordering
