@@ -82,9 +82,7 @@ class customtables
 	 */
 	public static function init()
 	{
-		echo '11111111';
 		if (null == self::$init) {
-			echo '22222222222';
 			self::$init = new Inc\Core\Init();
 			self::$init->run();
 		}
@@ -144,10 +142,7 @@ function enqueue_frontend_scripts()
 }
 
 if(!is_admin())
-{
-	echo 'Do the most important shit.';
 	add_action('wp_enqueue_scripts', 'CustomTablesWP\enqueue_frontend_scripts');
-}
 
 // Function to generate real content based on block attributes
 function customtables_dynamic_block_block_init()

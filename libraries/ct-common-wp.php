@@ -445,7 +445,7 @@ class common
 			// Get the current URL
 			//$current_url = esc_url_raw(home_url(add_query_arg(array(), $wp->request)));
 
-			$currentURL = CTMiscHelper::curPageURL();
+			$currentURL = common::curPageURL();
 		}
 
 		// Generate a unique identifier for the session variable
@@ -467,7 +467,7 @@ class common
 	public static function curPageURL(): string
 	{
 		$WebsiteRoot = str_replace(site_url(), '', home_url());
-		$RequestURL = sanitize_text_field($_SERVER["REQUEST_URI"]);
+		$RequestURL = esc_url($_SERVER["REQUEST_URI"]);
 
 		if ($WebsiteRoot !== '' && str_ends_with($WebsiteRoot, '/')) {
 			if ($RequestURL !== '' && $RequestURL[0] === '/') {
@@ -679,6 +679,5 @@ class common
 
 	public static function loadJSAndCSS(Params $params, Environment $env): void
 	{
-
 	}
 }
