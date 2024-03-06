@@ -34,8 +34,8 @@ use CustomTables\Layouts;
 		if ($attributes['table'] !== 0) {
 
 			$mixedLayout_safe = '';
-
 			$ct = new CT(null, false);
+
 			try {
 				$ct->getTable($attributes['table']);
 				if ($ct->Table->tablename !== null) {
@@ -45,8 +45,18 @@ use CustomTables\Layouts;
 						$layoutType = 2;
 						$layoutId = 0;
 					}
-                    else
-                        $layoutId = (int)$attributes['layout'];
+                    else {
+	                    $layoutType = $attributes['type'];
+
+	                    if((int)$layoutType == 1)
+		                    $layoutId = (int)$attributes['cataloglayout'];
+                        elseif((int)$layoutType == 2)
+		                    $layoutId = (int)$attributes['editlayout'];
+                        elseif((int)$layoutType == 4)
+		                    $layoutId = (int)$attributes['detailslayout'];
+	                    else
+		                    $layoutId = 0;
+                    }
 
 					$layouts = new Layouts($ct);
 					$mixedLayout_safe = $layouts->renderMixedLayout($layoutId, $layoutType);

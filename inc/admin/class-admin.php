@@ -278,7 +278,17 @@ class Admin
 				$ct = new CT(null, false);
 				$ct->getTable($attributes->table);
 				$layouts = new Layouts($ct);
-				die($layouts->renderMixedLayout((int)$attributes->layout));
+
+				if((int)$attributes->type == 1)
+					$layoutId = (int)$attributes->cataloglayout;
+				elseif((int)$attributes->type == 2)
+					$layoutId = (int)$attributes->editlayout;
+				elseif((int)$attributes->type == 4)
+					$layoutId = (int)$attributes->detailslayout;
+				else
+					$layoutId = 0;
+
+				die($layouts->renderMixedLayout($layoutId,(int)$attributes->type));
 
 			case 'customtables-tables-edit':
 				$tableId = common::inputGetInt('table');

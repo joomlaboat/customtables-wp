@@ -7,11 +7,23 @@
 	"category": "text",
 	"icon": "universal-access-alt",
 	"attributes": {
+		"type": {
+			"type": "string",
+			"default": 1
+		},
 		"table": {
 			"type": "string",
 			"default": 0
 		},
-		"layout": {
+		"cataloglayout": {
+			"type": "string",
+			"default": 0
+		},
+		"editlayout": {
+			"type": "string",
+			"default": 0
+		},
+		"detailslayout": {
 			"type": "string",
 			"default": 0
 		},

@@ -165,7 +165,8 @@ class Admin_Record_List extends WP_List_Table
             foreach ($this->ct->Records as $item) {
 
 	            //$labelText = $this->firstFieldRealName !== null ? $item[$this->firstFieldRealName] : $item[$this->ct->Table->realidfieldname];
-	            $labelText = $item[$this->ct->Table->realidfieldname];
+	            $labelText = $item[$this->firstFieldRealName];//$item[$this->ct->Table->realidfieldname];
+
 
 	            if ($item['listing_published'] == -2)
 		            $label = '<span>' . $labelText . '</span>';

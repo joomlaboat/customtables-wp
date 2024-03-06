@@ -1,3 +1,4 @@
+let customtables_types = [];
 let customtables_tables = [];
 let customtables_layouts = [];
 let customtables_prerenderedContent = [];
@@ -12,6 +13,7 @@ const definesUtilityFunction = function () {
         '"attributes":{"message":{}},"example":{"attributes":{"message":"CustomTables Block"}},"supports":{"html":false},"textdomain":"dynamic-block","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
 
     // Load list of tables, layouts and render the block and the side panel
+    CustomTablesLoadTypes();
     CustomTablesLoadTables();
     CustomTablesLoadLayouts();
 
@@ -23,6 +25,34 @@ const definesUtilityFunction = function () {
 };
 
 definesUtilityFunction();
+
+// Function to find label by value
+function findLabelByValue(value) {
+    for (let i = 0; i < customtables_types.length; i++) {
+        if (customtables_types[i].value === value) {
+            return customtables_types[i].label;
+        }
+    }
+    // If value not found, return null or appropriate fallback value
+    return null;
+}
+
+function CustomTablesLoadTypes() {
+    customtables_types = [
+        {
+            'label': 'Catalog',
+            'value': 1
+        },
+        {
+            'label': 'Edit Form',
+            'value': 2
+        }/*,
+        {
+            'label': 'Details (Single Record)',
+            'value': 4
+        }*/
+    ]
+}
 
 function CustomTablesLoadTables() {
     //Load list of tables
@@ -117,6 +147,11 @@ function CustomTablesRenderBlock(e, i) {
 
             //With Control Panel
             let blockProps = wp.blockEditor.useBlockProps();
+            console.log(JSON.stringify(blockProps.className));
+
+            blockProps.className = 'block-editor-block-list__block wp-block is-selected wp-block-image';
+
+            console.log(JSON.stringify(blockProps.className));
 
             props.attributes.loading = 0;
             let blockId = cyrb53(JSON.stringify(props.attributes));
@@ -162,7 +197,37 @@ function CustomTablesRenderBlock(e, i) {
                                 },
                                 type: 'hidden'
                             }
-                        ), el(
+                        )
+
+                        , el(
+                            PanelBody,
+                            {
+                                title: __('Type'),
+                                initialOpen: true,
+                                className: '2grw-toggle grw-builder-connect 2grw-connect-business'
+                            },
+
+                            el(
+                                SelectControl,
+                                {
+                                    id: 'customtables_block_type',
+                                    name: 'customtables_block_type',
+                                    value: props.attributes.type,
+                                    options: customtables_types,
+                                    onChange: function (newValue) {
+                                        props.setAttributes({type: newValue});
+                                        props.setAttributes({loading: 0});
+
+                                        let newAttributes = props.attributes;
+                                        newAttributes.type = newValue;
+
+                                        CustomTablesLoadPreview(newAttributes, props);
+                                    }
+                                }
+                            )
+                        )
+
+                        , el(
                             PanelBody,
                             {
                                 title: __('Table'),
@@ -192,22 +257,72 @@ function CustomTablesRenderBlock(e, i) {
                         el(
                             PanelBody,
                             {
-                                title: __('Layout'),
+                                title: __('Catalog Layout'),
                                 initialOpen: true
                             },
                             el(
                                 SelectControl,
                                 {
-                                    id: 'customtables_block_layout',
-                                    name: 'customtables_block_layout',
-                                    value: props.attributes.layout,
+                                    id: 'customtables_block_cataloglayout',
+                                    name: 'customtables_block_cataloglayout',
+                                    value: props.attributes.cataloglayout,
                                     options: customtables_layouts,
                                     onChange: function (newValue) {
-                                        props.setAttributes({layout: newValue});
+                                        props.setAttributes({cataloglayout: newValue});
                                         props.setAttributes({loading: 0});
 
                                         let newAttributes = props.attributes;
-                                        newAttributes.layout = newValue;
+                                        newAttributes.cataloglayout = newValue;
+
+                                        CustomTablesLoadPreview(newAttributes, props);
+                                    }
+                                }
+                            )
+                        ),
+                        el(
+                            PanelBody,
+                            {
+                                title: __('Edit Form Layout'),
+                                initialOpen: true
+                            },
+                            el(
+                                SelectControl,
+                                {
+                                    id: 'customtables_block_editlayout',
+                                    name: 'customtables_block_editlayout',
+                                    value: props.attributes.editlayout,
+                                    options: customtables_layouts,
+                                    onChange: function (newValue) {
+                                        props.setAttributes({editlayout: newValue});
+                                        props.setAttributes({loading: 0});
+
+                                        let newAttributes = props.attributes;
+                                        newAttributes.editlayout = newValue;
+
+                                        CustomTablesLoadPreview(newAttributes, props);
+                                    }
+                                }
+                            )
+                        ),
+                        el(
+                            PanelBody,
+                            {
+                                title: __('Details View Layout'),
+                                initialOpen: true
+                            },
+                            el(
+                                SelectControl,
+                                {
+                                    id: 'customtables_block_detailslayout',
+                                    name: 'customtables_block_detailslayout',
+                                    value: props.attributes.detailslayout,
+                                    options: customtables_layouts,
+                                    onChange: function (newValue) {
+                                        props.setAttributes({detailslayout: newValue});
+                                        props.setAttributes({loading: 0});
+
+                                        let newAttributes = props.attributes;
+                                        newAttributes.detailslayout = newValue;
 
                                         CustomTablesLoadPreview(newAttributes, props);
                                     }
@@ -280,18 +395,35 @@ function CustomTablesRenderBlock(e, i) {
                     )
                 ),
                 el(
-                    'div',
+                    'fieldset',
                     {
                         id: 'customtables-block-wizard',
                         title: 'CustomTables Block',
                         style: {
                             'display': 'block',
                             'padding': '10px 20px',
-                        }
+                            'overflow': 'hidden',
+                            'width': '100%',
+                        },
+                        class: 'components-placeholder block-editor-media-placeholder is-large has-illustration'
                     },
                     el(
+                        'legend',
+                        {
+                            style: {
+                                'background-color': 'white'
+                            }
+                        },
+                        'Type: ' + findLabelByValue(parseInt(props.attributes.type))
+                    ),
+                    el(
                         wp.element.RawHTML,
-                        null,
+                        {
+                            style: {
+                                'display': 'block',
+                                'overflow': 'hidden'
+                            }
+                        },
                         generatedPreview
                     )
                 )
@@ -303,7 +435,9 @@ function CustomTablesRenderBlock(e, i) {
             let attributes = props.attributes;
             let newAttributes = {
                 table: attributes.table,
-                layout: attributes.layout,
+                cataloglayout: attributes.cataloglayout,
+                editlayout: attributes.editlayout,
+                detailslayout: attributes.detailslayout,
                 filter: attributes.filter,
                 orderby: attributes.orderby,
                 order: attributes.order,

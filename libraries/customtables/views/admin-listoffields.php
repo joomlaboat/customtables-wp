@@ -109,6 +109,10 @@ class ListOfFields
 
 	protected function renderBodyLine(object $item, int $i, $canCheckin, $userChkOut): string
 	{
+		if (defined('WPINC')) {
+			return 'renderBodyLine not supported yet by WordPress version of the Custom Tables.';
+		}
+
 		$hashRealTableName = database::realTableName($this->ct->Table->realtablename);
 		$hashRealTableName = str_replace($this->dbPrefix, '#__', $hashRealTableName);
 
