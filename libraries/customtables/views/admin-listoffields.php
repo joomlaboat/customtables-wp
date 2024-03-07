@@ -110,7 +110,7 @@ class ListOfFields
 	protected function renderBodyLine(object $item, int $i, $canCheckin, $userChkOut): string
 	{
 		if (defined('WPINC')) {
-			return 'renderBodyLine not supported yet by WordPress version of the Custom Tables.';
+			return 'renderBodyLine is meant for Joomla only. WordPress has another method to show the list of fields.';
 		}
 
 		$hashRealTableName = database::realTableName($this->ct->Table->realtablename);

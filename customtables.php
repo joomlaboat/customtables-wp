@@ -41,6 +41,11 @@ define(CTWP . 'PLUGIN_BASENAME', plugin_basename(__FILE__));
 
 define(CTWP . 'PLUGIN_TEXT_DOMAIN', 'customtables');
 
+$CUSTOM_TABLES_ENQUEUE = array(
+	'style' => null,
+	'script' => null
+);
+
 /**
  * Autoload Classes
  */
@@ -132,17 +137,14 @@ function enqueue_codemirror() {
 if ($page == 'customtables-layouts-edit')
 	add_action('admin_enqueue_scripts', 'CustomTablesWP\enqueue_codemirror');
 
+/*
 function enqueue_frontend_scripts()
 {
-	wp_enqueue_script('ct-edit-form-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), '1.1.5', true);
-	wp_enqueue_script('ct-catalog-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/catalog.js', array(), '1.1.5', true);
-
-	// Add inline script after enqueuing the main script
-	wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url(home_url()) . '";');
 }
 
 if(!is_admin())
 	add_action('wp_enqueue_scripts', 'CustomTablesWP\enqueue_frontend_scripts');
+*/
 
 // Function to generate real content based on block attributes
 function customtables_dynamic_block_block_init()

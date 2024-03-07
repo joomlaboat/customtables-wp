@@ -3,7 +3,7 @@ Contributors: @ivankomlev
 Donate link: https://ct4.us/
 Tags: custom tables, custom fields, database, catalog, forms
 Requires at least: 6.0
-Tested up to: 6.3.2
+Tested up to: 6.4.3
 Stable tag: 1.1.5
 Requires PHP: 8.0
 License: GPLv2 or later
@@ -37,27 +37,31 @@ or any other type of data that you need to display on your site.
 
 = 1.0.0 =
 * First WordPress version of the Custom Tables.
-
-== Upgrade Notice ==
 = 1.1.0 =
 * Block Widget added.
-
-== Upgrade Notice ==
 = 1.1.1 =
 * Plugin Check Errors fixed.
-
-== Upgrade Notice ==
 = 1.1.2 =
 * Plugin Check Errors reviewed and fixed where possible.
-
-== Upgrade Notice ==
 = 1.1.3 =
 * Plugin Check - More issues reviewed and fixed.
-
-== Upgrade Notice ==
 = 1.1.4 =
 * Plugin Check - Escape and translation review warnings fixed.
+= 1.1.5 =
+* Catalog Front-end view improved. Edit Form added.
+= 1.1.0 =
+* Block Widget added.
+= 1.1.1 =
+* Plugin Check Errors fixed.
+= 1.1.2 =
+* Plugin Check Errors reviewed and fixed where possible.
+= 1.1.3 =
+* Plugin Check - More issues reviewed and fixed.
+= 1.1.4 =
+* Plugin Check - Escape and translation review warnings fixed.
+= 1.1.5 =
+* Catalog Front-end view improved. Edit Form added.
 
 == Upgrade Notice ==
 = 1.1.5 =
-* Catalog Front-end view improved. Edit Form added.
+* First public WordPress plugin release.
