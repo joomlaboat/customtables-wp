@@ -288,7 +288,8 @@ class Admin
 				else
 					$layoutId = 0;
 
-				die($layouts->renderMixedLayout($layoutId,(int)$attributes->type));
+				$output = $layouts->renderMixedLayout($layoutId,(int)$attributes->type);
+				die($output['html']);
 
 			case 'customtables-tables-edit':
 				$tableId = common::inputGetInt('table');

@@ -20,30 +20,31 @@ use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\Layouts;
 
-function enqueue_frontend_scripts()
-{
-	global $CUSTOM_TABLES_ENQUEUE;
+if(!function_exists('enqueue_frontend_scripts')) {
+	function enqueue_frontend_scripts()
+	{
+		global $CUSTOM_TABLES_ENQUEUE;
 
-	wp_enqueue_script('ct-edit-form-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), '1.1.6', true);
-	wp_enqueue_script('ct-catalog-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/catalog.js', array(), '1.1.6', true);
+		wp_enqueue_script('ct-edit-form-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), '1.1.6', true);
+		wp_enqueue_script('ct-catalog-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/catalog.js', array(), '1.1.6', true);
 
-	wp_enqueue_style('ct-catalog-style', CUSTOMTABLES_MEDIA_WEBPATH . 'css/style.css', array(), '1.1.6', true);
+		wp_enqueue_style('ct-catalog-style', CUSTOMTABLES_MEDIA_WEBPATH . 'css/style.css', array(), '1.1.6', true);
 
-	// Add inline script after enqueuing the main script
-	wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url(home_url()) . '";');
+		// Add inline script after enqueuing the main script
+		wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url(home_url()) . '";');
 
-	// Add inline script after enqueuing the main script
-	if (isset($CUSTOM_TABLES_ENQUEUE['style']) and $CUSTOM_TABLES_ENQUEUE['style'] !== null)
-		wp_add_inline_style('ct-catalog-style', $CUSTOM_TABLES_ENQUEUE['style']);
+		// Add inline script after enqueuing the main script
+		if (isset($CUSTOM_TABLES_ENQUEUE['style']) and $CUSTOM_TABLES_ENQUEUE['style'] !== null)
+			wp_add_inline_style('ct-catalog-style', $CUSTOM_TABLES_ENQUEUE['style']);
 
-	// Add inline script after enqueuing the main script
-	if (isset($CUSTOM_TABLES_ENQUEUE['script']) and $CUSTOM_TABLES_ENQUEUE['script'] !== null)
-		wp_add_inline_script('ct-edit-form-script', $CUSTOM_TABLES_ENQUEUE['script']);
+		// Add inline script after enqueuing the main script
+		if (isset($CUSTOM_TABLES_ENQUEUE['script']) and $CUSTOM_TABLES_ENQUEUE['script'] !== null)
+			wp_add_inline_script('ct-edit-form-script', $CUSTOM_TABLES_ENQUEUE['script']);
 
-	if (isset($CUSTOM_TABLES_ENQUEUE['recaptcha']) and $CUSTOM_TABLES_ENQUEUE['recaptcha'] !== null)
-	    wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js' );
+		if (isset($CUSTOM_TABLES_ENQUEUE['recaptcha']) and $CUSTOM_TABLES_ENQUEUE['recaptcha'] !== null)
+			wp_enqueue_script('google-recaptcha', 'https://www.google.com/recaptcha/api.js');
+	}
 }
-
 
 /*
  * <p <?php echo get_block_wrapper_attributes(); ?>>BLOCK1</p>
