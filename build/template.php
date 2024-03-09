@@ -24,10 +24,10 @@ function enqueue_frontend_scripts()
 {
 	global $CUSTOM_TABLES_ENQUEUE;
 
-	wp_enqueue_script('ct-edit-form-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), '1.1.5', true);
-	wp_enqueue_script('ct-catalog-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/catalog.js', array(), '1.1.5', true);
+	wp_enqueue_script('ct-edit-form-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), '1.1.6', true);
+	wp_enqueue_script('ct-catalog-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/catalog.js', array(), '1.1.6', true);
 
-	wp_enqueue_style('ct-catalog-style', CUSTOMTABLES_MEDIA_WEBPATH . 'css/style.css', array(), '1.1.5', true);
+	wp_enqueue_style('ct-catalog-style', CUSTOMTABLES_MEDIA_WEBPATH . 'css/style.css', array(), '1.1.6', true);
 
 	// Add inline script after enqueuing the main script
 	wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url(home_url()) . '";');
@@ -39,6 +39,9 @@ function enqueue_frontend_scripts()
 	// Add inline script after enqueuing the main script
 	if (isset($CUSTOM_TABLES_ENQUEUE['script']) and $CUSTOM_TABLES_ENQUEUE['script'] !== null)
 		wp_add_inline_script('ct-edit-form-script', $CUSTOM_TABLES_ENQUEUE['script']);
+
+	if (isset($CUSTOM_TABLES_ENQUEUE['recaptcha']) and $CUSTOM_TABLES_ENQUEUE['recaptcha'] !== null)
+	    wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js' );
 }
 
 
@@ -112,9 +115,11 @@ function enqueue_frontend_scripts()
 				if (isset($mixedLayout_array['script']) and $mixedLayout_array['script'] !== null)
 					$CUSTOM_TABLES_ENQUEUE['script'] = $mixedLayout_array['script'];
 
+				if (isset($mixedLayout_array['captcha']) and $mixedLayout_array['captcha'] !== null)
+					$CUSTOM_TABLES_ENQUEUE['recaptcha'] = $mixedLayout_array['captcha'];
+
 				add_action('wp_enqueue_scripts', 'enqueue_frontend_scripts');
 			}
-
 			echo $mixedLayout_safe;
 
 		} else {

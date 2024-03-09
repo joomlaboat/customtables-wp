@@ -13,9 +13,10 @@ namespace CustomTables;
 // no direct access
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+use Exception;
+use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use JESPagination;
-use JPluginHelper;
 
 class Twig_Html_Tags
 {
@@ -92,6 +93,8 @@ class Twig_Html_Tags
 			$link = common::curPageURL();
 			$link = CTMiscHelper::deleteURLQueryOption($link, 'view' . $this->ct->Table->tableid);
 			$link .= (str_contains($link, '?') ? '&amp;' : '?') . 'view' . $this->ct->Table->tableid . '=edititem';
+		} else {
+			return '{{ html.add }} not supported.';
 		}
 
 		$alt = __("Add New", "customtables");
@@ -176,10 +179,10 @@ class Twig_Html_Tags
 		if ($this->ct->Env->version < 4)
 			return '<div class="pagination">' . $pagination->getPagesLinks() . '</div>';
 		else
-			return '<div style="display:inline-block">' . $pagination->getPagesLinks() . '</div>';
+			return '<div style="display:inline-block;">' . $pagination->getPagesLinks() . '</div>';
 	}
 
-	function limit($the_step = 5)
+	function limit($the_step = 5): string
 	{
 		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
 			return '';
@@ -194,7 +197,7 @@ class Twig_Html_Tags
 		return __("Show", "customtables") . ': ' . $pagination->getLimitBox($the_step);
 	}
 
-	function orderby()
+	function orderby(): string
 	{
 		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
 			return '';
@@ -262,7 +265,7 @@ class Twig_Html_Tags
 		return $vlu;
 	}
 
-	function batch()
+	function batch(): string
 	{
 		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
 			return '';
@@ -329,15 +332,10 @@ class Twig_Html_Tags
 		if (count($html_buttons) == 0)
 			return '';
 
-		$vlu = implode('', $html_buttons);
-
-		if ($this->isTwig)
-			return $vlu;
-		else
-			return $vlu;
+		return implode('', $html_buttons);
 	}
 
-	protected function getAvailableModes()
+	protected function getAvailableModes(): array
 	{
 		$available_modes = array();
 		if ($this->ct->Env->user->id != 0) {
@@ -359,7 +357,7 @@ class Twig_Html_Tags
 		return $available_modes;
 	}
 
-	function print($linktype = '', $label = '', $class = 'ctEditFormButton btn button')
+	function print($linktype = '', $label = '', $class = 'ctEditFormButton btn button'): string
 	{
 		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
 			return '';
@@ -395,13 +393,13 @@ class Twig_Html_Tags
 			else
 				$vlu = '<input type="button" class="' . $class . '" value="' . $label . '" onClick=\'' . $onClick . '\' />';
 		}
-
-		if ($this->isTwig)
-			return $vlu;
-		else
-			return $vlu;
+		return $vlu;
 	}
 
+	/**
+	 * @throws Exception
+	 * @since 3.2.8
+	 */
 	function search($list_of_fields_string_or_array = null, $class = '', $reload = false, $improved = ''): string
 	{
 		if (is_string($reload))
@@ -585,8 +583,6 @@ class Twig_Html_Tags
 		} else {
 			return 'es_search_box_' . $fld['fieldname'] . ':' . $fld['fieldname'] . ':';
 		}
-
-		return '';
 	}
 
 	function searchbutton($label = '', $class_ = ''): string
@@ -627,7 +623,7 @@ class Twig_Html_Tags
 		}
 	}
 
-	function searchreset($label = '', $class_ = '')
+	function searchreset($label = '', $class_ = ''): string
 	{
 		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
 			return '';
@@ -664,7 +660,7 @@ class Twig_Html_Tags
 		}
 	}
 
-	function message($text, $type = 'Message')
+	function message($text, $type = 'Message'): ?string
 	{
 		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
 			return '';
@@ -683,7 +679,7 @@ class Twig_Html_Tags
 		return null;
 	}
 
-	function navigation($list_type = 'list', $ul_css_class = '')
+	function navigation($list_type = 'list', $ul_css_class = ''): string
 	{
 		if ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != '')
 			return '';
@@ -703,9 +699,9 @@ class Twig_Html_Tags
 			return 'navigation: Unknown list type';
 	}
 
-	protected function CleanNavigationPath($thePath)
+	protected function CleanNavigationPath($thePath): array
 	{
-		//Returns a list of unique search path criteria - eleminates duplicates
+		//Returns a list of unique search path criteria - eliminates duplicates
 		$newPath = array();
 		if (count($thePath) == 0)
 			return $newPath;
@@ -729,11 +725,14 @@ class Twig_Html_Tags
 		return array_reverse($newPath);
 	}
 
-	function captcha()
+	/**
+	 * @throws Exception
+	 * @since 3.2.8
+	 */
+	function captcha(): string
 	{
-		if (defined('WPINC')) {
-			return 'captcha not supported yet by WordPress version of the Custom Tables.';
-		}
+		if (!$this->ct->Env->advancedTagProcessor)
+			return '{{ html.captcha }} - Captcha Available in PRO Version only.';
 
 		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
 			return '';
@@ -744,72 +743,38 @@ class Twig_Html_Tags
 		if (!is_null($this->ct->Params->ModuleId))
 			return '';
 
+		$site_key = null;
+		$secret_key = null;
+
+		$functionParams = func_get_args();
+		if (isset($functionParams[0]))
+			$site_key = $functionParams[0];
+
+		if (isset($functionParams[1]))
+			$secret_key = $functionParams[1];
+
 		if (defined('_JEXEC')) {
-			if ($this->ct->Env->version >= 4) {
-				$wa = $this->ct->document->getWebAssetManager();
-				$wa->useScript('keepalive')->useScript('form.validate');
-			} else {
-				HTMLHelper::_('behavior.formvalidation');
-				HTMLHelper::_('behavior.keepalive');
-			}
-		} elseif (defined('WPINC')) {
-			return 'The tag "{{ html.captcha() }}" not yet supported by WordPress version of the Custom Tables.';
+			$app = Factory::getApplication();
+			$document = $app->getDocument();
+			$document->addCustomTag('<script src="https://www.google.com/recaptcha/api.js"></script>');
 		}
-
-		$p = $this->getReCaptchaParams();
-		if ($p === null) {
-			$this->ct->errors[] = '{{ html.captcha }} - Captcha plugin not enabled.';
-			return '';
-		}
-
-		$reCaptchaParams = json_decode($p->params);
-
-		if ($reCaptchaParams === null or $reCaptchaParams->public_key == "" or !isset($reCaptchaParams->size)) {
-			$this->ct->errors[] = '{{ html.captcha }} - Captcha Public Key or size not set.';
-			return '';
-		}
-
-		JPluginHelper::importPlugin('captcha');
-
-		if ($this->ct->Env->version < 4) {
-
-			$dispatcher = \JDispatcher::getInstance();
-			//$dispatcher = JEventDispatcher::getInstance();
-			$dispatcher->trigger('onInit', 'my_captcha_div');
-		} else {
-			$this->ct->app->triggerEvent('onInit', array(null, 'my_captcha_div', 'class=""'));
-		}
-
-		$vlu = '
-    <div id="my_captcha_div"
-		class="g-recaptcha"
-		data-sitekey="' . $reCaptchaParams->public_key . '"
-		data-theme="' . $reCaptchaParams->theme . '"
-		data-size="' . $reCaptchaParams->size . '"
-		data-callback="recaptchaCallback">
-	</div>';
 
 		$this->ct->LayoutVariables['captcha'] = true;
-		return $vlu;
+		$this->ct->LayoutVariables['captcha_secret_key'] = $secret_key;
+
+		if ($site_key === null)
+			return 'The tag "{{ html.captcha(SITE_KEY) }}" please provide the reCaptcha Site Key';
+
+		if ($secret_key === null)
+			return 'The tag "{{ html.captcha(SITE_KEY, SECRET_KEY) }}" please provide the reCaptcha Secret Key';
+
+		return '
+    <div id="my_captcha_div"
+		class="g-recaptcha"
+		data-sitekey="' . $site_key . '"
+		data-callback="recaptchaCallback">
+	</div>';
 	}
-
-	protected function getReCaptchaParams()
-	{
-		if (defined('_JEXEC')) {
-			$whereClause = new MySQLWhereClause();
-			$whereClause->addCondition('name', 'plg_captcha_recaptcha');
-
-			$rows = database::loadObjectList('#__extensions', ['params'], $whereClause, null, null, 1);
-			if (count($rows) == 0)
-				return null;
-			return $rows[0];
-		} elseif (defined('WPINC')) {
-			return null; //TODO: getReCaptchaParams not yet supported in WP
-		}
-		return null;
-	}
-
-	/* --------------------------- PROTECTED FUNCTIONS ------------------- */
 
 	function button($type = 'save', $title = '', $redirectlink = null, $optional_class = '')
 	{
@@ -892,7 +857,7 @@ class Twig_Html_Tags
 	}
 
 	protected function renderButtonHTML($optional_class, string $title, $formName, string $buttonId,
-	                                    string $redirect, bool $checkCaptcha, string $task): string
+										string $redirect, bool $checkCaptcha, string $task): string
 	{
 		if ($this->ct->Env->frmt == 'json')
 			return $title;
@@ -919,7 +884,7 @@ class Twig_Html_Tags
 		return '<input id="' . $buttonId . '" type="submit" class="' . $the_class . '"' . $attribute . ' onClick=\'' . $onclick . '\' value="' . $title . '">';
 	}
 
-	protected function renderSaveAndCloseButton($optional_class, $title, $redirectLink, $formName)
+	protected function renderSaveAndCloseButton($optional_class, $title, $redirectLink, $formName): string
 	{
 		if ($title == '')
 			$title = __("Save & Close", "customtables");
@@ -928,7 +893,7 @@ class Twig_Html_Tags
 		return $this->renderButtonHTML($optional_class, $title, $formName, "customtables_button_saveandclose", $returnToEncoded, true, "save");
 	}
 
-	protected function renderSaveAndPrintButton($optional_class, $title, $redirectLink, $formName)
+	protected function renderSaveAndPrintButton($optional_class, $title, $redirectLink, $formName): string
 	{
 		if ($title == '')
 			$title = __("Next", "customtables");
@@ -938,7 +903,7 @@ class Twig_Html_Tags
 		return $this->renderButtonHTML($optional_class, $title, $formName, "customtables_button_saveandprint", $returnToEncoded, true, "saveandprint");
 	}
 
-	protected function renderSaveAsCopyButton($optional_class, $title, $redirectLink, $formName)
+	protected function renderSaveAsCopyButton($optional_class, $title, $redirectLink, $formName): string
 	{
 		if ($title == '')
 			$title = __("Save as Copy", "customtables");
@@ -948,7 +913,7 @@ class Twig_Html_Tags
 		return $this->renderButtonHTML($optional_class, $title, $formName, "customtables_button_saveandcopy", $returnToEncoded, true, "saveascopy");
 	}
 
-	protected function renderCancelButton($optional_class, $title, $redirectLink, $formName)
+	protected function renderCancelButton($optional_class, $title, $redirectLink, $formName): string
 	{
 		if ($this->ct->Env->isModal)
 			return '';
@@ -992,7 +957,7 @@ class Twig_Html_Tags
                 \'>' . PHP_EOL;
 	}
 
-	function tablehead()
+	function tablehead(): string
 	{
 		$result = '<thead>';
 		$head_columns = func_get_args();
@@ -1005,12 +970,12 @@ class Twig_Html_Tags
 		return $result;
 	}
 
-	function recordlist()
+	function recordlist(): string
 	{
 		return $this->id_list();
 	}
 
-	protected function id_list()
+	protected function id_list(): string
 	{
 		if (!isset($this->ct->Table)) {
 			$this->ct->errors[] = '{{ record.list }} - Table not loaded.';
@@ -1028,7 +993,11 @@ class Twig_Html_Tags
 		return implode(',', $this->ct->Table->recordlist);
 	}
 
-	function toolbar()
+	/**
+	 * @throws Exception
+	 * @since 3.2.8
+	 */
+	function toolbar(): string
 	{
 		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
 			return '';
@@ -1066,7 +1035,7 @@ class Twig_Html_Tags
 		return implode('', $icons);
 	}
 
-	function checkboxcount()
+	function checkboxcount(): string
 	{
 		return '<span id="ctTable' . $this->ct->Table->tableid . 'CheckboxCount">0</span>';
 	}

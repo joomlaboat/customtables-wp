@@ -4,7 +4,7 @@ Donate link: https://ct4.us/
 Tags: custom tables, custom fields, database, catalog, forms
 Requires at least: 6.0
 Tested up to: 6.4.3
-Stable tag: 1.1.5
+Stable tag: 1.1.6
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -35,32 +35,12 @@ or any other type of data that you need to display on your site.
 
 == Changelog ==
 
-= 1.0.0 =
-* First WordPress version of the Custom Tables.
-= 1.1.0 =
-* Block Widget added.
-= 1.1.1 =
-* Plugin Check Errors fixed.
-= 1.1.2 =
-* Plugin Check Errors reviewed and fixed where possible.
-= 1.1.3 =
-* Plugin Check - More issues reviewed and fixed.
-= 1.1.4 =
-* Plugin Check - Escape and translation review warnings fixed.
+= 1.1.6 =
+{{ html.captcha() }} Twig Tag has been added.
+
 = 1.1.5 =
-* Catalog Front-end view improved. Edit Form added.
-= 1.1.0 =
-* Block Widget added.
-= 1.1.1 =
-* Plugin Check Errors fixed.
-= 1.1.2 =
-* Plugin Check Errors reviewed and fixed where possible.
-= 1.1.3 =
-* Plugin Check - More issues reviewed and fixed.
-= 1.1.4 =
-* Plugin Check - Escape and translation review warnings fixed.
-= 1.1.5 =
-* Catalog Front-end view improved. Edit Form added.
+First public WordPress plugin release.
+
 
 == Upgrade Notice ==
 = 1.1.5 =
