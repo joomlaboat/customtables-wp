@@ -5,7 +5,7 @@
 	"version": "1.0.0",
 	"title": "CustomTables Block",
 	"category": "text",
-	"icon": "universal-access-alt",
+	"icon": "editor-table",
 	"attributes": {
 		"type": {
 			"type": "string",
