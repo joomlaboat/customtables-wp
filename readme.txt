@@ -30,8 +30,8 @@ or any other type of data that you need to display on your site.
 
 == Screenshots ==
 
-1. Custom Tables - Dashboard
-2. Custom Tables - List of Tables
+1. "Dashboard" screen
+2. "List of Tables" screen
 
 == Changelog ==
 

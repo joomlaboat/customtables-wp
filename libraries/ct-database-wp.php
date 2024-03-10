@@ -409,7 +409,7 @@ class database
 		$realTableName = str_replace('#__', $wpdb->prefix, $table);
 
 		if ($realTableName != 'information_schema.columns' and $realTableName != 'information_schema.tables')
-			$realTableName = preg_replace('/[^a-zA-Z\d_ ]/', '', $realTableName);
+			$realTableName = preg_replace('/[^a-zA-Z.\d_ ]/', '', $realTableName);
 
 		//Select columns sanitation
 		$selects_sanitized = self::sanitizeSelects($selectsRaw, $realTableName);
@@ -550,6 +550,8 @@ class database
 				} else {
 					$selects[] = 'IF((customtablename IS NOT NULL AND customtablename!=""), customtablename, CONCAT("' . $wpdb->prefix . 'customtables_table_", tablename)) AS realtablename';
 				}
+			} elseif ($select == 'COLUMN_IS_UNSIGNED') {
+				$selects[] = 'IF(COLUMN_TYPE LIKE "%unsigned", "YES", "NO") AS COLUMN_IS_UNSIGNED';
 			} elseif ($select == 'REAL_ID_FIELD_NAME') {
 				if ($serverType == 'postgresql') {
 					$selects[] = 'CASE WHEN customidfield!="" THEN customidfield ELSE "id" END AS realidfieldname';
