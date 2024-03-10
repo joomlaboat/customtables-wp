@@ -190,7 +190,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                                 <br/>
                                 <input type="text" name="typeparams" id="typeparams" class=""
                                        readonly="readonly" maxlength="1024"
-                                       value="<?php echo esc_html($this->admin_field_edit->fieldRow['typeparams']); ?>">
+                                       value='<?php echo esc_html($this->admin_field_edit->fieldRow['typeparams']); ?>'>
                             </td>
                         </tr>
                     </table>

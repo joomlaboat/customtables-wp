@@ -82,7 +82,7 @@ class MySQLWhereClause
 
 		$this->orConditions[] = [
 			'field' => str_replace('#__', $wpdb->prefix, $fieldName),//Joomla way
-			'value' => str_replace('#__', $wpdb->prefix, $fieldValue),//Joomla way
+			'value' => $fieldValue !== null ? str_replace('#__', $wpdb->prefix, $fieldValue) : null,//Joomla way
 			'operator' => $operator,
 			'sanitized' => $sanitized
 		];
