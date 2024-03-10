@@ -4,7 +4,7 @@ Donate link: https://ct4.us/
 Tags: custom tables, custom fields, database, catalog, forms
 Requires at least: 6.0
 Tested up to: 6.4.3
-Stable tag: 1.1.6
+Stable tag: 1.1.7
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -41,6 +41,13 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 [Please contact us here with your query.](https://ct4.us/contact-us/)
 
 == Changelog ==
+
+= 1.1.7 =
+Twig Lib updated, CT Lib updated.
+
+Date Field type added.
+
+CSS style class file loads properly. Field type property null check added.
 
 = 1.1.6 =
 {{ html.captcha() }} Twig Tag has been added.
