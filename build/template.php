@@ -20,7 +20,7 @@ use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\Layouts;
 
-if(!function_exists('enqueue_frontend_scripts')) {
+if (!function_exists('enqueue_frontend_scripts')) {
 	function enqueue_frontend_scripts()
 	{
 		global $CUSTOM_TABLES_ENQUEUE;
@@ -43,6 +43,14 @@ if(!function_exists('enqueue_frontend_scripts')) {
 
 		if (isset($CUSTOM_TABLES_ENQUEUE['recaptcha']) and $CUSTOM_TABLES_ENQUEUE['recaptcha'] !== null)
 			wp_enqueue_script('google-recaptcha', 'https://www.google.com/recaptcha/api.js');
+
+		if (isset($CUSTOM_TABLES_ENQUEUE['fieldtype:date']) and $CUSTOM_TABLES_ENQUEUE['fieldtype:date']) {
+			wp_enqueue_script('jquery-ui-datepicker');
+			//wp_enqueue_style('ct-jquery-ui-dialog-style', get_site_url() . '/wp-includes/css/jquery-ui-dialog.css');
+			//wp_enqueue_style('jquery-ui-theme', "//code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css", array(), "1.13.2");
+			// Enqueue the jQuery UI Smoothness theme
+			wp_enqueue_style('jquery-ui-smoothness', '//code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css', array(), '1.13.2');
+		}
 	}
 }
 
@@ -118,6 +126,12 @@ if(!function_exists('enqueue_frontend_scripts')) {
 
 				if (isset($mixedLayout_array['captcha']) and $mixedLayout_array['captcha'] !== null)
 					$CUSTOM_TABLES_ENQUEUE['recaptcha'] = $mixedLayout_array['captcha'];
+
+				if (isset($mixedLayout_array['fieldtypes']) and $mixedLayout_array['fieldtypes'] !== null) {
+
+					if (in_array('date', $mixedLayout_array['fieldtypes']))
+						$CUSTOM_TABLES_ENQUEUE['fieldtype:date'] = true;
+				}
 
 				add_action('wp_enqueue_scripts', 'enqueue_frontend_scripts');
 			}

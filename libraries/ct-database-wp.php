@@ -1172,7 +1172,7 @@ class database
 				`COLUMN_NAME` AS column_name,
 				`DATA_TYPE` AS data_type,
 				`COLUMN_TYPE` AS column_type,
-				IF(`COLUMN_TYPE` LIKE %s, "YES", "NO") AS is_unsigned,
+				IF(`COLUMN_TYPE` LIKE %s, "YES", "NO") AS COLUMN_IS_UNSIGNED,
 				`IS_NULLABLE` AS is_nullable,
 				`COLUMN_DEFAULT` AS column_default,
 				`EXTRA` AS extra FROM `information_schema`.`COLUMNS` WHERE `TABLE_SCHEMA`=%s AND `TABLE_NAME`=%s', '%' . $wpdb->esc_like('unsigned') . '%', DB_NAME, $realtablename);

@@ -13,25 +13,32 @@ The CustomTables plugin allows you to create, manage, and display custom catalog
 
 == Description ==
 
-The Custom Tables plugin allows you to create, manage, and display custom data on your WordPress website.
+**The Custom Tables plugin allows you to create, manage, and display custom data on your WordPress website.**
+
 It is helpful if you need to display data that is not part of the standard WordPress content structure.
 For example, you could use this plugin to create a custom table for product information, customer data,
 or any other type of data that you need to display on your site.
 
-1. The Custom Tables is the CRUD solution for WordPress and Joomla websites.
-2. It has 40 Field Types: Integer (numbers), Decimal, Text String, Time, Email, Color, Image, File, User, Language, etc.
-3. It uses Twin template engine for output Layouts.
+* The Custom Tables is the CRUD solution for WordPress and Joomla websites.
+* It has 40 Field Types: Integer (numbers), Decimal, Text String, Time, Email, Color, Image, File, User, Language, etc.
+* It uses Twin template engine for output Layouts.
+
+= More information =
+Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](https://github.com/joomlaboat/custom-tables/wiki).
+
+
+== Screenshots ==
+
+1. "Create Table" screen
+2. "Add Fields" screen
+3. "Add Custom Tables Block" screen
+4. "Select Layout Type and Table" screen
 
 == Frequently Asked Questions ==
 
 = Do you have any questions? =
 
-[Please contact us here with your query.](https://joomlaboat.com/contact-us)
-
-== Screenshots ==
-
-1. "Dashboard" screen
-2. "List of Tables" screen
+[Please contact us here with your query.](https://ct4.us/contact-us/)
 
 == Changelog ==
 
