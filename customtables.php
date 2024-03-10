@@ -9,7 +9,7 @@
  * Plugin URI:        https://ct4.us/
  * GitHub:            https://github.com/joomlaboat/customtables-wp
  * Description:       CRUD solution for WordPress.
- * Version:           1.1.6
+ * Version:           1.1.7
  * Author:            Ivan Komlev
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
@@ -31,7 +31,7 @@ define(__NAMESPACE__ . '\CTWP', __NAMESPACE__ . '\\');
 
 define(CTWP . 'PLUGIN_NAME', 'customtables');
 
-define(CTWP . 'PLUGIN_VERSION', '1.1.6');
+define(CTWP . 'PLUGIN_VERSION', '1.1.7');
 
 define(CTWP . 'PLUGIN_NAME_DIR', plugin_dir_path(__FILE__));
 
