@@ -727,10 +727,10 @@
     <!-- User Tags -->
     <tagset name="user" label="User" description="Tags related Joomla user accounts." priority="2">
         <tag name="id" label="Current User ID" startchar="{" endchar="}"
-             description="Returns Current User ID" proversion="1" twigclass="user"/>
+             description="Returns Current User ID" proversion="1" twigclass="user" wordpress="true"/>
 
         <tag name="name" label="User Full Name" startchar="{" endchar="}"
-             description="Returns User full name." proversion="1" twigclass="user">
+             description="Returns User full name." proversion="1" twigclass="user" wordpress="true">
             <params>
                 <param name="userid" label="User ID"
                        description="To get the Full Name of the specific user, leave it blank to get the Current User's Full Name"
@@ -739,7 +739,7 @@
         </tag>
 
         <tag name="username" label="Username" startchar="{" endchar="}"
-             description="Returns Username." proversion="1" twigclass="user">
+             description="Returns Username." proversion="1" twigclass="user" wordpress="true">
             <params>
                 <param name="userid" label="User ID"
                        description="To get the Username of the specific user, leave it blank to get the Current User's Username"
@@ -748,7 +748,7 @@
         </tag>
 
         <tag name="email" label="Email" startchar="{" endchar="}"
-             description="Returns User email address." proversion="1" twigclass="user">
+             description="Returns User email address." proversion="1" twigclass="user" wordpress="true">
             <params>
                 <param name="userid" label="User ID"
                        description="To get the Email of the specific user, leave it blank to get the Current User's Email"
@@ -757,7 +757,7 @@
         </tag>
 
         <tag name="lastvisitdate" label="Last Visit Date" startchar="{" endchar="}"
-             description="Returns User Last Visit Date." proversion="1" twigclass="user">
+             description="Returns User Last Visit Date." proversion="1" twigclass="user" wordpress="true">
             <params>
                 <param name="userid" label="User ID"
                        description="To get the Last Visit Date of the specific user, leave it blank to get the Current User's Last Visit Date"
@@ -769,7 +769,7 @@
         </tag>
 
         <tag name="registerdate" label="Register Date" startchar="{" endchar="}"
-             description="Returns User Registration Date." proversion="1" twigclass="user">
+             description="Returns User Registration Date." proversion="1" twigclass="user" wordpress="true">
             <params>
                 <param name="userid" label="User ID"
                        description="To get the Register Date of the specific user, leave it blank to get the Current User's Register Date"
@@ -782,7 +782,7 @@
 
         <tag name="usergroups" label="User Groups" startchar="{" endchar="}"
              description="Returns an array of User Group names. Use |join(',') filter to return a string" proversion="1"
-             twigclass="user">
+             twigclass="user" wordpress="true">
             <params>
                 <param name="userid" label="User ID"
                        description="To get the User Group Names of the specific user, leave it blank to get the Current User's User Groups Names."
