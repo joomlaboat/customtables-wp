@@ -431,7 +431,7 @@ class database
 		$query_safe = "SELECT $selects_sanitized FROM " . $realTableName
 			. ($whereString != '' ? ' WHERE ' . $whereString : '')
 			. (!empty($groupBy) != '' ? ' GROUP BY ' . $groupBy : '')
-			. (!empty($order) ? ' ORDER BY ' . $order . ($orderBy !== null and strtolower($orderBy) == 'desc' ? ' DESC' : '') : '')
+			. (!empty($order) ? ' ORDER BY ' . $order . (($orderBy !== null and strtolower($orderBy) == 'desc') ? ' DESC' : '') : '')
 			. (!empty($limit) ? ' LIMIT %d' : '')//Use of single explicit placeholder is needed for WPCS verification because it thinks that $placeholders is a single variable, but it's an array
 			. (!empty($limitStart) ? ' OFFSET ' . (int)$limitStart : '');
 
@@ -469,7 +469,6 @@ class database
 				// Extract a single column from the associative array of associative arrays{
 				return array_column($results, $firstColumnName);
 			} else {
-				//echo '$query_safe:'.$query_safe;
 				return [];
 			}
 		}
