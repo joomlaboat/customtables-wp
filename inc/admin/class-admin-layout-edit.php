@@ -16,6 +16,7 @@ use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\Layouts;
 use CustomTables\ListOfLayouts;
+use CustomTables\Tables;
 use Exception;
 
 class Admin_Layout_Edit
@@ -28,6 +29,7 @@ class Admin_Layout_Edit
     public ListOfLayouts $helperListOfLayouts;
     public ?int $layoutId;
     public ?array $layoutRow;
+	public array $allTables;
 
 	/**
 	 * @throws Exception
@@ -51,6 +53,8 @@ class Admin_Layout_Edit
         {
             $this->layoutRow = null;
         }
+
+		$this->allTables = Tables::getAllTables();
 
         add_action('admin_enqueue_scripts', array($this, 'codemirror_enqueue_scripts'));
     }

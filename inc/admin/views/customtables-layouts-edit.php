@@ -12,6 +12,8 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 //include ('customtables-layouts-edit-help.php');
 
+use CustomTables\common;
+use CustomTables\Fields;
 use CustomTables\ListOfLayouts;
 
 include('customtables-layouts-edit-head.php');
@@ -21,11 +23,23 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 $onPageLoads = array();
 
 ?>
-<?php if ($this->admin_layout_edit->ct->Env->advancedTagProcessor): ?>
     <script>
+		<?php if ($this->admin_layout_edit->ct->Env->advancedTagProcessor): ?>
         proversion = true;
+		<?php endif; ?>
+        all_tables = <?php echo wp_kses_post(wp_json_encode($this->admin_layout_edit->allTables)) ?>;
     </script>
-<?php endif; ?>
+<?php
+foreach ($this->admin_layout_edit->allTables as $table) {
+	$fields = Fields::getFields($table[0], true);
+	$list = array();
+	foreach ($fields as $field)
+		$list[] = [$field->id, $field->fieldname];
+
+	echo '<div id="fieldsData' . $table[0] . '" style="display:none;">' . common::ctJsonEncode($list) . '</div>
+    ';
+}
+?>
 
     <div class="wrap">
 
