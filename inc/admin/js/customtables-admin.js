@@ -103,7 +103,6 @@ function CustomTablesAdminLayoutsTabClicked(index, id) {
         else if (index === 3)
             cm.codemirror.setOption("mode", 'javascript');
 
-        cm.codemirror.refresh();
         adjustEditorHeight();
     }, 100);
     return false;
