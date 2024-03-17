@@ -46,12 +46,23 @@ if (!function_exists('enqueue_frontend_scripts')) {
 
 		if (isset($CUSTOM_TABLES_ENQUEUE['fieldtype:date']) and $CUSTOM_TABLES_ENQUEUE['fieldtype:date']) {
 			wp_enqueue_script('jquery-ui-datepicker');
-			//wp_enqueue_style('ct-jquery-ui-dialog-style', get_site_url() . '/wp-includes/css/jquery-ui-dialog.css');
-			//wp_enqueue_style('jquery-ui-theme', "//code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css", array(), "1.13.2");
 			// Enqueue the jQuery UI Smoothness theme
 			wp_enqueue_style('jquery-ui-smoothness', '//code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css', array(), '1.13.2');
 		}
 	}
+
+    /*
+     * It will be used in the future
+
+	function customtables_wp_title( $title, $sep ) {
+		global $post;
+		if ( is_single() || is_page() ) {
+			$new_title = 'Your 123 Custom Page Title'; // Replace with your desired page title
+			return $new_title;
+		}
+		return $title;
+	}
+    */
 }
 
 /*
@@ -134,6 +145,7 @@ if (!function_exists('enqueue_frontend_scripts')) {
 				}
 
 				add_action('wp_enqueue_scripts', 'enqueue_frontend_scripts');
+				//add_filter( 'wp_title', 'customtables_wp_title', 10, 2 );
 			}
 			echo $mixedLayout_safe;
 
