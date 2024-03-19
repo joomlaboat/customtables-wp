@@ -122,6 +122,21 @@ class Admin
 			wp_enqueue_script('customtables-js-typeparams_common', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/typeparams_common.js', array(), $this->version, false);
 			wp_enqueue_script('customtables-js-typeparams_j4', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/typeparams_j4.js', array(), $this->version, false);
 		}
+
+		if ($page == 'customtables-records-edit') {
+
+			// Add inline script after enqueuing the main script
+			wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url(home_url()) . '";');
+
+			// Enqueue jQuery UI
+			wp_enqueue_script( 'jquery-ui-core' );
+
+			wp_enqueue_script('ct-edit-form-script-jquery-ui-min', \CustomTablesWP\PLUGIN_NAME_URL  .'assets/jquery-ui.min.js', array(), $this->version);
+			wp_enqueue_style('ct-edit-form-style-jquery-timepicker', \CustomTablesWP\PLUGIN_NAME_URL  .'assets/jquery.datetimepicker.min.css', array(), $this->version);
+
+			//Include jQuery UI Timepicker addon from CDN
+			wp_enqueue_script('ct-edit-form-script-jquery-timepicker', \CustomTablesWP\PLUGIN_NAME_URL  .'assets/jquery.datetimepicker.full.min.js', array(), $this->version);
+		}
 	}
 
 	/**

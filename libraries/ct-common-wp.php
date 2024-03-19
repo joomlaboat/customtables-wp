@@ -680,4 +680,20 @@ class common
 	public static function loadJSAndCSS(Params $params, Environment $env): void
 	{
 	}
+
+	public static function formatDate(?string $date = null, ?string $format = 'Y-m-d H:i:s', ?string $emptyValue = 'Never'): ?string
+	{
+		if ($format === null)
+			$format = 'Y-m-d H:i:s';
+
+		if ($date === null or $date == '0000-00-00 00:00:00')
+			return $emptyValue;
+
+		$timestamp = strtotime($date);
+
+		if ($format === 'timestamp')
+			return (string)$timestamp;
+
+		return date_i18n($format, $timestamp);
+	}
 }

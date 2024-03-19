@@ -19,16 +19,17 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\Layouts;
+use const CustomTablesWP\CTWP;
 
 if (!function_exists('enqueue_frontend_scripts')) {
 	function enqueue_frontend_scripts()
 	{
 		global $CUSTOM_TABLES_ENQUEUE;
 
-		wp_enqueue_script('ct-edit-form-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), '1.1.7', true);
-		wp_enqueue_script('ct-catalog-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/catalog.js', array(), '1.1.7', true);
+		wp_enqueue_script('ct-edit-form-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
+		wp_enqueue_script('ct-catalog-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/catalog.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
 
-		wp_enqueue_style('ct-catalog-style', CUSTOMTABLES_MEDIA_WEBPATH . 'css/style.css', array(), '1.1.7', false);
+		wp_enqueue_style('ct-catalog-style', CUSTOMTABLES_MEDIA_WEBPATH . 'css/style.css', array(), \CustomTablesWP\PLUGIN_VERSION, false);
 
 		// Add inline script after enqueuing the main script
 		wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url(home_url()) . '";');
@@ -45,9 +46,15 @@ if (!function_exists('enqueue_frontend_scripts')) {
 			wp_enqueue_script('google-recaptcha', 'https://www.google.com/recaptcha/api.js');
 
 		if (isset($CUSTOM_TABLES_ENQUEUE['fieldtype:date']) and $CUSTOM_TABLES_ENQUEUE['fieldtype:date']) {
-			wp_enqueue_script('jquery-ui-datepicker');
-			// Enqueue the jQuery UI Smoothness theme
-			wp_enqueue_style('jquery-ui-smoothness', '//code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css', array(), '1.13.2');
+
+            // Enqueue jQuery UI
+			wp_enqueue_script( 'jquery-ui-core' );
+
+			wp_enqueue_script('ct-edit-form-script-jquery-ui-min', CustomTablesWP\PLUGIN_NAME_URL  .'assets/jquery-ui.min.js');
+			wp_enqueue_style('ct-edit-form-style-jquery-timepicker', CustomTablesWP\PLUGIN_NAME_URL  .'assets/jquery.datetimepicker.min.css', array(), \CustomTablesWP\PLUGIN_VERSION);
+
+			//Include jQuery UI Timepicker addon from CDN
+			wp_enqueue_script('ct-edit-form-script-jquery-timepicker', CustomTablesWP\PLUGIN_NAME_URL  .'assets/jquery.datetimepicker.full.min.js');
 		}
 	}
 
@@ -142,6 +149,9 @@ if (!function_exists('enqueue_frontend_scripts')) {
 
 					if (in_array('date', $mixedLayout_array['fieldtypes']))
 						$CUSTOM_TABLES_ENQUEUE['fieldtype:date'] = true;
+
+					if (in_array('datetime', $mixedLayout_array['fieldtypes']))
+						$CUSTOM_TABLES_ENQUEUE['fieldtype:datetime'] = true;
 				}
 
 				add_action('wp_enqueue_scripts', 'enqueue_frontend_scripts');
