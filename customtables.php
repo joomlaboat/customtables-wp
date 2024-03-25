@@ -1,25 +1,24 @@
 <?php
 /**
- * @link              https://ct4.us/
- * @since             1.0.0
- * @package           CustomTables
- *
+ * Plugin Name: CustomTables
+ * Plugin URI: https://ct4.us/
+ * GitHub: https://github.com/joomlaboat/customtables-wp
+ * Description: Custom Tables solution for WordPress
+ * Version: 1.1.9
+ * Author: Ivan Komlev
+ * License: GPLv2 or later
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
+ * Text Domain: customtables
+ * Domain Path: /languages
+ * @link https://ct4.us/
+ * @since 1.0.0
+ * @package CustomTables
  * @wordpress-plugin
- * Plugin Name:       CustomTables
- * Plugin URI:        https://ct4.us/
- * GitHub:            https://github.com/joomlaboat/customtables-wp
- * Description:       CRUD solution for WordPress.
- * Version:           1.1.8
- * Author:            Ivan Komlev
- * License:           GPL-2.0+
- * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       customtables
- * Domain Path:       /languages
  */
 
 namespace CustomTablesWP;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use CustomTables\common;
 
@@ -27,12 +26,11 @@ use CustomTables\common;
  * Define Constants
  */
 
-
 define(__NAMESPACE__ . '\CTWP', __NAMESPACE__ . '\\');
 
 define(CTWP . 'PLUGIN_NAME', 'customtables');
 
-define(CTWP . 'PLUGIN_VERSION', '1.1.8');
+define(CTWP . 'PLUGIN_VERSION', '1.1.9');
 
 define(CTWP . 'PLUGIN_NAME_DIR', plugin_dir_path(__FILE__));
 
@@ -77,7 +75,7 @@ register_deactivation_hook(__FILE__, array(CTWP . 'Inc\Core\Deactivator', 'deact
  *
  * @since    1.0.0
  */
-class customtables
+class customTables
 {
 	static $init;
 
@@ -111,7 +109,7 @@ function customtables_init()
 {
 	if (is_admin()) {
 		//Make sure that this is called only when Custom Tables admin section is open
-		return customtables::init();
+		return customTables::init();
 	}
 	return null;
 }
@@ -123,12 +121,13 @@ if (version_compare(PHP_VERSION, $min_php, '>=')) {
 	customtables_init();
 }
 
-$page = common::inputGetCmd('page','');
+$page = common::inputGetCmd('page', '');
 
-function enqueue_codemirror() {
+function enqueue_codemirror()
+{
 
 	$version = '1.1.0';
-	wp_enqueue_style('customtables-js-modal', plugin_dir_url(__FILE__) . 'libraries/customtables/media/css/modal.css', false,$version);
+	wp_enqueue_style('customtables-js-modal', plugin_dir_url(__FILE__) . 'libraries/customtables/media/css/modal.css', false, $version);
 	wp_enqueue_style('customtables-js-layouteditor', plugin_dir_url(__FILE__) . 'libraries/customtables/media/css/layouteditor.css', false, $version);
 
 	wp_enqueue_script('customtables-js-layoutwizard', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/layoutwizard.js', array(), $version, false);
@@ -137,15 +136,6 @@ function enqueue_codemirror() {
 
 if ($page == 'customtables-layouts-edit')
 	add_action('admin_enqueue_scripts', 'CustomTablesWP\enqueue_codemirror');
-
-/*
-function enqueue_frontend_scripts()
-{
-}
-
-if(!is_admin())
-	add_action('wp_enqueue_scripts', 'CustomTablesWP\enqueue_frontend_scripts');
-*/
 
 // Function to generate real content based on block attributes
 function customtables_dynamic_block_block_init()

@@ -1,10 +1,11 @@
 === CustomTables ===
+
 Contributors: @ivankomlev
 Donate link: https://ct4.us/
 Tags: custom tables, custom fields, database, catalog, forms
 Requires at least: 6.0
 Tested up to: 6.4.3
-Stable tag: 1.1.8
+Stable tag: 1.1.9
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -48,6 +49,9 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 
 == Changelog ==
 
+= 1.1.9 =
+CT Library Updated and main plugin file renamed - activation bug fixed.
+
 = 1.1.8 =
 Date Time Field type option added. DatePicker replaced with DateTimePicker.
 
@@ -68,3 +72,6 @@ First public WordPress plugin release.
 == Upgrade Notice ==
 = 1.1.5 =
 * First public WordPress plugin release.
+
+= 1.1.9 =
+Main plugin file renamed - activation bug fixed.
