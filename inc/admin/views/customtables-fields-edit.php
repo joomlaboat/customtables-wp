@@ -202,7 +202,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 					?>
 
                     <script>
-                        updateTypeParams("type", "typeparams", "typeparams_box", "WordPress");
+                        updateTypeParams("type", "typeparams", "typeparams_box");
 						<?php if(!$this->admin_field_edit->ct->Env->advancedTagProcessor): ?>
                         //disableProField("jform_defaultvalue");
                         //disableProField("jform_valuerule");

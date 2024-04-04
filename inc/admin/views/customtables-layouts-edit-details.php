@@ -100,15 +100,17 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 			$allowed_html = array(
 				'select' => array(
 					'id' => array(),
-					'name' => array()),
+					'name' => array(),
+				    'onchange' => true),
 				'option' => array(
 					'value' => array(),
 					'selected' => array())
 			);
 
 			try {
-				$list_of_tables_safe = Forms::renderHTMLSelectBoxFromDB('table', $this->admin_layout_edit->layoutRow['tableid'] ?? 0, true, '#__customtables_tables',
-					['id', 'tablename'], $whereClause, 'tablename', ['onchange="loadFieldsUpdate(\'WordPress\');"']);
+				$list_of_tables_safe = Forms::renderHTMLSelectBoxFromDB('table', $this->admin_layout_edit->layoutRow['tableid'] ?? 0,
+                    true, '#__customtables_tables',
+					['id', 'tablename'], $whereClause, 'tablename', ['onchange="loadFieldsUpdate();"']);
 
 				echo wp_kses($list_of_tables_safe, $allowed_html);
 			} catch (Exception $e) {

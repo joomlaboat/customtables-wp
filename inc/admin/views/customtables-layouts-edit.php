@@ -58,6 +58,7 @@ foreach ($this->admin_layout_edit->allTables as $table) {
 					$buttonText = ($this->admin_layout_edit->layoutId == 0) ? esc_html__('Save New Layout', 'customtables') : esc_html__('Save Layout', 'customtables');
 					submit_button($buttonText, 'primary', 'ct-savelayout-top', false, array('id' => 'ct-savelayout-top'));
 					?>
+                    <input class="button" type="button" onClick="openLayoutWizard();" value="Layout Auto Creator"/>
                     <input class="button" type="button" onClick="showFieldTagModalForm();" value="Field Tags"/>
                     <input class="button" type="button" onClick="showLayoutTagModalForm();" value="Layout Tags"/>
                 </div>

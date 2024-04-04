@@ -26,7 +26,11 @@ function CustomTablesLoader($include_utilities = false, $include_html = false, $
 	}
 
 	if (defined('_JEXEC')) {
-		$libraryPath = JPATH_SITE . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . $componentName . DIRECTORY_SEPARATOR . 'libraries';
+
+		if ($componentName == 'com_extensiontranslator')
+			$libraryPath = JPATH_ADMINISTRATOR . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . $componentName . DIRECTORY_SEPARATOR . 'libraries';
+		else
+			$libraryPath = JPATH_SITE . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . $componentName . DIRECTORY_SEPARATOR . 'libraries';
 
 		if (!defined('CUSTOMTABLES_IMAGES_PATH'))
 			define('CUSTOMTABLES_IMAGES_PATH', JPATH_SITE . DIRECTORY_SEPARATOR . 'images');
@@ -51,9 +55,10 @@ function CustomTablesLoader($include_utilities = false, $include_html = false, $
 		define('CUSTOMTABLES_MEDIA_HOME_URL', home_url());
 	}
 
-	if (!defined('_JEXEC') or ($loadTwig === null or $loadTwig or Factory::getApplication()->getName() == 'administrator') and !class_exists('Twig')) {
+	//or Factory::getApplication()->getName() == 'administrator'
+	if (!defined('_JEXEC') or ($loadTwig === null or $loadTwig) and !class_exists('Twig')) {
 
-		if ($componentName == 'com_customtables') {
+		if ($componentName == 'com_customtables' or $componentName == 'com_extensiontranslator') {
 			$twig_file = CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'twig' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 			require_once($twig_file);
 		}
@@ -73,12 +78,14 @@ function CustomTablesLoader($include_utilities = false, $include_html = false, $
 	require_once($path_helpers . 'email.php');
 	require_once($path_helpers . 'user.php');
 	require_once($path_helpers . 'misc.php');
+	require_once($path_helpers . 'fileutils.php');
 
 
 	if (defined('_JEXEC')) {
 		require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'ct-common-joomla.php');
 		require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'ct-database-joomla.php');
-		require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'pagination.php');
+		if (file_exists(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'pagination.php'))
+			require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'pagination.php');
 	} elseif (defined('WPINC')) {
 		require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'ct-common-wp.php');
 		require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'ct-database-wp.php');

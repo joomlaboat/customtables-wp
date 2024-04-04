@@ -65,11 +65,11 @@
             codemirror_editors[0] = wpObject;
             wpObject.codemirror.setOption("mode", 'text/html');
 
-            loadTagParams("layouttype", "textareatabid", "WordPress");
-            loadTypes_silent("WordPress");
+            loadTagParams("layouttype", "textareatabid");
+            loadTypes_silent();
 
-            languages = [];//' . $languages . '];
-            loadFields("table", "fieldWizardBox", "WordPress");
+            languages = [];
+            loadFields("table", "fieldWizardBox");
             loadLayout(6);
             adjustEditorHeight();
         }
@@ -109,8 +109,8 @@ function CustomTablesAdminLayoutsTabClicked(index, id) {
 }
 
 function readmoreOpenClose(itemid) {
-    var obj = document.getElementById(itemid);
-    var c = obj.className;
+    const obj = document.getElementById(itemid);
+    let c = obj.className;
     if (c.indexOf("ct_readmoreOpen") != -1)
         c = c.replace("ct_readmoreOpen", "ct_readmoreClose");
     else if (c.indexOf("ct_readmoreClosed") != -1)
@@ -123,6 +123,12 @@ function readmoreOpenClose(itemid) {
 
 function showFieldTagModalForm() {
     current_table_id = document.getElementById("table").value;
+    if(current_table_id ==="" || parseInt(current_table_id) === 0)
+    {
+        alert("Please select a Table.")
+        return;
+    }
+
     showModalFieldTagsList();
     activateTabsWordPress('layouteditor_fields');
 }
