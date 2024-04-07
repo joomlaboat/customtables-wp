@@ -16,6 +16,7 @@ use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\Fields;
+use CustomTables\IntegrityChecks;
 use CustomTables\MySQLWhereClause;
 use CustomTables\TableHelper;
 use CustomTables\ListOfTables;
@@ -30,6 +31,7 @@ class Admin_Table_List extends WP_List_Table
 	 */
 	public CT $ct;
 	public ListOfTables $helperListOfTables;
+	public array $IntegrityChecksResult;
 
 	protected int $count_all;
 	protected int $count_trashed;
@@ -46,6 +48,9 @@ class Admin_Table_List extends WP_List_Table
 	{
 		require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoftables.php');
 		$this->ct = new CT;
+
+		$this->IntegrityChecksResult = IntegrityChecks::check($this->ct, true, false);
+
 		$this->helperListOfTables = new ListOfTables($this->ct);
 
 		$whereClause = new MySQLWhereClause();

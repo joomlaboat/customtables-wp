@@ -15,6 +15,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\database;
+use CustomTables\IntegrityChecks;
 use CustomTables\Layouts;
 use CustomTables\ListOfLayouts;
 use CustomTables\MySQLWhereClause;
@@ -29,6 +30,7 @@ class Admin_Layout_List extends WP_List_Table
 	 */
 	public CT $ct;
 	public ListOfLayouts $helperListOfLayouts;
+	public array $IntegrityChecksResult;
 
 	protected int $count_all;
 	protected int $count_trashed;
@@ -44,6 +46,9 @@ class Admin_Layout_List extends WP_List_Table
 	{
 		require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoflayouts.php');
 		$this->ct = new CT;
+
+		$this->IntegrityChecksResult = IntegrityChecks::check($this->ct, true, false);
+
 		$this->helperListOfLayouts = new ListOfLayouts($this->ct);
 
 		$whereClause = new MySQLWhereClause();
@@ -149,10 +154,10 @@ class Admin_Layout_List extends WP_List_Table
 			$item['layoutname'] = '<strong>' . $label . '</strong>';
 
 			//Convert all Layout Types
-			if($item['layouttype'] == 5)
+			if ($item['layouttype'] == 5)
 				$item['layouttype'] = 1;
 
-			if($item['layouttype'] == 3 or $item['layouttype'] == 6)
+			if ($item['layouttype'] == 3 or $item['layouttype'] == 6)
 				$item['layouttype'] = 4;
 
 
@@ -502,7 +507,7 @@ class Admin_Layout_List extends WP_List_Table
 		if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
 			$this->invalid_nonce_redirect();
 		} else {
-			$layouts = common::sanitize_post_field_array($_POST['layout'],'string');
+			$layouts = common::sanitize_post_field_array($_POST['layout'], 'string');
 
 			foreach ($layouts as $layout) {
 
@@ -536,7 +541,7 @@ class Admin_Layout_List extends WP_List_Table
 			if (count($layouts) > 0) {
 				foreach ($layouts as $layoutId) {
 
-					$wpdb->query($wpdb->prepare('DELETE FROM #__customtables_layouts WHERE id=%d', (int)$layoutId));
+					$wpdb->query($wpdb->prepare('DELETE FROM ' . $wpdb->prefix . 'customtables_layouts WHERE id=%d', (int)$layoutId));
 
 					if ($wpdb->last_error !== '')
 						throw new Exception($wpdb->last_error);

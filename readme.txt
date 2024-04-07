@@ -2,15 +2,16 @@
 
 Contributors: @ivankomlev
 Donate link: https://ct4.us/
-Tags: custom tables, custom fields, database, catalog, forms
+Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
-Tested up to: 6.4.3
-Stable tag: 1.2.0
+Tested up to: 6.5.0
+Stable tag: 1.2.1
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-The CustomTables plugin allows you to create, manage, and display custom catalogs, forms and tables.
+The Custom Tables plugin allows you to create custom database tables, manage them, and display custom catalogs, forms, and tables using Twig templating language.
+
 
 == Description ==
 
@@ -48,6 +49,9 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 [Please contact us here with your query.](https://ct4.us/contact-us/)
 
 == Changelog ==
+
+= 1.2.1 =
+Date method bugs fixed.
 
 = 1.2.0 =
 Layout Auto Created added.

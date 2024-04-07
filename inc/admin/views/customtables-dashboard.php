@@ -8,6 +8,8 @@
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
+use CustomTables\common;
+
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 ?>

@@ -930,7 +930,7 @@ class database
 	public static function createTable(string $newTableName, string $privateKey, array $columns, string $comment, array $keys = null, string $primaryKeyType = 'int'): void
 	{
 		global $wpdb;
-		if (!str_contains($newTableName, 'customtables_table_'))
+		if (!str_contains($newTableName, 'customtables_'))
 			throw new Exception('Create New Table: prohibited table name, only Custom Tables can be created');
 
 		$tableName_safe = str_replace('#__', $wpdb->prefix, $newTableName);//Joomla way

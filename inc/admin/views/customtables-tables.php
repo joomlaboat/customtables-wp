@@ -14,16 +14,16 @@ use CustomTables\common;
 use CustomTables\IntegrityChecks;
 
 $page = common::inputGetCmd('page');
-$result = IntegrityChecks::check($this->admin_table_list->ct, true, false);
+
 ?>
 <div class="wrap">
     <h1 class="wp-heading-inline"><?php esc_html_e('Custom Tables - Tables', 'customtables'); ?></h1>
     <a href="admin.php?page=customtables-tables-edit&table=0" class="page-title-action"><?php esc_html_e('Add New', 'customtables'); ?></a>
     <hr class="wp-header-end">
 
-    <?php if (count($result) > 0): ?>
+    <?php if (count($this->admin_table_list->IntegrityChecksResult) > 0): ?>
         <ol>
-            <li><?php echo wp_kses_post(implode('</li><li>', $result)); ?></li>
+            <li><?php echo wp_kses_post(implode('</li><li>', $this->admin_table_list->IntegrityChecksResult)); ?></li>
         </ol>
         <hr/>
     <?php endif; ?>

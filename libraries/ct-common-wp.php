@@ -696,4 +696,28 @@ class common
 
 		return date_i18n($format, $timestamp);
 	}
+
+	public static function currentDate(): string
+	{
+		$timezone_string = get_option('timezone_string');
+
+		if (!empty($timezone_string)) {
+			$timezone = new DateTimeZone($timezone_string);
+			$timezone_name = $timezone->getName();
+		} else {
+			$timezone_offset = get_option('gmt_offset');
+			$hours = intval($timezone_offset); // Extracting hours
+			$minutes = abs(($timezone_offset - $hours) * 60); // Extracting minutes
+
+			// Format the offset
+			$timezone_name = sprintf("%+03d:%02d", $hours, $minutes);
+		}
+
+		$date = new DateTime(); // Get current date and time
+		$timezone = new DateTimeZone($timezone_name); // Get WordPress site timezone
+		$date->setTimezone($timezone); // Set timezone
+
+		// Format the date and time as a string in the desired format
+		return $date->format('Y-m-d H:i:s');
+	}
 }

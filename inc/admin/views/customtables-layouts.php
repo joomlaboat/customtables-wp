@@ -15,8 +15,6 @@ use CustomTables\IntegrityChecks;
 
 $page = absint(common::inputGetInt('page', 0));
 
-$result = IntegrityChecks::check($this->admin_layout_list->ct, true, false);
-
 $allowed_html = array(
 	'li' => array()
 );
@@ -29,9 +27,9 @@ $allowed_html = array(
 
     <hr class="wp-header-end">
 
-	<?php if (count($result) > 0): ?>
+	<?php if (count($this->admin_layout_list->IntegrityChecksResult) > 0): ?>
         <ol>
-            <li><?php echo wp_kses(implode('</li><li>', $result), $allowed_html); ?></li>
+            <li><?php echo wp_kses(implode('</li><li>', $this->admin_layout_list->IntegrityChecksResult), $allowed_html); ?></li>
         </ol>
         <hr/>
 	<?php endif; ?>
