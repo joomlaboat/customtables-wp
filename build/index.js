@@ -86,9 +86,7 @@ function CustomTablesLoadLayouts() {
 
         if (response.ok) {
             response.json().then(function (json) {
-
                 customtables_layouts = wizardFields = Array.from(json);
-
             });
         } else {
             console.log('CustomTables - Block widget: Network request for products.json failed with response ' + response.status + ': ' + response.statusText);
@@ -101,14 +99,10 @@ function CustomTablesLoadLayouts() {
 }
 
 function CustomTablesLoadPreview(newAttributes, props) {
-    console.log("CustomTablesLoadPreview");
-    console.log(typeof props);
 
     //Load list of tables
     let parts = location.href.split("wp-admin/");
-    console.log(JSON.stringify(props.attributes));
-    let url = parts[0] + 'wp-admin/admin.php?page=customtables-api-preview&attributes=' + encodeURIComponent(JSON.stringify(newAttributes));
-    console.log(JSON.stringify(newAttributes));
+    let url = parts[0] + 'wp-admin/admin.php?page=customtables-api-preview&g=y&attributes=' + encodeURIComponent(JSON.stringify(newAttributes));
 
     fetch(url, {method: 'GET', mode: 'no-cors', credentials: 'same-origin'}).then(function (response) {
 
@@ -116,11 +110,7 @@ function CustomTablesLoadPreview(newAttributes, props) {
             response.text().then(function (text) {
 
                 let blockId = cyrb53(JSON.stringify(newAttributes));
-                console.log("blockId:" + blockId);
                 customtables_prerenderedContent[blockId] = text;
-                console.log("updated");
-                console.log(typeof props);
-
                 setTimeout(function () {
                     props.setAttributes({loading: 1});
                 }, 200);
@@ -143,16 +133,10 @@ function CustomTablesRenderBlock(e, i) {
 
         edit: function (props) {
             customtables_setAttribute = props.setAttribute;
-            console.log("edit render");
 
             //With Control Panel
             let blockProps = wp.blockEditor.useBlockProps();
-            console.log(JSON.stringify(blockProps.className));
-
             blockProps.className = 'block-editor-block-list__block wp-block is-selected wp-block-image';
-
-            console.log(JSON.stringify(blockProps.className));
-
             props.attributes.loading = 0;
             let blockId = cyrb53(JSON.stringify(props.attributes));
 
@@ -192,7 +176,6 @@ function CustomTablesRenderBlock(e, i) {
                                 value: 0,
                                 /*options: [{label: 'state 0',value: 0},{label: 'state 1',value: 1}],*/
                                 onChange: function (newValue) {
-                                    console.log("on change called");
                                     props.setAttributes({loading: 0});
                                 },
                                 type: 'hidden'
@@ -443,7 +426,6 @@ function CustomTablesRenderBlock(e, i) {
                 order: attributes.order,
                 loading: 0
             }
-            console.log("saved");
             return newAttributes;
         },
     })

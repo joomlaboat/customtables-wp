@@ -26,8 +26,9 @@ if (!function_exists('enqueue_frontend_scripts')) {
 	{
 		global $CUSTOM_TABLES_ENQUEUE;
 
-		wp_enqueue_script('ct-edit-form-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
 		wp_enqueue_script('ct-catalog-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/catalog.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
+        wp_enqueue_script('ct-edit-form-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
+        wp_enqueue_script('ct-uploader-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/uploader.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
 
 		wp_enqueue_style('ct-catalog-style', CUSTOMTABLES_MEDIA_WEBPATH . 'css/style.css', array(), \CustomTablesWP\PLUGIN_VERSION, false);
 

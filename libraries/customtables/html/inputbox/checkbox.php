@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 class InputBox_checkbox extends BaseInputBox
 {
@@ -53,7 +53,7 @@ class InputBox_checkbox extends BaseInputBox
 				$attributes['checked'] = 'checked';
 
 			$input1 = '<input ' . self::attributes2String($attributes) . ' />'
-				. '<label for="' . $attributes['id'] . '0">' . __("No", "customtables") . '</label>';
+				. '<label for="' . $attributes['id'] . '0">' . esc_html__("No", "customtables") . '</label>';
 
 			$attributes = [];
 			$attributes['id'] = $element_id . '1';
@@ -66,7 +66,7 @@ class InputBox_checkbox extends BaseInputBox
 				$attributes['checked'] = 'checked';
 
 			$input2 = '<input ' . self::attributes2String($attributes) . ' />'
-				. '<label for="' . $attributes['id'] . '">' . __("Yes", "customtables") . '</label>';
+				. '<label for="' . $attributes['id'] . '">' . esc_html__("Yes", "customtables") . '</label>';
 
 			$span = '<span class="toggle-outside"><span class="toggle-inside"></span></span>';
 

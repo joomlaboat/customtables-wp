@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Exception;
 
@@ -88,7 +88,7 @@ class Value_user extends BaseValue
 					return $row[$field];
 			} else {
 				if ($value != 0)
-					return __("User not found", "customtables");
+					return esc_html__("User not found", "customtables");
 			}
 		}
 		return '';

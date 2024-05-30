@@ -11,94 +11,105 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) exit;
 
-use CT_FieldTypeTag_image;
 use CustomTablesImageMethods;
-use Joomla\CMS\Uri\Uri;
 
 class InputBox_image extends BaseInputBox
 {
-	function __construct(CT &$ct, Field $field, ?array $row, array $option_list = [], array $attributes = [])
-	{
-		parent::__construct($ct, $field, $row, $option_list, $attributes);
-	}
+    function __construct(CT &$ct, Field $field, ?array $row, array $option_list = [], array $attributes = [])
+    {
+        parent::__construct($ct, $field, $row, $option_list, $attributes);
 
-	function render(): string
-	{
-		$ImageFolder = CustomTablesImageMethods::getImageFolder($this->field->params);
-		$imageFile = '';
-		$isShortcut = false;
-		$imageSRC = CT_FieldTypeTag_image::getImageSRC($this->row, $this->field->realfieldname, $ImageFolder, $imageFile, $isShortcut);
-		$result = '<div class="esUploadFileBox" style="vertical-align:top;">';
+        require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'html'
+            . DIRECTORY_SEPARATOR . 'value' . DIRECTORY_SEPARATOR . 'image.php');
+    }
 
-		if ($imageFile != '')
-			$result .= $this->renderImageAndDeleteOption($this->field, $imageSRC, $isShortcut);
+    function render(): string
+    {
+        $result = '<div class="esUploadFileBox" style="vertical-align:top;">';
+        $ImageFolder = CustomTablesImageMethods::getImageFolder($this->field->params);
+        $image = Value_image::getImageSRC($this->row, $this->field->realfieldname, $ImageFolder);
 
-		$result .= $this->renderUploader();
-		$result .= '</div>';
-		return $result;
-	}
+        if ($image !== null)
+            $result .= $this->renderImageAndDeleteOption($this->field, common::UriRoot() . $image['src'], $image['shortcut']);
 
-	protected function renderImageAndDeleteOption(Field $field, string $imageSrc, bool $isShortcut): string
-	{
-		$prefix = $this->ct->Env->field_input_prefix . (!$this->ct->isEditForm ? $this->row[$this->ct->Table->realidfieldname] . '_' : '');
+        $result .= $this->renderUploader();
+        $result .= '</div>';
+        return $result;
+    }
 
-		$result = '<div style="" id="ct_uploadedfile_box_' . $field->fieldname . '">'
-			. '<img src="' . $imageSrc . '" alt="Uploaded Image" style="width:150px;" id="ct_uploadfile_box_' . $field->fieldname . '_image" /><br/>';
+    protected function renderImageAndDeleteOption(Field $field, string $imageSrc, bool $isShortcut): string
+    {
+        $prefix = $this->ct->Env->field_input_prefix . (!$this->ct->isEditForm ? $this->row[$this->ct->Table->realidfieldname] . '_' : '');
 
-		if ($field->isrequired !== 1)
-			$result .= '<input type="checkbox" name="' . $prefix . $field->fieldname . '_delete" id="' . $prefix . $field->fieldname . '_delete" value="true">'
-				. ' Delete ' . ($isShortcut ? 'Shortcut' : 'Image');
+        $result = '<div style="" id="ct_uploadedfile_box_' . $field->fieldname . '">'
+            . '<img src="' . $imageSrc . '" alt="Uploaded Image" style="width:150px;" id="ct_uploadfile_box_' . $field->fieldname . '_image" /><br/>';
 
-		$result .= '</div>';
+        if ($field->isrequired !== 1)
+            $result .= '<input type="checkbox" name="' . $prefix . $field->fieldname . '_delete" id="' . $prefix . $field->fieldname . '_delete" value="true">'
+                . ' Delete ' . ($isShortcut ? 'Shortcut' : 'Image');
 
-		return $result;
-	}
+        $result .= '</div>';
 
-	protected function renderUploader(): string
-	{
-		$max_file_size = CTMiscHelper::file_upload_max_size();
-		$fileId = common::generateRandomString();
-		$style = 'border:lightgrey 1px solid;border-radius:10px;padding:10px;display:inline-block;margin:10px;';//vertical-align:top;
-		$element_id = 'ct_uploadfile_box_' . $this->field->fieldname;
+        return $result;
+    }
 
-		$urlString = Uri::root(true) . '/index.php?option=com_customtables&view=fileuploader&tmpl=component&' . $this->field->fieldname . '_fileid=' . $fileId
-			. '&Itemid=' . $this->field->ct->Params->ItemId
-			. (is_null($this->field->ct->Params->ModuleId) ? '' : '&ModuleId=' . $this->field->ct->Params->ModuleId)
-			. '&fieldname=' . $this->field->fieldname;
+    protected function renderUploader(): string
+    {
+        $result = '';
 
-		if ($this->ct->app->getName() == 'administrator')   //since   3.2
-			$formName = 'adminForm';
-		else {
-			if ($this->ct->Env->isModal)
-				$formName = 'ctEditModalForm';
-			else {
-				$formName = 'ctEditForm';
-				$formName .= $this->ct->Params->ModuleId;
-			}
-		}
+        $max_file_size = CTMiscHelper::file_upload_max_size();
+        $fileId = common::generateRandomString();
+        $style = 'border:lightgrey 1px solid;border-radius:10px;padding:10px;display:inline-block;margin:10px;';//vertical-align:top;
+        $element_id = 'ct_uploadfile_box_' . $this->field->fieldname;
 
-		$ct_getUploader = 'ct_getUploader(' . $this->field->id . ',"' . $urlString . '",' . $max_file_size . ',"jpg jpeg png gif svg webp","' . $formName . '",false,"ct_fileuploader_'
-			. $this->field->fieldname . '","ct_eventsmessage_' . $this->field->fieldname . '","' . $fileId . '","'
-			. $this->attributes['id'] . '","ct_ubloadedfile_box_' . $this->field->fieldname . '");';
+        $urlString = common::UriRoot(true) . '/index.php?option=com_customtables&view=fileuploader&tmpl=component&' . $this->field->fieldname . '_fileid=' . $fileId
+            . '&Itemid=' . $this->field->ct->Params->ItemId
+            . (is_null($this->field->ct->Params->ModuleId) ? '' : '&ModuleId=' . $this->field->ct->Params->ModuleId)
+            . '&fieldname=' . $this->field->fieldname;
 
-		$ct_fileuploader = '<div id="ct_fileuploader_' . $this->field->fieldname . '"></div>';
-		$ct_eventsMessage = '<div id="ct_eventsmessage_' . $this->field->fieldname . '"></div>';
+        if (defined('_JEXEC')) {
+            if (common::clientAdministrator())   //since   3.2
+                $formName = 'adminForm';
+            else {
+                if ($this->ct->Env->isModal)
+                    $formName = 'ctEditModalForm';
+                else {
+                    $formName = 'ctEditForm';
+                    $formName .= $this->ct->Params->ModuleId;
+                }
+            }
 
-		$inputBoxFieldName = '<input type="hidden" name="' . $this->attributes['id'] . '" id="' . $this->attributes['id'] . '" value="" ' . ($this->field->isrequired == 1 ? ' class="required"' : '') . ' />';
-		$inputBoxFieldName_FileName = '<input type="hidden" name="' . $this->attributes['id'] . '_filename" id="' . $this->attributes['id'] . '_filename" value="" />';
+            $ct_getUploader = 'ct_getUploader(' . $this->field->id . ',"' . $urlString . '",' . $max_file_size . ',"jpg jpeg png gif svg webp","' . $formName . '",false,"ct_fileuploader_'
+                . $this->field->fieldname . '","ct_eventsmessage_' . $this->field->fieldname . '","' . $fileId . '","'
+                . $this->attributes['id'] . '","ct_ubloadedfile_box_' . $this->field->fieldname . '");';
 
-		return '<div style="' . $style . '"' . ($this->field->isrequired == 1 ? ' class="inputbox required"' : '') . ' id="' . $element_id . '" '
-			. 'data-type="' . $this->field->type . '" '
-			. 'data-label="' . $this->field->title . '" '
-			. 'data-valuerule="' . str_replace('"', '&quot;', $this->field->valuerule) . '" '
-			. 'data-valuerulecaption="' . str_replace('"', '&quot;', $this->field->valuerulecaption) . '" >'
-			. $ct_fileuploader . $ct_eventsMessage
-			. '<script>
+            $ct_fileuploader = '<div id="ct_fileuploader_' . $this->field->fieldname . '"></div>';
+            $ct_eventsMessage = '<div id="ct_eventsmessage_' . $this->field->fieldname . '"></div>';
+
+            $inputBoxFieldName = '<input type="hidden" name="' . $this->attributes['id'] . '" id="' . $this->attributes['id'] . '" value="" ' . ($this->field->isrequired == 1 ? ' class="required"' : '') . ' />';
+            $inputBoxFieldName_FileName = '<input type="hidden" name="' . $this->attributes['id'] . '_filename" id="' . $this->attributes['id'] . '_filename" value="" />';
+
+            $result .= $inputBoxFieldName . $inputBoxFieldName_FileName
+                . esc_html__("Permitted Max. File Size", "customtables") . ': ' . CTMiscHelper::formatSizeUnits($max_file_size);
+
+            $result .= $ct_fileuploader . $ct_eventsMessage
+                . '<script>
                 ' . $ct_getUploader . '
            </script>
-           ' . $inputBoxFieldName . $inputBoxFieldName_FileName
-			. __("Permitted Max. File Size", "customtables") . ': ' . CTMiscHelper::formatSizeUnits($max_file_size) . '</div>';
-	}
+           ';
+
+
+        } elseif (defined('WPINC')) {
+            //$formName = 'createrecord';
+            $result .= '<input type="file" name="' . $this->attributes['id'] . '" accept=".jpg,.jpeg,.png,.gif,.svg,.webp" max-size="' . $max_file_size . '" />';
+        }
+
+        return '<div style="' . $style . '"' . ($this->field->isrequired == 1 ? ' class="inputbox required"' : '') . ' id="' . $element_id . '" '
+            . 'data-type="' . $this->field->type . '" '
+            . 'data-label="' . $this->field->title . '" '
+            . 'data-valuerule="' . str_replace('"', '&quot;', $this->field->valuerule ?? '') . '" '
+            . 'data-valuerulecaption="' . str_replace('"', '&quot;', $this->field->valuerulecaption ?? '') . '" >' . $result . '</div>';
+    }
 }

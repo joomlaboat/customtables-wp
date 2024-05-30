@@ -13,7 +13,7 @@ namespace CustomTables;
 // no direct access
 use Exception;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 class SearchInputBox
 {

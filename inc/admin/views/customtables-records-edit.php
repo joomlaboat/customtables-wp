@@ -78,7 +78,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                         esc_html_e('Edit record.');
                     ?>
                 </p>
-                <form method="post" name="createrecord" id="createrecord" class="validate" novalidate="novalidate">
+                <form method="post" name="createrecord" id="createrecord" class="validate" novalidate="novalidate" enctype="multipart/form-data">
                     <input name="action" type="hidden" value="createrecord"/>
                     <?php
 

@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 class Search_radio extends BaseSearch
 {
@@ -26,7 +26,7 @@ class Search_radio extends BaseSearch
 		$this->getOnChangeAttributeString();
 
 		$options = [];
-		$options[] = '<option value="" ' . ($value == '' ? 'SELECTED' : '') . '>- ' . __("Select", "customtables") . ' ' . $this->field->title . '</option>';
+		$options[] = '<option value="" ' . ($value == '' ? 'SELECTED' : '') . '>- ' . esc_html__("Select", "customtables") . ' ' . $this->field->title . '</option>';
 
 		foreach ($this->field->params as $param)
 			$options[] = '<option value="' . $param . '" ' . ($value == $param ? 'SELECTED' : '') . '>' . $param . '</option>';

@@ -128,8 +128,17 @@ class Admin
 			// Add inline script after enqueuing the main script
 			wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url(home_url()) . '";');
 
-			// Enqueue jQuery UI
-			wp_enqueue_script( 'jquery-ui-core' );
+            wp_enqueue_script('ct-edit-form-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), \CustomTablesWP\PLUGIN_VERSION);
+
+            wp_enqueue_script( 'jquery' );
+
+            // Enqueue jQuery UI
+            wp_enqueue_script( 'jquery-ui-core' );
+
+            wp_enqueue_script('ct-uploadfile-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/jquery.uploadfile.min.js', array(), \CustomTablesWP\PLUGIN_VERSION);
+            wp_enqueue_script('ct-uploader-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/uploader.js', array(), \CustomTablesWP\PLUGIN_VERSION);
+
+
 
 			wp_enqueue_script('ct-edit-form-script-jquery-ui-min', \CustomTablesWP\PLUGIN_NAME_URL  .'assets/jquery-ui.min.js', array(), $this->version);
 			wp_enqueue_style('ct-edit-form-style-jquery-timepicker', \CustomTablesWP\PLUGIN_NAME_URL  .'assets/jquery.datetimepicker.min.css', array(), $this->version);

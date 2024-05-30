@@ -8,6 +8,8 @@
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
+use CustomTables\common;
+
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 //include ('customtables-fields-edit-help.php');
@@ -17,91 +19,91 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>
     <div class="wrap">
         <h1 id="add-new-user">
-			<?php
-			if (isset($this->admin_field_edit->ct->Table) and $this->admin_field_edit->ct->Table->tablename !== null) {
-				esc_html_e('Custom Tables - Table', 'customtables');
-				echo ' "' . esc_html($this->admin_field_edit->ct->Table->tabletitle) . '" - ';
-				if ($this->admin_field_edit->fieldId == 0)
-					esc_html_e('Add New Field');
-				else
-					esc_html_e('Edit Field');
-			} else {
-				esc_html_e('Custom Tables - Fields', 'customtables');
-				echo '<div class="error"><p>' . esc_html__('Table not selected or not found.', 'customtables') . '</p></div>';
-			}
-			?>
+            <?php
+            if (isset($this->admin_field_edit->ct->Table) and $this->admin_field_edit->ct->Table->tablename !== null) {
+                esc_html_e('Custom Tables - Table', 'customtables');
+                echo ' "' . esc_html($this->admin_field_edit->ct->Table->tabletitle) . '" - ';
+                if ($this->admin_field_edit->fieldId == 0)
+                    esc_html_e('Add New Field');
+                else
+                    esc_html_e('Edit Field');
+            } else {
+                esc_html_e('Custom Tables - Fields', 'customtables');
+                echo '<div class="error"><p>' . esc_html__('Table not selected or not found.', 'customtables') . '</p></div>';
+            }
+            ?>
         </h1>
 
-		<?php if (isset($errors) && is_wp_error($errors)) : ?>
+        <?php if (isset($errors) && is_wp_error($errors)) : ?>
             <div class="error">
                 <ul>
-					<?php
-					foreach ($errors->get_error_messages() as $err) {
-						echo "<li>" . esc_html($err) . "</li>";
-					}
-					?>
+                    <?php
+                    foreach ($errors->get_error_messages() as $err) {
+                        echo "<li>" . esc_html($err) . "</li>";
+                    }
+                    ?>
                 </ul>
             </div>
-		<?php
-		endif;
+        <?php
+        endif;
 
-		if (!empty($messages)) {
-			foreach ($messages as $msg) {
-				echo '<div id="message" class="updated notice is-dismissible"><p>' . esc_html($msg) . '</p></div>';
-			}
-		}
-		?>
+        if (!empty($messages)) {
+            foreach ($messages as $msg) {
+                echo '<div id="message" class="updated notice is-dismissible"><p>' . esc_html($msg) . '</p></div>';
+            }
+        }
+        ?>
 
-		<?php if (isset($add_user_errors) && is_wp_error($add_user_errors)) : ?>
+        <?php if (isset($add_user_errors) && is_wp_error($add_user_errors)) : ?>
             <div class="error">
-				<?php
-				foreach ($add_user_errors->get_error_messages() as $message) {
-					echo "<p>" . esc_html($message) . "</p>";
-				}
-				?>
+                <?php
+                foreach ($add_user_errors->get_error_messages() as $message) {
+                    echo "<p>" . esc_html($message) . "</p>";
+                }
+                ?>
             </div>
-		<?php endif; ?>
+        <?php endif; ?>
         <div id="ajax-response"></div>
 
-		<?php
-		if (current_user_can('install_plugins')) {
-			?>
+        <?php
+        if (current_user_can('install_plugins')) {
+            ?>
 
 
-			<?php
-			if (isset($this->admin_field_edit->ct->Table) and $this->admin_field_edit->ct->Table->tablename !== null):
-				?>
+            <?php
+            if (isset($this->admin_field_edit->ct->Table) and $this->admin_field_edit->ct->Table->tablename !== null):
+                ?>
                 <p><?php
 
-					if ($this->admin_field_edit->fieldId === null)
-						esc_html_e('Create a brand new field.');
-					else
-						esc_html_e('Edit field.');
-					?>
+                    if ($this->admin_field_edit->fieldId === null)
+                        esc_html_e('Create a brand new field.');
+                    else
+                        esc_html_e('Edit field.');
+                    ?>
                 </p>
 
                 <script>
-					<?php
-					if ($this->admin_field_edit->ct->Env->advancedTagProcessor)
-						echo esc_js('proversion=true;' . PHP_EOL);
+                    <?php
+                    if ($this->admin_field_edit->ct->Env->advancedTagProcessor)
+                        echo esc_js('proversion=true;') . PHP_EOL;
 
-					//resulting line example: all_tables=[["29","kot3","kot3"],["30","kot5","kot5"],["31","kot6","kot6"],["25","test1","Test 1"]];
-					echo 'all_tables=' . wp_kses_post(wp_json_encode($this->admin_field_edit->allTables)) . ';' . PHP_EOL;
-					?>
+                    //resulting line example: all_tables=[["29","kot3","kot3"],["30","kot5","kot5"],["31","kot6","kot6"],["25","test1","Test 1"]];
+                    echo 'all_tables=' . wp_kses_post(wp_json_encode($this->admin_field_edit->allTables)) . ';' . PHP_EOL;
+                    ?>
                 </script>
 
                 <form method="post" name="createfield" id="createfield" class="validate" novalidate="novalidate">
                     <input name="action" type="hidden" value="createfield"/>
                     <input name="table" type="hidden"
                            value="<?php echo esc_html($this->admin_field_edit->tableId); ?>"/>
-					<?php wp_nonce_field('create-edit-field'); ?>
+                    <?php wp_nonce_field('create-edit-field'); ?>
 
                     <table class="form-table" role="presentation">
                         <!-- Field Name Field -->
                         <tr class="form-field form-required">
                             <th scope="row">
                                 <label for="fieldname">
-									<?php echo esc_html__('Field Name', 'customtables'); ?>
+                                    <?php echo esc_html__('Field Name', 'customtables'); ?>
                                     <span class="description">(<?php echo esc_html__('required', 'customtables'); ?>)</span>
                                 </label>
                             </th>
@@ -114,23 +116,23 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                         </tr>
 
                         <!-- Field Title Fields -->
-						<?php
-						$moreThanOneLang = false;
-						foreach ($this->admin_field_edit->ct->Languages->LanguageList as $lang): ?>
-							<?php
-							$id = ($moreThanOneLang ? 'fieldtitle_' . $lang->sef : 'fieldtitle');
-							$cssclass = ($moreThanOneLang ? 'form-control valid form-control-success' : 'form-control required valid form-control-success');
-							$att = ($moreThanOneLang ? '' : ' required ');
-							$vlu = $this->admin_field_edit->fieldRow[$id] ?? null;
-							?>
+                        <?php
+                        $moreThanOneLang = false;
+                        foreach ($this->admin_field_edit->ct->Languages->LanguageList as $lang): ?>
+                            <?php
+                            $id = ($moreThanOneLang ? 'fieldtitle_' . $lang->sef : 'fieldtitle');
+                            $cssclass = ($moreThanOneLang ? 'form-control valid form-control-success' : 'form-control required valid form-control-success');
+                            $att = ($moreThanOneLang ? '' : ' required ');
+                            $vlu = $this->admin_field_edit->fieldRow[$id] ?? null;
+                            ?>
 
                             <tr class="form-field<?php echo esc_html(!$moreThanOneLang ? ' form-required' : ''); ?>">
                                 <th scope="row">
                                     <label for="<?php echo esc_html($id); ?>">
-										<?php echo esc_html__('Field Title', 'customtables'); ?>
-										<?php if (!$moreThanOneLang): ?>
+                                        <?php echo esc_html__('Field Title', 'customtables'); ?>
+                                        <?php if (!$moreThanOneLang): ?>
                                             <span class="description">(<?php echo esc_html__('required', 'customtables'); ?>)</span>
-										<?php endif; ?>
+                                        <?php endif; ?>
                                         <br/>
                                         <b><?php echo esc_html($lang->title); ?></b>
                                     </label>
@@ -142,38 +144,38 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                                 </td>
                             </tr>
 
-							<?php $moreThanOneLang = true; ?>
-						<?php endforeach; ?>
+                            <?php $moreThanOneLang = true; ?>
+                        <?php endforeach; ?>
 
                         <!-- Field Type Field -->
                         <tr class="form-field form-required">
                             <th scope="row">
                                 <label for="type">
-									<?php echo esc_html__('Field Type', 'customtables'); ?>
+                                    <?php echo esc_html__('Field Type', 'customtables'); ?>
                                     <span class="description">(<?php echo esc_html__('required', 'customtables'); ?>)</span>
                                 </label>
                             </th>
                             <td>
-								<?php
+                                <?php
 
-								$allowed_html = array(
-									'option' => array(
-										'value' => array(),
-										'selected' => array()
+                                $allowed_html = array(
+                                    'option' => array(
+                                        'value' => array(),
+                                        'selected' => array()
                                     )
-								);
+                                );
 
-								$selectBoxOptions = [];
+                                $selectBoxOptions = [];
 
-								foreach ($this->admin_field_edit->fieldTypes as $type) {
-									$selected = $this->admin_field_edit->fieldRow['type'] == $type['name'];
-									$selectBoxOptions[] = '<option value="' . $type['name'] . '"' . ($selected ? ' selected="selected"' : '') . '>' . $type['label'] . '</option>';
-								}
+                                foreach ($this->admin_field_edit->fieldTypes as $type) {
+                                    $selected = $this->admin_field_edit->fieldRow['type'] == $type['name'];
+                                    $selectBoxOptions[] = '<option value="' . $type['name'] . '"' . ($selected ? ' selected="selected"' : '') . '>' . $type['label'] . '</option>';
+                                }
 
-								$selectBoxOptionsSafe = implode('', $selectBoxOptions);
+                                $selectBoxOptionsSafe = implode('', $selectBoxOptions);
 
-								echo '<select name="type" id="type" onchange="typeChanged();">' . wp_kses($selectBoxOptionsSafe, $allowed_html) . '</select>';
-								?>
+                                echo '<select name="type" id="type" onchange="typeChanged();">' . wp_kses($selectBoxOptionsSafe, $allowed_html) . '</select>';
+                                ?>
                             </td>
                         </tr>
 
@@ -181,7 +183,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                         <tr class="form-field form-required">
                             <th scope="row">
                                 <label for="typeparams">
-									<?php echo esc_html__('Type Parameters', 'customtables'); ?>
+                                    <?php echo esc_html__('Type Parameters', 'customtables'); ?>
                                     <span class="description">(<?php echo esc_html__('required', 'customtables'); ?>)</span>
                                 </label>
                             </th>
@@ -196,29 +198,28 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                     </table>
 
                     <!-- Submit Button -->
-					<?php
-					$buttonText = ($this->admin_field_edit->fieldId == 0) ? esc_html__('Add New Field', 'customtables') : esc_html__('Save Field', 'customtables');
-					submit_button($buttonText, 'primary', 'createfield', true, array('id' => 'createfieldsub'));
-					?>
+                    <?php
+                    $buttonText = ($this->admin_field_edit->fieldId == 0) ? esc_html__('Add New Field', 'customtables') : esc_html__('Save Field', 'customtables');
+                    submit_button($buttonText, 'primary', 'createfield', true, array('id' => 'createfieldsub'));
+                    ?>
 
                     <script>
                         updateTypeParams("type", "typeparams", "typeparams_box");
-						<?php if(!$this->admin_field_edit->ct->Env->advancedTagProcessor): ?>
+                        <?php if(!$this->admin_field_edit->ct->Env->advancedTagProcessor): ?>
                         //disableProField("jform_defaultvalue");
                         //disableProField("jform_valuerule");
                         //disableProField("jform_valuerulecaption");
                         <?php else: ?>
                         proversion = true;
-						<?php endif; ?>
+                        <?php endif; ?>
                     </script>
 
-                    <div id="ct_fieldtypeeditor_box" style="display: none;"><?php
-						//$attributes = array('name' => 'ct_fieldtypeeditor', 'id' => 'ct_fieldtypeeditor', 'directory' => 'images', 'recursive' => true, 'label' => 'Select Folder', 'readonly' => false);
-						//echo CTTypes::getField('folderlist', $attributes, null)->input;
-						?></div>
+                    <div id="ct_fieldtypeeditor_box"
+                         style="display: none;"><?php
+                        echo implode(',', common::folderList(CUSTOMTABLES_IMAGES_PATH)); ?></div>
                 </form>
-			<?php endif; ?>
-		<?php } // End if (current_user_can('install_plugins')) ?>
+            <?php endif; ?>
+        <?php } // End if (current_user_can('install_plugins')) ?>
     </div>
 <?php
 require_once ABSPATH . 'wp-admin/admin-footer.php';

@@ -14,7 +14,7 @@ use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\MySQLWhereClause;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'ordering.php');
 
@@ -79,10 +79,10 @@ class CustomTablesKeywordSearch
 		$AndOrOr_text = 'UNKNOWN';
 
 		if ($AndOrOr == 'OR')
-			$AndOrOr_text = __("or", "customtables");
+			$AndOrOr_text = esc_html__("or", "customtables");
 
 		if ($AndOrOr == 'AND')
-			$AndOrOr_text = __("and", "customtables");
+			$AndOrOr_text = esc_html__("and", "customtables");
 
 		foreach ($mod_fieldlist as $mod_field) {
 			//$where = '';
@@ -105,7 +105,7 @@ class CustomTablesKeywordSearch
 					$this->getKeywordSearch($inner, $whereClause, $result_rows, $count, $listing_ids);
 			}
 
-			$this->PathValue[] = __("Contains", "customtables") . ' "' . $keywords . '"';
+			$this->PathValue[] = esc_html__("Contains", "customtables") . ' "' . $keywords . '"';
 
 			if (count($keyword_arr) > 1) //Do not search because there is only one keyword, and it's already checked
 			{
@@ -137,7 +137,7 @@ class CustomTablesKeywordSearch
 				if ($whereClause->hasConditions())
 					$this->getKeywordSearch($inner, $whereClause, $result_rows, $count, $listing_ids);
 
-				$this->PathValue[] = __("Contains", "customtables") . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
+				$this->PathValue[] = esc_html__("Contains", "customtables") . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
 			}
 
 			//$where = '';
@@ -174,7 +174,7 @@ class CustomTablesKeywordSearch
 			if ($whereClause->hasConditions())
 				$this->getKeywordSearch($inner, $whereClause, $result_rows, $count, $listing_ids);
 
-			$this->PathValue[] = __("Contains", "customtables") . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
+			$this->PathValue[] = esc_html__("Contains", "customtables") . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
 		}
 
 		// -------------------
@@ -301,7 +301,7 @@ class CustomTablesKeywordSearch
 			if ($whereClause->hasConditions())
 				$this->getKeywordSearch($inner, $whereClause, $result_rows, $count, $listing_ids);
 
-			$this->PathValue[] = __("Contains", "customtables") . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
+			$this->PathValue[] = esc_html__("Contains", "customtables") . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
 		}
 		return $result_rows;
 	}

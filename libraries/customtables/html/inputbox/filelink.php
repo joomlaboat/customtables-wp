@@ -10,65 +10,65 @@
 
 namespace CustomTables;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 class InputBox_fileLink extends BaseInputBox
 {
-	function __construct(CT &$ct, Field $field, ?array $row, array $option_list = [], array $attributes = [])
-	{
-		parent::__construct($ct, $field, $row, $option_list, $attributes);
-		self::selectBoxAddCSSClass($this->attributes, $this->ct->Env->version);
-	}
+    function __construct(CT &$ct, Field $field, ?array $row, array $option_list = [], array $attributes = [])
+    {
+        parent::__construct($ct, $field, $row, $option_list, $attributes);
+        self::selectBoxAddCSSClass($this->attributes, $this->ct->Env->version);
+    }
 
-	function render(?string $value, ?string $defaultValue): string
-	{
-		if ($value === null) {
-			$value = common::inputGetString($this->ct->Env->field_prefix . $this->field->fieldname, '');
-			if ($value == '')
-				$value = $defaultValue;
-		}
+    function render(?string $value, ?string $defaultValue): string
+    {
+        if ($value === null) {
+            $value = common::inputGetString($this->ct->Env->field_prefix . $this->field->fieldname, '');
+            if ($value == '')
+                $value = $defaultValue;
+        }
 
-		if ($this->field->params === null or count($this->field->params) == 0)
-			$path = CUSTOMTABLES_IMAGES_PATH . DIRECTORY_SEPARATOR;
-		else {
-			$path = CUSTOMTABLES_IMAGES_PATH . DIRECTORY_SEPARATOR . $this->field->params[0] ?? '';
-		}
+        if ($this->field->params === null or count($this->field->params) == 0)
+            $path = CUSTOMTABLES_IMAGES_PATH . DIRECTORY_SEPARATOR;
+        else {
+            $path = CUSTOMTABLES_IMAGES_PATH . DIRECTORY_SEPARATOR . $this->field->params[0] ?? '';
+        }
 
-		//Check if the path does not start from the root directory
-		if (!empty($path)) {
-			if ($path[0] !== '/' && (strlen($path) >= 2 && $path[1] !== ':')) {
-				$path = '/images/' . $path;
-			}
-		}
+        //Check if the path does not start from the root directory
+        if (!empty($path)) {
+            if ($path[0] !== '/' && (strlen($path) >= 2 && $path[1] !== ':')) {
+                $path = '/images/' . $path;
+            }
+        }
 
-		$parts = explode('/', $path);
-		$path = str_replace('/', DIRECTORY_SEPARATOR, $path);
+        //$parts = explode('/', $path);
+        $path = str_replace('/', DIRECTORY_SEPARATOR, $path);
 
-		if ($parts[0] == 'images' or (isset($parts[1]) and $parts[1] == 'images')) {
-			$relativePath = JPATH_SITE . DIRECTORY_SEPARATOR;
-			$real_path = $relativePath . $path; //use path relative to website root directory
-		} else {
-			$relativePath = '';
-			$real_path = $path;//un-relative path
-		}
+        //if ($parts[0] == 'images' or (isset($parts[1]) and $parts[1] == 'images')) {
+        //	$relativePath = CUSTOMTABLES_ABSPATH;
+        //	$real_path = $relativePath . $path; //use path relative to website root directory
+        //} else {
+        //$relativePath = '';
+        $real_path = $path;//un-relative path
+        //}
 
-		$options = [];
+        $options = [];
 
-		if (file_exists($real_path)) {
+        if (file_exists($real_path)) {
 
-			$options [] = '<option value="">' . __("Select file", "customtables") . '</option>'; // Optional default option
+            $options [] = '<option value="">' . esc_html__("Select file", "customtables") . '</option>'; // Optional default option
 
-			$files = scandir($real_path);
-			foreach ($files as $file) {
-				if ($file !== '.' && $file !== '..' && !is_dir($real_path . '/' . $file)) {
-					$fileValue = htmlspecialchars($file);
-					$selected = ($fileValue === $value) ? ' selected' : '';
-					$options [] = '<option value="' . $file . '"' . $selected . '>' . $file . '</option>';
-				}
-			}
-		} else
-			$options [] = '<option value="">' . __("Path", "customtables") . ' (' . $path . ') ' . __("not found.", "customtables") . '</option>';
+            $files = scandir($real_path);
+            foreach ($files as $file) {
+                if ($file !== '.' && $file !== '..' && !is_dir($real_path . '/' . $file)) {
+                    $fileValue = htmlspecialchars($file);
+                    $selected = ($fileValue === $value) ? ' selected' : '';
+                    $options [] = '<option value="' . $file . '"' . $selected . '>' . $file . '</option>';
+                }
+            }
+        } else
+            $options [] = '<option value="">' . esc_html__("Path", "customtables") . ' (' . $path . ') ' . esc_html__("not found.", "customtables") . '</option>';
 
-		return '<select ' . self::attributes2String($this->attributes) . '>' . implode('', $options) . '</select>';
-	}
+        return '<select ' . self::attributes2String($this->attributes) . '>' . implode('', $options) . '</select>';
+    }
 }

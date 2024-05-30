@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Exception;
 use Joomla\CMS\HTML\HTMLHelper;
@@ -137,7 +137,7 @@ class ListOfFields
 
 			$iconClass = '';
 			if (!$this->saveOrder)
-				$iconClass = ' inactive" title="' . __("JORDERINGDISABLED", "customtables");
+				$iconClass = ' inactive" title="' . esc_html__("Please sort by order to enable reordering", "customtables");
 
 			$result .= '<span class="sortable-handler' . $iconClass . '"><span class="icon-ellipsis-v" aria-hidden="true"></span></span>';
 
