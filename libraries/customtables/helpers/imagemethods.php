@@ -463,11 +463,6 @@ class CustomTablesImageMethods
                 return '';
             }
         }
-
-        if ($fileNameType == '')
-            return '0';
-        else
-            return null;
     }
 
     function FileExtension($src): string

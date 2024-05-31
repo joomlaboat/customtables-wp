@@ -128,9 +128,9 @@ class Admin_Record_List extends WP_List_Table
             return [];
 
 	    $search = common::inputGetString('s');
-	    $orderby = common::inputGetCmd('orderby');
-        if ($orderby == 'customtables_record_firstfield' and $this->firstFieldRealName !== null)
-            $orderby = $this->firstFieldRealName;
+	    $orderBy = common::inputGetCmd('orderby');
+        if ($orderBy == 'customtables_record_firstfield' and $this->firstFieldRealName !== null)
+            $orderBy = $this->firstFieldRealName;
 
 	    $order = common::inputGetCmd('order');
 
@@ -148,8 +148,8 @@ class Admin_Record_List extends WP_List_Table
         };
 
         $this->ct->setFilter($search ?? '', $published);
-        if ($orderby !== null)
-            $this->ct->Ordering->orderby = $orderby . ($order !== null ? ' ' . $order : '');
+        if ($orderBy !== null)
+            $this->ct->Ordering->orderby = $orderBy . ($order !== null ? ' ' . $order : '');
 
         //$this->ct->Ordering->parseOrderByParam();
         //$this->ct->applyLimits($limit);
