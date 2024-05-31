@@ -334,7 +334,7 @@ class Admin_Record_List extends WP_List_Table
      * @return mixed
      */
 
-    function column_default($item, $column_name): mixed
+    function column_default($item, $column_name)
     {
         return $item[$column_name];
     }

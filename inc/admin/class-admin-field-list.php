@@ -319,7 +319,7 @@ class Admin_Field_List extends WP_List_Table
 	 *
 	 * @return mixed
 	 */
-	function column_default($item, $column_name): mixed
+	function column_default($item, $column_name)
 	{
         switch ($column_name) {
             case 'fieldtitle':
