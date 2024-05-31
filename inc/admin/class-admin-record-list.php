@@ -140,12 +140,21 @@ class Admin_Record_List extends WP_List_Table
         //$showPublished = 2 - show everything
         //$showPublished = -1 - show published and unpublished
         //$showPublished = -2 - show trashed
-        $published = match ($this->current_status) {
-            'published' => 0,
-            'unpublished' => 1,
-            'trash' => -2,
-            default => -1
-        };
+
+        switch ($this->current_status) {
+            case 'published':
+                $published = 0;
+                break;
+            case 'unpublished':
+                $published = 1;
+                break;
+            case 'trash':
+                $published = -2;
+                break;
+            default:
+                $published = -1;
+                break;
+        }
 
         $this->ct->setFilter($search ?? '', $published);
         if ($orderBy !== null)

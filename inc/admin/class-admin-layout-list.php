@@ -123,12 +123,20 @@ class Admin_Layout_List extends WP_List_Table
 		$orderby = common::inputGetCmd('orderby');
 		$order = common::inputGetCmd('order');
 
-		$published = match ($this->current_status) {
-			'published' => 1,
-			'unpublished' => 0,
-			'trash' => -2,
-			default => null
-		};
+        switch ($this->current_status) {
+            case 'published':
+                $published = 1;
+                break;
+            case 'unpublished':
+                $published = 0;
+                break;
+            case 'trash':
+                $published = -2;
+                break;
+            default:
+                $published = null;
+                break;
+        }
 
 		$data = [];
 
@@ -256,12 +264,20 @@ class Admin_Layout_List extends WP_List_Table
 	 *
 	 * @return mixed
 	 */
-	function column_default($item, $column_name): mixed
+	function column_default($item, $column_name)
 	{
-		return match ($column_name) {
-			'layoutname', 'layouttype', 'tabletitle', 'layout_size', 'modifiedby', 'modified', 'id' => $item[$column_name],
-			default => print_r($item, true),
-		};
+        switch ($column_name) {
+            case 'layoutname':
+            case 'layouttype':
+            case 'tabletitle':
+            case 'layout_size':
+            case 'modifiedby':
+            case 'modified':
+            case 'id':
+                return $item[$column_name];
+            default:
+                return print_r($item, true);
+        }
 	}
 
 	/**

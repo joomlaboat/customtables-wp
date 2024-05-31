@@ -142,12 +142,20 @@ class Admin_Field_List extends WP_List_Table
 		$orderby = common::inputGetCmd('orderby');
 		$order = common::inputGetCmd('order');
 
-		$published = match ($this->current_status) {
-			'published' => 1,
-			'unpublished' => 0,
-			'trash' => -2,
-			default => null
-		};
+        switch ($this->current_status) {
+            case 'published':
+                $published = 1;
+                break;
+            case 'unpublished':
+                $published = 0;
+                break;
+            case 'trash':
+                $published = -2;
+                break;
+            default:
+                $published = null;
+                break;
+        }
 
 		try {
 			$data = $this->helperListOfFields->getListQuery($this->tableId, $published, $search, null, $orderby, $order);
@@ -313,10 +321,18 @@ class Admin_Field_List extends WP_List_Table
 	 */
 	function column_default($item, $column_name): mixed
 	{
-		return match ($column_name) {
-			'fieldtitle', 'type', 'typeparams', 'isrequired', 'table', 'id', 'fieldname' => $item[$column_name],
-			default => print_r($item, true),
-		};
+        switch ($column_name) {
+            case 'fieldtitle':
+            case 'type':
+            case 'typeparams':
+            case 'isrequired':
+            case 'table':
+            case 'id':
+            case 'fieldname':
+                return $item[$column_name];
+            default:
+                return print_r($item, true);
+        }
 	}
 
 	/**

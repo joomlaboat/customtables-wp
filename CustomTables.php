@@ -4,7 +4,7 @@
  * Plugin URI: https://ct4.us/
  * GitHub: https://github.com/joomlaboat/customtables-wp
  * Description: Custom Tables solution for WordPress
- * Version: 1.2.1
+ * Version: 1.2.2
  * Author: Ivan Komlev
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
@@ -30,7 +30,7 @@ define(__NAMESPACE__ . '\CTWP', __NAMESPACE__ . '\\');
 
 define(CTWP . 'PLUGIN_NAME', 'customtables');
 
-define(CTWP . 'PLUGIN_VERSION', '1.2.1');
+define(CTWP . 'PLUGIN_VERSION', '1.2.2');
 
 define(CTWP . 'PLUGIN_NAME_DIR', plugin_dir_path(__FILE__));
 
@@ -125,8 +125,7 @@ $page = common::inputGetCmd('page', '');
 
 function enqueue_codemirror()
 {
-
-	$version = '1.1.0';
+	$version = '1.2.2';
 	wp_enqueue_style('customtables-js-modal', plugin_dir_url(__FILE__) . 'libraries/customtables/media/css/modal.css', false, $version);
 	wp_enqueue_style('customtables-js-layouteditor', plugin_dir_url(__FILE__) . 'libraries/customtables/media/css/layouteditor.css', false, $version);
 

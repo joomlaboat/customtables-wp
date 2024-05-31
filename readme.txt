@@ -4,8 +4,8 @@ Contributors: @ivankomlev
 Donate link: https://ct4.us/
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
-Tested up to: 6.5.0
-Stable tag: 1.2.1
+Tested up to: 6.5.3
+Stable tag: 1.2.2
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -52,6 +52,9 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 [Please contact us here with your query.](https://ct4.us/contact-us/)
 
 == Changelog ==
+
+= 1.2.2 =
+Image Field type added.
 
 = 1.2.1 =
 Date method bugs fixed.
