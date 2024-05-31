@@ -15,20 +15,17 @@ The Custom Tables plugin allows you to create custom database tables, manage the
 
 == Description ==
 
-**Custom Tables** is a powerful plugin that allows you to add **custom database tables**, **fields**, and **layouts** to both **Joomla** and **WordPress**. Its versatility makes it suitable for a wide range of applications, including **catalogs**, **edit forms**, **detail pages**, and more.
 
-One of the standout features of Custom Tables is its support for the modern **Twig template language**, providing a flexible and user-friendly way to create **dynamic layouts**.
+**Unlock Custom Data Structures and Dynamic Layouts with Custom Tables**
 
-With 10 **field types** to choose from, including **Integer**, **Decimal**, **Text String**, **Date**, **Email**, **Color**,
-you can create complex **data structures** tailored to your specific needs.
-The **edit form input boxes** dynamically adapt to the selected field type, ensuring a seamless user experience.
-For example, the **Date field type** will display a **calendar**, and the **Color field type** will offer a **color picker**.
+Take your WordPress site to the next level with Custom Tables, a powerful plugin that lets you create custom database tables, fields, and layouts. With its versatility and flexibility, you can build anything from catalogs to edit forms, detail pages, and more.
 
-The **Layout Editor** with Twig language simplifies the process of creating new layouts by offering an **Auto-Create** button that generates a layout based on the list of fields in your table.
+Key Features:
 
-All tables are stored in **MySQL**, with **queries** and **field values** being properly **sanitized** to prevent potential **vulnerabilities** for added **security**.
-
-With its rich **feature set** and **cross-platform compatibility**, Custom Tables is an indispensable tool for **developers** and **website administrators** seeking to extend the functionality of their Joomla or WordPress sites with **custom data structures** and **dynamic layouts**.
+Twig Template Language Support: Create dynamic layouts with ease using the modern Twig template language.
+9 Field Types: Choose from Integer, Decimal, Text String, Date, Email, Color, and more to create complex data structures.
+Layout Editor: Simplify layout creation with the Auto-Create button, which generates a layout based on your table fields.
+Secure and Sanitized: All tables are stored in MySQL, with queries and field values properly sanitized for added security.
 
 = Introduction =
 
