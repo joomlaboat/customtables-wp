@@ -19,26 +19,18 @@ use tagProcessor_Item;
 use tagProcessor_If;
 use tagProcessor_Page;
 use tagProcessor_Value;
-use CustomTables\ProInputBoxTableJoin;
-use CustomTables\ProInputBoxTableJoinList;
 
 class Inputbox
 {
     var CT $ct;
     var Field $field;
     var ?array $row;
-
-    var string $cssclass;
-    var string $attributes;
-    var array $attributesArray;
-    var string $onchange;
+    var array $attributes;
     var array $option_list;
     var string $place_holder;
     var string $prefix;
     var bool $isTwig;
     var ?string $defaultValue;
-
-    protected string $cssStyle;
 
     /**
      * @throws Exception
@@ -48,52 +40,41 @@ class Inputbox
     {
         $this->ct = &$ct;
         $this->isTwig = $isTwig;
-        $this->cssclass = $option_list[0] ?? '';
-        $this->attributes = str_replace('****quote****', '"', $option_list[1] ?? '');//Optional Parameter
 
-        preg_match('/onchange="([^"]*)"/', $this->attributes, $matches);
-        $onchange_value = $matches[1] ?? '';
+        $optional_attributes = str_replace('****quote****', '"', $option_list[1] ?? '');//Optional Parameter
+        $this->attributes = CTMiscHelper::parseHTMLAttributes($optional_attributes);
 
-        $this->attributes = str_replace($onchange_value, '', $this->attributes);
-        $this->attributes = str_replace('onchange=""', '', $this->attributes);
-        $this->attributes = str_replace("onchange=''", '', $this->attributes);
-        $this->cssStyle = '';
-        $this->onchange = ($onchange_value != '' and $onchange_value[strlen($onchange_value) - 1] != ';') ? $onchange_value . ';' . $onchange : $onchange_value . $onchange;
+        BaseInputBox::addOnChange($this->attributes, $onchange);
 
-        if (str_contains($this->cssclass, ':'))//it's a style, change it to attribute
-        {
-            $this->cssStyle = $this->cssclass;
-            $this->cssclass = '';
-        }
-
-        if (str_contains($this->attributes, 'onchange="') and $this->onchange != '') {
-            //if the attributes already contain "onchange" parameter then add onchange value to the attributes parameter
-            $this->attributes = str_replace('onchange="', 'onchange="' . $this->onchange, $this->attributes);
-        } elseif ($this->attributes != '')
-            $this->attributes .= ' onchange="' . $onchange . '"';
+        $CSSClassOrStyle = $option_list[0] ?? '';
+        if (str_contains($CSSClassOrStyle, ':'))//it's a style, change it to attribute
+            BaseInputBox::addCSSStyle($this->attributes, $CSSClassOrStyle);
         else
-            $this->attributes = 'onchange="' . $onchange . '"';
+            BaseInputBox::addCSSClass($this->attributes, $CSSClassOrStyle);
 
         $this->field = new Field($this->ct, $fieldRow);
 
-        if ($this->field->isrequired == 1)
-            $this->cssclass .= ' required';
+        //Set CSS classes
+        if ($this->field->type != "records")
+            BaseInputBox::addCSSClass($this->attributes, ($this->ct->Env->version < 4 ? 'inputbox' : 'form-control'));
 
+        //Add attributes
         $this->option_list = $option_list;
         $this->place_holder = $this->field->title;
 
-        $this->attributesArray['class'] = $this->cssclass;
-        $this->attributesArray['data-type'] = $this->field->type;
-        $this->attributesArray['title'] = $this->field->title;
-        $this->attributesArray['data-label'] = $this->field->title;
-        $this->attributesArray['placeholder'] = $this->field->title;
-        $this->attributesArray['data-valuerule'] = str_replace('"', '&quot;', $this->field->valuerule ?? '');
-        $this->attributesArray['data-valuerulecaption'] = str_replace('"', '&quot;', $this->field->valuerulecaption ?? '');
-        $this->attributesArray['onchange'] = $this->onchange;
+        //$this->attributesArray['class'] = $CSSClass;
+        $this->attributes['data-type'] = $this->field->type;
 
-        //For old input boxes
-        if ($this->field->type != "records")
-            $this->cssclass .= ($this->ct->Env->version < 4 ? ' inputbox' : ' form-control');
+        if (!isset($this->attributes['title']))
+            $this->attributes['title'] = $this->field->title;
+
+        $this->attributes['data-label'] = $this->field->title;
+
+        if (!isset($this->attributes['placeholder']))
+            $this->attributes['placeholder'] = $this->field->title;
+
+        $this->attributes['data-valuerule'] = str_replace('"', '&quot;', $this->field->valuerule ?? '');
+        $this->attributes['data-valuerulecaption'] = str_replace('"', '&quot;', $this->field->valuerulecaption ?? '');
     }
 
     /**
@@ -105,11 +86,11 @@ class Inputbox
         $this->row = $row;
         $this->field = new Field($this->ct, $this->field->fieldrow, $this->row);
         $this->prefix = $this->ct->Env->field_input_prefix . (!$this->ct->isEditForm ? $this->row[$this->ct->Table->realidfieldname] . '_' : '');
-        $this->attributesArray['name'] = $this->prefix . $this->field->fieldname;
-        $this->attributesArray['id'] = $this->prefix . $this->field->fieldname;
+        $this->attributes['name'] = $this->prefix . $this->field->fieldname;
+        $this->attributes['id'] = $this->prefix . $this->field->fieldname;
 
-        if ($this->row === null)
-            $this->attributesArray['placeholder'] = $this->place_holder;
+        if ($this->row === null and !isset($this->attributes['placeholder']))
+            $this->attributes['placeholder'] = $this->place_holder;
 
         if ($this->field->defaultvalue !== '' and $value === null) {
             $twig = new TwigProcessor($this->ct, $this->field->defaultvalue);
@@ -140,7 +121,7 @@ class Inputbox
         if (file_exists($additionalFile)) {
             require_once($additionalFile);
             $className = '\CustomTables\InputBox_' . $fieldTypeShort;
-            $inputBoxRenderer = new $className($this->ct, $this->field, $this->row, $this->option_list, $this->attributesArray);
+            $inputBoxRenderer = new $className($this->ct, $this->field, $this->row, $this->option_list, $this->attributes);
         }
 
         switch ($this->field->type) {
@@ -186,7 +167,7 @@ class Inputbox
                     if (file_exists($path . 'tablejoin.php')) {
                         require_once($path . 'tablejoin.php');
 
-                        $inputBoxRenderer = new ProInputBoxTableJoin($this->ct, $this->field, $this->row, $this->option_list, $this->attributesArray);
+                        $inputBoxRenderer = new ProInputBoxTableJoin($this->ct, $this->field, $this->row, $this->option_list, $this->attributes);
                         return $inputBoxRenderer->render($value, $this->defaultValue);
                     } else {
                         return esc_html__("Available in PRO Version", "customtables");
@@ -204,7 +185,7 @@ class Inputbox
                         require_once($path . 'tablejoin.php');
                         require_once($path . 'tablejoinlist.php');
 
-                        $inputBoxRenderer = new ProInputBoxTableJoinList($this->ct, $this->field, $this->row, $this->option_list, $this->attributesArray);
+                        $inputBoxRenderer = new ProInputBoxTableJoinList($this->ct, $this->field, $this->row, $this->option_list, $this->attributes);
                         return $inputBoxRenderer->render($value, $this->defaultValue);
                     } else {
                         return esc_html__("Available in PRO Version", "customtables");
@@ -293,8 +274,11 @@ abstract class BaseInputBox
             self::addCSSClass($this->attributes, 'required');
     }
 
-    public static function addCSSClass(&$attributes, $className): void
+    public static function addCSSClass(array &$attributes, string $className): void
     {
+        if (empty($className))
+            return;
+
         if (isset($attributes['class'])) {
             $classes = explode(' ', $attributes['class']);
             if (!in_array($className, $classes)) {
@@ -303,6 +287,69 @@ abstract class BaseInputBox
             }
         } else {
             $attributes['class'] = $className;
+        }
+    }
+
+    /**
+     * Removes a CSS class from the 'class' attribute in the provided attributes array.
+     *
+     * This method will remove the specified CSS class from the 'class' attribute
+     * if it exists. If the 'class' attribute becomes empty after removal, it will
+     * be unset from the attributes array.
+     *
+     * @param array $attributes The attributes array, passed by reference.
+     * @param string $className The CSS class name to remove.
+     *
+     * @return void
+     *
+     * @since 3.3.3
+     */
+    public static function removeCSSClass(array &$attributes, string $className): void
+    {
+        if (empty($className) || !isset($attributes['class'])) {
+            return;
+        }
+
+        $classes = explode(' ', $attributes['class']);
+        $filteredClasses = array_filter($classes, function ($class) use ($className) {
+            return $class !== $className;
+        });
+
+        if (empty($filteredClasses)) {
+            unset($attributes['class']);
+        } else {
+            $attributes['class'] = implode(' ', $filteredClasses);
+        }
+    }
+
+    public static function addOnChange(array &$attributes, string $onchange): void
+    {
+        if (empty($onchange))
+            return;
+
+        if (isset($attributes['onchange']) and $attributes['onchange'] !== '') {
+            if (substr($attributes['onchange'], strlen($attributes['onchange']) - 1, 1) == ';')
+                $attributes['onchange'] .= $onchange;
+            else
+                $attributes['onchange'] .= ';' . $onchange;
+        } else {
+            $attributes['onchange'] = $onchange;
+        }
+    }
+
+    public static function addCSSStyle(array &$attributes, string $style): void
+    {
+        if (empty($style))
+            return;
+
+        if (isset($attributes['style'])) {
+            $styles = explode(';', $attributes['style']);
+            if (!in_array($style, $styles)) {
+                $styles [] = $style;
+                $attributes['style'] = implode(' ', $styles);
+            }
+        } else {
+            $attributes['style'] = $style;
         }
     }
 
