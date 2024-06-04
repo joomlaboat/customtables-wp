@@ -9,6 +9,7 @@
  */
 
 use CustomTables\common;
+use CustomTables\Fields;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
@@ -16,6 +17,18 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 require_once ABSPATH . 'wp-admin/admin-header.php';
 
+?>
+
+<?php
+foreach ($this->admin_field_edit->allTables as $table) {
+    $fields = Fields::getFields($table[0], true);
+    $list = array();
+    foreach ($fields as $field)
+        $list[] = [$field->id, $field->fieldname];
+
+    echo '<div id="fieldsData' . $table[0] . '" style="display:none;">' . common::ctJsonEncode($list) . '</div>
+    ';
+}
 ?>
     <div class="wrap">
         <h1 id="add-new-user">
@@ -94,7 +107,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 
                 <form method="post" name="createfield" id="createfield" class="validate" novalidate="novalidate">
                     <input name="action" type="hidden" value="createfield"/>
-                    <input name="table" type="hidden"
+                    <input name="table" id="table" type="hidden"
                            value="<?php echo esc_html($this->admin_field_edit->tableId); ?>"/>
                     <?php wp_nonce_field('create-edit-field'); ?>
 
