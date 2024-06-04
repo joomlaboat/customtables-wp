@@ -14,7 +14,6 @@ namespace CustomTables;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Exception;
-use CT_FieldTypeTag_file;
 use LayoutProcessor;
 use tagProcessor_General;
 use tagProcessor_Item;
@@ -309,84 +308,26 @@ class SaveFieldQuerySet
 
             case 'blob':
 
-                $to_delete = common::inputPostCmd($this->field->comesfieldname . '_delete', null, 'create-edit-record');
-                $value = CT_FieldTypeTag_file::get_blob_value($this->field);
+                require_once 'blob.php';
+                $image = new Save_blob($this->ct, $this->field, $this->row_new);
+                $value = $image->saveFieldSet($listing_id);
 
-                $fileNameField = '';
-                if (isset($this->field->params[2])) {
-                    $fileNameField_String = $this->field->params[2];
-                    $fileNameField_Row = Fields::FieldRowByName($fileNameField_String, $this->ct->Table->fields);
-                    $fileNameField = $fileNameField_Row['realfieldname'];
-                }
+                //This way it will be clear if the value changed or not. If $this->newValue = null means that value not changed.
+                if ($value !== null and is_array($value))
+                    $this->setNewValue($value['value']);
 
-                if ($to_delete == 'true' and $value === null) {
-                    $this->setNewValue(null);
-
-                    if ($fileNameField != '' and !$this->checkIfFieldAlreadyInTheList($fileNameField))
-                        $this->row_new[$fileNameField] = null;
-
-                } elseif ($value !== null) {
-                    $this->setNewValue(strlen($value));
-
-                    if ($fileNameField != '') {
-                        if (!$this->checkIfFieldAlreadyInTheList($fileNameField)) {
-                            $file_id = common::inputPostString($this->field->comesfieldname, '', 'create-edit-record');
-
-                            //Delete temporary file name parts
-                            //Example: ct_1702267688_PseAH3r3Cy91VhQbhhzwbchYW5rK51sD_001_Li-Rongbo_LOI_PE1214762_26032019_c1b1121b122.doc
-                            //Cleaned: 001_Li-Rongbo_LOI_PE1214762_26032019_c1b1121b122.doc
-                            $file_name_parts = explode('_', $file_id);
-                            $file_name = implode('_', array_slice($file_name_parts, 3));
-
-                            $this->row_new[$fileNameField] = $file_name;
-                        }
-                    }
-
-                    $this->row_new[$this->field->realfieldname] = $value;
-                }
                 return;
 
             case 'file':
 
-                $file_type_file = CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'fieldtypes' . DIRECTORY_SEPARATOR . '_type_file.php';
-                require_once($file_type_file);
+                require_once 'file.php';
+                $image = new Save_file($this->ct, $this->field, $this->row_new);
+                $value = $image->saveFieldSet($listing_id);
 
-                $FileFolder = CT_FieldTypeTag_file::getFileFolder($this->field->params[1]);
+                //This way it will be clear if the value changed or not. If $this->newValue = null means that value not changed.
+                if ($value !== null and is_array($value))
+                    $this->setNewValue($value['value']);
 
-                $file_id = common::inputPostString($this->field->comesfieldname, '', 'create-edit-record');
-
-                $filepath = str_replace('/', DIRECTORY_SEPARATOR, $FileFolder);
-                if (substr($filepath, 0, 1) == DIRECTORY_SEPARATOR)
-                    $filepath = str_replace(DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, CUSTOMTABLES_ABSPATH . $filepath);
-                else
-                    $filepath = CUSTOMTABLES_ABSPATH . $filepath;
-
-                if ($listing_id == 0) {
-
-                    $fileSystemFileFolder = str_replace(DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, CUSTOMTABLES_ABSPATH . $FileFolder);
-                    $value = CT_FieldTypeTag_file::UploadSingleFile('', $file_id, $this->field, $fileSystemFileFolder);
-                    $this->setNewValue($value);
-                } else {
-                    $ExistingFile = $this->field->ct->Table->getRecordFieldValue($listing_id, $this->field->realfieldname);
-
-                    $to_delete = common::inputPostCmd($this->field->comesfieldname . '_delete', null, 'create-edit-record');
-
-                    if ($to_delete == 'true') {
-                        $this->setNewValue(null);
-                        if ($ExistingFile != '' and !CT_FieldTypeTag_file::checkIfTheFileBelongsToAnotherRecord($ExistingFile, $this->field)) {
-                            $filename_full = $filepath . DIRECTORY_SEPARATOR . $ExistingFile;
-
-                            if (file_exists($filename_full))
-                                unlink($filename_full);
-                        }
-                    }
-
-                    $fileSystemFileFolder = str_replace(DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, CUSTOMTABLES_ABSPATH . $FileFolder);
-                    $value = CT_FieldTypeTag_file::UploadSingleFile($ExistingFile, $file_id, $this->field, $fileSystemFileFolder);
-
-                    if ($value)
-                        $this->setNewValue($value);
-                }
                 return;
 
             case 'signature':
@@ -491,15 +432,15 @@ class SaveFieldQuerySet
             case 'id':
                 //get max id
                 if ($this->row_old[$this->ct->Table->realidfieldname] == 0 or $this->row_old[$this->ct->Table->realidfieldname] == '' or $this->isCopy) {
-                    $minid = (($this->field->params !== null and count($this->field->params) > 0) ? (int)$this->field->params[0] : 0);
+                    $min_id = (($this->field->params !== null and count($this->field->params) > 0) ? (int)$this->field->params[0] : 0);
 
                     $whereClause = new MySQLWhereClause();
 
                     $rows = database::loadObjectList($this->ct->Table->realtablename, [['MAX', $this->ct->Table->realtablename, $this->ct->Table->realidfieldname]], $whereClause, null, null, 1);
                     if (count($rows) != 0) {
                         $value = (int)($rows[0]->vlu) + 1;
-                        if ($value < $minid)
-                            $value = $minid;
+                        if ($value < $min_id)
+                            $value = $min_id;
 
                         $this->setNewValue($value);
                     }
@@ -741,11 +682,6 @@ class SaveFieldQuerySet
         return null;
     }
 
-    function checkIfFieldAlreadyInTheList(string $realFieldName): bool
-    {
-        return isset($this->row_new[$realFieldName]);
-    }
-
     public static function getUserIP(): string
     {
         if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)) {
@@ -770,7 +706,7 @@ class SaveFieldQuerySet
     {
         $this->field = new Field($this->ct, $fieldRow, $this->row_old);
 
-        if (!Fields::isVirtualField($fieldRow) and $this->field->defaultvalue != "" and !isset($this->row_old[$this->field->realfieldname]) and $this->field->type != 'dummie') {
+        if (!Fields::isVirtualField($fieldRow) and $this->field->defaultvalue != "" and !isset($this->row_old[$this->field->realfieldname]) and $this->field->type != 'dummy') {
 
             if ($this->ct->Env->legacySupport) {
                 $LayoutProc = new LayoutProcessor($this->ct);
@@ -823,6 +759,11 @@ class SaveFieldQuerySet
                 $this->setNewValue($value);
             }
         }
+    }
+
+    function checkIfFieldAlreadyInTheList(string $realFieldName): bool
+    {
+        return isset($this->row_new[$realFieldName]);
     }
 
     /**
@@ -973,12 +914,12 @@ class SaveFieldQuerySet
      * @throws Exception
      * @since 3.2.3
      */
-    function sendEmailNote(string $listing_id, string $emails, array $row): int
+    function sendEmailNote(string $listing_id, string $listOfEmailsString, array $row): int
     {
         $this->ct->Table->loadRecord($listing_id);
 
         //Prepare Email List
-        $emails_raw = CTMiscHelper::csv_explode(',', $emails, '"', true);
+        $emails_raw = CTMiscHelper::csv_explode(',', $listOfEmailsString, '"', true);
 
         $emails = array();
         foreach ($emails_raw as $SendToEmail) {
@@ -1030,7 +971,7 @@ class SaveFieldQuerySet
             foreach ($this->ct->Table->fields as $fieldrow) {
                 if ($fieldrow['type'] == 'file') {
                     $field = new Field($this->ct, $fieldrow, $row);
-                    $FileFolder = CT_FieldTypeTag_file::getFileFolder($field->params[0]);
+                    $FileFolder = FileUtils::getOrCreateDirectoryPath($field->params[0]);
 
                     $filename = $FileFolder . $this->ct->Table->record[$fieldrow['realfieldname']];
                     if (file_exists($filename))
