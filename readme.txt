@@ -5,7 +5,7 @@ Donate link: https://ct4.us/
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
 Tested up to: 6.5.3
-Stable tag: 1.2.2
+Stable tag: 1.2.3
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -23,13 +23,14 @@ Take your WordPress site to the next level with Custom Tables, a powerful plugin
 Key Features:
 
 Twig Template Language Support: Create dynamic layouts with ease using the modern Twig template language.
-15 Field Types: Choose from Integer, Decimal, Text String, Date, Email, Color, Image, and more to create complex data structures.
+16 Field Types: Choose from Integer, Decimal, Text String, Date, Email, Color, Image, and more to create complex data structures.
 Layout Editor: Simplify layout creation with the Auto-Create button, which generates a layout based on your table fields.
 Secure and Sanitized: All tables are stored in MySQL, with queries and field values properly sanitized for added security.
 
 = Introduction =
 
 [youtube https://www.youtube.com/watch?v=Dq3jbk9JaJY]
+[youtube https://www.youtube.com/watch?v=qehcUdr7vk0]
 
 = More information =
 Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](https://github.com/joomlaboat/custom-tables/wiki).
@@ -49,6 +50,9 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 [Please contact us here with your query.](https://ct4.us/contact-us/)
 
 == Changelog ==
+
+= 1.2.3 =
+Field Types added: File, Blob, Creation Time, Change Time, MD5 and Virtual
 
 = 1.2.2 =
 Image Field type added.
