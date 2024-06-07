@@ -245,8 +245,22 @@ class common
 
     public static function inputPost($parameter, $default = null, $filter = null)
     {
-        echo 'common::inputPost not supported in WordPress';
-        return null;
+        if($filter == 'array') {
+            if(isset($_POST[$parameter]) and is_array($_POST[$parameter]))
+            {
+                $values = [];
+                foreach ($_POST[$parameter] as $value)
+                    $values[] =  sanitize_text_field(wp_strip_all_tags($value));
+
+                return $values;
+            }
+            else
+                return $default;
+        }else
+        {
+            echo 'common::inputPost not supported in WordPress';
+            die;
+        }
     }
 
     public static function inputSet(string $parameter, string $value): void

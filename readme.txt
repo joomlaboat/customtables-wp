@@ -1,7 +1,7 @@
 === CustomTables ===
 
 Contributors: @ivankomlev
-Donate link: https://ct4.us/
+Donate link: https://www.patreon.com/joomlaboat
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
 Tested up to: 6.5.3
