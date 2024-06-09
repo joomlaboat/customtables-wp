@@ -23,7 +23,7 @@ Take your WordPress site to the next level with Custom Tables, a powerful plugin
 Key Features:
 
 Twig Template Language Support: Create dynamic layouts with ease using the modern Twig template language.
-16 Field Types: Choose from Integer, Decimal, Text String, Date, Email, Color, Image, and more to create complex data structures.
+21 Field Types: Choose from Integer, Decimal, Text String, Date, Email, Color, Image, and more to create complex data structures.
 Layout Editor: Simplify layout creation with the Auto-Create button, which generates a layout based on your table fields.
 Secure and Sanitized: All tables are stored in MySQL, with queries and field values properly sanitized for added security.
 
