@@ -711,11 +711,20 @@ class common
         if ($date === null or $date == '0000-00-00 00:00:00')
             return $emptyValue;
 
-        $timestamp = strtotime($date);
+        // Check if the date is a Unix timestamp
+        if (ctype_digit($date) && strlen($date) === 10) {
+            // Treat it as a Unix timestamp
+            $timestamp = (int)$date;
+        } else {
+            // Convert date string to Unix timestamp
+            $timestamp = strtotime($date);
+        }
 
+        // Return timestamp as string if requested
         if ($format === 'timestamp')
             return (string)$timestamp;
 
+        // Format date using date_i18n for localization (WordPress function)
         return date_i18n($format, $timestamp);
     }
 

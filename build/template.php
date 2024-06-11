@@ -113,9 +113,6 @@ if (!function_exists('enqueue_frontend_scripts')) {
                             $layoutId = 0;
                     }
 
-                    echo '$layoutType=' . $layoutType . '<br/>';
-                    echo '$layoutId=' . $layoutId . '<br/>';
-
                     $layouts = new Layouts($ct);
                     $mixedLayout_array = $layouts->renderMixedLayout($layoutId, $layoutType);
                     $mixedLayout_safe = $mixedLayout_array['html'];
