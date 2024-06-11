@@ -412,7 +412,7 @@ class common
 
     public static function getReturnToURL(bool $decode = true): ?string
     {
-        $returnto_id = common::inputGetInt('returnto');
+        $returnto_id = common::inputGetCmd('returnto');
 
         if (empty($returnto_id))
             return null;
