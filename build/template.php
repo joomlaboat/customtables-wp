@@ -22,42 +22,42 @@ use CustomTables\Layouts;
 use const CustomTablesWP\CTWP;
 
 if (!function_exists('enqueue_frontend_scripts')) {
-	function enqueue_frontend_scripts()
-	{
-		global $CUSTOM_TABLES_ENQUEUE;
+    function enqueue_frontend_scripts()
+    {
+        global $CUSTOM_TABLES_ENQUEUE;
 
-		wp_enqueue_script('ct-catalog-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/catalog.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
+        wp_enqueue_script('ct-catalog-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/catalog.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
         wp_enqueue_script('ct-edit-form-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
         wp_enqueue_script('ct-uploader-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/uploader.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
 
-		wp_enqueue_style('ct-catalog-style', CUSTOMTABLES_MEDIA_WEBPATH . 'css/style.css', array(), \CustomTablesWP\PLUGIN_VERSION, false);
+        wp_enqueue_style('ct-catalog-style', CUSTOMTABLES_MEDIA_WEBPATH . 'css/style.css', array(), \CustomTablesWP\PLUGIN_VERSION, false);
 
-		// Add inline script after enqueuing the main script
-		wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url(home_url()) . '";');
+        // Add inline script after enqueuing the main script
+        wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url(home_url()) . '";');
 
-		// Add inline script after enqueuing the main script
-		if (isset($CUSTOM_TABLES_ENQUEUE['style']) and $CUSTOM_TABLES_ENQUEUE['style'] !== null)
-			wp_add_inline_style('ct-catalog-style', $CUSTOM_TABLES_ENQUEUE['style']);
+        // Add inline script after enqueuing the main script
+        if (isset($CUSTOM_TABLES_ENQUEUE['style']) and $CUSTOM_TABLES_ENQUEUE['style'] !== null)
+            wp_add_inline_style('ct-catalog-style', $CUSTOM_TABLES_ENQUEUE['style']);
 
-		// Add inline script after enqueuing the main script
-		if (isset($CUSTOM_TABLES_ENQUEUE['script']) and $CUSTOM_TABLES_ENQUEUE['script'] !== null)
-			wp_add_inline_script('ct-edit-form-script', $CUSTOM_TABLES_ENQUEUE['script']);
+        // Add inline script after enqueuing the main script
+        if (isset($CUSTOM_TABLES_ENQUEUE['script']) and $CUSTOM_TABLES_ENQUEUE['script'] !== null)
+            wp_add_inline_script('ct-edit-form-script', $CUSTOM_TABLES_ENQUEUE['script']);
 
-		if (isset($CUSTOM_TABLES_ENQUEUE['recaptcha']) and $CUSTOM_TABLES_ENQUEUE['recaptcha'] !== null)
-			wp_enqueue_script('google-recaptcha', 'https://www.google.com/recaptcha/api.js');
+        if (isset($CUSTOM_TABLES_ENQUEUE['recaptcha']) and $CUSTOM_TABLES_ENQUEUE['recaptcha'] !== null)
+            wp_enqueue_script('google-recaptcha', 'https://www.google.com/recaptcha/api.js');
 
-		if (isset($CUSTOM_TABLES_ENQUEUE['fieldtype:date']) and $CUSTOM_TABLES_ENQUEUE['fieldtype:date']) {
+        if (isset($CUSTOM_TABLES_ENQUEUE['fieldtype:date']) and $CUSTOM_TABLES_ENQUEUE['fieldtype:date']) {
 
             // Enqueue jQuery UI
-			wp_enqueue_script( 'jquery-ui-core' );
+            wp_enqueue_script('jquery-ui-core');
 
-			wp_enqueue_script('ct-edit-form-script-jquery-ui-min', CustomTablesWP\PLUGIN_NAME_URL  .'assets/jquery-ui.min.js');
-			wp_enqueue_style('ct-edit-form-style-jquery-timepicker', CustomTablesWP\PLUGIN_NAME_URL  .'assets/jquery.datetimepicker.min.css', array(), \CustomTablesWP\PLUGIN_VERSION);
+            wp_enqueue_script('ct-edit-form-script-jquery-ui-min', CustomTablesWP\PLUGIN_NAME_URL . 'assets/jquery-ui.min.js');
+            wp_enqueue_style('ct-edit-form-style-jquery-timepicker', CustomTablesWP\PLUGIN_NAME_URL . 'assets/jquery.datetimepicker.min.css', array(), \CustomTablesWP\PLUGIN_VERSION);
 
-			//Include jQuery UI Timepicker addon from CDN
-			wp_enqueue_script('ct-edit-form-script-jquery-timepicker', CustomTablesWP\PLUGIN_NAME_URL  .'assets/jquery.datetimepicker.full.min.js');
-		}
-	}
+            //Include jQuery UI Timepicker addon from CDN
+            wp_enqueue_script('ct-edit-form-script-jquery-timepicker', CustomTablesWP\PLUGIN_NAME_URL . 'assets/jquery.datetimepicker.full.min.js');
+        }
+    }
 
     /*
      * It will be used in the future
@@ -79,90 +79,96 @@ if (!function_exists('enqueue_frontend_scripts')) {
 ?>
 <div>
 
-	<?php
+    <?php
 
-	if (isset($attributes['table'])) {
+    if (isset($attributes['table'])) {
 
-		if ($attributes['table'] !== 0) {
+        if ($attributes['table'] !== 0) {
 
-			$mixedLayout_array = [];
-			$mixedLayout_safe = '';
-			$ct = new CT(null, false);
+            $mixedLayout_array = [];
+            $mixedLayout_safe = '';
+            $ct = new CT(null, false);
 
-			try {
-				$ct->getTable($attributes['table']);
-				if ($ct->Table->tablename !== null) {
-					$layoutType = null;
-					$view = common::inputGetCmd('view' . $ct->Table->tableid);
-					if ($view == 'edititem') {
-						$layoutType = 2;
-						$layoutId = 0;
-					} else {
-						$layoutType = $attributes['type'];
+            try {
+                $ct->getTable($attributes['table']);
+                if ($ct->Table->tablename !== null) {
+                    $layoutType = null;
+                    $view = common::inputGetCmd('view' . $ct->Table->tableid);
+                    if ($view == 'edititem') {
+                        $layoutType = 2;
+                        $layoutId = (int)$attributes['editlayout'];
+                    } elseif ($view == 'details') {
+                        $layoutType = 4;
+                        $layoutId = (int)$attributes['detailslayout'];
+                    } else {
+                        $layoutType = $attributes['type'];
 
-						if ((int)$layoutType == 1)
-							$layoutId = (int)$attributes['cataloglayout'];
+                        if ((int)$layoutType == 1)
+                            $layoutId = (int)$attributes['cataloglayout'];
                         elseif ((int)$layoutType == 2)
-							$layoutId = (int)$attributes['editlayout'];
+                            $layoutId = (int)$attributes['editlayout'];
                         elseif ((int)$layoutType == 4)
-							$layoutId = (int)$attributes['detailslayout'];
-						else
-							$layoutId = 0;
-					}
+                            $layoutId = (int)$attributes['detailslayout'];
+                        else
+                            $layoutId = 0;
+                    }
 
-					$layouts = new Layouts($ct);
-					$mixedLayout_array = $layouts->renderMixedLayout($layoutId, $layoutType);
-					$mixedLayout_safe = $mixedLayout_array['html'];
-				} else {
-					$mixedLayout_safe = 'Table "' . $attributes['table'] . '" not found.';
-				}
-			} catch (Exception $e) {
-				$mixedLayout_safe = 'Error: ' . $e->getMessage();
-			}
+                    echo '$layoutType=' . $layoutType . '<br/>';
+                    echo '$layoutId=' . $layoutId . '<br/>';
 
-			$message = get_transient('plugin_error_message');
-			if ($message) {
-				echo '<blockquote style="background-color: #f8d7da; border-left: 5px solid #dc3545; padding: 10px;"><p>' . esc_html($message) . '</p></blockquote>';
-				// Once displayed, clear the transient
-				delete_transient('plugin_error_message');
-			}
+                    $layouts = new Layouts($ct);
+                    $mixedLayout_array = $layouts->renderMixedLayout($layoutId, $layoutType);
+                    $mixedLayout_safe = $mixedLayout_array['html'];
+                } else {
+                    $mixedLayout_safe = 'Table "' . $attributes['table'] . '" not found.';
+                }
+            } catch (Exception $e) {
+                $mixedLayout_safe = 'Error: ' . $e->getMessage();
+            }
 
-			$success_message = get_transient('plugin_success_message');
-			if (!empty($success_message)) {
-				echo '<blockquote style="background-color: #d4edda;border-left: 5px solid #28a745;padding: 10px;"><p>' . esc_html($success_message) . '</p></blockquote>';
-				// Optionally, you can delete the transient after displaying it
-				delete_transient('plugin_success_message');
-			}
+            $message = get_transient('plugin_error_message');
+            if ($message) {
+                echo '<blockquote style="background-color: #f8d7da; border-left: 5px solid #dc3545; padding: 10px;"><p>' . esc_html($message) . '</p></blockquote>';
+                // Once displayed, clear the transient
+                delete_transient('plugin_error_message');
+            }
 
-			if (!is_admin()) {
-				global $CUSTOM_TABLES_ENQUEUE;
+            $success_message = get_transient('plugin_success_message');
+            if (!empty($success_message)) {
+                echo '<blockquote style="background-color: #d4edda;border-left: 5px solid #28a745;padding: 10px;"><p>' . esc_html($success_message) . '</p></blockquote>';
+                // Optionally, you can delete the transient after displaying it
+                delete_transient('plugin_success_message');
+            }
 
-				if (isset($mixedLayout_array['style']) and $mixedLayout_array['style'] !== null)
-					$CUSTOM_TABLES_ENQUEUE['style'] = $mixedLayout_array['style'];
+            if (!is_admin()) {
+                global $CUSTOM_TABLES_ENQUEUE;
 
-				if (isset($mixedLayout_array['script']) and $mixedLayout_array['script'] !== null)
-					$CUSTOM_TABLES_ENQUEUE['script'] = $mixedLayout_array['script'];
+                if (isset($mixedLayout_array['style']) and $mixedLayout_array['style'] !== null)
+                    $CUSTOM_TABLES_ENQUEUE['style'] = $mixedLayout_array['style'];
 
-				if (isset($mixedLayout_array['captcha']) and $mixedLayout_array['captcha'] !== null)
-					$CUSTOM_TABLES_ENQUEUE['recaptcha'] = $mixedLayout_array['captcha'];
+                if (isset($mixedLayout_array['script']) and $mixedLayout_array['script'] !== null)
+                    $CUSTOM_TABLES_ENQUEUE['script'] = $mixedLayout_array['script'];
 
-				if (isset($mixedLayout_array['fieldtypes']) and $mixedLayout_array['fieldtypes'] !== null) {
+                if (isset($mixedLayout_array['captcha']) and $mixedLayout_array['captcha'] !== null)
+                    $CUSTOM_TABLES_ENQUEUE['recaptcha'] = $mixedLayout_array['captcha'];
 
-					if (in_array('date', $mixedLayout_array['fieldtypes']))
-						$CUSTOM_TABLES_ENQUEUE['fieldtype:date'] = true;
+                if (isset($mixedLayout_array['fieldtypes']) and $mixedLayout_array['fieldtypes'] !== null) {
 
-					if (in_array('datetime', $mixedLayout_array['fieldtypes']))
-						$CUSTOM_TABLES_ENQUEUE['fieldtype:datetime'] = true;
-				}
+                    if (in_array('date', $mixedLayout_array['fieldtypes']))
+                        $CUSTOM_TABLES_ENQUEUE['fieldtype:date'] = true;
 
-				add_action('wp_enqueue_scripts', 'enqueue_frontend_scripts');
-				//add_filter( 'wp_title', 'customtables_wp_title', 10, 2 );
-			}
-			echo $mixedLayout_safe;
+                    if (in_array('datetime', $mixedLayout_array['fieldtypes']))
+                        $CUSTOM_TABLES_ENQUEUE['fieldtype:datetime'] = true;
+                }
 
-		} else {
-			echo 'Custom Tables: Table Not Selected.';
-		}
-	}
-	?>
+                add_action('wp_enqueue_scripts', 'enqueue_frontend_scripts');
+                //add_filter( 'wp_title', 'customtables_wp_title', 10, 2 );
+            }
+            echo $mixedLayout_safe;
+
+        } else {
+            echo 'Custom Tables: Table Not Selected.';
+        }
+    }
+    ?>
 </div>
