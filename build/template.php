@@ -57,6 +57,11 @@ if (!function_exists('enqueue_frontend_scripts')) {
             //Include jQuery UI Timepicker addon from CDN
             wp_enqueue_script('ct-edit-form-script-jquery-timepicker', CustomTablesWP\PLUGIN_NAME_URL . 'assets/jquery.datetimepicker.full.min.js');
         }
+
+        if (isset($CUSTOM_TABLES_ENQUEUE['fieldtype:color']) and $CUSTOM_TABLES_ENQUEUE['fieldtype:color']) {
+            wp_enqueue_script('ct-spectrum-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/spectrum.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
+            wp_enqueue_style('ct-spectrum-style', CUSTOMTABLES_MEDIA_WEBPATH . 'css/spectrum.css', array(), \CustomTablesWP\PLUGIN_VERSION, false);
+        }
     }
 
     /*
@@ -156,6 +161,15 @@ if (!function_exists('enqueue_frontend_scripts')) {
 
                     if (in_array('datetime', $mixedLayout_array['fieldtypes']))
                         $CUSTOM_TABLES_ENQUEUE['fieldtype:datetime'] = true;
+
+                    print_r($mixedLayout_array);
+
+                    if (in_array('color', $mixedLayout_array['fieldtypes'])) {
+
+                        echo 'Color type<br>';
+
+                        $CUSTOM_TABLES_ENQUEUE['fieldtype:color'] = true;
+                    }
                 }
 
                 add_action('wp_enqueue_scripts', 'enqueue_frontend_scripts');

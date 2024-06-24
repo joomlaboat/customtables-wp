@@ -77,6 +77,45 @@ function typeChanged() {
     updateParameters();
 }
 
+function renderInput_Article(id, param, value, onchange) {
+    const options = getParamOptions(param, 'option');
+
+    let selectOptions = [];
+
+
+    for (let o = 0; o < options.length; o++) {
+        const opt = options[o]["@attributes"];
+
+        if (window.Joomla instanceof Object || (typeof (opt.wordpress) !== "undefined" && opt.wordpress === "true"))
+            selectOptions.push([opt.value, opt.label]);
+    }
+
+    if (window.Joomla instanceof Object) {
+        for (let i = 0; i < custom_fields.length; i++) {
+            if (custom_fields[i][0] === 'com_content.article')
+                selectOptions.push([custom_fields[i][2], custom_fields[i][1]]);
+        }
+    }
+
+    // Sort the array by the first column
+    selectOptions.sort(function (a, b) {
+        return a[1].localeCompare(b[1]); // Sort by first column, assumed to be strings
+    });
+
+    let result = '<select id="' + id + '" class="' + convertClassString('form-select') + '" data-type="list" ' + onchange + '>';
+
+    for (let i = 0; i < selectOptions.length; i++) {
+        if (selectOptions[i][0] === value)
+            result += '<option value="' + selectOptions[i][0] + '" selected="selected">' + selectOptions[i][1] + '</option>';
+        else
+            result += '<option value="' + selectOptions[i][0] + '" >' + selectOptions[i][1] + '</option>'
+    }
+
+    result += '</select>';
+
+    return result;
+}
+
 function renderInputBox(id, param, vlu, attributes, fieldTypeParametersList) {
     const param_att = param["@attributes"];
     let result = '';
@@ -106,6 +145,25 @@ function renderInputBox(id, param, vlu, attributes, fieldTypeParametersList) {
             }
 
             return renderInput_List(id, param, vlu, attributes);
+
+        } else if (param_att.type === "user") {
+
+            if (vlu === '') {
+                if (typeof (param_att.default) !== "undefined")
+                    vlu = param_att.default;
+            }
+
+            return renderInput_User(id, param, vlu, attributes);
+
+        } else if (param_att.type === "article") {
+
+            if (vlu === '') {
+                if (typeof (param_att.default) !== "undefined")
+                    vlu = param_att.default;
+            }
+
+            return renderInput_Article(id, param, vlu, attributes);
+
         } else if (param_att.type === "language") {
             return renderInput_Language(id, param, vlu, attributes);
         } else if (param_att.type === "table") {
@@ -320,8 +378,9 @@ function inputBoxPreRender(proVersion, param, param_count, i, vlu, att, typepara
         if (typeof (param_att) !== "undefined" && typeof (param_att.description) !== "undefined")
             description = param_att.description;
 
-        result += '<label id="fieldtype_param_' + i + '-lbl" for="fieldtype_param_' + i + '" class="hasPopover" title="" data-content="' + description + '"';
+        result += '<label id="fieldtype_param_' + i + '-lbl" for="fieldtype_param_' + i + '" class="hasPopover" data-content="' + description + '"';
         result += ' data-original-title="' + label + '"';
+        result += ' title="' + description + '"';
         result += ' >';
         result += label;
 
@@ -742,6 +801,46 @@ function renderInput_List(id, param, value, onchange) {
 
     return result;
 }
+
+function renderInput_User(id, param, value, onchange) {
+    const options = getParamOptions(param, 'option');
+
+    let selectOptions = [];
+
+
+    for (let o = 0; o < options.length; o++) {
+        const opt = options[o]["@attributes"];
+
+        if (window.Joomla instanceof Object || (typeof (opt.wordpress) !== "undefined" && opt.wordpress === "true"))
+            selectOptions.push([opt.value, opt.label]);
+    }
+
+    if (window.Joomla instanceof Object) {
+        for (let i = 0; i < custom_fields.length; i++) {
+            if (custom_fields[i][0] === 'com_users.user')
+                selectOptions.push([custom_fields[i][2], custom_fields[i][1]]);
+        }
+    }
+
+    // Sort the array by the first column
+    selectOptions.sort(function (a, b) {
+        return a[1].localeCompare(b[1]); // Sort by first column, assumed to be strings
+    });
+
+    let result = '<select id="' + id + '" class="' + convertClassString('form-select') + '" data-type="list" ' + onchange + '>';
+
+    for (let i = 0; i < selectOptions.length; i++) {
+        if (selectOptions[i][0] === value)
+            result += '<option value="' + selectOptions[i][0] + '" selected="selected">' + selectOptions[i][1] + '</option>';
+        else
+            result += '<option value="' + selectOptions[i][0] + '" >' + selectOptions[i][1] + '</option>'
+    }
+
+    result += '</select>';
+
+    return result;
+}
+
 
 function renderInput_Language(id, param, value, onchange) {
     let result = '<select id="' + id + '" class="' + convertClassString('form-select') + '" ' + onchange + '>';

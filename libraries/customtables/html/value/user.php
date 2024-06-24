@@ -83,13 +83,19 @@ class Value_user extends BaseValue
             $field = strtolower($field);
             if ($field == '')
                 $field = 'name';
-            elseif (!in_array($field, $allowedFields))
-                return 'Wrong user field "' . $field . '". Available fields: id, name, email, username, registerdate, lastvisitdate, online.';
+            elseif (!in_array($field, $allowedFields)) {
+
+                $customFieldValue = CTMiscHelper::getCustomFieldValue('com_users.user', $field, $value);
+                if ($customFieldValue !== null)
+                    return $customFieldValue['value'];
+                else
+                    return 'Wrong user field "' . $field . '". Available fields: ' . implode(', ', $allowedFields) . '.';
+            }
 
             $whereClause = new MySQLWhereClause();
             $whereClause->addCondition('id', $value);
 
-            $rows = database::loadAssocList('#__users', ['id', 'name', 'username', 'email', 'registerDate', 'lastvisitDate'], $whereClause, null, null, 1);
+            $rows = database::loadAssocList('#__users', [$field], $whereClause, null, null, 1);
 
             if (count($rows) != 0) {
                 $row = $rows[0];

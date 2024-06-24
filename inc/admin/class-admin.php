@@ -145,6 +145,10 @@ class Admin
 
 			//Include jQuery UI Timepicker addon from CDN
 			wp_enqueue_script('ct-edit-form-script-jquery-timepicker', \CustomTablesWP\PLUGIN_NAME_URL  .'assets/jquery.datetimepicker.full.min.js', array(), $this->version);
+
+            //Color Field Type
+            wp_enqueue_script('ct-spectrum-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/spectrum.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
+            wp_enqueue_style('ct-spectrum-style', CUSTOMTABLES_MEDIA_WEBPATH . 'css/spectrum.css', array(), \CustomTablesWP\PLUGIN_VERSION, false);
 		}
 	}
 
