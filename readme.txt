@@ -4,8 +4,8 @@ Contributors: @ivankomlev
 Donate link: https://www.patreon.com/joomlaboat
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
-Tested up to: 6.5.3
-Stable tag: 1.2.3
+Tested up to: 6.5.5
+Stable tag: 1.2.4
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -15,7 +15,6 @@ The Custom Tables plugin allows you to create custom database tables, manage the
 
 == Description ==
 
-
 **Unlock Custom Data Structures and Dynamic Layouts with Custom Tables**
 
 Take your WordPress site to the next level with Custom Tables, a powerful plugin that lets you create custom database tables, fields, and layouts. With its versatility and flexibility, you can build anything from catalogs to edit forms, detail pages, and more.
@@ -23,7 +22,7 @@ Take your WordPress site to the next level with Custom Tables, a powerful plugin
 Key Features:
 
 Twig Template Language Support: Create dynamic layouts with ease using the modern Twig template language.
-22 Field Types: Choose from Integer, Decimal, Text String, Date, Email, Color, Image, and more to create complex data structures.
+24 Field Types: Choose from Integer, Decimal, Text String, Date, Email, Color, Image, and more to create complex data structures.
 Layout Editor: Simplify layout creation with the Auto-Create button, which generates a layout based on your table fields.
 Secure and Sanitized: All tables are stored in MySQL, with queries and field values properly sanitized for added security.
 
@@ -50,6 +49,9 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 [Please contact us here with your query.](https://ct4.us/contact-us/)
 
 == Changelog ==
+
+= 1.2.4 =
+Field Types added: User Group, User Groups, User Author (record author), File Link, Log, Auto-increment ID, Color and Google Maps (GPS coordinates) field type added.
 
 = 1.2.3 =
 Field Types added: File, Blob, Creation Time, Change Time, MD5 and Virtual

@@ -62,6 +62,14 @@ if (!function_exists('enqueue_frontend_scripts')) {
             wp_enqueue_script('ct-spectrum-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/spectrum.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
             wp_enqueue_style('ct-spectrum-style', CUSTOMTABLES_MEDIA_WEBPATH . 'css/spectrum.css', array(), \CustomTablesWP\PLUGIN_VERSION, false);
         }
+
+        if (isset($CUSTOM_TABLES_ENQUEUE['fieldtype:googlemapcoordinates']) and $CUSTOM_TABLES_ENQUEUE['fieldtype:googlemapcoordinates']) {
+
+            $googleMapAPIKey = get_option('customtables-googlemapapikey');
+
+            if ($googleMapAPIKey !== null and $googleMapAPIKey != '')
+                wp_enqueue_script('ct-google-map-script', 'https://maps.google.com/maps/api/js?key=' . $googleMapAPIKey . '&sensor=false', array(), \CustomTablesWP\PLUGIN_VERSION, true);
+        }
     }
 
     /*
@@ -162,14 +170,11 @@ if (!function_exists('enqueue_frontend_scripts')) {
                     if (in_array('datetime', $mixedLayout_array['fieldtypes']))
                         $CUSTOM_TABLES_ENQUEUE['fieldtype:datetime'] = true;
 
-                    print_r($mixedLayout_array);
-
-                    if (in_array('color', $mixedLayout_array['fieldtypes'])) {
-
-                        echo 'Color type<br>';
-
+                    if (in_array('color', $mixedLayout_array['fieldtypes']))
                         $CUSTOM_TABLES_ENQUEUE['fieldtype:color'] = true;
-                    }
+
+                    if (in_array('googlemapcoordinates', $mixedLayout_array['fieldtypes']))
+                        $CUSTOM_TABLES_ENQUEUE['fieldtype:googlemapcoordinates'] = true;
                 }
 
                 add_action('wp_enqueue_scripts', 'enqueue_frontend_scripts');

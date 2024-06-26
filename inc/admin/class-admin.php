@@ -43,7 +43,7 @@ class Admin
 	 * @access   private
 	 * @var      string $version The current version of this plugin.
 	 */
-	private $version;
+	private string $version;
 
 	/**
 	 * WP_List_Table object
@@ -52,7 +52,7 @@ class Admin
 	 * @access   private
 	 * @var      admin_table_list $admin_list_table
 	 */
-	private $admin_table_list;
+	private admin_table_list $admin_table_list;
 	private $admin_table_edit;
 	private $admin_field_list;
 	private $admin_field_edit;
@@ -62,7 +62,7 @@ class Admin
 	private $admin_layout_edit;
 	private $admin_import_tables;
 
-	/**
+    /**
 	 * Initialize the class and set its properties.
 	 *
 	 * @param string $plugin_name The name of this plugin.
@@ -241,6 +241,18 @@ class Admin
 			array($this, 'load_customtablesAdminDocumentation'), // Callback Function
 			6                                       // Position
 		);
+
+        // Documentation
+        $page_hook = add_submenu_page(
+            'customtables',                       // Parent Menu Slug
+            'Custom Tables - Settings',       // Page Title
+            'Settings',                       // Menu Title
+            'manage_options',                      // Capability
+            'customtables-settings',          // Menu Slug
+            array($this, 'load_customtablesAdminSettings'), // Callback Function
+            6                                       // Position
+        );
+        add_action('load-' . $page_hook, array($this, 'preload_admin_settings'));
 
 		// Edit Table Sub Sub Menu
 		$page = common::inputGetCmd('page');
@@ -551,6 +563,20 @@ class Admin
 		$this->admin_layout_list->handle_layout_actions();
 	}
 
+    public function preload_admin_import_tables(): void
+    {
+        // instantiate the Admin Layout List
+        $this->admin_import_tables = new Admin_Import_Tables();
+        $this->admin_import_tables->handle_import_actions();
+    }
+
+    public function preload_admin_settings(): void
+    {
+        // instantiate the Admin Settings
+        $admin_settings = new Admin_Settings();
+        $admin_settings->handle_settings_actions();
+    }
+
 	public function load_customtablesAdminDashboard(): void
 	{
 		include_once('views' . DIRECTORY_SEPARATOR . 'customtables-dashboard.php');
@@ -687,16 +713,16 @@ class Admin
 		include_once('views' . DIRECTORY_SEPARATOR . 'customtables-documentation.php');
 	}
 
+    public function load_customtablesAdminSettings(): void
+    {
+        include_once('views' . DIRECTORY_SEPARATOR . 'customtables-settings.php');
+    }
+
 	public function load_customtablesAdminImportTables(): void
 	{
 		// instantiate the Admin Layout List
 		include_once('views' . DIRECTORY_SEPARATOR . 'customtables-import-tables.php');
 	}
 
-	public function preload_admin_import_tables(): void
-	{
-		// instantiate the Admin Layout List
-		$this->admin_import_tables = new Admin_Import_Tables();
-		$this->admin_import_tables->handle_import_actions();
-	}
+
 }
