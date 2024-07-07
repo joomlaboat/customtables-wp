@@ -14,7 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use DateTime;
 use Exception;
-use Joomla\CMS\Language\Text;
 use LayoutProcessor;
 
 class Filtering

@@ -14,7 +14,6 @@ namespace CustomTables;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Exception;
-use Joomla\CMS\Uri\Uri;
 use LayoutProcessor;
 use tagProcessor_PHP;
 use CustomTables\ctProHelpers;

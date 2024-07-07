@@ -16,7 +16,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use CustomTablesImageMethods;
 use Exception;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Uri\Uri;
 
 class Value_image extends BaseValue
 {

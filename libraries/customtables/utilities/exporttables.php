@@ -13,7 +13,6 @@ namespace CustomTables;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Exception;
-use Joomla\CMS\Uri\Uri;
 
 class ExportTables
 {
