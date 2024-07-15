@@ -5,12 +5,12 @@ Donate link: https://www.patreon.com/joomlaboat
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
 Tested up to: 6.5.5
-Stable tag: 1.2.4
+Stable tag: 1.2.5
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-The Custom Tables plugin allows you to create custom database tables, manage them, and display custom catalogs, forms, and tables using Twig templating language.
+The Custom Tables plugin allows you to create and manage custom database tables, and display catalogs, forms, and tables using Twig templating language.
 
 
 == Description ==
@@ -50,32 +50,34 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 
 == Changelog ==
 
+
+= 1.2.5 =
+CSV file import feature added to the List of Records page.
+
 = 1.2.4 =
-Field Types added: User Group, User Groups, User Author (record author), File Link, Log, Auto-increment ID, Color and Google Maps (GPS coordinates) field type added.
+The following field types have been added: User Group, User Groups, User Author (record author), File Link, Log, Auto-increment ID, Color, and Google Maps (GPS coordinates).
 
 = 1.2.3 =
-Field Types added: File, Blob, Creation Time, Change Time, MD5 and Virtual
+New field types added: File, Blob, Creation Time, Change Time, MD5, and Virtual.
 
 = 1.2.2 =
-Image Field type added.
+Image field type added.
 
 = 1.2.1 =
 Date method bugs fixed.
 
 = 1.2.0 =
-Layout Auto Created added.
+Layout Auto Create feature added.
 
 = 1.1.9 =
-CT Library Updated and main plugin file renamed - activation bug fixed.
+CT Library updated, and the main plugin file renamed - fixed activation bug.
 
 = 1.1.8 =
-Date Time Field type option added. DatePicker replaced with DateTimePicker.
+Date Time Field type option added. DatePicker replaced with DateTimePicker for enhanced functionality.
 
 = 1.1.7 =
-Twig Lib updated, CT Lib updated.
-
+Twig Library updated, CT Library updated.
 Date Field type added.
-
 CSS style class file loads properly. Field type property null check added.
 
 = 1.1.6 =

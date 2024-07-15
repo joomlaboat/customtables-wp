@@ -6,6 +6,7 @@
  * Author:            Ivan Komlev
  * License:           GPL-2.0+
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.txt
+ * Textdomain:        customtables
  */
 
 use CustomTables\CTMiscHelper;
