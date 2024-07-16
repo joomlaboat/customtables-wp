@@ -1,6 +1,10 @@
 let customtables_types = [];
 let customtables_tables = [];
-let customtables_layouts = [];
+
+let customtables_layouts_catalog = [];
+let customtables_layouts_edit_form = [];
+let customtables_layouts_details = [];
+
 let customtables_prerenderedContent = [];
 
 const definesUtilityFunction = function () {
@@ -46,11 +50,11 @@ function CustomTablesLoadTypes() {
         {
             'label': 'Edit Form',
             'value': 2
-        }/*,
+        },
         {
-            'label': 'Details (Single Record)',
+            'label': 'Details',
             'value': 4
-        }*/
+        }
     ]
 }
 
@@ -64,7 +68,7 @@ function CustomTablesLoadTables() {
         if (response.ok) {
             response.json().then(function (json) {
 
-                customtables_tables = wizardFields = Array.from(json);
+                customtables_tables = Array.from(json);
 
             });
         } else {
@@ -86,7 +90,23 @@ function CustomTablesLoadLayouts() {
 
         if (response.ok) {
             response.json().then(function (json) {
-                customtables_layouts = wizardFields = Array.from(json);
+                let customtables_layouts = Array.from(json);
+
+                for (let i = 0; i < customtables_layouts.length; i++) {
+
+                    let t = parseInt(customtables_layouts[i].type);
+                    if (t === 1)
+                        customtables_layouts_catalog.push(customtables_layouts[i]);
+                    else if (t === 2)
+                        customtables_layouts_edit_form.push(customtables_layouts[i]);
+                    else if (t === 4)
+                        customtables_layouts_details.push(customtables_layouts[i]);
+                    else if (t === 0) {
+                        customtables_layouts_catalog.push(customtables_layouts[i]);
+                        customtables_layouts_edit_form.push(customtables_layouts[i]);
+                        customtables_layouts_details.push(customtables_layouts[i]);
+                    }
+                }
             });
         } else {
             console.log('CustomTables - Block widget: Network request for products.json failed with response ' + response.status + ': ' + response.statusText);
@@ -154,6 +174,217 @@ function CustomTablesRenderBlock(e, i) {
                 generatedPreview = (customtables_prerenderedContent[blockId] !== '' ? customtables_prerenderedContent[blockId] : '<p>CustomTables Block:<br/>Please select a Table and Layout.</p>')
             }
 
+            const selectTypeBox = el(
+                PanelBody,
+                {
+                    title: __('Type'),
+                    initialOpen: true,
+                    className: '2grw-toggle grw-builder-connect 2grw-connect-business'
+                },
+
+                el(
+                    SelectControl,
+                    {
+                        id: 'customtables_block_type',
+                        name: 'customtables_block_type',
+                        value: props.attributes.type,
+                        options: customtables_types,
+                        onChange: function (newValue) {
+                            props.setAttributes({type: newValue});
+                            props.setAttributes({loading: 0});
+
+                            let newAttributes = props.attributes;
+                            newAttributes.type = newValue;
+
+                            CustomTablesLoadPreview(newAttributes, props);
+                        }
+                    }
+                )
+            )
+
+            const selectTableBox = el(
+                PanelBody,
+                {
+                    title: __('Table'),
+                    initialOpen: true,
+                    className: '2grw-toggle grw-builder-connect 2grw-connect-business'
+                },
+
+                el(
+                    SelectControl,
+                    {
+                        id: 'customtables_block_table',
+                        name: 'customtables_block_table',
+                        value: props.attributes.table,
+                        options: customtables_tables,
+                        onChange: function (newValue) {
+                            props.setAttributes({table: newValue});
+                            props.setAttributes({loading: 0});
+
+                            let newAttributes = props.attributes;
+                            newAttributes.table = newValue;
+
+                            CustomTablesLoadPreview(newAttributes, props);
+                        }
+                    }
+                )
+            );
+
+            const selectCatalogLayoutBox = el(
+                PanelBody,
+                {
+                    title: __('Catalog Layout'),
+                    initialOpen: true
+                },
+                el(
+                    SelectControl,
+                    {
+                        id: 'customtables_block_cataloglayout',
+                        name: 'customtables_block_cataloglayout',
+                        value: props.attributes.cataloglayout,
+                        options: customtables_layouts_catalog,
+                        onChange: function (newValue) {
+                            props.setAttributes({cataloglayout: newValue});
+                            props.setAttributes({loading: 0});
+
+                            let newAttributes = props.attributes;
+                            newAttributes.cataloglayout = newValue;
+
+                            CustomTablesLoadPreview(newAttributes, props);
+                        }
+                    }
+                )
+            );
+
+            const selectEditFormLayoutBox = el(
+                PanelBody,
+                {
+                    title: __('Edit Form Layout'),
+                    initialOpen: true
+                },
+                el(
+                    SelectControl,
+                    {
+                        id: 'customtables_block_editlayout',
+                        name: 'customtables_block_editlayout',
+                        value: props.attributes.editlayout,
+                        options: customtables_layouts_edit_form,
+                        onChange: function (newValue) {
+                            props.setAttributes({editlayout: newValue});
+                            props.setAttributes({loading: 0});
+
+                            let newAttributes = props.attributes;
+                            newAttributes.editlayout = newValue;
+
+                            CustomTablesLoadPreview(newAttributes, props);
+                        }
+                    }
+                )
+            );
+
+            const selectDetailsLayoutBox = el(
+                PanelBody,
+                {
+                    title: __('Details View Layout'),
+                    initialOpen: true
+                },
+                el(
+                    SelectControl,
+                    {
+                        id: 'customtables_block_detailslayout',
+                        name: 'customtables_block_detailslayout',
+                        value: props.attributes.detailslayout,
+                        options: customtables_layouts_details,
+                        onChange: function (newValue) {
+                            props.setAttributes({detailslayout: newValue});
+                            props.setAttributes({loading: 0});
+
+                            let newAttributes = props.attributes;
+                            newAttributes.detailslayout = newValue;
+
+                            CustomTablesLoadPreview(newAttributes, props);
+                        }
+                    }
+                )
+            );
+
+            const selectFilterBox = el(
+                PanelBody,
+                {
+                    title: __('Filter'),
+                    initialOpen: false
+                },
+                el(
+                    TextControl,
+                    {
+                        label: 'Filter (Where clause)',
+                        value: props.attributes.filter,
+                        onChange: function (newValue) {
+                            props.setAttributes({filter: newValue});
+                            props.setAttributes({loading: 0});
+
+                            let newAttributes = props.attributes;
+                            newAttributes.filter = newValue;
+
+                            CustomTablesLoadPreview(newAttributes, props);
+                        }
+                    }
+                ),
+            );
+
+            const selectSortingBox = el(
+                PanelBody,
+                {
+                    title: __('Sorting'),
+                    initialOpen: false
+                },
+                el(
+                    TextControl,
+                    {
+                        label: 'Order By',
+                        value: props.attributes.orderby,
+                        onChange: function (newValue) {
+                            props.setAttributes({orderby: newValue});
+                            props.setAttributes({loading: 0});
+
+                            let newAttributes = props.attributes;
+                            newAttributes.orderby = newValue;
+
+                            CustomTablesLoadPreview(newAttributes, props);
+                        }
+                    }
+                ),
+                el(
+                    TextControl,
+                    {
+                        label: 'Direction',
+                        value: props.attributes.order,
+                        onChange: function (newValue) {
+                            props.setAttributes({order: newValue});
+                            props.setAttributes({loading: 0});
+
+                            let newAttributes = props.attributes;
+                            newAttributes.order = newValue;
+
+                            CustomTablesLoadPreview(newAttributes, props);
+                        }
+                    }
+                )
+            );
+
+            const myElements = [selectTypeBox, selectTableBox];
+
+            if (props.attributes.type === "1") {
+                myElements.push(selectCatalogLayoutBox);
+                myElements.push(selectFilterBox);
+                myElements.push(selectSortingBox);
+            } else if (props.attributes.type === "2") {
+                myElements.push(selectEditFormLayoutBox);
+
+            } else if (props.attributes.type === "4") {
+                myElements.push(selectDetailsLayoutBox);
+            }
+
             return el(
                 'div',
                 blockProps,
@@ -181,200 +412,8 @@ function CustomTablesRenderBlock(e, i) {
                                 type: 'hidden'
                             }
                         )
-
-                        , el(
-                            PanelBody,
-                            {
-                                title: __('Type'),
-                                initialOpen: true,
-                                className: '2grw-toggle grw-builder-connect 2grw-connect-business'
-                            },
-
-                            el(
-                                SelectControl,
-                                {
-                                    id: 'customtables_block_type',
-                                    name: 'customtables_block_type',
-                                    value: props.attributes.type,
-                                    options: customtables_types,
-                                    onChange: function (newValue) {
-                                        props.setAttributes({type: newValue});
-                                        props.setAttributes({loading: 0});
-
-                                        let newAttributes = props.attributes;
-                                        newAttributes.type = newValue;
-
-                                        CustomTablesLoadPreview(newAttributes, props);
-                                    }
-                                }
-                            )
-                        )
-
-                        , el(
-                            PanelBody,
-                            {
-                                title: __('Table'),
-                                initialOpen: true,
-                                className: '2grw-toggle grw-builder-connect 2grw-connect-business'
-                            },
-
-                            el(
-                                SelectControl,
-                                {
-                                    id: 'customtables_block_table',
-                                    name: 'customtables_block_table',
-                                    value: props.attributes.table,
-                                    options: customtables_tables,
-                                    onChange: function (newValue) {
-                                        props.setAttributes({table: newValue});
-                                        props.setAttributes({loading: 0});
-
-                                        let newAttributes = props.attributes;
-                                        newAttributes.table = newValue;
-
-                                        CustomTablesLoadPreview(newAttributes, props);
-                                    }
-                                }
-                            )
-                        ),
-                        el(
-                            PanelBody,
-                            {
-                                title: __('Catalog Layout'),
-                                initialOpen: true
-                            },
-                            el(
-                                SelectControl,
-                                {
-                                    id: 'customtables_block_cataloglayout',
-                                    name: 'customtables_block_cataloglayout',
-                                    value: props.attributes.cataloglayout,
-                                    options: customtables_layouts,
-                                    onChange: function (newValue) {
-                                        props.setAttributes({cataloglayout: newValue});
-                                        props.setAttributes({loading: 0});
-
-                                        let newAttributes = props.attributes;
-                                        newAttributes.cataloglayout = newValue;
-
-                                        CustomTablesLoadPreview(newAttributes, props);
-                                    }
-                                }
-                            )
-                        ),
-                        el(
-                            PanelBody,
-                            {
-                                title: __('Edit Form Layout'),
-                                initialOpen: true
-                            },
-                            el(
-                                SelectControl,
-                                {
-                                    id: 'customtables_block_editlayout',
-                                    name: 'customtables_block_editlayout',
-                                    value: props.attributes.editlayout,
-                                    options: customtables_layouts,
-                                    onChange: function (newValue) {
-                                        props.setAttributes({editlayout: newValue});
-                                        props.setAttributes({loading: 0});
-
-                                        let newAttributes = props.attributes;
-                                        newAttributes.editlayout = newValue;
-
-                                        CustomTablesLoadPreview(newAttributes, props);
-                                    }
-                                }
-                            )
-                        ),
-                        el(
-                            PanelBody,
-                            {
-                                title: __('Details View Layout'),
-                                initialOpen: true
-                            },
-                            el(
-                                SelectControl,
-                                {
-                                    id: 'customtables_block_detailslayout',
-                                    name: 'customtables_block_detailslayout',
-                                    value: props.attributes.detailslayout,
-                                    options: customtables_layouts,
-                                    onChange: function (newValue) {
-                                        props.setAttributes({detailslayout: newValue});
-                                        props.setAttributes({loading: 0});
-
-                                        let newAttributes = props.attributes;
-                                        newAttributes.detailslayout = newValue;
-
-                                        CustomTablesLoadPreview(newAttributes, props);
-                                    }
-                                }
-                            )
-                        ),
-                        el(
-                            PanelBody,
-                            {
-                                title: __('Filter'),
-                                initialOpen: false
-                            },
-                            el(
-                                TextControl,
-                                {
-                                    label: 'Filter (Where clause)',
-                                    value: props.attributes.filter,
-                                    onChange: function (newValue) {
-                                        props.setAttributes({filter: newValue});
-                                        props.setAttributes({loading: 0});
-
-                                        let newAttributes = props.attributes;
-                                        newAttributes.filter = newValue;
-
-                                        CustomTablesLoadPreview(newAttributes, props);
-                                    }
-                                }
-                            ),
-                        ),
-                        el(
-                            PanelBody,
-                            {
-                                title: __('Sorting'),
-                                initialOpen: false
-                            },
-                            el(
-                                TextControl,
-                                {
-                                    label: 'Order By',
-                                    value: props.attributes.orderby,
-                                    onChange: function (newValue) {
-                                        props.setAttributes({orderby: newValue});
-                                        props.setAttributes({loading: 0});
-
-                                        let newAttributes = props.attributes;
-                                        newAttributes.orderby = newValue;
-
-                                        CustomTablesLoadPreview(newAttributes, props);
-                                    }
-                                }
-                            ),
-                            el(
-                                TextControl,
-                                {
-                                    label: 'Direction',
-                                    value: props.attributes.order,
-                                    onChange: function (newValue) {
-                                        props.setAttributes({order: newValue});
-                                        props.setAttributes({loading: 0});
-
-
-                                        let newAttributes = props.attributes;
-                                        newAttributes.order = newValue;
-
-                                        CustomTablesLoadPreview(newAttributes, props);
-                                    }
-                                }
-                            )
-                        )
+                        , myElements
+                        ,
                     )
                 ),
                 el(

@@ -312,11 +312,11 @@ class Admin
             case 'customtables-api-layouts':
                 $whereClause = new MySQLWhereClause();
                 $whereClause->addCondition('published', 1);
-                $layoutsRows = database::loadAssocList('#__customtables_layouts', ['id', 'layoutname'], $whereClause, 'layoutname');
+                $layoutsRows = database::loadAssocList('#__customtables_layouts', ['id', 'layoutname', 'layouttype'], $whereClause, 'layoutname');
                 $layouts = [];
-                $layouts[] = ['label' => '- Select Layout', 'value' => null];
+                $layouts[] = ['label' => '- Select Layout', 'value' => null, 'type' => 0];
                 foreach ($layoutsRows as $layoutsRow) {
-                    $layouts[] = ['label' => $layoutsRow['layoutname'], 'value' => $layoutsRow['id']];
+                    $layouts[] = ['label' => $layoutsRow['layoutname'], 'value' => $layoutsRow['id'], 'type' => (int)$layoutsRow['layouttype']];
                 }
                 header('Content-Type: application/json');
                 die(wp_json_encode($layouts));

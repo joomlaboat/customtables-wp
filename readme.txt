@@ -52,6 +52,7 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 
 = 1.2.6 =
 Block property panel: Layout selection depends on the Type.
+Field names may include uppercase characters.
 
 = 1.2.5 =
 CSV file import feature added to the List of Records page.
