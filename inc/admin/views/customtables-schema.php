@@ -32,4 +32,4 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
     </div>
 
 </div>
-
+<p><a href="https://ct4.us/contact-us/" target="_blank"><?php echo esc_html__('Facing issues? Contact our support team.', 'customtables'); ?></a></p>

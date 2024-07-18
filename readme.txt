@@ -1,4 +1,4 @@
-=== CustomTables ===
+=== Custom Tables - Effortless Create, Read, Update, Delete ===
 
 Contributors: @ivankomlev
 Donate link: https://www.patreon.com/joomlaboat

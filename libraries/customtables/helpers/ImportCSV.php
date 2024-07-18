@@ -37,7 +37,7 @@ class ImportCSV
     {
         $arrayOfLines = self::getLines($filename);
         if ($arrayOfLines === null)
-            return common::translate('COM_CUSTOMTABLES_CSV_FILE_EMPTY');
+            return esc_html__("CSV file is empty.", "customtables");
 
         $tableRow = TableHelper::getTableRowByID($ct_tableid);
         $fields = Fields::getFields($ct_tableid, true);

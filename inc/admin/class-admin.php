@@ -221,18 +221,6 @@ class Admin
         );
         add_action('load-' . $page_hook, array($this, 'preload_admin_import_tables'));
 
-        // Import Records
-        $page_hook = add_submenu_page(
-            'customtables',                       // Parent Menu Slug
-            'Custom Tables - Import Records',       // Page Title
-            'Import Records',                       // Menu Title
-            'manage_options',                      // Capability
-            'customtables-import-records',          // Menu Slug
-            array($this, 'load_customtablesAdminImportRecords'), // Callback Function
-            4                                       // Position
-        );
-        add_action('load-' . $page_hook, array($this, 'preload_admin_import_records'));
-
         // Database Schema
         add_submenu_page(
             'customtables',                      // Parent Menu Slug
@@ -269,6 +257,7 @@ class Admin
 
         // Edit Table Sub Sub Menu
         $page = common::inputGetCmd('page');
+        $tableId = common::inputGetInt('table');
 
         switch ($page) {
             case 'customtables-api-xml':
@@ -286,7 +275,6 @@ class Admin
                 die($xml);
 
             case 'customtables-api-fields':
-                $tableId = common::inputGetInt('table');
 
                 if ($tableId == 0) {
                     $result = array('error' => 'tableid not set');
@@ -397,13 +385,12 @@ class Admin
                 break;
 
             case 'customtables-records':
-
                 $page_hook = add_submenu_page(
                     'customtables',                     // Parent Menu Slug
                     esc_html__('Records - CustomTables', 'customtables'), // Page Title
                     ' - ' . esc_html__('Records', 'customtables'),                     // Menu Title
                     'manage_options',                                         // Capability
-                    'customtables-records',                               // Menu Slug 'customtables-fields'
+                    'customtables-records',                        // Menu Slug 'customtables-fields'
                     array($this, 'load_admin_record_list'),        // Callback Function
                     2                                                        // Position
                 );
@@ -412,7 +399,6 @@ class Admin
 
             case 'customtables-records-edit':
 
-                $tableId = common::inputGetInt('table');
                 add_submenu_page(
                     'customtables',                     // Parent Menu Slug
                     esc_html__('Records - CustomTables', 'customtables'), // Page Title
@@ -436,7 +422,6 @@ class Admin
                 add_action('load-' . $page_hook, array($this, 'load_customtablesAdminRecordsEdit'));
                 break;
 
-
             case 'customtables-import-records':
 
                 $tableId = common::inputGetInt('table');
@@ -459,7 +444,8 @@ class Admin
                     array($this, 'load_customtablesAdminImportRecords'),        // Callback Function
                     3                                                      // Position
                 );
-                //add_action('load-' . $page_hook, array($this, 'load_customtablesAdminImportRecords'));
+                //add_action('load-' . $page_hook, array($this, 'load_customtablesAdminImportRecords2'));
+                add_action('load-' . $page_hook, array($this, 'preload_admin_import_records'));
                 break;
 
             case 'customtables-layouts-edit':
@@ -476,8 +462,6 @@ class Admin
                 );
                 add_action('load-' . $page_hook, array($this, 'load_customtablesAdminLayoutsEdit'));
                 break;
-
-
         }
     }
 
@@ -613,6 +597,17 @@ class Admin
 
     public function preload_admin_import_records(): void
     {
+
+        $tableId = common::inputGetInt('table');
+
+        // Redirect the user to the external URL
+        if ($tableId === null) {
+            $url = 'admin.php?page=customtables-tables';
+            wp_redirect($url);
+            exit();
+        }
+
+
         $this->admin_import_records = new Admin_Import_Records();
         $this->admin_import_records->handle_import_actions();
     }
@@ -738,6 +733,15 @@ class Admin
 
     public function load_customtablesAdminRecordsEdit(): void
     {
+        $tableId = common::inputGetInt('table');
+
+        // Redirect the user to the external URL
+        if ($tableId === null) {
+            $url = 'admin.php?page=customtables-tables';
+            wp_redirect($url);
+            exit();
+        }
+
         $this->admin_record_edit = new Admin_Record_Edit();
         $this->admin_record_edit->handle_record_actions();
         include_once('views' . DIRECTORY_SEPARATOR . 'customtables-records-edit.php');
@@ -773,7 +777,30 @@ class Admin
 
     public function load_customtablesAdminImportRecords(): void
     {
+        $tableId = common::inputGetInt('table');
+
+        // Redirect the user to the external URL
+        if ($tableId === null) {
+            $url = 'admin.php?page=customtables-tables';
+            wp_redirect($url);
+            exit();
+        }
+
         // instantiate the Admin Import CSV file page
         include_once('views' . DIRECTORY_SEPARATOR . 'customtables-import-records.php');
     }
+
+    /*
+    public function load_customtablesAdminImportRecords2(): void
+    {
+        $tableId = common::inputGetInt('table');
+
+        // Redirect the user to the external URL
+        if ($tableId === null) {
+            $url = 'admin.php?page=customtables-tables';
+            wp_redirect($url);
+            exit();
+        }
+    }
+    */
 }

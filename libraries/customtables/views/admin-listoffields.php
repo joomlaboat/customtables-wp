@@ -137,7 +137,7 @@ class ListOfFields
 
 			$iconClass = '';
 			if (!$this->saveOrder)
-				$iconClass = ' inactive" title="' . esc_html__("Please sort by order to enable reordering", "customtables");
+				$iconClass = ' inactive" title="' . common::translate('JORDERINGDISABLED');
 
 			$result .= '<span class="sortable-handler' . $iconClass . '"><span class="icon-ellipsis-v" aria-hidden="true"></span></span>';
 

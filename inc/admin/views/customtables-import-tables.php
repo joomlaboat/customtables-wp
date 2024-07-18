@@ -62,5 +62,6 @@ if (!empty($success_message)) {
                disabled=""/>
         <input type="hidden" name="action" value="import"/>
     </form>
+    <p><a href="https://ct4.us/contact-us/" target="_blank"><?php echo esc_html__('Contact us for any support inquiries.', 'customtables'); ?></a></p>
 </div>
 

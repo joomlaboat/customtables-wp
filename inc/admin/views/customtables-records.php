@@ -75,3 +75,5 @@ $page = common::inputGetCmd('page');
         </div>
     </div>
 </div>
+<p><a href="https://ct4.us/contact-us/" target="_blank"><?php echo esc_html__('We are here to help. Contact us for support.', 'customtables'); ?></a></p>
+

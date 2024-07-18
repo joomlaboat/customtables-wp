@@ -124,7 +124,7 @@ class Documentation
                     }
                 }
 
-                $result .= '<h5>' . common::translate('Pure Value (As it is)') . ':</h5>'
+                $result .= '<h5>' . esc_html__("Pure Value (Unprocessed)", "customtables") . ':</h5>'
                     . '<p>' . esc_html__("Example", "customtables") . ':<br/><pre class="ct_doc_pre">'
                     . '{{ <i>' . str_replace(' ', '', esc_html__("Field Name", "customtables")) . '</i>.value }}'
                     . '</pre></p>';

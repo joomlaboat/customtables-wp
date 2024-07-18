@@ -132,5 +132,8 @@ else
             </form>
 		<?php } // End if (current_user_can('install_plugins')) ?>
     </div>
+
+    <p><a href="https://ct4.us/contact-us/" target="_blank"><?php echo esc_html__('Questions or issues? Contact support.', 'customtables'); ?></a></p>
+
 <?php
 require_once ABSPATH . 'wp-admin/admin-footer.php';

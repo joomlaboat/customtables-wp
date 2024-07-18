@@ -137,6 +137,7 @@ foreach ($this->admin_layout_edit->allTables as $table) {
             </div>
         </div>
 
+        <p><a href="https://ct4.us/contact-us/" target="_blank"><?php echo esc_html__('Have questions? Get in touch with our support team.', 'customtables'); ?></a></p>
     </div>
 <?php
 

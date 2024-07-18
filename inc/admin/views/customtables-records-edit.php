@@ -98,5 +98,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
             <?php endif; ?>
         <?php } // End if (current_user_can('install_plugins')) ?>
     </div>
+
+    <p><a href="https://ct4.us/contact-us/" target="_blank"><?php echo esc_html__('Support needed? Contact us.', 'customtables'); ?></a></p>
 <?php
 require_once ABSPATH . 'wp-admin/admin-footer.php';

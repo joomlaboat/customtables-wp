@@ -351,16 +351,13 @@ class CTUser
                 $version = (int)$version_object->getShortVersion();
 
                 if ($version < 4)
-                    $msg = common::translate('COM_USERS_REGISTRATION_BIND_FAILED') . ': ' . $user->getError() ?? '';
+                    $msg = esc_html__("User registration failed.", "customtables") . ': ' . $user->getError() ?? '';
                 else
-                    $msg = common::translate('COM_USERS_REGISTRATION_BIND_FAILED') . ': ' . implode(',', $user->getErrors());
+                    $msg = esc_html__("User registration failed.", "customtables") . ': ' . implode(',', $user->getErrors());
             }
 
             return null;
         }
-
-        // Load the users' plugin group.
-        //JPluginHelper::importPlugin('user');
 
         // Store the data.
         if (!$user->save()) {
@@ -369,15 +366,14 @@ class CTUser
             $version = (int)$version_object->getShortVersion();
 
             if ($version < 4)
-                $msg = esc_html__("Registration failed: %s", "customtables") . ': ' . $user->getError() ?? '';
+                $msg = esc_html__("User registration not saved.", "customtables") . ': ' . $user->getError() ?? '';
             else
-                $msg = esc_html__("Registration failed: %s", "customtables") . ': ' . implode(',', $user->getErrors());
+                $msg = esc_html__("User registration not saved.", "customtables") . ': ' . implode(',', $user->getErrors());
 
             return null;
         }
 
         //Apply group
-
         foreach ($group_ids as $group_id) {
             //$query = 'INSERT #__user_usergroup_map SET user_id=' . $user->id . ', group_id=' . $group_id;
             database::insert('#__user_usergroup_map', ['user_id' => $user->id, 'group_id' => $group_id]);
@@ -403,11 +399,11 @@ class CTUser
 
         $config = Factory::getConfig();//For older Joomla versions
         $siteName = $config->get('sitename');
-        $subject = esc_html__("Account Details for {NAME} at {SITENAME}", "customtables");
+        $subject = common::translate('COM_USERS_EMAIL_ACCOUNT_DETAILS');
         $emailSubject = str_replace('{NAME}', $fullName, $subject);
         $emailSubject = str_replace('{SITENAME}', $siteName, $emailSubject);
 
-        $body = esc_html__("Hello {NAME},\n\nThank you for registering at {SITENAME}.\n\nYou may now log in to {SITEURL} using the following username and password:\n\nUsername: {USERNAME}\nPassword: {PASSWORD_CLEAR}", "customtables");
+        $body = common::translate('COM_USERS_EMAIL_REGISTERED_BODY');
         $UriBase = Uri::base();
 
         $emailBody = str_replace('{NAME}', $fullName, $body);

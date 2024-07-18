@@ -79,4 +79,8 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
     <?php endif; ?>
 
+    <p><a href="https://ct4.us/contact-us/" target="_blank"><?php echo esc_html__('Need help? Connect with us.', 'customtables'); ?></a></p>
+
+
+
 </div>

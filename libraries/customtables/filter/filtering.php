@@ -375,9 +375,9 @@ class Filtering
                         elseif ($comparison_operator == '=')
                             $opt_title = esc_html__("Contains", "customtables");
                         elseif ($comparison_operator == '==')
-                            $opt_title = common::translate('COM_CUSTOMTABLES_IS');
+                            $opt_title = esc_html__("Is", "customtables");
                         elseif ($comparison_operator == '!==')
-                            $opt_title = common::translate('COM_CUSTOMTABLES_ISNOT');
+                            $opt_title = esc_html__("Is Not", "customtables");
                         else
                             $opt_title = esc_html__("Unknown Operation", "customtables");
                     } elseif ($esr_selector == 'radio' or $esr_selector == 'single')
@@ -597,13 +597,13 @@ class Filtering
                             $opt_title = esc_html__("Not Contains", "customtables");
                         } elseif ($comparison_operator == '!==') {
                             $operator = 'MULTI_FIELD_SEARCH_TABLEJOIN_NOT_EQUAL';
-                            $opt_title = common::translate('COM_CUSTOMTABLES_ISNOT');
+                            $opt_title = esc_html__("Is Not", "customtables");
                         } elseif ($comparison_operator == '=') {
                             $operator = 'MULTI_FIELD_SEARCH_TABLEJOIN_CONTAIN';
                             $opt_title = esc_html__("Contains", "customtables");
                         } elseif ($comparison_operator == '==') {
                             $operator = 'MULTI_FIELD_SEARCH_TABLEJOIN_EQUAL';
-                            $opt_title = common::translate('COM_CUSTOMTABLES_IS');
+                            $opt_title = esc_html__("Is", "customtables");
                         } else
                             $opt_title = esc_html__("Unknown Operation", "customtables");
 

@@ -233,6 +233,8 @@ foreach ($this->admin_field_edit->allTables as $table) {
                 </form>
             <?php endif; ?>
         <?php } // End if (current_user_can('install_plugins')) ?>
+
+        <p><a href="https://ct4.us/contact-us/" target="_blank"><?php echo esc_html__('For support, please reach out to us.', 'customtables'); ?></a></p>
     </div>
 <?php
 require_once ABSPATH . 'wp-admin/admin-footer.php';

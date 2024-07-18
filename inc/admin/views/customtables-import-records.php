@@ -55,4 +55,6 @@ $max_file_size = CTMiscHelper::file_upload_max_size();
                value="<?php esc_html_e('Upload File', 'customtables'); ?>"
                disabled=""/>
         <input type="hidden" name="action" value="import-csv"/>
+
+        <p><a href="https://ct4.us/contact-us/" target="_blank"><?php echo esc_html__('Need support? We’re just a message away.', 'customtables'); ?></a></p>
 </div>

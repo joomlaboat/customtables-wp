@@ -46,4 +46,5 @@ $allowed_html = array(
             </form>
         </div>
     </div>
+    <p><a href="https://ct4.us/contact-us/" target="_blank"><?php echo esc_html__('Need assistance? Reach out to us.', 'customtables'); ?></a></p>
 </div>
