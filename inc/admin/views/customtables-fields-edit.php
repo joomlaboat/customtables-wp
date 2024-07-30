@@ -212,7 +212,7 @@ foreach ($this->admin_field_edit->allTables as $table) {
 
                     <!-- Submit Button -->
                     <?php
-                    $buttonText = ($this->admin_field_edit->fieldId == 0) ? esc_html__('Add New Field', 'customtables') : esc_html__('Save Field', 'customtables');
+                    $buttonText = ($this->admin_field_edit->fieldId == 0) ? esc_html__('Save New Field', 'customtables') : esc_html__('Save Field', 'customtables');
                     submit_button($buttonText, 'primary', 'createfield', true, array('id' => 'createfieldsub'));
                     ?>
 

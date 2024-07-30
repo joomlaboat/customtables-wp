@@ -86,7 +86,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                     <input name="table" type="hidden" value="'.esc_html($this->admin_record_edit->tableId).'"/>';
                     echo wp_nonce_field('create-edit-record' );
 
-                    $buttonText = ($this->admin_record_edit->listing_id == 0) ? __('Add New Record') : __('Save Record');
+                    $buttonText = ($this->admin_record_edit->listing_id == 0) ? __('Save New Record') : __('Save Record');
 
                     $editForm = new Edit($this->admin_record_edit->ct);
                     $editForm->layoutContent = $this->admin_record_edit->pageLayout;

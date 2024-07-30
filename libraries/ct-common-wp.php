@@ -561,9 +561,14 @@ class common
     static function UriRoot(bool $pathOnly = false): string
     {
         if ($pathOnly)
-            return site_url();
+            $url = site_url();
         else
-            return home_url();
+            $url = home_url();
+
+        if ($url[strlen($url) - 1] != '/')
+            $url = $url . '/';
+
+        return $url;
     }
 
     public
