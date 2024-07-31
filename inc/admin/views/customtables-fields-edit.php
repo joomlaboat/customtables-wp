@@ -211,10 +211,18 @@ foreach ($this->admin_field_edit->allTables as $table) {
                     </table>
 
                     <!-- Submit Button -->
-                    <?php
-                    $buttonText = ($this->admin_field_edit->fieldId == 0) ? esc_html__('Save New Field', 'customtables') : esc_html__('Save Field', 'customtables');
-                    submit_button($buttonText, 'primary', 'createfield', true, array('id' => 'createfieldsub'));
-                    ?>
+                    <div style="display:inline-block;">
+                        <?php
+                        $buttonText = ($this->admin_field_edit->fieldId == 0) ? esc_html__('Save New Field', 'customtables') : esc_html__('Save Field', 'customtables');
+                        submit_button($buttonText, 'primary', 'createfield', true, array('id' => 'createfield-submit'));
+                        ?></div>
+
+                    <div style="display:inline-block;margin-left:20px;">
+                        <!-- Cancel Button -->
+                        <?php
+                        submit_button(esc_html__('Cancel', 'customtables'), 'secondary', 'createfield-cancel', true,
+                            array('id' => 'createfield-cancel', 'onclick' => 'window.location.href="admin.php?page=customtables-fields&table=' . esc_html($this->admin_field_edit->tableId) . '";return false;'));
+                        ?></div>
 
                     <script>
                         updateTypeParams("type", "typeparams", "typeparams_box");
@@ -234,7 +242,8 @@ foreach ($this->admin_field_edit->allTables as $table) {
             <?php endif; ?>
         <?php } // End if (current_user_can('install_plugins')) ?>
 
-        <p><a href="https://ct4.us/contact-us/" target="_blank"><?php echo esc_html__('For support, please reach out to us.', 'customtables'); ?></a></p>
+        <p><a href="https://ct4.us/contact-us/"
+              target="_blank"><?php echo esc_html__('For support, please reach out to us.', 'customtables'); ?></a></p>
     </div>
 <?php
 require_once ABSPATH . 'wp-admin/admin-footer.php';

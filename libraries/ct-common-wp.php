@@ -843,12 +843,23 @@ class common
         return $date->format($format);
     }
 
-    public
-    static function clientAdministrator(): bool
+    public static function clientAdministrator(): bool
     {
         //returns true when called from the back-end / administrator
         return is_admin();
     }
 
+    public static function setUserState(string $key, $value) {
+        if (!session_id()) {
+            session_start();
+        }
+        $_SESSION[$key] = $value;
+    }
 
+    public static function getUserState($key, $default = null) {
+        if (!session_id()) {
+            session_start();
+        }
+        return isset($_SESSION[$key]) ? $_SESSION[$key] : $default;
+    }
 }

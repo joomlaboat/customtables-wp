@@ -80,20 +80,28 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                 </p>
                 <form method="post" name="createrecord" id="createrecord" class="validate" novalidate="novalidate" enctype="multipart/form-data">
                     <input name="action" type="hidden" value="createrecord"/>
+                    <input name="table" type="hidden" value="<?php echo esc_html($this->admin_record_edit->tableId); ?>"/>
+                    <?php echo wp_nonce_field('create-edit-record' ); ?>
+
+
                     <?php
-
-                    echo '
-                    <input name="table" type="hidden" value="'.esc_html($this->admin_record_edit->tableId).'"/>';
-                    echo wp_nonce_field('create-edit-record' );
-
                     $buttonText = ($this->admin_record_edit->listing_id == 0) ? __('Save New Record') : __('Save Record');
 
                     $editForm = new Edit($this->admin_record_edit->ct);
                     $editForm->layoutContent = $this->admin_record_edit->pageLayout;
                     $editForm_render_safe = $editForm->render($this->admin_record_edit->recordRow, $this->admin_record_edit->formLink, 'adminForm',false);
                     echo $editForm_render_safe;//Rendered by the CT library
-
-                    submit_button($buttonText, 'primary', 'createrecord', true, array('id' => 'createrecordsub')); ?>
+                    ?>
+                    
+                    <div style="display:inline-block;">
+                    <?php submit_button($buttonText, 'primary', 'createrecord', true, array('id' => 'createrecord-submit')); ?>
+                    </div>
+                    <div style="display:inline-block;margin-left:20px;">
+                        <!-- Cancel Button -->
+                        <?php
+                        submit_button(esc_html__('Cancel', 'customtables'), 'secondary', 'createrecord-cancel', true,
+                            array('id' => 'createrecord-cancel', 'onclick' => 'window.location.href="admin.php?page=customtables-records&table=' . esc_html($this->admin_record_edit->tableId) . '";return false;'));
+                        ?></div>
                 </form>
             <?php endif; ?>
         <?php } // End if (current_user_can('install_plugins')) ?>

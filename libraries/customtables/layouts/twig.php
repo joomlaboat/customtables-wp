@@ -288,23 +288,23 @@ class TwigProcessor
             $result = '';
         } else {
 
-            if ($this->debug) {
-                $result = $this->twig->render($this->pageLayoutName, $this->variables);
-            } else {
-                try {
-                    $result = @$this->twig->render($this->pageLayoutName, $this->variables);
-                } catch (Exception $e) {
-                    $msg = $e->getMessage() . $e->getFile() . $e->getLine() . $e->getTraceAsString();
-                    $this->errorMessage = $msg;
-                    $this->ct->errors[] = $msg;
+            //if ($this->debug) {
+            $result = $this->twig->render($this->pageLayoutName, $this->variables);
+            /* } else {
+                 try {
+                     $result = @$this->twig->render($this->pageLayoutName, $this->variables);
+                 } catch (Exception $e) {
+                     $msg = $e->getMessage() . $e->getFile() . $e->getLine() . $e->getTraceAsString();
+                     $this->errorMessage = $msg;
+                     $this->ct->errors[] = $msg;
 
-//				$msg = $e->getMessage();
-                    if ($this->pageLayoutLink !== null)
-                        $msg = str_replace($this->pageLayoutName, '<a href="' . $this->pageLayoutLink . '" target="_blank">' . $this->pageLayoutName . '</a>', $msg);
+ //				$msg = $e->getMessage();
+                     if ($this->pageLayoutLink !== null)
+                         $msg = str_replace($this->pageLayoutName, '<a href="' . $this->pageLayoutLink . '" target="_blank">' . $this->pageLayoutName . '</a>', $msg);
 
-                    return 'Error: ' . $msg;
-                }
-            }
+                     return 'Error: ' . $msg;
+                 }
+             }*/
         }
 
         if ($this->recordBlockFound) {
@@ -321,9 +321,9 @@ class TwigProcessor
                     if ($this->debug) {
                         $row_result = $this->twig->render($this->itemLayoutName, $this->variables);
                     } else {
-                        try {
-                            $row_result = @$this->twig->render($this->itemLayoutName, $this->variables);
-                        } catch (Exception $e) {
+                        //try {
+                        $row_result = @$this->twig->render($this->itemLayoutName, $this->variables);
+                        /*} catch (Exception $e) {
                             $this->errorMessage = $e->getMessage();
 
                             $msg = $e->getMessage();
@@ -340,7 +340,7 @@ class TwigProcessor
                                 $msg = str_replace($this->pageLayoutName, '<a href="' . $this->pageLayoutLink . '" target="_blank">' . $this->pageLayoutName . '</a>', $msg);
 
                             return 'Error: ' . $msg;
-                        }
+                        }*/
                     }
 
                     $TR_tag_params = array();

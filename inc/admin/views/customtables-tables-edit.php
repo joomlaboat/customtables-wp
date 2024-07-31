@@ -34,7 +34,7 @@ else
                 <ul>
 					<?php
 					foreach ($this->admin_table_edit->errors->get_error_messages() as $err) {
-						echo '<li>' . esc_html($err) . '</li>\n';
+						echo '<li>' . esc_html($err) . '</li>';
 					}
 					?>
                 </ul>
@@ -124,11 +124,19 @@ else
 					<?php endforeach; ?>
                 </table>
 
-                <!-- Submit Button -->
-				<?php
-				$buttonText = ($this->admin_table_edit->tableId == 0) ? esc_html__('Save New Table', 'customtables') : esc_html__('Save Table', 'customtables');
-				submit_button($buttonText, 'primary', 'createtable', true, array('id' => 'createtablesub'));
-				?>
+                <div style="display:inline-block;">
+                    <?php
+                    $buttonText = ($this->admin_table_edit->tableId == 0) ? esc_html__('Save New Table', 'customtables') : esc_html__('Save Table', 'customtables');
+                    submit_button($buttonText, 'primary', 'createtable', true, array('id' => 'createtable-submit'));
+                    ?></div>
+
+                <div style="display:inline-block;margin-left:20px;">
+                    <!-- Cancel Button -->
+                    <?php
+                    submit_button(esc_html__('Cancel', 'customtables'), 'secondary', 'createtable-cancel', true,
+                        array('id' => 'createtable-cancel', 'onclick'=>'window.location.href="admin.php?page=customtables-tables";return false;'));
+                    ?></div>
+
             </form>
 		<?php } // End if (current_user_can('install_plugins')) ?>
     </div>

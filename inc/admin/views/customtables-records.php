@@ -16,6 +16,10 @@ $page = common::inputGetCmd('page');
 
 ?>
 <div class="wrap">
+
+    <?php echo '<a href="admin.php?page=customtables-tables" class="page-title-action">'
+        . esc_html__('&laquo; Tables', 'customtables') . '</a>&nbsp;<br/>';?>
+
     <h1 class="wp-heading-inline">
         <?php
         if (!empty($this->admin_record_list->ct->Table)) {
