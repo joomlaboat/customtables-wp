@@ -61,8 +61,7 @@ class common
             set_transient('plugin_error_message', $text, 60);
     }
 
-    public
-    static function inputPostString($parameter, ?string $default, string $action): ?string
+    public static function inputPostString($parameter, ?string $default, string $action): ?string
     {
         if (isset($_POST['_wpnonce'])) {
             if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
@@ -76,8 +75,7 @@ class common
         return sanitize_text_field($source);
     }
 
-    public
-    static function inputPostFloat($parameter, ?float $default, string $action): ?float
+    public static function inputPostFloat($parameter, ?float $default, string $action): ?float
     {
         if (isset($_POST['_wpnonce'])) {
             if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
@@ -91,8 +89,7 @@ class common
         return (float)$_POST[$parameter];
     }
 
-    public
-    static function inputGetFloat($parameter, ?float $default = null): ?float
+    public static function inputGetFloat($parameter, ?float $default = null): ?float
     {
         if (isset($_GET['_wpnonce'])) {
             if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
@@ -107,8 +104,7 @@ class common
         return (float)$_GET[$parameter];
     }
 
-    public
-    static function inputPostInt($parameter, ?int $default, string $action): ?int
+    public static function inputPostInt($parameter, ?int $default, string $action): ?int
     {
         if (isset($_POST['_wpnonce'])) {
             if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
@@ -121,8 +117,7 @@ class common
         return (int)$_POST[$parameter];
     }
 
-    public
-    static function inputPostUInt($parameter, ?int $default, string $action): ?int
+    public static function inputPostUInt($parameter, ?int $default, string $action): ?int
     {
         if (isset($_POST['_wpnonce'])) {
             if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
@@ -135,8 +130,7 @@ class common
         return (int)$_POST[$parameter];
     }
 
-    public
-    static function inputGetUInt($parameter, ?int $default = null): ?int
+    public static function inputGetUInt($parameter, ?int $default = null): ?int
     {
         if (isset($_GET['_wpnonce'])) {
             if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
@@ -150,8 +144,7 @@ class common
         return (int)$_GET[$parameter];
     }
 
-    public
-    static function inputPostCmd(string $parameter, ?string $default, string $action): ?string
+    public static function inputPostCmd(string $parameter, ?string $default, string $action): ?string
     {
         if (isset($_POST['_wpnonce'])) {
             if (function_exists('\wp_verify_nonce')) {
@@ -168,8 +161,7 @@ class common
         return ltrim($result, '.');
     }
 
-    public
-    static function inputGetCmd(string $parameter, ?string $default = null): ?string
+    public static function inputGetCmd(string $parameter, ?string $default = null): ?string
     {
         if (isset($_GET['_wpnonce'])) {
             if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
@@ -184,8 +176,7 @@ class common
         return ltrim($result, '.');
     }
 
-    public
-    static function inputPostRaw(string $parameter, ?string $default, string $action): ?string
+    public static function inputPostRaw(string $parameter, ?string $default, string $action): ?string
     {
         if (isset($_POST['_wpnonce'])) {
             if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
@@ -198,8 +189,7 @@ class common
         return stripslashes($_POST[$parameter]);
     }
 
-    public
-    static function inputGetRow(string $parameter, ?string $default = null)
+    public static function inputGetRow(string $parameter, ?string $default = null)
     {
         if (isset($_GET['_wpnonce'])) {
             if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
@@ -213,8 +203,7 @@ class common
         return stripslashes($_GET[$parameter]);
     }
 
-    public
-    static function inputPostBase64(string $parameter, ?string $default, string $action): ?string
+    public static function inputPostBase64(string $parameter, ?string $default, string $action): ?string
     {
         if (isset($_POST['_wpnonce'])) {
             if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
@@ -229,8 +218,7 @@ class common
         return (string)preg_replace('/[^A-Z\d\/+=]/i', '', sanitize_text_field($_POST[$parameter]));
     }
 
-    public
-    static function inputGetBase64(string $parameter, ?string $default = null): ?string
+    public static function inputGetBase64(string $parameter, ?string $default = null): ?string
     {
         if (isset($_GET['_wpnonce'])) {
             if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
@@ -245,8 +233,7 @@ class common
         return (string)preg_replace('/[^A-Z\d\/+=]/i', '', sanitize_text_field($_GET[$parameter]));
     }
 
-    public
-    static function inputGetWord(string $parameter, ?string $default = null): ?string
+    public static function inputGetWord(string $parameter, ?string $default = null): ?string
     {
         if (isset($_GET['_wpnonce'])) {
             if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
@@ -261,8 +248,7 @@ class common
         return (string)preg_replace('/[^A-Z_]/i', '', sanitize_text_field($_GET[$parameter]));
     }
 
-    public
-    static function inputPostAlnum(string $parameter, ?string $default, string $action): ?string
+    public static function inputPostAlnum(string $parameter, ?string $default, string $action): ?string
     {
         if (isset($_POST['_wpnonce'])) {
             if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
@@ -277,8 +263,7 @@ class common
         return (string)preg_replace('/[^A-Z\d]/i', '', sanitize_text_field($_POST[$parameter]));
     }
 
-    public
-    static function inputGetAlnum(string $parameter, ?string $default = null): ?string
+    public static function inputGetAlnum(string $parameter, ?string $default = null): ?string
     {
         if (isset($_GET['_wpnonce'])) {
             if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
@@ -293,8 +278,7 @@ class common
         return (string)preg_replace('/[^A-Z\d]/i', '', sanitize_text_field($_GET[$parameter]));
     }
 
-    public
-    static function inputPost($parameter, $default = null, $filter = null)
+    public static function inputPost($parameter, $default = null, $filter = null)
     {
         if ($filter == 'array') {
             if (isset($_POST[$parameter]) and is_array($_POST[$parameter])) {
@@ -311,39 +295,33 @@ class common
         }
     }
 
-    public
-    static function inputSet(string $parameter, string $value): void
+    public static function inputSet(string $parameter, string $value): void
     {
         echo 'common::inputSet not supported in WordPress';
     }
 
-    public
-    static function inputFiles(string $fileId)
+    public static function inputFiles(string $fileId)
     {
         echo 'common::inputFiles not supported in WordPress';
         return null;
     }
 
-    public
-    static function inputCookieSet(string $parameter, $value, $time, $path, $domain): void
+    public static function inputCookieSet(string $parameter, $value, $time, $path, $domain): void
     {
         die('common::inputCookieSet not supported in WordPress');
     }
 
-    public
-    static function inputCookieGet($parameter)
+    public static function inputCookieGet($parameter)
     {
         die('common::inputCookieGet not supported in WordPress');
     }
 
-    public
-    static function inputServer($parameter, $default = null, $filter = null)
+    public static function inputServer($parameter, $default = null, $filter = null)
     {
         die('common::inputServer not supported in WordPress');
     }
 
-    public
-    static function ExplodeSmartParams(string $param): array
+    public static function ExplodeSmartParams(string $param): array
     {
         $items = array();
 
@@ -361,8 +339,7 @@ class common
         return $items;
     }
 
-    public
-    static function folderList(string $directory): ?array
+    public static function folderList(string $directory): ?array
     {
         $folders = [];
         $directoryLength = strlen($directory);
@@ -385,8 +362,7 @@ class common
         return $folders;
     }
 
-    public
-    static function escape($var)
+    public static function escape($var)
     {
         if ($var === null)
             $var = '';
@@ -399,8 +375,7 @@ class common
         return self::htmlEscape($var);
     }
 
-    public
-    static function htmlEscape($var, $charset = 'UTF-8', $shorten = false, $length = 40)
+    public static function htmlEscape($var, $charset = 'UTF-8', $shorten = false, $length = 40)
     {
         if (self::checkString($var)) {
             // Encode special characters to HTML entities
@@ -421,8 +396,7 @@ class common
         }
     }
 
-    public
-    static function checkString($string): bool
+    public static function checkString($string): bool
     {
         if (isset($string) && is_string($string) && strlen($string) > 0) {
             return true;
@@ -430,8 +404,7 @@ class common
         return false;
     }
 
-    public
-    static function shorten($string, $length = 40, $addTip = true)
+    public static function shorten($string, $length = 40, $addTip = true)
     {
         if (self::checkString($string)) {
             $initial = strlen($string);
@@ -459,20 +432,17 @@ class common
         return $string;
     }
 
-    public
-    static function ctJsonEncode($argument): string
+    public static function ctJsonEncode($argument): string
     {
         return wp_json_encode($argument);
     }
 
-    public
-    static function ctStripTags($argument): string
+    public static function ctStripTags($argument): string
     {
         return wp_strip_all_tags($argument);
     }
 
-    public
-    static function getReturnToURL(bool $decode = true): ?string
+    public static function getReturnToURL(bool $decode = true): ?string
     {
         $returnto_id = common::inputGetCmd('returnto');
 
@@ -494,8 +464,7 @@ class common
             return $returnto_id;
     }
 
-    public
-    static function inputGetInt(string $parameter, ?int $default = null): ?int
+    public static function inputGetInt(string $parameter, ?int $default = null): ?int
     {
         if (isset($_GET['_wpnonce'])) {
             if (function_exists('\wp_verify_nonce') and !\wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
@@ -516,8 +485,7 @@ class common
         return @ (int)$matches[0];
     }
 
-    public
-    static function makeReturnToURL(string $currentURL = null): ?string
+    public static function makeReturnToURL(string $currentURL = null): ?string
     {
         if ($currentURL === null) {
             // Get the current URL
@@ -542,8 +510,7 @@ class common
         return $returnto_id;
     }
 
-    public
-    static function curPageURL(): string
+    public static function curPageURL(): string
     {
         $WebsiteRoot = str_replace(site_url(), '', home_url());
         $RequestURL = esc_url($_SERVER["REQUEST_URI"]);
@@ -557,41 +524,39 @@ class common
         return $WebsiteRoot . $RequestURL;
     }
 
-    public
-    static function UriRoot(bool $pathOnly = false): string
+    public static function UriRoot(bool $pathOnly = false, bool $addTrailingSlash = false): string
     {
         if ($pathOnly)
             $url = site_url();
         else
             $url = home_url();
 
-        if ($url[strlen($url) - 1] != '/')
-            $url = $url . '/';
+        if (strlen($url) > 0 and $url[strlen($url) - 1] == '/')
+            $url = substr($url, 0, strlen($url) - 1);
+
+        if ($addTrailingSlash and ($url == "" or $url[strlen($url) - 1] != '/'))
+            $url .= '/';
 
         return $url;
     }
 
-    public
-    static function getServerParam(string $param): string
+    public static function getServerParam(string $param): string
     {
         return sanitize_text_field($_SERVER[$param]);
     }
 
-    public
-    static function inputGet(string $parameter, $default, string $filter)
+    public static function inputGet(string $parameter, $default, string $filter)
     {
         echo 'common::inputGet not supported in WordPress';
         return null;
     }
 
-    public
-    static function ctParseUrl($argument)
+    public static function ctParseUrl($argument)
     {
         return wp_parse_url($argument);
     }
 
-    public
-    static function generateRandomString(int $length = 32): string
+    public static function generateRandomString(int $length = 32): string
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
@@ -602,8 +567,7 @@ class common
         return $randomString;
     }
 
-    public
-    static function saveString2File(string $filePath, string $content): ?string
+    public static function saveString2File(string $filePath, string $content): ?string
     {
         global $wp_filesystem;
 
@@ -631,8 +595,7 @@ class common
         return null;
     }
 
-    public
-    static function getStringFromFile(string $filePath): ?string
+    public static function getStringFromFile(string $filePath): ?string
     {
         global $wp_filesystem;
 
@@ -663,8 +626,7 @@ class common
     /**
      * @throws Exception
      */
-    public
-    static function default_timezone_set(): void
+    public static function default_timezone_set(): void
     {
         $timezone_string = get_option('timezone_string');
 
@@ -675,8 +637,7 @@ class common
         }
     }
 
-    public
-    static function getWhereParameter($field): string
+    public static function getWhereParameter($field): string
     {
         $list = self::getWhereParameters();
 
@@ -694,8 +655,7 @@ class common
         return '';
     }
 
-    protected
-    static function getWhereParameters(): ?array
+    protected static function getWhereParameters(): ?array
     {
         $value = common::inputGetString('where');
         if ($value !== null) {
@@ -708,8 +668,7 @@ class common
         return null;
     }
 
-    public
-    static function inputGetString($parameter, $default = null)
+    public static function inputGetString($parameter, $default = null)
     {
         if (isset($_GET['_wpnonce'])) {
             if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
@@ -723,8 +682,7 @@ class common
         return sanitize_text_field($_GET[$parameter]);
     }
 
-    public
-    static function sanitize_post_field_array($input, string $type = 'int'): array
+    public static function sanitize_post_field_array($input, string $type = 'int'): array
     {
         $sanitized_array = [];
         foreach ($input as $item) {
@@ -741,8 +699,7 @@ class common
         return $sanitized_array;
     }
 
-    public
-    static function filterText(?string $text): string
+    public static function filterText(?string $text): string
     {
         if ($text === null)
             return '';
@@ -776,20 +733,17 @@ class common
         return wp_kses($text, $allowed_html);
     }
 
-    public
-    static function redirect(string $link, ?string $msg = null): void
+    public static function redirect(string $link, ?string $msg = null): void
     {
         echo '<script>window.location.replace("' . esc_url($link) . '");</script>';
         exit;
     }
 
-    public
-    static function loadJSAndCSS(Params $params, Environment $env): void
+    public static function loadJSAndCSS(Params $params, Environment $env): void
     {
     }
 
-    public
-    static function formatDate(?string $date = null, ?string $format = 'Y-m-d H:i:s', ?string $emptyValue = 'Never'): ?string
+    public static function formatDate(?string $date = null, ?string $format = 'Y-m-d H:i:s', ?string $emptyValue = 'Never'): ?string
     {
         if ($format === null)
             $format = 'Y-m-d H:i:s';
@@ -818,8 +772,7 @@ class common
      * @throws Exception
      * @since 1.1.2
      */
-    public
-    static function currentDate(string $format = 'Y-m-d H:i:s'): string
+    public static function currentDate(string $format = 'Y-m-d H:i:s'): string
     {
         $timezone_string = get_option('timezone_string');
 
@@ -849,14 +802,16 @@ class common
         return is_admin();
     }
 
-    public static function setUserState(string $key, $value) {
+    public static function setUserState(string $key, $value)
+    {
         if (!session_id()) {
             session_start();
         }
         $_SESSION[$key] = $value;
     }
 
-    public static function getUserState($key, $default = null) {
+    public static function getUserState($key, $default = null)
+    {
         if (!session_id()) {
             session_start();
         }

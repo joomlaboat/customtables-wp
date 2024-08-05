@@ -5,7 +5,7 @@ Donate link: https://www.patreon.com/joomlaboat
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
 Tested up to: 6.5.5
-Stable tag: 1.2.6
+Stable tag: 1.2.7
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -49,6 +49,14 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 [Please contact us here with your query.](https://ct4.us/contact-us/)
 
 == Changelog ==
+
+= 1.2.7 =
+Layout select box only contains layouts that have the same type as the selected above.
+Tech-Support links added. Sub menu links fixed.
+Full link Url to images fixed. On some websites trailing slash is needed.
+Back-end forms improved. Cancel buttons added. Go back to Tables buttons added.
+Record edit form layout improved - unnecessary elements deleted, such as legend and {{ html.goback() }}
+Table Join field type added.
 
 = 1.2.6 =
 Block property panel: Layout selection depends on the Type.

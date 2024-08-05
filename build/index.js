@@ -374,14 +374,17 @@ function CustomTablesRenderBlock(e, i) {
 
             const myElements = [selectTypeBox, selectTableBox];
 
-            if (props.attributes.type === "1") {
+            let layoutType = parseInt(props.attributes.type);
+            console.log("props.attributes.type (int): " + layoutType);
+
+            if (props.attributes.type === 1) {
                 myElements.push(selectCatalogLayoutBox);
                 myElements.push(selectFilterBox);
                 myElements.push(selectSortingBox);
-            } else if (props.attributes.type === "2") {
+            } else if (props.attributes.type === 2) {
                 myElements.push(selectEditFormLayoutBox);
 
-            } else if (props.attributes.type === "4") {
+            } else if (props.attributes.type === 4) {
                 myElements.push(selectDetailsLayoutBox);
             }
 

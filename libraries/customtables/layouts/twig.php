@@ -288,23 +288,22 @@ class TwigProcessor
             $result = '';
         } else {
 
-            //if ($this->debug) {
-            $result = $this->twig->render($this->pageLayoutName, $this->variables);
-            /* } else {
-                 try {
-                     $result = @$this->twig->render($this->pageLayoutName, $this->variables);
-                 } catch (Exception $e) {
-                     $msg = $e->getMessage() . $e->getFile() . $e->getLine() . $e->getTraceAsString();
-                     $this->errorMessage = $msg;
-                     $this->ct->errors[] = $msg;
+            if ($this->debug) {
+                $result = $this->twig->render($this->pageLayoutName, $this->variables);
+            } else {
+                //try {
+                $result = @$this->twig->render($this->pageLayoutName, $this->variables);
+                /*} catch (Exception $e) {
+                    $msg = $e->getMessage() . $e->getFile() . $e->getLine() . $e->getTraceAsString();
+                    $this->errorMessage = $msg;
+                    $this->ct->errors[] = $msg;
 
- //				$msg = $e->getMessage();
-                     if ($this->pageLayoutLink !== null)
-                         $msg = str_replace($this->pageLayoutName, '<a href="' . $this->pageLayoutLink . '" target="_blank">' . $this->pageLayoutName . '</a>', $msg);
+                    if ($this->pageLayoutLink !== null)
+                        $msg = str_replace($this->pageLayoutName, '<a href="' . $this->pageLayoutLink . '" target="_blank">' . $this->pageLayoutName . '</a>', $msg);
 
-                     return 'Error: ' . $msg;
-                 }
-             }*/
+                    return 'Error: ' . $msg;
+                }*/
+            }
         }
 
         if ($this->recordBlockFound) {
