@@ -10,7 +10,7 @@ Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-The Custom Tables plugin allows you to create and manage custom database tables, and display catalogs, forms, and tables using Twig templating language.
+The Custom Tables plugin allows you to create and manage custom database tables, display catalogs, forms, and tables using Twig templating language.
 
 
 == Description ==

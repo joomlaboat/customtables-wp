@@ -23,6 +23,8 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use CustomTables\common;
 use CustomTables\Value_file;
 
+do_action('my_custom_hook');
+
 /**
  * Define Constants
  */
@@ -41,10 +43,7 @@ define(CTWP . 'PLUGIN_BASENAME', plugin_basename(__FILE__));
 
 define(CTWP . 'PLUGIN_TEXT_DOMAIN', 'customtables');
 
-$CUSTOM_TABLES_ENQUEUE = array(
-    'style' => null,
-    'script' => null
-);
+$CUSTOM_TABLES_TEMPLATE = null;
 
 /**
  * Autoload Classes
@@ -76,7 +75,7 @@ register_deactivation_hook(__FILE__, array(CTWP . 'Inc\Core\Deactivator', 'deact
  *
  * @since    1.0.0
  */
-class customTables
+class CustomTables
 {
     static $init;
 
@@ -158,12 +157,22 @@ add_action('init', 'CustomTablesWP\customtables_dynamic_block_block_init');
  */
 function customtables_dynamic_block_render_callback($attributes, $content, $block_instance)
 {
+    global $CUSTOM_TABLES_TEMPLATE;
     ob_start();
     /**
      * Keeping the markup to be returned in a separate file is sometimes better, especially if there is very complicated markup.
      * All of passed parameters are still accessible in the file.
      */
-    require plugin_dir_path(__FILE__) . 'build/template.php';
+
+    require_once plugin_dir_path(__FILE__) . 'build/template.php';
+    $preparedAttributes = template::prepareAttributes($attributes);
+    $newHash = md5(json_encode($preparedAttributes));
+
+    foreach ($CUSTOM_TABLES_TEMPLATE->blocks as $block) {
+        if ($block['hash'] == $newHash)
+            echo $block['html'];
+    }
+
     return ob_get_clean();
 }
 
@@ -189,3 +198,26 @@ if (common::inputGetInt('customtables') == 1) {
         }
     }
 }
+
+function customtables_enqueue_dynamic_block_assets()
+{
+    global $CUSTOM_TABLES_TEMPLATE;
+    if ($CUSTOM_TABLES_TEMPLATE !== null)
+        $CUSTOM_TABLES_TEMPLATE->enqueue_scripts();
+}
+
+add_action('wp_enqueue_scripts', 'CustomTablesWP\customtables_enqueue_dynamic_block_assets');
+
+function your_function_to_access_post()
+{
+    global $post;
+    global $CUSTOM_TABLES_TEMPLATE;
+
+    if (has_block('customtables/dynamic-block', $post)) {
+        require_once plugin_dir_path(__FILE__) . 'build/template.php';
+        $CUSTOM_TABLES_TEMPLATE = new template();
+        $CUSTOM_TABLES_TEMPLATE->load_blocks($post->post_content);
+    }
+}
+
+add_action('wp', 'CustomTablesWP\your_function_to_access_post');
