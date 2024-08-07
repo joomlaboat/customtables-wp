@@ -406,6 +406,9 @@ function CustomTablesRenderBlock(e, i) {
                 myElements.push(selectFilterBox);
                 myElements.push(selectSortingBox);
                 myElements.push(selectLimitBox);
+
+                myElements.push(selectEditFormLayoutBox);
+                myElements.push(selectDetailsLayoutBox);
             } else if (layoutType === 2) {
                 myElements.push(selectEditFormLayoutBox);
 

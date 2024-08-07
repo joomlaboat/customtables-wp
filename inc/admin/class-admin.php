@@ -336,7 +336,13 @@ class Admin
                     $layoutId = 0;
 
                 $output = $layouts->renderMixedLayout($layoutId, (int)$attributes->type);
-                die($output['html']);
+
+                $image_url = plugins_url('assets/block-glass.png', __FILE__);
+                $preview_html = '<div style="position: relative;">'.$output['html']
+                    .'<div style="position:absolute;top:0;left:0;width:100%;height:100%;background-image: url(\''. $image_url.'\');background-repeat: repeat;"></div>'
+.'</div>';
+
+                die($preview_html);
 
             case 'customtables-tables-edit':
                 $tableId = common::inputGetInt('table');
