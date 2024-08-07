@@ -168,11 +168,12 @@ function customtables_dynamic_block_render_callback($attributes, $content, $bloc
     $preparedAttributes = template::prepareAttributes($attributes);
     $newHash = md5(json_encode($preparedAttributes));
 
-    foreach ($CUSTOM_TABLES_TEMPLATE->blocks as $block) {
-        if ($block['hash'] == $newHash)
-            echo $block['html'];
+    if($CUSTOM_TABLES_TEMPLATE !== null) {
+        foreach ($CUSTOM_TABLES_TEMPLATE->blocks as $block) {
+            if ($block['hash'] == $newHash)
+                echo $block['html'];
+        }
     }
-
     return ob_get_clean();
 }
 

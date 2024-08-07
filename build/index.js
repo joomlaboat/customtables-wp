@@ -372,19 +372,44 @@ function CustomTablesRenderBlock(e, i) {
                 )
             );
 
+            const selectLimitBox = el(
+                PanelBody,
+                {
+                    title: __('Limit'),
+                    initialOpen: false
+                },
+                el(
+                    TextControl,
+                    {
+                        label: 'Number of records pre page',
+                        value: props.attributes.limit,
+                        onChange: function (newValue) {
+                            props.setAttributes({limit: newValue});
+                            props.setAttributes({loading: 0});
+
+                            let newAttributes = props.attributes;
+                            newAttributes.limit = newValue;
+
+                            CustomTablesLoadPreview(newAttributes, props);
+                        }
+                    }
+                )
+            );
+
             const myElements = [selectTypeBox, selectTableBox];
 
             let layoutType = parseInt(props.attributes.type);
-            console.log("props.attributes.type (int): " + layoutType);
+            console.log("layoutType: " + layoutType);
 
-            if (props.attributes.type === 1) {
+            if (layoutType === 1) {
                 myElements.push(selectCatalogLayoutBox);
                 myElements.push(selectFilterBox);
                 myElements.push(selectSortingBox);
-            } else if (props.attributes.type === 2) {
+                myElements.push(selectLimitBox);
+            } else if (layoutType === 2) {
                 myElements.push(selectEditFormLayoutBox);
 
-            } else if (props.attributes.type === 4) {
+            } else if (layoutType === 4) {
                 myElements.push(selectDetailsLayoutBox);
             }
 
@@ -466,6 +491,7 @@ function CustomTablesRenderBlock(e, i) {
                 filter: attributes.filter,
                 orderby: attributes.orderby,
                 order: attributes.order,
+                limit: attributes.limit,
                 loading: 0
             }
             return newAttributes;

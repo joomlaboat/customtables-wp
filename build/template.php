@@ -38,6 +38,7 @@ class template
         $filter = $a['filter'] ?? null;
         $orderby = $a['orderby'] ?? null;
         $order = $a['order'] ?? null;
+        $limit = $a['limit'] ?? null;
 
         return ['type' => $a['type'] ?? 0,
             'table' => $a['table'] ?? 0,
@@ -47,6 +48,7 @@ class template
             'filter' => $filter == '' ? null : $filter,
             'orderby' => $orderby == '' ? null : $orderby,
             'order' => $order == '' ? null : $order,
+            'limit' => $limit == '' ? null : $limit,
             'loading' => $a['loading'] ?? 0,];
     }
 
@@ -94,22 +96,27 @@ class template
                     $ct->getTable($attributes['table']);
                     if ($ct->Table->tablename !== null) {
 
+                        if (!isset($attributes['limit']) or $attributes['limit'] == "")
+                            $attributes['limit'] = 20;
+
+                        $ct->Params->limit = $attributes['limit'];
+
                         $view = common::inputGetCmd('view' . $ct->Table->tableid);
                         if ($view == 'edititem') {
                             $layoutType = 2;
-                            $layoutId = (int)$attributes['editlayout'];
+                            $layoutId = (int)($attributes['editlayout'] ?? 0);
                         } elseif ($view == 'details') {
                             $layoutType = 4;
-                            $layoutId = (int)$attributes['detailslayout'];
+                            $layoutId = (int)($attributes['detailslayout'] ?? 0);
                         } else {
-                            $layoutType = $attributes['type'];
+                            $layoutType = $attributes['type'] ?? 1;
 
                             if ((int)$layoutType == 1)
-                                $layoutId = (int)$attributes['cataloglayout'];
+                                $layoutId = (int)($attributes['cataloglayout'] ?? 0);
                             elseif ((int)$layoutType == 2)
-                                $layoutId = (int)$attributes['editlayout'];
+                                $layoutId = (int)($attributes['editlayout'] ?? 0);
                             elseif ((int)$layoutType == 4)
-                                $layoutId = (int)$attributes['detailslayout'];
+                                $layoutId = (int)($attributes['detailslayout'] ?? 0);
                             else
                                 $layoutId = 0;
                         }
@@ -256,11 +263,11 @@ class template
             // Enqueue jQuery UI
             wp_enqueue_script('jquery-ui-core');
 
-            wp_enqueue_script('ct-edit-form-script-jquery-ui-min', CustomTablesWP\PLUGIN_NAME_URL . 'assets/jquery-ui.min.js');
-            wp_enqueue_style('ct-edit-form-style-jquery-timepicker', CustomTablesWP\PLUGIN_NAME_URL . 'assets/jquery.datetimepicker.min.css', array(), PLUGIN_VERSION);
+            wp_enqueue_script('ct-edit-form-script-jquery-ui-min', PLUGIN_NAME_URL . 'assets/jquery-ui.min.js');
+            wp_enqueue_style('ct-edit-form-style-jquery-timepicker', PLUGIN_NAME_URL . 'assets/jquery.datetimepicker.min.css', array(), PLUGIN_VERSION);
 
             //Include jQuery UI Timepicker addon from CDN
-            wp_enqueue_script('ct-edit-form-script-jquery-timepicker', CustomTablesWP\PLUGIN_NAME_URL . 'assets/jquery.datetimepicker.full.min.js');
+            wp_enqueue_script('ct-edit-form-script-jquery-timepicker', PLUGIN_NAME_URL . 'assets/jquery.datetimepicker.full.min.js');
         }
 
         //Color

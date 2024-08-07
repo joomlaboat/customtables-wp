@@ -302,7 +302,7 @@ class Admin
                 $whereClause->addCondition('published', 1);
                 $layoutsRows = database::loadAssocList('#__customtables_layouts', ['id', 'layoutname', 'layouttype'], $whereClause, 'layoutname');
                 $layouts = [];
-                $layouts[] = ['label' => '- Select Layout', 'value' => null, 'type' => 0];
+                $layouts[] = ['label' => '- Select Layout', 'value' => 0, 'type' => 0];
                 foreach ($layoutsRows as $layoutsRow) {
                     $layouts[] = ['label' => $layoutsRow['layoutname'], 'value' => $layoutsRow['id'], 'type' => (int)$layoutsRow['layouttype']];
                 }
@@ -318,6 +318,12 @@ class Admin
 
                 $ct = new CT(null, false);
                 $ct->getTable($attributes->table);
+
+                if ($attributes->limit === null or $attributes->limit == "")
+                    $attributes->limit = 20;
+
+                $ct->Params->limit = $attributes->limit;
+
                 $layouts = new Layouts($ct);
 
                 if ((int)$attributes->type == 1)

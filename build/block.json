@@ -39,6 +39,10 @@
 			"type": "string",
 			"default": ""
 		},
+		"limit": {
+			"type": "string",
+			"default": ""
+		},
 		"loading": {
 			"type": "integer",
 			"default": 0
