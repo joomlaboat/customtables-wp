@@ -30,7 +30,6 @@ class ListOfLayouts
      */
     public static function getLayouts()
     {
-        //$query = 'SELECT id,layoutname,tableid,layouttype FROM #__customtables_layouts WHERE published=1 ORDER BY layoutname';
         $whereClause = new MySQLWhereClause();
         $whereClause->addCondition('published', 1);
         return database::loadObjectList('#__customtables_layouts', ['id', 'layoutname', 'tableid', 'layouttype'], $whereClause, 'layoutname');
@@ -151,15 +150,15 @@ class ListOfLayouts
 
         $newLayoutName = str_replace(" ", "_", $newLayoutName);
         $newLayoutName = trim(preg_replace("/[^a-z A-Z_\d]/", "", $newLayoutName));
-        $data['layoutname'] = $newLayoutName;//$sets[] = 'layoutname=' . database::quote($newLayoutName);
-        $data['modified_by'] = (int)$this->ct->Env->user->id;//$sets[] = 'modified_by=' . (int)$this->ct->Env->user->id;
-        $data['modified'] = current_time('mysql', 1); // This will use the current date and time in MySQL format;//$sets[] = 'modified=NOW()';
-        $data['layouttype'] = common::inputPostString('layouttype', null, 'create-edit-layout');//$sets[] = 'layouttype=' . database::quote(common::inputPostString('layouttype'));
-        $data['tableid'] = common::inputPostInt('table', null, 'create-edit-layout');//$sets[] = 'tableid=' . common::inputGetInt('table');
-        $data['layoutcode'] = common::inputPostRaw('layoutcode', null, 'create-edit-layout');//$sets[] = 'layoutcode=' . database::quote(common::inputGetRow('layoutcode'), true);
-        $data['layoutmobile'] = common::inputPostRaw('layoutmobile', null, 'create-edit-layout');//$sets[] = 'layoutmobile=' . database::quote(common::inputGetRow('layoutmobile'), true);
-        $data['layoutcss'] = common::inputPostRaw('layoutcss', null, 'create-edit-layout');//$sets[] = 'layoutcss=' . database::quote(common::inputGetRow('layoutcss'), true);
-        $data['layoutjs'] = common::inputPostRaw('layoutjs', null, 'create-edit-layout');//$sets[] = 'layoutjs=' . database::quote(common::inputGetRow('layoutjs'), true);
+        $data['layoutname'] = $newLayoutName;
+        $data['modified_by'] = (int)$this->ct->Env->user->id;
+        $data['modified'] = current_time('mysql', 1); // This will use the current date and time in MySQL format;
+        $data['layouttype'] = common::inputPostString('layouttype', null, 'create-edit-layout');
+        $data['tableid'] = common::inputPostInt('table', null, 'create-edit-layout');
+        $data['layoutcode'] = common::inputPostRaw('layoutcode', null, 'create-edit-layout');
+        $data['layoutmobile'] = common::inputPostRaw('layoutmobile', null, 'create-edit-layout');
+        $data['layoutcss'] = common::inputPostRaw('layoutcss', null, 'create-edit-layout');
+        $data['layoutjs'] = common::inputPostRaw('layoutjs', null, 'create-edit-layout');
 
         try {
             if ($layoutId !== null) {

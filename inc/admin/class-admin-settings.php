@@ -24,12 +24,27 @@ class Admin_Settings
 
         if('save-settings'=== $action) {
 
-            $googleMapAPIKey = common::inputPostString('googlemapapikey','','settings');
-
+            //Google Maps
+            $GoogleMapAPIKey = common::inputPostString('googlemapapikey','','settings');
             if(get_option('customtables-googlemapapikey')===false)
-                add_option('customtables-googlemapapikey', sanitize_text_field($googleMapAPIKey));
+                add_option('customtables-googlemapapikey', sanitize_text_field($GoogleMapAPIKey));
             else
-                update_option('customtables-googlemapapikey', sanitize_text_field($googleMapAPIKey));
+                update_option('customtables-googlemapapikey', sanitize_text_field($GoogleMapAPIKey));
+
+            //Google Drive
+            $GoogleDriveAPIKey = common::inputPostString('googledriveapikey','','settings');
+            if(get_option('customtables-googledriveapikey')===false)
+                add_option('customtables-googledriveapikey', sanitize_text_field($GoogleDriveAPIKey));
+            else
+                update_option('customtables-googledriveapikey', sanitize_text_field($GoogleDriveAPIKey));
+
+            $GoogleDriveClientId = common::inputPostString('googledriveclientid','','settings');
+            if(get_option('customtables-googledriveclientid')===false)
+                add_option('customtables-googledriveclientid', sanitize_text_field($GoogleDriveClientId));
+            else
+                update_option('customtables-googledriveclientid', sanitize_text_field($GoogleDriveClientId));
+
+
 
             $url = 'admin.php?page=customtables-settings';
 

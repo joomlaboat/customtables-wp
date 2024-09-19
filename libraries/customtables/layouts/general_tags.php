@@ -92,7 +92,6 @@ class Twig_Url_Tags
     function root(): ?string
     {
         if (!$this->ct->Env->advancedTagProcessor) {
-            //$this->ct->errors[] = 'url.root: This Field Type available in PRO version only.';
             common::enqueueMessage('Warning: The {{ url.root }} ' . esc_html__("Available in PRO Version", "customtables"));
             return null;
         }

@@ -9,7 +9,139 @@
 class CustomTablesEdit {
 
     constructor() {
+        this.GoogleDriveTokenClient = [];
+        this.GoogleDriveAccessToken = null;
+    }
 
+    GoogleDriveInitClient(fieldName, GoogleDriveAPIKey, GoogleDriveClientId) {
+        this.GoogleDriveTokenClient[fieldName] = google.accounts.oauth2.initTokenClient({
+            client_id: GoogleDriveClientId,
+            scope: "https://www.googleapis.com/auth/drive.readonly",
+            callback: (tokenResponse) => {
+                if (tokenResponse && tokenResponse.access_token) {
+                    this.GoogleDriveAccessToken = tokenResponse.access_token;
+                    CTEditHelper.GoogleDriveLoadPicker(fieldName, GoogleDriveAPIKey, tokenResponse.access_token);
+                }
+            },
+        });
+    }
+
+    GoogleDriveLoadPicker(fieldName, GoogleDriveAPIKey, access_token) {
+        gapi.load("picker", {
+            callback: function () {
+                CTEditHelper.GoogleDriveCreatePicker(fieldName, GoogleDriveAPIKey, access_token);
+            }
+        });
+    }
+
+    GoogleDriveCreatePicker(fieldName, GoogleDriveAPIKey, access_token) {
+        if (access_token) {
+            const pickerBuilder = new google.picker.PickerBuilder()
+                .addView(google.picker.ViewId.DOCS)
+                .addView(google.picker.ViewId.FOLDERS)
+                .addView(new google.picker.DocsView(google.picker.ViewId.DOCS)
+                    .setIncludeFolders(true)
+                    .setOwnedByMe(false)
+                    .setLabel("Shared with me"))
+                .setOAuthToken(access_token)
+                .setDeveloperKey(GoogleDriveAPIKey)
+                .setCallback(function (data) {
+                    CTEditHelper.GoogleDrivePickerCallback(fieldName, data, access_token)
+                });
+
+            if (google.picker.ViewId.SHARED_DRIVES) {
+                pickerBuilder.addView(google.picker.ViewId.SHARED_DRIVES);
+            }
+
+            const picker = pickerBuilder.build();
+            picker.setVisible(true);
+        }
+    }
+
+    GoogleDrivePickerCallback(fieldName, data, access_token) {
+
+        if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
+            if (data[google.picker.Response.DOCUMENTS] && data[google.picker.Response.DOCUMENTS].length > 0) {
+                const file = data[google.picker.Response.DOCUMENTS][0];
+                CTEditHelper.GoogleDriveGetFileMetadata(fieldName, file.id, access_token);
+            } else {
+                console.log("No file was selected or the response format has changed.");
+                document.getElementById("ct_eventsmessage_" + fieldName).innerHTML = "No file was selected.";
+            }
+        } else if (data[google.picker.Response.ACTION] === google.picker.Action.CANCEL) {
+            console.log("User closed the Picker or canceled selection.");
+            document.getElementById("ct_eventsmessage_" + fieldName).innerHTML = "File selection was canceled.";
+        }
+    }
+
+
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    emptyContainers(boxId, className) {
+        const parentElement = document.getElementById(boxId);
+
+        if (parentElement) {
+            const containers = parentElement.getElementsByClassName(className);
+
+            Array.from(containers).forEach(container => {
+                container.innerHTML = '';
+            });
+        }
+    }
+
+    GoogleDriveGetFileMetadata(fieldName, fileId, access_token) {
+
+        gapi.client.load("drive", "v3", () => {
+            gapi.client.drive.files.get({
+                fileId: fileId,
+                fields: "id, name, mimeType, webContentLink, size"
+            }).then(function (response) {
+
+                CTEditHelper.emptyContainers("ct_uploadfile_box_" + fieldName, "ajax-file-upload-error");
+                CTEditHelper.emptyContainers("ct_uploadfile_box_" + fieldName, "ajax-file-upload-container");
+
+                let buttonId = "CustomTablesGoogleDrivePick_" + fieldName;
+                const file = response.result;
+
+                const button = document.getElementById(buttonId);
+                if (button) {
+                    const acceptValue = button.dataset.accept;
+                    if (acceptValue) {
+                        let parts = file.name.split(".");
+                        let fileExtension = parts[parts.length - 1];
+                        let acceptTypes = acceptValue.split(' ');
+                        if (acceptTypes.indexOf(fileExtension) === -1) {
+                            let content = '<div class="ajax-file-upload-error"><b>' + file.name + '</b> is not allowed. Allowed extensions: ' + acceptValue + '</div>';
+                            document.getElementById("ct_eventsmessage_" + fieldName).innerHTML = content;
+                            return;
+                        }
+                    }
+                }
+
+                let fileSize = CTEditHelper.formatFileSize(file.size);
+                let content = '<div class="ajax-file-upload-statusbar" style="width: 400px;"><div class="ajax-file-upload-filename">1). ' + file.name + ' (' + fileSize + ')</div></div>';
+
+                content += JSON.stringify({
+                    fileId: file.id,
+                    fileName: file.name,
+                    mimeType: file.mimeType,
+                    size: file.size,
+                    downloadUrl: file.webContentLink,
+                    accessToken: access_token
+                })
+
+                document.getElementById("ct_eventsmessage_" + fieldName).innerHTML = content;
+            }, function (error) {
+                console.error("Error getting file metadata:", error);
+                document.getElementById("ct_eventsmessage_" + fieldName).innerHTML = "Error getting file metadata.";
+            });
+        });
     }
 
     //A method to create or update table records using JavaScript. CustomTables handles data sanitization and validation.
@@ -48,7 +180,6 @@ class CustomTablesEdit {
                 if (!response.ok) {
                     // If the HTTP status code is not successful, throw an error object that includes the response
                     throw {status: 'error', message: 'HTTP status code: ' + response.status, response: response};
-                    return null;
                 }
                 return response.json();
             })
@@ -83,6 +214,77 @@ class CustomTablesEdit {
             });
     }
 
+
+    async refreshRecord(url, listing_id, successCallback, errorCallback) {
+        let completeURL = url + '?tmpl=component&clean=1&task=refresh';
+        if (listing_id !== undefined && listing_id !== null)
+            completeURL += '&ids=' + listing_id;
+
+        try {
+            const response = await fetch(completeURL);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            console.log(data);
+        } catch (error) {
+            console.error('There was a problem with the fetch operation:', error);
+        }
+
+        //let postData = new URLSearchParams();
+        //postData.append('task', 'refresh');
+
+        fetch(completeURL, {
+            method: 'GET'
+        })
+            .then(response => {
+
+                if (response.redirected) {
+                    if (errorCallback && typeof errorCallback === 'function') {
+                        errorCallback('Login required or not authorized.');
+                    } else {
+                        console.error('Login required or not authorized. Error status code 200: Redirect.');
+                    }
+                    return null;
+                }
+
+                if (!response.ok) {
+                    // If the HTTP status code is not successful, throw an error object that includes the response
+                    throw {status: 'error', message: 'HTTP status code: ' + response.status, response: response};
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data === null)
+                    return;
+
+                if (data.status === 'saved') {
+                    if (successCallback && typeof successCallback === 'function') {
+                        successCallback(data);
+                    } else {
+
+                    }
+                } else if (data.status === 'error') {
+                    if (errorCallback && typeof errorCallback === 'function') {
+                        errorCallback(data);
+                    } else {
+                        console.error(data.message);
+                    }
+                }
+            })
+            .catch(error => {
+                if (errorCallback && typeof errorCallback === 'function') {
+                    errorCallback({
+                        status: 'error',
+                        message: 'An error occurred during the request.',
+                    });
+                } else {
+                    console.error('Error 145:', error);
+                    console.log(completeURL);
+                }
+            });
+    }
+
     //Reloads a particular table row (record) after changes have been made. It identifies the table and the specific row based on the provided listing_id and then triggers a refresh to update the displayed data.
     reloadRecord(listing_id) {
 
@@ -101,7 +303,11 @@ class CustomTablesEdit {
             }
         });
     }
+
+
 }
+
+const CTEditHelper = new CustomTablesEdit();
 
 //---------------------------------
 
@@ -150,6 +356,11 @@ function setTask(event, task, returnLink, submitForm, formName, isModal, modalFo
         } else
             alert("Form not found.");
     }
+}
+
+function stripInvalidCharacters(str) {
+    // This regular expression matches all non-printable ASCII characters
+    return str.replace(/[^\x20-\x7E]/g, '');
 }
 
 function submitModalForm(url, elements, tableid, recordId, hideModelOnSave, modalFormParentField, returnLinkEncoded) {
@@ -211,7 +422,7 @@ function submitModalForm(url, elements, tableid, recordId, hideModelOnSave, moda
                         ctHidePopUp();
 
                     if (returnLinkEncoded !== "")
-                        location.href = Base64.decode(returnLinkEncoded);
+                        location.href = stripInvalidCharacters(Base64.decode(returnLinkEncoded));
 
                 } else {
                     if (http.response.indexOf('<div class="alert-message">Nothing to save</div>') !== -1)
@@ -633,16 +844,13 @@ function ctRenderTableJoinSelectBox(control_name, r, index, execute_all, sub_ind
         filters = JSON.parse(decodedFilterString);
     }
 
-    let attributesStringDataSet = Base64.decode(wrapper.dataset.data - attributes);
+    let attributesStringDataSet = Base64.decode(wrapper.dataset.attributes);
 
     //The code searches the string for any characters that are not in the printable ASCII range (from space to tilde).
     //It replaces any such characters with an empty string, effectively removing them from the string.
     let attributesStringClean = attributesStringDataSet.replace(/[^ -~]+/g, "");
-    let attributes = JSON.parse(attributesStringClean);
-    alert(JSON.stringify(attributes));
-
+    //let attributes = JSON.parse(attributesStringClean);
     //let onchange = Base64.decode(wrapper.dataset.onchange).replace(/[^ -~]+/g, "");
-
 
     let next_index = index;
     let next_sub_index = sub_index;

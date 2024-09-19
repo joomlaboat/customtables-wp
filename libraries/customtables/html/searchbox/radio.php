@@ -23,8 +23,6 @@ class Search_radio extends BaseSearch
 
     function render($value): string
     {
-        //$this->getOnChangeAttributeString();
-
         $options = [];
         $options[] = '<option value="" ' . ($value == '' ? 'SELECTED' : '') . '>- ' . esc_html__("Select", "customtables") . ' ' . $this->field->title . '</option>';
 
