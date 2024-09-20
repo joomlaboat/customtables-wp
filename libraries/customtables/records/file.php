@@ -122,7 +122,84 @@ class Save_file
      * @throws Exception
      * @since 3.4.1
      */
+
     private function downloadGoogleDriveFile(string $temporaryFile, string $path): ?string
+    {
+        try {
+            $data = json_decode($temporaryFile, true);
+            if (!$data) {
+                throw new Exception('Invalid JSON data');
+            }
+        } catch (Exception $e) {
+            error_log('Error decoding JSON: ' . $e->getMessage());
+            return null;
+        }
+
+        // Extract the file information
+        $fileId = $data['fileId'] ?? null;
+        $fileName = $data['fileName'] ?? null;
+        $accessToken = $data['accessToken'] ?? null;
+
+        if (!$fileId || !$fileName || !$accessToken) {
+            error_log('Missing required file information');
+            return null;
+        }
+
+        $parts = explode('.', $fileName);
+        $fileExtension = end($parts);
+        $uniqueFileName = common::generateRandomString() . '.' . $fileExtension;
+        $completePathToFile = $path . DIRECTORY_SEPARATOR . $uniqueFileName;
+
+        // Set up the cURL request to download the file from Google Drive
+        $url = 'https://www.googleapis.com/drive/v3/files/' . $fileId . '?alt=media';
+        $ch = curl_init($url);
+
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HEADER => false,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTPHEADER => ["Authorization: Bearer " . $accessToken],
+            CURLOPT_BUFFERSIZE => 128 * 1024, // 128 KB
+            CURLOPT_NOPROGRESS => false,
+            CURLOPT_PROGRESSFUNCTION => function ($downloadSize, $downloaded, $uploadSize, $uploaded) {
+                // You can implement progress reporting here if needed
+            },
+        ]);
+
+        $fileHandle = fopen($completePathToFile, 'wb');
+        if ($fileHandle === false) {
+            error_log('Unable to open file for writing: ' . $completePathToFile);
+            return null;
+        }
+
+        curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $data) use ($fileHandle) {
+            return fwrite($fileHandle, $data);
+        });
+
+        $success = curl_exec($ch);
+        fclose($fileHandle);
+
+        if ($success === false) {
+            $error = curl_error($ch);
+            error_log('Error downloading file from Google Drive: ' . $error);
+            common::enqueueMessage('Error downloading file from Google Drive: ' . $error);
+            curl_close($ch);
+            return null;
+        }
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode !== 200) {
+            error_log('HTTP Error: ' . $httpCode);
+            common::enqueueMessage('Error downloading file from Google Drive. HTTP Code: ' . $httpCode);
+            return null;
+        }
+
+        return $completePathToFile;
+    }
+
+    /*private function downloadGoogleDriveFile(string $temporaryFile, string $path): ?string
     {
         try {
             $data = (array)@json_decode($temporaryFile);
@@ -171,7 +248,7 @@ class Save_file
         }
 
         return $CompletePathToFile;
-    }
+    }*/
 
     /**
      * @throws Exception
