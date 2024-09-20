@@ -474,7 +474,7 @@ class Layouts
                             $customPHP = new CustomPHP($this->ct, $action);
                             $customPHP->executeCustomPHPFile($this->ct->Table->tablerow['customphp'], $record->row_new, $record->row_old);
                         } catch (Exception $e) {
-                            $ct->errors[] = 'Custom PHP file: ' . $ct->Table->tablerow['customphp'] . ' (' . $e->getMessage() . ')';
+                            $this->ct->errors[] = 'Custom PHP file: ' . $this->ct->Table->tablerow['customphp'] . ' (' . $e->getMessage() . ')';
                         }
                     }
 
