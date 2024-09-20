@@ -10,14 +10,20 @@
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-//include ('customtables-tables-edit-help.php');
-
 require_once ABSPATH . 'wp-admin/admin-header.php';
 
 if ($this->admin_table_edit->tableId === null)
 	$new_tablename = '';
 else
 	$new_tablename = $this->admin_table_edit->ct->Table->tablename;
+
+if ($this->admin_table_edit->ct->Env->advancedTagProcessor) {
+    if ($this->admin_table_edit->tableId === null)
+        $customphp = '';
+    else
+        $customphp = $this->admin_table_edit->ct->Table->tablerow['customphp'];
+}
+
 ?>
     <div class="wrap">
         <h1 id="add-new-user">
@@ -119,6 +125,27 @@ else
                                        value="<?php echo esc_html($vlu); ?>" maxlength="255"/>
                             </td>
                         </tr>
+
+                        <?php if ($this->admin_table_edit->ct->Env->advancedTagProcessor): ?>
+                        <tr class="form-field form-required">
+                            <th scope="row" colspan="2">
+                                <hr/>
+                            </th>
+                        </tr>
+
+                        <tr class="form-field form-required">
+                            <th scope="row">
+                                <label for="customphp">
+                                    <?php echo esc_html__('Custom PHP', 'customphp'); ?>
+                                </label>
+                            </th>
+                            <td>
+                                <input name="customphp" type="text" id="customphp"
+                                       value="<?php echo esc_attr($customphp); ?>" aria-required="true"
+                                       autocapitalize="none" autocorrect="off" autocomplete="off" maxlength="255"/>
+                            </td>
+                        </tr>
+                        <?php endif; ?>
 
 						<?php $moreThanOneLang = true; ?>
 					<?php endforeach; ?>

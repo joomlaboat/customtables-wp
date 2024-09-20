@@ -15,6 +15,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\Layouts;
+use CustomTables\CustomPHP;
 use CustomTables\record;
 use Exception;
 
@@ -84,7 +85,20 @@ class Admin_Record_Edit
 			$record->editForm->layoutContent = $Layouts->createDefaultLayout_Edit($this->ct->Table->fields, false);
 
 			$listing_id = common::inputGetCmd('id');
-			$record->save($listing_id, false);
+            $saved = $record->save($listing_id, false);
+
+            if ($saved) {
+                if ($this->ct->Env->advancedTagProcessor) {
+                    die(1);
+                    //try {
+                        $action = $record->isItNewRecord ? 'create' : 'update';
+                        $customPHP = new CustomPHP($this->ct, $action);
+                        $customPHP->executeCustomPHPFile($this->ct->Table->tablerow['customphp'], $record->row_new, $record->row_old);
+                    //} catch (Exception $e) {
+                        //$ct->errors[] = 'Custom PHP file: ' . $ct->Table->tablerow['customphp'] . ' (' . $e->getMessage() . ')';
+                    //}
+                }
+            }
 
 			//$this->helperListOfFields->save($this->tableId, $this->fieldId);
 			$url = 'admin.php?page=customtables-records&table=' . $this->tableId;

@@ -5,7 +5,7 @@ Donate link: https://www.patreon.com/joomlaboat
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
 Tested up to: 6.6.2
-Stable tag: 1.2.7
+Stable tag: 1.2.8
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -51,6 +51,8 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 [Please contact us here with your query.](https://ct4.us/contact-us/)
 
 == Changelog ==
+
+= 1.2.8 =
 
 = 1.2.7 =
 Layout select box only contains layouts that have the same type as the selected above.

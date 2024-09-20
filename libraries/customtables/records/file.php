@@ -42,7 +42,7 @@ class Save_file
         $fileName = null;
 
         $fileData = common::inputPostString($this->field->comesfieldname . '_data', null, 'create-edit-record');
-        if ($fileData[0] == '{') {
+        if (!empty($fileData) and $fileData[0] == '{') {
 
             if (defined('_JEXEC'))
                 $CompletePathToFile = $this->downloadGoogleDriveFile($fileData, CUSTOMTABLES_ABSPATH . 'tmp');
@@ -198,57 +198,6 @@ class Save_file
 
         return $completePathToFile;
     }
-
-    /*private function downloadGoogleDriveFile(string $temporaryFile, string $path): ?string
-    {
-        try {
-            $data = (array)@json_decode($temporaryFile);
-        } catch (Exception $e) {
-            return null;
-        }
-
-        // Extract the file information
-        $fileId = $data['fileId'];
-        //$fileName = $data['fileName'];
-        $parts = explode('.', $data['fileName']);
-        $fileExtension = end($parts);
-        $fileName = common::generateRandomString() . '.' . $fileExtension;
-        $accessToken = $data['accessToken'];
-
-        // Set up the cURL request to download the file from Google Drive
-        $url = 'https://www.googleapis.com/drive/v3/files/' . $fileId . '?alt=media';
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Authorization: Bearer " . $accessToken
-        ]);
-
-        // Execute the cURL request
-        $fileContent = curl_exec($ch);
-
-        if (curl_errno($ch)) {
-            echo 'Error downloading file from Google Drive: ' . curl_error($ch) . '<br/>';
-            common::enqueueMessage('Error downloading file from Google Drive: ' . curl_error($ch));
-            exit;
-        }
-
-        // Define the upload directory (make sure this directory exists and is writable)
-        $CompletePathToFile = $path . DIRECTORY_SEPARATOR . $fileName;
-
-        curl_close($ch);
-
-        //echo $fileContent;
-        // Save the file to the server
-        if (!file_put_contents($CompletePathToFile, $fileContent) !== false) {
-            echo 'Error saving file to server. Path: ' . $CompletePathToFile . '<br/>';
-            common::enqueueMessage('Error saving file to server. Path: ' . $CompletePathToFile);
-            die;
-            return null;
-        }
-
-        return $CompletePathToFile;
-    }*/
 
     /**
      * @throws Exception
