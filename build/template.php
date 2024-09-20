@@ -152,7 +152,7 @@ class template
                     if (isset($mixedLayout_array['script']))
                         $this->enqueueList['script'] = $mixedLayout_array['script'];
 
-                    if (isset($mixedLayout_array['captcha']) )
+                    if (isset($mixedLayout_array['captcha']))
                         $this->enqueueList['recaptcha'] = $mixedLayout_array['captcha'];
 
                     if (isset($mixedLayout_array['scripts']))
@@ -178,6 +178,9 @@ class template
 
                         if (in_array('googlemapcoordinates', $mixedLayout_array['fieldtypes']))
                             $this->enqueueList['fieldtype:googlemapcoordinates'] = true;
+
+                        if (in_array('file', $mixedLayout_array['fieldtypes']))
+                            $this->enqueueList['fieldtype:file'] = true;
                     }
 
                     //add_filter( 'wp_title', 'customtables_wp_title', 10, 2 );
@@ -188,7 +191,7 @@ class template
                     //wp_enqueue_script('jquery-ui-tabs');
                     //add_action('wp_footer', 'ct_enqueue_frontend_scripts', 100);
                 }
-                $result .= '<div>'.$mixedLayout_safe.'</div>';
+                $result .= '<div>' . $mixedLayout_safe . '</div>';
 
             } else {
                 $result .= '<blockquote style="background-color: #f8d7da; border-left: 5px solid #dc3545; padding: 10px;"><p>'
@@ -279,10 +282,21 @@ class template
         //Google Map Coordinates
         if (isset($this->enqueueList['fieldtype:googlemapcoordinates']) and $this->enqueueList['fieldtype:googlemapcoordinates']) {
 
-            $googleMapAPIKey = get_option('customtables-googlemapapikey');
-
-            if ($googleMapAPIKey !== null and $googleMapAPIKey != '')
+            $googleMapAPIKey = get_option('customtables-googlemapapikey') ?? '';
+            if ($googleMapAPIKey != '')
                 wp_enqueue_script('ct-google-map-script', 'https://maps.google.com/maps/api/js?key=' . $googleMapAPIKey . '&sensor=false', array(), PLUGIN_VERSION, true);
+        }
+
+        //Google Map Coordinates
+        if (isset($this->enqueueList['fieldtype:file']) and $this->enqueueList['fieldtype:file']) {
+
+            $GoogleDriveAPIKey = get_option('customtables-googledriveapikey') ?? '';
+            $GoogleDriveClientId = get_option('customtables-googledriveclientid') ?? '';
+
+            if ($GoogleDriveAPIKey != '' and $GoogleDriveClientId != '') {
+                wp_enqueue_script('ct-google-api', 'https://apis.google.com/js/api.js', array(), PLUGIN_VERSION, true);
+                wp_enqueue_script('ct-google-gsi-client', 'https://accounts.google.com/gsi/client', array(), PLUGIN_VERSION, true);
+            }
         }
     }
 }

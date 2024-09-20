@@ -178,13 +178,12 @@ class InputBox_file extends BaseInputBox
             $ct_fileuploader = '<div id="ct_fileuploader_' . $this->field->fieldname . '" style="display: inline;"></div>';
             $ct_eventsMessage = '<div id="ct_eventsmessage_' . $this->field->fieldname . '" style="display: inline;"></div>';
 
-            $inputBoxFieldName = '<input type="hidden" name="' . $this->field->prefix . $this->field->fieldname . '" id="' . $this->field->prefix . $this->field->fieldname . '" value="" ' . ($this->field->isrequired == 1 ? ' class="required"' : '') . ' />';
-            $inputBoxFieldName_FileName = '<input type="hidden" name="' . $this->field->prefix . $this->field->fieldname . '_filename" id="' . $this->field->prefix . $this->field->fieldname . '_filename" value="" />';
+            $result .= '<input type="hidden" name="' . $this->field->prefix . $this->field->fieldname . '" id="' . $this->field->prefix . $this->field->fieldname . '" value="" ' . ($this->field->isrequired == 1 ? ' class="required"' : '') . ' />';
+            $result .= '<input type="hidden" name="' . $this->field->prefix . $this->field->fieldname . '_filename" id="' . $this->field->prefix . $this->field->fieldname . '_filename" value="" />';
+            $result .= '<input type="hidden" name="' . $this->field->prefix . $this->field->fieldname . '_data" id="' . $this->field->prefix . $this->field->fieldname . '_data" value="" />';
 
-            $result .= $inputBoxFieldName . $inputBoxFieldName_FileName
-                . esc_html__("Permitted File Types", "customtables") . ': ' . $accepted_file_types . '<br/>'
-                . esc_html__("Permitted Max. File Size", "customtables") . ': ' . CTMiscHelper::formatSizeUnits($max_file_size);
-
+            $result .= esc_html__("Permitted File Types", "customtables") . ': ' . $accepted_file_types . '<br/>';
+            $result .= esc_html__("Permitted Max. File Size", "customtables") . ': ' . CTMiscHelper::formatSizeUnits($max_file_size);
 
             $joomla_params = ComponentHelper::getParams('com_customtables');
             $GoogleDriveAPIKey = $joomla_params->get('GoogleDriveAPIKey');
@@ -193,13 +192,11 @@ class InputBox_file extends BaseInputBox
             $result .= '<div style="vertical-align: top;">';
 
             if ($GoogleDriveAPIKey !== '' and $GoogleDriveClientId !== '')
-                $result .= '<br/><button class="ajax-file-upload" data-accept="' . $accepted_file_types . '" id="CustomTablesGoogleDrivePick_' . $this->field->fieldname . '">Load from Google Drive</button>';
+                $result .= '<br/><button class="ajax-file-upload" data-prefix="' . $this->field->prefix . '" data-accept="' . $accepted_file_types . '" id="CustomTablesGoogleDrivePick_' . $this->field->fieldname . '">Load from Google Drive</button>';
 
             $result .= $ct_fileuploader;
             $result .= '</div>';
-
             $result .= $ct_eventsMessage;
-
             $result .= '<script>ct_getUploader(' . implode(',', $scriptParams) . ')</script>';
 
             if ($GoogleDriveAPIKey !== '' and $GoogleDriveClientId !== '') {
@@ -220,17 +217,50 @@ class InputBox_file extends BaseInputBox
         }
         return false;
     });
+    
     gapi.load("client", CTEditHelper.GoogleDriveInitClient("' . $this->field->fieldname . '","' . $GoogleDriveAPIKey . '","' . $GoogleDriveClientId . '"));
+
 </script>';
 
             }
 
         } elseif (defined('WPINC')) {
 
+            $GoogleDriveAPIKey = get_option('customtables-googledriveapikey') ?? '';
+            $GoogleDriveClientId = get_option('customtables-googledriveclientid') ?? '';
+
+            if ($GoogleDriveAPIKey !== '' and $GoogleDriveClientId !== '') {
+                $result .= '<br/><button type="button" class="" data-prefix="' . $this->field->prefix . '" data-accept="' . $accepted_file_types . '" id="CustomTablesGoogleDrivePick_' . $this->field->fieldname . '">Load from Google Drive</button>';
+
+                $result .= '<div id="ct_eventsmessage_' . $this->field->fieldname . '" style="display: inline;"></div>';
+
+                $result .= '
+<script>
+    document.getElementById("CustomTablesGoogleDrivePick_' . $this->field->fieldname . '").addEventListener("click", () => {
+        event.preventDefault(); // Prevent the default action
+
+        if (!CTEditHelper.GoogleDriveAccessToken) {
+            CTEditHelper.GoogleDriveTokenClient["' . $this->field->fieldname . '"].requestAccessToken({ prompt: "consent" });
+        } else {
+            CTEditHelper.GoogleDriveLoadPicker("' . $this->field->fieldname . '","' . $GoogleDriveAPIKey . '", CTEditHelper.GoogleDriveAccessToken);
+        }
+        return false;
+    });
+    
+    window.addEventListener("load", function() {
+        // Your code here
+        gapi.load("client", CTEditHelper.GoogleDriveInitClient("' . $this->field->fieldname . '","' . $GoogleDriveAPIKey . '","' . $GoogleDriveClientId . '"));
+    });
+</script>';
+            }
+
             $types = explode(' ', $accepted_file_types);
             $accepted_file_types_string = '.' . implode(',.', $types);
 
             $result .= '<input type="file" name="' . $this->field->prefix . $this->field->fieldname . '" accept="' . $accepted_file_types_string . '" max-size="' . $max_file_size . '" /><br/>';
+            $result .= '<input type="hidden" name="' . $this->field->prefix . $this->field->fieldname . '_filename" id="' . $this->field->prefix . $this->field->fieldname . '_filename" value="" />';
+            $result .= '<input type="hidden" name="' . $this->field->prefix . $this->field->fieldname . '_data" id="' . $this->field->prefix . $this->field->fieldname . '_data" value="" />';
+
             $result .= esc_html__("Permitted File Types", "customtables") . ': ' . $accepted_file_types . '<br/>';
             $result .= esc_html__("Permitted Max. File Size", "customtables") . ': ' . CTMiscHelper::formatSizeUnits($max_file_size);
         }
