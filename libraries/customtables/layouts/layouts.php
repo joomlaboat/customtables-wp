@@ -737,7 +737,7 @@ class Layouts
                 $label = '<th scope="row">
                             <label ' . $attribute . '>'
                     . '{{ ' . $field['fieldname'] . '.title }}'
-                    . ((int)$field['isrequired'] == 1 ? '<span class="description">(' . __('required', 'customtables') . ')</span>' : '')
+                    . ((int)$field['isrequired'] == 1 ? '<span class="description">(' . __('required', 'customtables') . ')</span>' : '')//WP version
                     . '</label>
                         </th>';
 

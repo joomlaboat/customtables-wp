@@ -167,13 +167,23 @@ function customtables_dynamic_block_render_callback($attributes, $content, $bloc
     require_once plugin_dir_path(__FILE__) . 'build/template.php';
     $preparedAttributes = template::prepareAttributes($attributes);
     $newHash = md5(json_encode($preparedAttributes));
+    $newHashFound = false;
 
     if($CUSTOM_TABLES_TEMPLATE !== null) {
         foreach ($CUSTOM_TABLES_TEMPLATE->blocks as $block) {
-            if ($block['hash'] == $newHash)
+            if ($block['hash'] == $newHash) {
                 echo $block['html'];
+                $newHashFound = true;
+            }
         }
     }
+
+    if(!$newHashFound) {
+        require_once plugin_dir_path(__FILE__) . 'build/template.php';
+        $CUSTOM_TABLES_TEMPLATE = new template();
+        echo $CUSTOM_TABLES_TEMPLATE->renderBlock($attributes);
+    }
+
     return ob_get_clean();
 }
 
