@@ -52,7 +52,6 @@ class Admin_Table_Edit
 		$action = common::inputPostCmd('action', '', 'create-edit-table');
 
 		if ('createtable' === $action || 'savetable' === $action) {
-
 			$errors = $this->helperListOfTables->save($this->tableId);
 
 			if ($errors !== null and count($errors) > 0) {

@@ -443,8 +443,8 @@ class Layouts
 
         $output = ['style' => $this->layoutCodeCSS, 'script' => $this->layoutCodeJS];
 
-        if ($this->layoutType == 1 or $this->layoutType == 5) {
-
+        if (in_array($this->layoutType, [1, 5, 8, 9, 10])) {
+            //Simple Catalog or Catalog Page
             if ($task == 'delete') {
 
                 $listing_id = common::inputGetCmd('listing_id', 0);
@@ -460,14 +460,14 @@ class Layouts
             $output['html'] = $this->renderCatalog();
 
         } elseif ($this->layoutType == 2) {
-
+            //Edit Form
             if ($task == 'saveandcontinue' or $task == 'save') {
                 $record = new record($this->ct);
                 $record->editForm->layoutContent = $this->layoutCode;
                 $listing_id = common::inputGetCmd('id');
                 if ($record->save($listing_id, false)) {
 
-                    if ($this->ct->Env->advancedTagProcessor) {
+                    if ($this->ct->Env->advancedTagProcessor and !empty($this->ct->Table->tablerow['customphp'])) {
 
                         try {
                             $action = $record->isItNewRecord ? 'create' : 'update';
@@ -515,7 +515,8 @@ class Layouts
 
             $output['fieldtypes'] = $this->ct->editFieldTypes;
 
-        } elseif ($this->layoutType == 4) {
+        } elseif ($this->layoutType == 4 or $this->layoutType == 6) {
+            //Details or Catalog Item
             $output['html'] = $this->renderDetails();
         } else
             $output['html'] = 'CustomTable: Unknown Layout Type';

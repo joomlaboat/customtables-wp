@@ -50,7 +50,7 @@ class Admin_Record_Edit
 
 				$this->listing_id = common::inputGetCmd('id');
 
-				if ($this->listing_id === 0)
+				if (empty($this->listing_id))
 					$this->listing_id = null;
 
 				if ($this->listing_id !== null) {
@@ -87,20 +87,19 @@ class Admin_Record_Edit
 			$listing_id = common::inputGetCmd('id');
             $saved = $record->save($listing_id, false);
 
+
             if ($saved) {
-                if ($this->ct->Env->advancedTagProcessor) {
-                    die(1);
-                    //try {
+                if ($this->ct->Env->advancedTagProcessor and !empty($this->ct->Table->tablerow['customphp'])) {
+                    try {
                         $action = $record->isItNewRecord ? 'create' : 'update';
                         $customPHP = new CustomPHP($this->ct, $action);
                         $customPHP->executeCustomPHPFile($this->ct->Table->tablerow['customphp'], $record->row_new, $record->row_old);
-                    //} catch (Exception $e) {
-                        //$ct->errors[] = 'Custom PHP file: ' . $ct->Table->tablerow['customphp'] . ' (' . $e->getMessage() . ')';
-                    //}
+                    } catch (Exception $e) {
+                        $this->ct->errors[] = 'Custom PHP file: ' . $this->ct->Table->tablerow['customphp'] . ' (' . $e->getMessage() . ')';
+                    }
                 }
             }
 
-			//$this->helperListOfFields->save($this->tableId, $this->fieldId);
 			$url = 'admin.php?page=customtables-records&table=' . $this->tableId;
 
 			ob_start(); // Start output buffering
