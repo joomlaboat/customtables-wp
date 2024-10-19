@@ -100,6 +100,7 @@ class template
                             $attributes['limit'] = 20;
 
                         $ct->Params->limit = $attributes['limit'];
+                        $ct->Params->filter = $attributes['filter'];
 
                         $view = common::inputGetCmd('view' . $ct->Table->tableid);
                         if ($view == 'edititem') {
@@ -213,8 +214,11 @@ class template
         wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url(home_url()) . '";');
 
         // Add inline script after enqueuing the main script
-        if (isset($this->enqueueList['style']))
+        if (isset($this->enqueueList['style'])) {
+            //$randomId = common::generateRandomString();
+            //. $randomId
             wp_add_inline_style('ct-catalog-style', $this->enqueueList['style']);
+        }
 
         // Add inline script after enqueuing the main script
         if (isset($this->enqueueList['script']))

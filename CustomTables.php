@@ -169,7 +169,7 @@ function customtables_dynamic_block_render_callback($attributes, $content, $bloc
     $newHash = md5(json_encode($preparedAttributes));
     $newHashFound = false;
 
-    if($CUSTOM_TABLES_TEMPLATE !== null) {
+    if($CUSTOM_TABLES_TEMPLATE !== null and isset($CUSTOM_TABLES_TEMPLATE->blocks) and is_array($CUSTOM_TABLES_TEMPLATE->blocks)) {
         foreach ($CUSTOM_TABLES_TEMPLATE->blocks as $block) {
             if ($block['hash'] == $newHash) {
                 echo $block['html'];
