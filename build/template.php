@@ -147,8 +147,14 @@ class template
                 }
 
                 if (!is_admin()) {
-                    if (isset($mixedLayout_array['style']))
-                        $this->enqueueList['style'] = $mixedLayout_array['style'];
+                    if (isset($mixedLayout_array['style'])) {
+
+                        if (!isset($this->enqueueList['style']) or $this->enqueueList['style'] === null)
+                            $this->enqueueList['style'] = [];
+
+                        if (!in_array($mixedLayout_array['style'], $this->enqueueList['style']))
+                            $this->enqueueList['style'][] = $mixedLayout_array['style'];
+                    }
 
                     if (isset($mixedLayout_array['script']))
                         $this->enqueueList['script'] = $mixedLayout_array['script'];
@@ -214,11 +220,8 @@ class template
         wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url(home_url()) . '";');
 
         // Add inline script after enqueuing the main script
-        if (isset($this->enqueueList['style'])) {
-            //$randomId = common::generateRandomString();
-            //. $randomId
-            wp_add_inline_style('ct-catalog-style', $this->enqueueList['style']);
-        }
+        if (isset($this->enqueueList['style']))
+            wp_add_inline_style('ct-catalog-style', implode('', $this->enqueueList['style']));
 
         // Add inline script after enqueuing the main script
         if (isset($this->enqueueList['script']))

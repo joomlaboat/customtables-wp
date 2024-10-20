@@ -180,7 +180,16 @@ function customtables_dynamic_block_render_callback($attributes, $content, $bloc
 
     if(!$newHashFound) {
         require_once plugin_dir_path(__FILE__) . 'build/template.php';
-        $CUSTOM_TABLES_TEMPLATE = new template();
+
+        if ($CUSTOM_TABLES_TEMPLATE !== null){
+            $temp = $CUSTOM_TABLES_TEMPLATE->enqueueList;
+            $CUSTOM_TABLES_TEMPLATE = new template();
+            $CUSTOM_TABLES_TEMPLATE->enqueueList = $temp;
+        }
+        else{
+            $CUSTOM_TABLES_TEMPLATE = new template();
+        }
+
         echo $CUSTOM_TABLES_TEMPLATE->renderBlock($attributes);
     }
 
@@ -226,7 +235,16 @@ function your_function_to_access_post()
 
     if (has_block('customtables/dynamic-block', $post)) {
         require_once plugin_dir_path(__FILE__) . 'build/template.php';
-        $CUSTOM_TABLES_TEMPLATE = new template();
+
+        if ($CUSTOM_TABLES_TEMPLATE !== null){
+            $temp = $CUSTOM_TABLES_TEMPLATE->enqueueList;
+            $CUSTOM_TABLES_TEMPLATE = new template();
+            $CUSTOM_TABLES_TEMPLATE->enqueueList = $temp;
+        }
+        else{
+            $CUSTOM_TABLES_TEMPLATE = new template();
+        }
+
         $CUSTOM_TABLES_TEMPLATE->load_blocks($post->post_content);
     }
 }

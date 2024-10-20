@@ -95,7 +95,7 @@ function CustomTablesLoadLayouts() {
                 for (let i = 0; i < customtables_layouts.length; i++) {
 
                     let t = parseInt(customtables_layouts[i].type);
-                    if (t === 1)
+                    if (t === 1 || t === 5 || t === 8 || t === 9 || t === 10)
                         customtables_layouts_catalog.push(customtables_layouts[i]);
                     else if (t === 2)
                         customtables_layouts_edit_form.push(customtables_layouts[i]);

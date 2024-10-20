@@ -323,6 +323,7 @@ class Admin
                     $attributes->limit = 20;
 
                 $ct->Params->limit = $attributes->limit;
+                $ct->Params->filter = $attributes->filter;
 
                 $layouts = new Layouts($ct);
 
