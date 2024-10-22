@@ -109,7 +109,7 @@ class Admin
         $page = common::inputGetCmd('page');
 
         if ($page == 'customtables-schema') {
-            wp_enqueue_script('customtables-js-raphael', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/raphael.min.js', array('jquery'), $this->version, false);
+            wp_enqueue_script('customtables-js-raphael', home_url() . '/wp-content/plugins/customtables/assets/raphael.min.js', array('jquery'), $this->version, false);
             wp_enqueue_script('customtables-js-diagram', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/diagram.js', array('jquery'), $this->version, false);
         }
 

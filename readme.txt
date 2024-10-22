@@ -53,7 +53,11 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 == Changelog ==
 
 = 1.2.9
-{{ url.getwhere('param') }} tag added.
+- {{ url.getwhere('param') }} tag added.
+- Added support for the 'Filter' parameter, now functional with Custom Tables Block.
+- Implemented 'Group By' functionality for the {{ tables.getrecords() }} tag.
+- Optimized CSS handling by merging styles across multiple blocks, ensuring only unique styles are retained.
+- Updated Layout Editor: When 'Catalog Layout' is selected, the following layout types can now be chosen: Catalog, XML, CSV, or JSON.
 
 = 1.2.8 =
 Bags fixed. CT Lib updated.

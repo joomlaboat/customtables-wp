@@ -63,6 +63,7 @@ class Tables
         $this->ct->Table->recordcount = 0;
         $this->ct->setFilter($filter, 2);
 
+
         //Grouping
         if ($groupBy != '')
             $this->ct->GroupBy = Fields::getRealFieldName($groupBy, $this->ct->Table->fields);
