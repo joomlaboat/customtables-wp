@@ -477,7 +477,7 @@ class Admin_Table_List extends WP_List_Table
                 $this->invalid_nonce_redirect();
             } else {
                 $tableId = common::inputGetInt('table');
-                $this->helperListOfTables->deleteTable($tableId);
+                TableHelper::deleteTable($tableId);
                 //echo '<div id="message" class="updated notice is-dismissible"><p>1 table permanently deleted.</p></div>';
                 $this->graceful_redirect();
             }
@@ -608,7 +608,7 @@ class Admin_Table_List extends WP_List_Table
 
             if (count($tables) > 0) {
                 foreach ($tables as $tableId)
-                    $this->helperListOfTables->deleteTable($tableId);
+                    TableHelper::deleteTable($tableId);
 
                 $this->graceful_redirect();
             }

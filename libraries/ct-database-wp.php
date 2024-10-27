@@ -744,7 +744,7 @@ class database
         elseif ($type == 'filebox')
             $realTableName_safe = $wpdb->prefix . 'customtables_filebox_' . strtolower(trim(preg_replace("/[^a-zA-Z_\d]/", "", $tableName)));
         else
-            $realTableName_safe = $wpdb->prefix . 'customtables_' . strtolower(trim(preg_replace("/[^a-zA-Z_\d]/", "", $tableName)));
+            $realTableName_safe = $wpdb->prefix . 'customtables_table_' . strtolower(trim(preg_replace("/[^a-zA-Z_\d]/", "", $tableName)));
 
         $serverType = self::getServerType();
 
