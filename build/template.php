@@ -100,8 +100,8 @@ class template
                             $attributes['limit'] = 20;
 
                         $ct->Params->limit = $attributes['limit'];
-                        $ct->Params->sortBy = $attributes['orderby'];
-                        $ct->Params->filter = $attributes['filter'];
+                        $ct->Params->sortBy = $attributes['orderby'] ?? null;
+                        $ct->Params->filter = $attributes['filter'] ?? null;
 
                         $view = common::inputGetCmd('view' . $ct->Table->tableid);
                         if ($view == 'edititem') {

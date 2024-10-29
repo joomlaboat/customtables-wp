@@ -231,7 +231,7 @@ class Admin_Record_List extends WP_List_Table
             }
         }
 
-        $columns['id'] = __('Id', 'customtables');
+        $columns[$this->ct->Table->realidfieldname] = __((empty($this->ct->Table->realidfieldname) ? 'Id': $this->ct->Table->realidfieldname), 'customtables');
 
         return $columns;
     }

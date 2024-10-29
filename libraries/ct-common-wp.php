@@ -164,15 +164,18 @@ class common
     public static function inputGetCmd(string $parameter, ?string $default = null): ?string
     {
         if (isset($_GET['_wpnonce'])) {
-            if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
+            if (function_exists('\wp_verify_nonce') && !wp_verify_nonce(sanitize_text_field($_GET['_wpnonce']), 'get')) {
                 //return $default;
             }
         }
 
-        if (!isset($_GET[$parameter]))
+        if (!isset($_GET[$parameter])) {
             return $default;
+        }
 
-        $result = (string)preg_replace('/[^A-Z\d_.-]/i', '', sanitize_key($_GET[$parameter]));
+        // Then apply our custom regex that allows both upper and lowercase letters
+        $result = (string)preg_replace('/[^A-Za-z\d_.-]/i', '', $_GET[$parameter]);
+
         return ltrim($result, '.');
     }
 
