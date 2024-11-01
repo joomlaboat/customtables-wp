@@ -15,7 +15,7 @@ use Exception;
 use Joomla\CMS\HTML\HTMLHelper;
 use LayoutProcessor;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 class Twig_Document_Tags
 {

@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use DateTime;
 
@@ -84,12 +84,12 @@ jQuery(document).ready(function($) {
 
         $start = '<input onblur="' . $jsOnChange . '" onchange="' . $jsOnChange . '" value="' . $valueStart . '" type="text"'
             . ' class="' . ($this->attributes['class'] ?? '') . '" id="' . $this->objectName . '_start"'
-            . ' placeholder="' . $this->field->title . ' - ' . esc_html__("Start", "customtables") . '"'
+            . ' placeholder="' . $this->field->title . ' - ' . common::translate('COM_CUSTOMTABLES_START') . '"'
             . ' style="display:inline-block;width:49%;margin-left:0;margin-right:0;float:left;">';
 
         $end = '<input onblur="' . $jsOnChange . '" onchange="' . $jsOnChange . '" value="' . $valueEnd . '" type="text"'
             . ' class="' . ($this->attributes['class'] ?? '') . '" id="' . $this->objectName . '_end"'
-            . ' placeholder="' . $this->field->title . ' - ' . esc_html__("End", "customtables") . '"'
+            . ' placeholder="' . $this->field->title . ' - ' . common::translate('COM_CUSTOMTABLES_END') . '"'
             . ' style="display:inline-block;width:49%;margin-left:0;margin-right:0;float:right;">';
 
         return $hidden . '<div style="position: relative;">' . $start . $end . '</div>';

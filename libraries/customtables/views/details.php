@@ -11,12 +11,14 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use Exception;
 use LayoutProcessor;
 use tagProcessor_PHP;
-use CustomTables\ctProHelpers;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 class Details
 {
@@ -100,7 +102,7 @@ class Details
         if (!is_null($this->ct->Params->recordsTable) and !is_null($this->ct->Params->recordsUserIdField) and !is_null($this->ct->Params->recordsField)) {
             if (!$this->checkRecordUserJoin($this->ct->Params->recordsTable, $this->ct->Params->recordsUserIdField, $this->ct->Params->recordsField, $this->ct->Params->listing_id)) {
                 //YOU ARE NOT AUTHORIZED TO ACCESS THIS SOURCE;
-                $this->ct->errors[] = esc_html__("Not authorized", "customtables");
+                $this->ct->errors[] = common::translate('COM_CUSTOMTABLES_NOT_AUTHORIZED');
                 return false;
             }
         }
@@ -143,14 +145,19 @@ class Details
      * @throws Exception
      * @since 3.2.2
      */
-    protected function checkRecordUserJoin($recordsTable, $recordsUserIdField, $recordsField, $listing_id): bool
+    protected function checkRecordUserJoin(string $recordsTable, $recordsUserIdField, $recordsField, $listing_id): bool
     {
-        //TODO: avoid es_
-        $whereClause = new MySQLWhereClause();
-        $whereClause->addCondition('es_' . $recordsUserIdField, $this->ct->Env->user->id);
-        $whereClause->addCondition('es_' . $recordsField, ',' . $listing_id . ',', 'INSTR');
+        $ct = new CT;
+        $ct->getTable($recordsTable);
+        if ($ct->Table === null) {
+            return false;    // Exit if table to connect with not found
+        }
 
-        $rows = database::loadAssocList('#__customtables_table_' . $recordsTable, ['COUNT_ROWS'], $whereClause, null, null, 1);
+        $whereClause = new MySQLWhereClause();
+        $whereClause->addCondition($ct->Table->fieldPrefix . $recordsUserIdField, $this->ct->Env->user->id);
+        $whereClause->addCondition($ct->Table->fieldPrefix . $recordsField, ',' . $listing_id . ',', 'INSTR');
+
+        $rows = database::loadAssocList($ct->Table->realtablename, ['COUNT_ROWS'], $whereClause, null, null, 1);
         $num_rows = $rows[0]['record_count'];
 
         if ($num_rows == 0)
@@ -168,7 +175,7 @@ class Details
         if ($filter != '') {
             $this->ct->setFilter($filter, 2); //2 = Show any - published and unpublished
         } else {
-            $this->ct->errors[] = esc_html__("No filter found. Administrator - Check menu item settings.", "customtables");
+            $this->ct->errors[] = common::translate('COM_CUSTOMTABLES_ERROR_NOFILTER');
             return null;
         }
 
@@ -226,7 +233,7 @@ class Details
     protected function getDataById($listing_id)
     {
         if (is_numeric($listing_id) and intval($listing_id) == 0) {
-            $this->ct->errors[] = esc_html__("No filter found. Administrator - Check menu item settings.", "customtables");
+            $this->ct->errors[] = common::translate('COM_CUSTOMTABLES_ERROR_NOFILTER');
             return null;
         }
 
@@ -285,6 +292,13 @@ class Details
         return true;
     }
 
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     * @throws Exception
+     * @since 3.0.0
+     */
     public function render(): string
     {
         $layoutDetailsContent = $this->layoutDetailsContent;

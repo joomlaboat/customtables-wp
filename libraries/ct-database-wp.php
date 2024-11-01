@@ -484,7 +484,16 @@ class database
 
         foreach ($selectsRaw as $select) {
 
-            if (is_array($select) and count($select) >= 3) {
+            if (is_array($select) and count($select) == 2 and $select[0] == 'REAL_FIELD_NAME') {
+                $fieldPrefix = preg_replace('/[^a-zA-Z0-9_#]/', '', $select[1]);
+
+                if ($serverType == 'postgresql') {
+                    $selects[] = 'CONCAT("' . $fieldPrefix . '",fieldname) END AS realfieldname';
+                } else {
+                    $selects[] = 'CONCAT("' . $fieldPrefix . '",fieldname) AS realfieldname';
+                }
+
+            } elseif (is_array($select) and count($select) >= 3) {
                 $selectTable_safe = str_replace('#__', $wpdb->prefix, $select[1]);//Joomla way
                 $selectTable_safe = preg_replace('/[^a-zA-Z0-9_]/', '', $selectTable_safe);
                 $selectField = preg_replace('/[^a-zA-Z0-9_]/', '', $select[2]);
@@ -901,7 +910,7 @@ class database
      * @throws Exception
      * @since 1.1.2
      */
-    public static function addColumn(string $realTableName, string $columnName, string $type, ?bool $nullable = null, ?string $extra = null,
+    public static function addColumn(string  $realTableName, string $columnName, string $type, ?bool $nullable = null, ?string $extra = null,
                                      ?string $comment = null): void
     {
         global $wpdb;

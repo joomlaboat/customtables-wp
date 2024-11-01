@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 class InputBox_gps extends BaseInputBox
 {
@@ -25,7 +25,7 @@ class InputBox_gps extends BaseInputBox
         $elementId = $this->attributes['id'];
 
         if ($value === null) {
-            $value = common::inputGetCmd($this->ct->Env->field_prefix . $this->field->fieldname, '');
+            $value = common::inputGetCmd($this->ct->Table->fieldPrefix . $this->field->fieldname, '');
             if ($value == '')
                 $value = $defaultValue;
         }

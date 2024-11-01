@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use CustomTablesImageMethods;
 use Exception;
@@ -113,6 +113,11 @@ class CT
         return false;
     }
 
+    /**
+     * @throws Exception
+     *
+     * @since 3.0.0
+     */
     function setParams(array $menuParams = null, $blockExternalVars = true, ?string $ModuleId = null): void
     {
         $this->Params->setParams($menuParams, $blockExternalVars, $ModuleId);
@@ -130,21 +135,9 @@ class CT
             $this->Ordering = new Ordering($this->Table, $this->Params);
             $this->prepareSEFLinkBase();
         } else {
+            $this->Table = null;
             $this->Ordering = null;
         }
-    }
-
-    /**
-     * @throws Exception
-     * @since 3.2.3
-     */
-    public function setTable(array $tableRow, $userIdFieldName = null): void
-    {
-        $this->Table = new Table($this->Languages, $this->Env, 0);
-        $this->Table->setTable($tableRow, $userIdFieldName);
-
-        $this->Ordering = new Ordering($this->Table, $this->Params);
-        $this->prepareSEFLinkBase();
     }
 
     protected function prepareSEFLinkBase(): void
@@ -538,23 +531,23 @@ class CT
     protected function updateMD5(string $listing_id): void
     {
         //TODO: Use savefield
-        foreach ($this->Table->fields as $fieldrow) {
-            if ($fieldrow['type'] == 'md5') {
-                $fieldsToCount = explode(',', str_replace('"', '', $fieldrow['typeparams']));//only field names, nothing else
+        foreach ($this->Table->fields as $fieldRow) {
+            if ($fieldRow['type'] == 'md5') {
+                $fieldsToCount = explode(',', str_replace('"', '', $fieldRow['typeparams']));//only field names, nothing else
 
                 $fields = array();
                 foreach ($fieldsToCount as $f) {
                     //to make sure that field exists
-                    foreach ($this->Table->fields as $fieldrow2) {
-                        if ($fieldrow2['fieldname'] == $f and $fieldrow['fieldname'] != $f)
-                            $fields[] = 'COALESCE(' . $fieldrow2['realfieldname'] . ')';
+                    foreach ($this->Table->fields as $fieldRow2) {
+                        if ($fieldRow2['fieldname'] == $f and $fieldRow['fieldname'] != $f)
+                            $fields[] = 'COALESCE(' . $fieldRow2['realfieldname'] . ')';
                     }
                 }
 
                 if (count($fields) > 1) {
 
                     $data = [
-                        $fieldrow['realfieldname'] => ['MD5(CONCAT_WS(' . implode(',', $fields) . '))', 'sanitized']
+                        $fieldRow['realfieldname'] => ['MD5(CONCAT_WS(' . implode(',', $fields) . '))', 'sanitized']
                     ];
                     $whereClauseUpdate = new MySQLWhereClause();
                     $whereClauseUpdate->addCondition($this->Table->realidfieldname, $listing_id);
@@ -660,13 +653,13 @@ class CT
                 //example: parents(children).user
                 $statement_parts = explode('.', $item['equation']);
                 if (count($statement_parts) != 2) {
-                    $this->errors[] = esc_html__("Menu Item - 'UserID Field name' parameter has a syntax error. Error is about '(' character. Correct example: parent(children).user", "customtables");
+                    $this->errors[] = common::translate('COM_CUSTOMTABLES_MENUITEM_USERID_FIELD_ERROR');
                     return $whereClause;
                 }
 
                 $table_parts = explode('(', $statement_parts[0]);
                 if (count($table_parts) != 2) {
-                    $this->errors[] = esc_html__("Menu Item - 'UserID Field name' parameter has a syntax error. Error is about '(' character. Correct example: parent(children).user", "customtables");
+                    $this->errors[] = common::translate('COM_CUSTOMTABLES_MENUITEM_USERID_FIELD_ERROR');
                     return $whereClause;
                 }
 
@@ -677,16 +670,17 @@ class CT
                 $parent_table_row = TableHelper::getTableRowByName($parent_tablename);
 
                 if (!is_object($parent_table_row)) {
-                    $this->errors[] = esc_html__("Menu Item - 'UserID Field name' parameter has an error: Table not found.", "customtables");
+                    $this->errors[] = common::translate('COM_CUSTOMTABLES_MENUITEM_TABLENOTFOUND_ERROR');
                     return $whereClause;
                 }
 
-                $parent_table_fields = Fields::getFields($parent_table_row->id);
+                $tempTable = new Table($this->Languages, $this->Env, $parent_table_row->id);
+                $parent_table_fields = $tempTable->fields;
 
                 $parent_join_field_row = Fields::FieldRowByName($parent_join_field, $parent_table_fields);
 
                 if (count($parent_join_field_row) == 0) {
-                    $this->errors[] = esc_html__("Menu Item - 'UserID Field name' parameter has an error: Table not found.", "customtables");
+                    $this->errors[] = common::translate('COM_CUSTOMTABLES_MENUITEM_TABLENOTFOUND_ERROR');
                     return $whereClause;
                 }
 

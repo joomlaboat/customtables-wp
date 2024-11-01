@@ -14,7 +14,7 @@ use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\MySQLWhereClause;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'ordering.php');
 
@@ -79,10 +79,10 @@ class CustomTablesKeywordSearch
         $AndOrOr_text = 'UNKNOWN';
 
         if ($AndOrOr == 'OR')
-            $AndOrOr_text = esc_html__("or", "customtables");
+            $AndOrOr_text = common::translate('COM_CUSTOMTABLES_OR');
 
         if ($AndOrOr == 'AND')
-            $AndOrOr_text = esc_html__("and", "customtables");
+            $AndOrOr_text = common::translate('COM_CUSTOMTABLES_AND');
 
         foreach ($mod_fieldlist as $mod_field) {
             $inner = '';
@@ -104,7 +104,7 @@ class CustomTablesKeywordSearch
                     $this->getKeywordSearch($inner, $whereClause, $result_rows, $count, $listing_ids);
             }
 
-            $this->PathValue[] = esc_html__("Contains", "customtables") . ' "' . $keywords . '"';
+            $this->PathValue[] = common::translate('COM_CUSTOMTABLES_CONTAINS') . ' "' . $keywords . '"';
 
             if (count($keyword_arr) > 1) //Do not search because there is only one keyword, and it's already checked
             {
@@ -132,7 +132,7 @@ class CustomTablesKeywordSearch
                 if ($whereClause->hasConditions())
                     $this->getKeywordSearch($inner, $whereClause, $result_rows, $count, $listing_ids);
 
-                $this->PathValue[] = esc_html__("Contains", "customtables") . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
+                $this->PathValue[] = common::translate('COM_CUSTOMTABLES_CONTAINS') . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
             }
 
             $inner = '';
@@ -162,7 +162,7 @@ class CustomTablesKeywordSearch
             if ($whereClause->hasConditions())
                 $this->getKeywordSearch($inner, $whereClause, $result_rows, $count, $listing_ids);
 
-            $this->PathValue[] = esc_html__("Contains", "customtables") . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
+            $this->PathValue[] = common::translate('COM_CUSTOMTABLES_CONTAINS') . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
         }
 
         $whereClause = new MySQLWhereClause();
@@ -246,7 +246,7 @@ class CustomTablesKeywordSearch
             if ($whereClause->hasConditions())
                 $this->getKeywordSearch($inner, $whereClause, $result_rows, $count, $listing_ids);
 
-            $this->PathValue[] = esc_html__("Contains", "customtables") . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
+            $this->PathValue[] = common::translate('COM_CUSTOMTABLES_CONTAINS') . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
         }
         return $result_rows;
     }
@@ -261,12 +261,12 @@ class CustomTablesKeywordSearch
             case 'text':
             case 'phponadd':
             case 'string':
-                $whereClause->addCondition('es_' . $fieldname, $regExpression, 'REGEXP');
+                $whereClause->addCondition($this->ct->Table->fieldPrefix . $fieldname, $regExpression, 'REGEXP');
                 break;
 
             case 'multilangtext':
             case 'multilangstring':
-                $whereClause->addCondition('es_' . $fieldname . $this->ct->Languages->Postfix, $regExpression, 'REGEXP');
+                $whereClause->addCondition($this->ct->Table->fieldPrefix . $fieldname . $this->ct->Languages->Postfix, $regExpression, 'REGEXP');
                 break;
 
             case 'records':
@@ -314,7 +314,7 @@ class CustomTablesKeywordSearch
         $ordering = array();
 
         if ($this->groupby != '')
-            $ordering[] = $this->ct->Env->field_prefix . $this->groupby;
+            $ordering[] = $this->ct->Table->fieldPrefix . $this->groupby;
 
         $from = $this->ct->Table->realtablename . (count($inner) != '' ? ' ' . implode(' ', $inner) : '');
         $rows = database::loadAssocList($from, $selects,

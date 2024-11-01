@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 class Search_checkbox extends BaseSearch
 {
@@ -23,7 +23,7 @@ class Search_checkbox extends BaseSearch
 
     function render($value): string
     {
-        $translations = array(esc_html__("Any", "customtables"), esc_html__("Yes", "customtables"), esc_html__("No", "customtables"));
+        $translations = array(common::translate('COM_CUSTOMTABLES_ANY'), common::translate('COM_CUSTOMTABLES_YES'), common::translate('COM_CUSTOMTABLES_NO'));
         //$this->getOnChangeAttributeString();
 
         return '<select'

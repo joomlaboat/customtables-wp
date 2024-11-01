@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use Exception;
 
@@ -24,7 +24,7 @@ class ListOfTables
         $this->ct = $ct;
     }
 
-    public static function getNumberOfRecords($realtablename, $realIdField): int
+    public static function getNumberOfRecords($realtablename): int
     {
         try {
             $whereClause = new MySQLWhereClause();

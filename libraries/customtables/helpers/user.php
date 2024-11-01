@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use Exception;
 use JApplicationHelper;
@@ -260,7 +260,7 @@ class CTUser
     public static function CreateUser(string $realtablename, string $realidfieldname, string $email, string $name, string $usergroups, string $listing_id, string $useridfieldname): bool
     {
         if ($name == '') {
-            common::enqueueMessage(esc_html__("User name field not set.", "customtables"));
+            common::enqueueMessage(common::translate('COM_CUSTOMTABLES_USERACCOUNT_NAME_NOT_SET'));
             return false;
         }
 
@@ -268,7 +268,7 @@ class CTUser
         $password = strtolower(JUserHelper::genRandomPassword());
 
         if (!@Email::checkEmail($email)) {
-            common::enqueueMessage(esc_html__("Incorrect Email", "customtables") . ' "' . $email . '"');
+            common::enqueueMessage(common::translate('COM_CUSTOMTABLES_INCORRECT_EMAIL') . ' "' . $email . '"');
             return false;
         }
 
@@ -281,9 +281,9 @@ class CTUser
 
         if ($realUserId !== null) {
             CTUser::UpdateUserField($realtablename, $realidfieldname, $useridfieldname, $realUserId, $listing_id);
-            common::enqueueMessage(esc_html__("New user created. Password sent to his/her email.", "customtables"));
+            common::enqueueMessage(common::translate('COM_CUSTOMTABLES_USER_CREATE_PSW_SENT'));
         } else {
-            $msg = esc_html__("This User cannot be created:", "customtables");
+            $msg = common::translate('COM_CUSTOMTABLES_ERROR_USER_NOTCREATED');
             common::enqueueMessage($msg);
         }
         return true;
@@ -296,7 +296,7 @@ class CTUser
     static public function CreateUserAccount(string $fullName, string $username, string $password, string $email, string $group_names, string &$msg): ?int
     {
         if ($fullName == '') {
-            $msg = esc_html__("User name field not set.", "customtables");
+            $msg = common::translate('COM_CUSTOMTABLES_USERACCOUNT_NAME_NOT_SET');
             return null;
         }
 
@@ -345,9 +345,9 @@ class CTUser
                 $version = (int)$version_object->getShortVersion();
 
                 if ($version < 4)
-                    $msg = esc_html__("User registration failed.", "customtables") . ': ' . $user->getError() ?? '';
+                    $msg = common::translate('COM_CUSTOMTABLES_USERS_REGISTRATION_BIND_FAILED') . ': ' . $user->getError() ?? '';
                 else
-                    $msg = esc_html__("User registration failed.", "customtables") . ': ' . implode(',', $user->getErrors());
+                    $msg = common::translate('COM_CUSTOMTABLES_USERS_REGISTRATION_BIND_FAILED') . ': ' . implode(',', $user->getErrors());
             }
 
             return null;
@@ -360,9 +360,9 @@ class CTUser
             $version = (int)$version_object->getShortVersion();
 
             if ($version < 4)
-                $msg = esc_html__("User registration not saved.", "customtables") . ': ' . $user->getError() ?? '';
+                $msg = common::translate('COM_CUSTOMTABLES_USERS_REGISTRATION_SAVE_FAILED') . ': ' . $user->getError() ?? '';
             else
-                $msg = esc_html__("User registration not saved.", "customtables") . ': ' . implode(',', $user->getErrors());
+                $msg = common::translate('COM_CUSTOMTABLES_USERS_REGISTRATION_SAVE_FAILED') . ': ' . implode(',', $user->getErrors());
 
             return null;
         }

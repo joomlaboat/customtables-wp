@@ -13,7 +13,7 @@ namespace CustomTables;
 // no direct access
 use Exception;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 class SearchInputBox
 {
@@ -68,7 +68,7 @@ class SearchInputBox
             else
                 $where_name = $this->field->fieldname;
 
-            $f = str_replace($this->ct->Env->field_prefix, '', $where_name);//legacy support
+            $f = str_replace($this->ct->Table->fieldPrefix, '', $where_name);//legacy support
             $value = common::getWhereParameter($f);
         }
 

@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use Exception;
 use Joomla\CMS\Router\Route;
@@ -53,7 +53,7 @@ class Twig_URL_Tags
     function root(): ?string
     {
         if (!$this->ct->Env->advancedTagProcessor) {
-            common::enqueueMessage('Warning: The {{ url.root }} ' . esc_html__("Available in PRO Version", "customtables"));
+            common::enqueueMessage('Warning: The {{ url.root }} ' . common::translate('COM_CUSTOMTABLES_AVAILABLE'));
             return null;
         }
 
@@ -147,7 +147,7 @@ class Twig_URL_Tags
         if ($this->ct->Env->advancedTagProcessor and class_exists('CustomTables\ctProHelpers')) {
             return ctProHelpers::getstringandencode($param, $default);
         } else {
-            common::enqueueMessage('Warning: The {{ url.getstringandencode() }} ' . esc_html__("Available in PRO Version", "customtables"));
+            common::enqueueMessage('Warning: The {{ url.getstringandencode() }} ' . common::translate('COM_CUSTOMTABLES_AVAILABLE'));
             return null;
         }
     }
@@ -190,7 +190,7 @@ class Twig_URL_Tags
         if ($this->ct->Env->advancedTagProcessor and class_exists('CustomTables\ctProHelpers')) {
             return ctProHelpers::getstringanddecode($param, $default);
         } else {
-            common::enqueueMessage('Warning: The {{ url.getstringanddecode() }} ' . esc_html__("Available in PRO Version", "customtables"));
+            common::enqueueMessage('Warning: The {{ url.getstringanddecode() }} ' . common::translate('COM_CUSTOMTABLES_AVAILABLE'));
             return null;
         }
     }
@@ -237,7 +237,7 @@ class Twig_URL_Tags
     function server($param): ?string
     {
         if (!$this->ct->Env->advancedTagProcessor) {
-            common::enqueueMessage('Warning: The {{ url.server }} ' . esc_html__("Available in PRO Version", "customtables"));
+            common::enqueueMessage('Warning: The {{ url.server }} ' . common::translate('COM_CUSTOMTABLES_AVAILABLE'));
             return null;
         }
         return common::getServerParam($param);

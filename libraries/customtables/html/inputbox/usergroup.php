@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use Exception;
 
@@ -32,7 +32,7 @@ class InputBox_usergroup extends BaseInputBox
             return '';
 
         if ($value === null) {
-            $value = common::inputGetInt($this->ct->Env->field_prefix . $this->field->fieldname);
+            $value = common::inputGetInt($this->ct->Table->fieldPrefix . $this->field->fieldname);
             if (!$value)
                 $value = $defaultValue;
         }
@@ -59,7 +59,7 @@ class InputBox_usergroup extends BaseInputBox
         if (defined('_JEXEC')) {
             // Optional default option
             $selected = (0 === (int)$value) ? ' selected' : '';
-            $select .= '<option value=""' . $selected . '> - ' . esc_html__("Select", "customtables") . '</option>';
+            $select .= '<option value=""' . $selected . '> - ' . common::translate('COM_CUSTOMTABLES_SELECT') . '</option>';
 
             // Generate options for each file in the folder
             foreach ($records as $record) {
@@ -71,7 +71,7 @@ class InputBox_usergroup extends BaseInputBox
 
             // Optional default option
             $selected = ('' === $value) ? ' selected' : '';
-            $select .= '<option value=""' . $selected . '> - ' . esc_html__("Select", "customtables") . '</option>';
+            $select .= '<option value=""' . $selected . '> - ' . common::translate('COM_CUSTOMTABLES_SELECT') . '</option>';
 
             // Generate options for each file in the folder
             foreach ($records as $record) {

@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 class InputBox_checkbox extends BaseInputBox
 {
@@ -23,7 +23,7 @@ class InputBox_checkbox extends BaseInputBox
     function render(?string $value, ?string $defaultValue): string
     {
         if ($value === null) {
-            $value = common::inputGetInt($this->ct->Env->field_prefix . $this->field->fieldname, 0);
+            $value = common::inputGetInt($this->ct->Table->fieldPrefix . $this->field->fieldname, 0);
             if ($value == 0)
                 $value = (int)$defaultValue;
         } else {
@@ -53,7 +53,7 @@ class InputBox_checkbox extends BaseInputBox
                 $attributes['checked'] = 'checked';
 
             $input1 = '<input ' . self::attributes2String($attributes) . ' />'
-                . '<label for="' . $attributes['id'] . '0">' . esc_html__("No", "customtables") . '</label>';
+                . '<label for="' . $attributes['id'] . '0">' . common::translate('COM_CUSTOMTABLES_NO') . '</label>';
 
             $attributes = [];
             $attributes['id'] = $element_id . '1';
@@ -66,7 +66,7 @@ class InputBox_checkbox extends BaseInputBox
                 $attributes['checked'] = 'checked';
 
             $input2 = '<input ' . self::attributes2String($attributes) . ' />'
-                . '<label for="' . $attributes['id'] . '">' . esc_html__("Yes", "customtables") . '</label>';
+                . '<label for="' . $attributes['id'] . '">' . common::translate('COM_CUSTOMTABLES_YES') . '</label>';
 
             $span = '<span class="toggle-outside"><span class="toggle-inside"></span></span>';
 

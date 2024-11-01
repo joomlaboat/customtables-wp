@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use Exception;
 use Joomla\CMS\HTML\HTMLHelper;
@@ -102,13 +102,13 @@ class Search_tablejoin extends BaseSearch
         $typeParams = $this->field->params;
 
         if (count($typeParams) < 1) {
-            common::enqueueMessage(esc_html__("Table not specified.", "customtables"));
-            return esc_html__("Table not specified.", "customtables");
+            common::enqueueMessage(common::translate('COM_CUSTOMTABLES_ERROR_TABLE_NOT_SPECIFIED'));
+            return common::translate('COM_CUSTOMTABLES_ERROR_TABLE_NOT_SPECIFIED');
         }
 
         if (count($typeParams) < 2) {
-            common::enqueueMessage(esc_html__("Unknown field/layout parameter.", "customtables"));
-            return esc_html__("Unknown field/layout parameter.", "customtables");
+            common::enqueueMessage(common::translate('COM_CUSTOMTABLES_ERROR_UNKNOWN_FIELD_LAYOUT'));
+            return common::translate('COM_CUSTOMTABLES_ERROR_UNKNOWN_FIELD_LAYOUT');
         }
 
         $tableName = $typeParams[0];
@@ -129,8 +129,8 @@ class Search_tablejoin extends BaseSearch
             $allowUnpublished = false;
 
         if (TableHelper::getTableID($tableName) == '') {
-            common::enqueueMessage(esc_html__("Table not found.", "customtables"));
-            return esc_html__("Table not found.", "customtables");
+            common::enqueueMessage(common::translate('COM_CUSTOMTABLES_ERROR_TABLE_NOT_FOUND'));
+            return common::translate('COM_CUSTOMTABLES_ERROR_TABLE_NOT_FOUND');
         }
 
         if ($order_by_field == '')
@@ -144,7 +144,7 @@ class Search_tablejoin extends BaseSearch
         //Process records depending on field type and layout
         $list_values = $this->get_List_Values($ct, $value_field, $dynamic_filter);
 
-        $htmlResult = self::renderDynamicFilter($ct, $value, $tableName, $dynamic_filter, $control_name);
+        $htmlResult = self::renderDynamicFilter($ct, $value, $dynamic_filter, $control_name);
         $htmlResult .= self::renderDropdownSelector_Box($list_values, $value, $control_name, $dynamic_filter, $addNoValue);
 
         return $htmlResult;
@@ -214,7 +214,7 @@ class Search_tablejoin extends BaseSearch
         if (count($pair) == 2) {
             $layout_mode = true;
             if ($pair[0] != 'layout' and $pair[0] != 'tablelesslayout') {
-                common::enqueueMessage(esc_html__("Unknown field/layout parameter.", "customtables") . ' search_tablejoin.php' . $field . '"');
+                common::enqueueMessage(common::translate('COM_CUSTOMTABLES_ERROR_UNKNOWN_FIELD_LAYOUT') . ' search_tablejoin.php' . $field . '"');
                 return array();
             }
 
@@ -222,7 +222,7 @@ class Search_tablejoin extends BaseSearch
             $layoutcode = $Layouts->getLayout($pair[1]);
 
             if (!isset($layoutcode) or $layoutcode == '') {
-                common::enqueueMessage(esc_html__("Layout not found or is empty.", "customtables") . ' search_tablejoin.php' . $pair[1] . '"');
+                common::enqueueMessage(common::translate('COM_CUSTOMTABLES_ERROR_LAYOUT_NOT_FOUND') . ' search_tablejoin.php' . $pair[1] . '"');
                 return array();
             }
         }
@@ -250,7 +250,7 @@ class Search_tablejoin extends BaseSearch
             }
 
             if ($dynamic_filter != '')
-                $d = $row[$ct->Env->field_prefix . $dynamic_filter];
+                $d = $row[$ct->Table->fieldPrefix . $dynamic_filter];
             else
                 $d = '';
 
@@ -260,21 +260,26 @@ class Search_tablejoin extends BaseSearch
         return $list_values;
     }
 
-    static protected function renderDynamicFilter(CT $ct, $value, $tableName, $dynamic_filter, $control_name): string
+    /**
+     * @throws Exception
+     *
+     * @since 3.0.0
+     */
+    static protected function renderDynamicFilter(CT $ct, $value, $dynamic_filter, $control_name): string
     {
-        $htmlresult = '';
+        $htmlResult = '';
 
         if ($dynamic_filter != '') {
             $filterValue = '';
             foreach ($ct->Records as $row) {
                 if ($row[$ct->Table->realidfieldname] == $value) {
-                    $filterValue = $row[$ct->Env->field_prefix . $dynamic_filter];
+                    $filterValue = $row[$ct->Table->fieldPrefix . $dynamic_filter];
                     break;
                 }
             }
-            $htmlresult .= LinkJoinFilters::getFilterBox($tableName, $dynamic_filter, $control_name, $filterValue);
+            $htmlResult .= LinkJoinFilters::getFilterBox($ct, $dynamic_filter, $control_name, $filterValue);
         }
-        return $htmlresult;
+        return $htmlResult;
     }
 
     protected function renderDropdownSelector_Box($list_values, $current_value, $control_name, $dynamic_filter, $addNoValue = false): string
@@ -308,7 +313,7 @@ class Search_tablejoin extends BaseSearch
 
         $htmlresult_select = '<SELECT ' . BaseInputBox::attributes2String($this->attributes) . '>';
 
-        $htmlresult_select .= '<option value="">- ' . esc_html__("Select", "customtables") . ' ' . $this->attributes['data-label'] . '</option>';
+        $htmlresult_select .= '<option value="">- ' . common::translate('COM_CUSTOMTABLES_SELECT') . ' ' . $this->attributes['data-label'] . '</option>';
 
         foreach ($list_values as $list_value) {
             if ($list_value[2] == 0)//if unpublished
@@ -321,7 +326,7 @@ class Search_tablejoin extends BaseSearch
         }
 
         if ($addNoValue)
-            $htmlresult_select .= '<option value="-1"' . ((int)$current_value == -1 ? ' selected="SELECTED"' : '') . '>- ' . esc_html__("Not Specified", "customtables") . '</option>';
+            $htmlresult_select .= '<option value="-1"' . ((int)$current_value == -1 ? ' selected="SELECTED"' : '') . '>- ' . common::translate('COM_CUSTOMTABLES_NOT_SPECIFIED') . '</option>';
 
         $htmlresult_select .= '</SELECT>';
 

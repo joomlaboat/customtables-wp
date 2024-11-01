@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use Exception;
 use CustomTables\CustomPHP;
@@ -67,7 +67,7 @@ class record
 
         if (($this->ct->LayoutVariables['captcha'] ?? null)) {
             if (!$this->check_captcha()) {
-                common::enqueueMessage(esc_html__("Incorrect Captcha", "customtables"));
+                common::enqueueMessage(common::translate('COM_CUSTOMTABLES_INCORRECT_CAPTCHA'));
                 return false;
             }
         }

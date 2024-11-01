@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use Joomla\CMS\Factory;
 
@@ -25,7 +25,7 @@ class InputBox_color extends BaseInputBox
     function render(?string $value, ?string $defaultValue): string
     {
         if ($value === null) {
-            $value = common::inputGetAlnum($this->ct->Env->field_prefix . $this->field->fieldname, '');
+            $value = common::inputGetAlnum($this->ct->Table->fieldPrefix . $this->field->fieldname, '');
             if ($value == '')
                 $value = $defaultValue;
         }

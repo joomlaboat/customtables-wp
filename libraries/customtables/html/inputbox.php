@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use Exception;
 use tagProcessor_General;
@@ -169,7 +169,7 @@ class Inputbox
                     $inputBoxRenderer = new ProInputBoxTableJoin($this->ct, $this->field, $this->row, $this->option_list, $this->attributes);
                     return $inputBoxRenderer->render($value, $this->defaultValue);
                 } else {
-                    return esc_html__("Available in PRO Version", "customtables");
+                    return common::translate('COM_CUSTOMTABLES_AVAILABLE');
                 }
             //} else {
             //    return 'Table Join field type is not supported by WordPress version of the Custom Tables yet.';
@@ -187,7 +187,7 @@ class Inputbox
                         $inputBoxRenderer = new ProInputBoxTableJoinList($this->ct, $this->field, $this->row, $this->option_list, $this->attributes);
                         return $inputBoxRenderer->render($value, $this->defaultValue);
                     } else {
-                        return esc_html__("Available in PRO Version", "customtables");
+                        return common::translate('COM_CUSTOMTABLES_AVAILABLE');
                     }
                 } else {
                     return 'Table Join List field type is not supported by WordPress version of the Custom Tables yet.';
@@ -208,7 +208,7 @@ class Inputbox
             $value = common::inputPostString($this->field->realfieldname, null, 'create-edit-record');
 
             if ($value == '') {
-                $f = str_replace($this->ct->Env->field_prefix, '', $this->field->realfieldname);//legacy support
+                $f = str_replace($this->ct->Table->fieldPrefix, '', $this->field->realfieldname);//legacy support
                 $value = common::getWhereParameter($f);
             }
 
@@ -375,7 +375,7 @@ abstract class BaseInputBox
 
         // Optional default option
         $selected = ($value == '' ? ' selected' : '');
-        $select .= '<option value=""' . $selected . '> - ' . esc_html__("Select", "customtables") . '</option>';
+        $select .= '<option value=""' . $selected . '> - ' . common::translate('COM_CUSTOMTABLES_SELECT') . '</option>';
 
         // Generate options for each file in the folder
         foreach ($options as $option) {

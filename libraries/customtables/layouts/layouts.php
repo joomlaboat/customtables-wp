@@ -13,7 +13,7 @@ namespace CustomTables;
 /* All tags already implemented using Twig */
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use Exception;
 use LayoutProcessor;
@@ -450,9 +450,9 @@ class Layouts
                 $listing_id = common::inputGetCmd('listing_id', 0);
                 if (!empty($listing_id)) {
                     if ($this->ct->deleteSingleRecord($listing_id) === 1) {
-                        common::enqueueMessage(esc_html__("Record deleted.", "customtables"), 'notice');
+                        common::enqueueMessage(common::translate('COM_CUSTOMTABLES_LISTOFRECORDS_N_ITEMS_DELETED_1'), 'notice');
                     } else {
-                        common::enqueueMessage(esc_html__("Record not deleted.", "customtables"));
+                        common::enqueueMessage(common::translate('COM_CUSTOMTABLES_LISTOFRECORDS_N_ITEMS_NOT_DELETED_1'));
                     }
                 }
             }
@@ -478,9 +478,9 @@ class Layouts
                         }
                     }
 
-                    common::enqueueMessage(esc_html__("Record saved.", "customtables"), 'notice');
+                    common::enqueueMessage(common::translate('COM_CUSTOMTABLES_RECORD_SAVED'), 'notice');
                 } else {
-                    common::enqueueMessage(esc_html__("Record cannot be saved.", "customtables"));
+                    common::enqueueMessage(common::translate('COM_CUSTOMTABLES_RECORD_NOT_SAVED'));
 
                     if ($record->ct->Params !== null and $record->ct->Params->msgItemIsSaved !== null)
                         common::enqueueMessage($record->ct->Params->msgItemIsSaved);
@@ -498,14 +498,14 @@ class Layouts
                 }
 
             } elseif ($task == 'cancel') {
-                common::enqueueMessage(esc_html__("Edit canceled.", "customtables"), 'notice');
+                common::enqueueMessage(common::translate('COM_CUSTOMTABLES_EDIT_CANCELED'), 'notice');
                 $link = common::getReturnToURL();
                 if ($link === null)
                     $link = $this->ct->Params->returnTo;
 
                 $link = CTMiscHelper::deleteURLQueryOption($link, 'view' . $this->ct->Table->tableid);
 
-                common::redirect($link, esc_html__("Edit canceled.", "customtables"));
+                common::redirect($link, common::translate('COM_CUSTOMTABLES_EDIT_CANCELED'));
             }
 
             $output['html'] = $this->renderEditForm();
@@ -517,8 +517,11 @@ class Layouts
 
         } elseif ($this->layoutType == 4 or $this->layoutType == 6) {
             //Details or Catalog Item
-            $listing_id = common::inputGetCmd('listing_id', 0);
-            $this->ct->Table->loadRecord($listing_id);
+            if ($this->ct->Table->record === null) {
+                $listing_id = common::inputGetCmd('listing_id');
+                if ($listing_id !== null)
+                    $this->ct->Table->loadRecord($listing_id);
+            }
             $output['html'] = $this->renderDetails();
         } else
             $output['html'] = 'CustomTable: Unknown Layout Type';
@@ -916,7 +919,7 @@ class Layouts
         if (!$this->ct->getRecords()) {
 
             if (defined('_JEXEC'))
-                $this->ct->errors[] = esc_html__("Table not found.", "customtables");
+                $this->ct->errors[] = common::translate('COM_CUSTOMTABLES_ERROR_TABLE_NOT_FOUND');
 
             return 'CustomTables: Records not loaded.';
         }
@@ -988,7 +991,6 @@ class Layouts
         if ($this->ct->Table->record === null) {
             return 'Record not loaded!';
         }
-
 
         $details = new Details($this->ct);
         $details->layoutDetailsContent = $this->layoutCode;

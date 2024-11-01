@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use Joomla\CMS\Editor\Editor;
 use Joomla\CMS\Uri\Uri;
@@ -27,7 +27,7 @@ class InputBox_text extends BaseInputBox
     function render(?string $value, ?string $defaultValue): string
     {
         if ($value === null) {
-            $value = common::inputGetString($this->ct->Env->field_prefix . $this->field->fieldname, '');
+            $value = common::inputGetString($this->ct->Table->fieldPrefix . $this->field->fieldname, '');
             if ($value == '')
                 $value = $defaultValue;
         }

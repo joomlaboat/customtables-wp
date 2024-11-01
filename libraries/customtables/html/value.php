@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use CustomTablesImageMethods;
 use Exception;
@@ -238,9 +238,9 @@ class Value
 
             case 'checkbox':
                 if ((int)$rowValue)
-                    return esc_html__("Yes", "customtables");
+                    return common::translate('COM_CUSTOMTABLES_YES');
                 else
-                    return esc_html__("No", "customtables");
+                    return common::translate('COM_CUSTOMTABLES_NO');
 
             case 'date':
 

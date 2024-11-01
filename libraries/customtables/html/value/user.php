@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use Exception;
 
@@ -115,7 +115,7 @@ class Value_user extends BaseValue
                     return $row[$field];
             } else {
                 if ($value != 0)
-                    return esc_html__("User not found", "customtables");
+                    return common::translate('COM_CUSTOMTABLES_FIELDS_USER_NOT_FOUND');
             }
         }
         return '';
@@ -204,7 +204,7 @@ class Value_user extends BaseValue
                 }
             } else {
                 if ($value != 0)
-                    return esc_html__("User not found", "customtables");
+                    return common::translate('COM_CUSTOMTABLES_FIELDS_USER_NOT_FOUND');
             }
             return null;
         }
