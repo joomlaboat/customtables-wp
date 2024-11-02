@@ -44,7 +44,15 @@ class Admin_Settings
             else
                 update_option('customtables-googledriveclientid', sanitize_text_field($GoogleDriveClientId));
 
+            $fieldPrefix = common::inputPostString('fieldprefix','','settings');
+            $fieldPrefix = trim(preg_replace("/[^a-zA-Z_\d]/", "_", $fieldPrefix));
+            if ($fieldPrefix === "")
+                $fieldPrefix = null;
 
+            if(get_option('customtables-fieldprefix')===false)
+                add_option('customtables-fieldprefix', sanitize_text_field($fieldPrefix));
+            else
+                update_option('customtables-fieldprefix', sanitize_text_field($fieldPrefix));
 
             $url = 'admin.php?page=customtables-settings';
 

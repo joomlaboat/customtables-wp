@@ -94,6 +94,20 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
                                    autocapitalize="none" autocorrect="off" autocomplete="off" maxlength="100"/>
                         </td>
                     </tr>
+
+                    <tr class="form-field form-required">
+                        <th scope="row">
+                            <label for="fieldprefix">
+                                <?php echo esc_html__('Field Name Prefix', 'customtables'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <input name="fieldprefix" type="text" id="fieldprefix"
+                                   value="<?php echo esc_html(get_option('customtables-fieldprefix')); ?>"
+                                   aria-required="false"
+                                   autocapitalize="none" autocorrect="off" autocomplete="off" maxlength="100"/>
+                        </td>
+                    </tr>
                 </table>
 
                 <!-- Submit Button -->
