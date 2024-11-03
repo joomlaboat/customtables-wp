@@ -286,7 +286,7 @@ class Twig_Record_Tags
             else
                 $this->ct->errors[] = '{{ record.join... }} - Table does not have "published" field.';
         } else {
-            $field1_row = Fields::getFieldRowByName($fieldName, $table);
+            $field1_row = $table->getFieldByName($fieldName);
 
             if (is_array($field1_row)) {
                 return [$field1_row['realfieldname'], $field1_row['type']];
@@ -503,9 +503,15 @@ class Twig_Record_Tags
         }
 
         $join_ct = new CT;
-        $tables = new Tables($join_ct);
 
-        if ($tables->loadRecords($layouts->tableId, $complete_filter, $orderby, $limit)) {
+        $join_ct->getTable($layouts->tableId);
+        if ($join_ct->Table === null) {
+            $this->ct->errors[] = '{{ record.tablejoin("' . $layoutname . '","' . $filter . '","' . $orderby . '") }} - Table "' . $layouts->tableId . ' not found.';
+            return '';
+        }
+
+        $join_ct->setFilter($complete_filter, 2);
+        if ($join_ct->getRecords(false, $limit, $orderby)) {
             $twig = new TwigProcessor($join_ct, $pageLayout);
 
             $value = $twig->process();

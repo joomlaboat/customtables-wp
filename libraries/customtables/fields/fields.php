@@ -210,15 +210,14 @@ class Fields
      * @throws Exception
      * @since 3.2.2
      */
-    public static function deleteField_byID(CT &$ct, $fieldid): bool
+    public static function deleteField_byID(CT &$ct, $fieldId): bool
     {
         if ($ct->Table->tablename === null) {
             die('deleteField_byID: Table not selected.');
         }
 
         $ImageFolder = CUSTOMTABLES_IMAGES_PATH;
-
-        $fieldRow = Fields::getFieldRow($ct->Table->fieldPrefix, $fieldid, true);
+        $fieldRow = $ct->Table->getFieldById($fieldId);
 
         if (is_null($fieldRow))
             return false;
@@ -260,7 +259,7 @@ class Fields
             } elseif ($field->type == 'user' or $field->type == 'userid' or $field->type == 'sqljoin') {
                 Fields::removeForeignKey($tableRow['realtablename'], $field->realfieldname);
             } elseif ($field->type == 'file') {
-                // delete all files
+                // TODO: delete all files
                 //if(file_exists($filename))
                 //unlink($filename);
             }
@@ -291,34 +290,8 @@ class Fields
         }
 
         //Delete field from the list
-        database::deleteRecord('#__customtables_fields', 'id', $fieldid);
+        database::deleteRecord('#__customtables_fields', 'id', $fieldId);
         return true;
-    }
-
-    /**
-     * @throws Exception
-     * @since 3.2.2
-     */
-    public static function getFieldRow(string $fieldPrefix, int $fieldid = 0, bool $assocList = false)
-    {
-        if ($fieldid == 0)
-            $fieldid = common::inputGetInt('fieldid', 0);
-
-        $whereClause = new MySQLWhereClause();
-        $whereClause->addCondition('id', $fieldid);
-
-        $rows = database::loadObjectList('#__customtables_fields', Fields::getFieldRowSelectArray($fieldPrefix),
-            $whereClause, 1, null, null, null, ($assocList ? 'ARRAY_A' : 'OBJECT'));
-
-        if (count($rows) != 1)
-            return null;
-
-        return $rows[0];
-    }
-
-    public static function getFieldRowSelectArray(string $fieldPrefix): array
-    {
-        return ['*', ['REAL_FIELD_NAME', $fieldPrefix]];
     }
 
     /**
@@ -589,69 +562,6 @@ class Fields
         }
     }
 
-    /**
-     * @throws Exception
-     * @since 3.2.2
-     */
-    public static function getFieldName(int $fieldid): string
-    {
-        if ($fieldid == 0)
-            $fieldid = common::inputGetInt('fieldid', 0);
-
-        $whereClause = new MySQLWhereClause();
-        $whereClause->addCondition('id', $fieldid);
-
-        $rows = database::loadObjectList('#__customtables_fields', ['fieldname'], $whereClause, null, null, 1);
-        if (count($rows) != 1)
-            return '';
-
-        return $rows[0]->fieldname;
-    }
-
-    /**
-     * @throws Exception
-     * @since 3.2.2
-     */
-    public static function getFieldRowByName(string $fieldName, Table $table): ?array
-    {
-        if ($fieldName == '')
-            return null;
-
-        $whereClause = new MySQLWhereClause();
-        $whereClause->addCondition('s.published', 1);
-        $whereClause->addCondition('s.tableid', $table->tableid);
-        $whereClause->addCondition('s.fieldname', trim($fieldName));
-
-        $from = '#__customtables_fields AS s';
-        $rows = database::loadAssocList($from, self::getFieldRowSelectArray($table->fieldPrefix), $whereClause, null, null, 1);
-
-        if (count($rows) != 1)
-            return null;
-
-        return $rows[0];
-    }
-
-    public static function FieldRowByName(string $fieldname, ?array $ctFields)
-    {
-        if (is_null($ctFields))
-            return null;
-
-        foreach ($ctFields as $field) {
-            if ($field['fieldname'] == $fieldname)
-                return $field;
-        }
-        return null;
-    }
-
-    public static function getRealFieldName($fieldname, $ctFields, $all_fields = false)
-    {
-        foreach ($ctFields as $row) {
-            if (($all_fields or $row['allowordering'] == 1) and $row['fieldname'] == $fieldname)
-                return $row['realfieldname'];
-        }
-        return '';
-    }
-
     public static function shortFieldObjects($fields): array
     {
         $field_objects = [];
@@ -687,7 +597,6 @@ class Fields
 
         return $field;
     }
-
 
     /**
      * @throws Exception
@@ -770,8 +679,9 @@ class Fields
         }
 
         if ($fieldId === null) {
-            $already_exists = Fields::getFieldID($tableId, $newFieldName);
-            if ($already_exists == 0) {
+
+            $already_exists = $ct->Table->getFieldByName($newFieldName);
+            if ($already_exists === null) {
                 $data['fieldname'] = $newFieldName;
             } else {
                 return null; //Abort if the table with this name already exists.
@@ -845,25 +755,6 @@ class Fields
      * @throws Exception
      * @since 3.2.2
      */
-    public static function getFieldID($tableid, $fieldname): int
-    {
-        $whereClause = new MySQLWhereClause();
-        $whereClause->addCondition('published', 1);
-        $whereClause->addCondition('tableid', $tableid);
-        $whereClause->addCondition('fieldname', $fieldname);
-
-        $rows = database::loadObjectList('#__customtables_fields', ['id'], $whereClause, null, null, 1);
-        if (count($rows) == 0)
-            return 0;
-
-        $row = $rows[0];
-        return $row->id;
-    }
-
-    /**
-     * @throws Exception
-     * @since 3.2.2
-     */
     public static function addLanguageField($tablename, $original_fieldname, $new_fieldname): bool
     {
         $fields = database::getExistingFields($tablename, false);
@@ -924,12 +815,12 @@ class Fields
      * @throws Exception
      * @since 3.2.2
      */
-    protected static function update_physical_field(CT $ct, int $fieldid, array $data): bool
+    protected static function update_physical_field(CT $ct, int $fieldId, array $data): bool
     {
         $realtablename = $ct->Table->realtablename;
 
-        if ($fieldid != 0) {
-            $fieldRow = Fields::getFieldRow($ct->Table->fieldPrefix, $fieldid);
+        if ($fieldId != 0) {
+            $fieldRow = $ct->Table->getFieldById($fieldId);
             $ex_type = $fieldRow->type;
             $ex_typeparams = $fieldRow->typeparams;
             $realfieldname = $fieldRow->realfieldname;
@@ -965,7 +856,7 @@ class Fields
         else
             $fieldFound = false;
 
-        if ($fieldid != 0 and $fieldFound) {
+        if ($fieldId != 0 and $fieldFound) {
 
             if ($PureFieldType !== null) {
                 try {
@@ -980,11 +871,11 @@ class Fields
             }
 
             if ($ct->Env->advancedTagProcessor and class_exists('CustomTables\ctProHelpers'))
-                ctProHelpers::update_physical_field_set_extra_tasks($ex_type, $new_type, $ex_typeparams, $new_typeparams, $fieldid);
+                ctProHelpers::update_physical_field_set_extra_tasks($ex_type, $new_type, $ex_typeparams, $new_typeparams, $fieldId);
         }
         //---------------------------------- end convert field
 
-        if ($fieldid == 0 or !$fieldFound) {
+        if ($fieldId == 0 or !$fieldFound) {
             //Add Field
             Fields::addField($ct, $realtablename, $realfieldname, $PureFieldType, $fieldTitle, $data);
         }
@@ -1566,6 +1457,11 @@ class Fields
             throw new Exception($e->getMessage());
         }
     }
+
+    /**
+     * @throws Exception
+     * @since 3.2.2
+     */
 
     public static function convertRawFieldType(array $rawDataType): array
     {

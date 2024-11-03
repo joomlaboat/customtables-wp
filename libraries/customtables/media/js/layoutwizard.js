@@ -72,8 +72,7 @@ function loadFieldsData(tableid) {
             if (response.ok) {
                 response.json().then(function (json) {
 
-                    console.log("layoutwizard:75 json:" + JSON.stringify(json));
-                    wizardFields = json;//Array.from(json);
+                    wizardFields = json;
                     current_table_id = tableid;
                     updateFieldsBox();
                 });

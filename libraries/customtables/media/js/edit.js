@@ -316,8 +316,6 @@ class CustomTablesEdit {
             }
         });
     }
-
-
 }
 
 const CTEditHelper = new CustomTablesEdit();

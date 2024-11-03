@@ -163,15 +163,23 @@ class CT
      * @throws Exception
      * @since 3.2.2
      */
-    function getRecords(bool $all = false, int $limit = 0): bool
+    function getRecords(bool $all = false, int $limit = 0, ?string $orderby = null, string $groupBy = null): bool
     {
-        //if ($this->Filter === null)
-        //$this->setFilter();
-
         $count = $this->getNumberOfRecords($this->Filter->whereClause);
 
         if ($count === null)
             return false;
+
+        //Grouping
+        if (!empty($groupBy)) {
+            $tempFieldRow = $this->Table->getFieldByName($groupBy);
+            if ($tempFieldRow !== null)
+                $this->GroupBy = $tempFieldRow['realfieldname'];
+        }
+
+        //Ordering
+        if ($orderby != null)
+            $this->Ordering->ordering_processed_string = $orderby;
 
         if ($this->Ordering->ordering_processed_string !== null) {
             $this->Ordering->parseOrderByString();
@@ -322,10 +330,12 @@ class CT
             $this->Limit = 0;
 
         //Grouping
-        if ($this->Params->groupBy != '')
-            $this->GroupBy = Fields::getRealFieldName($this->Params->groupBy, $this->Table->fields);
-        else
-            $this->GroupBy = null;
+        $this->GroupBy = null;
+        if (!empty($this->Params->groupBy)) {
+            $tempFieldRow = $this->Table->getFieldByName($this->Params->groupBy);
+            if ($tempFieldRow !== null)
+                $this->GroupBy = $tempFieldRow['realfieldname'];
+        }
 
         if ($this->Params->blockExternalVars) {
             if ((int)$this->Params->limit > 0) {
@@ -360,18 +370,18 @@ class CT
      */
     public function deleteSingleRecord($listing_id): int
     {
-        //delete images if exist
-        $imageMethods = new CustomTablesImageMethods;
-
         $whereClause = new MySQLWhereClause();
         $whereClause->addCondition($this->Table->realidfieldname, $listing_id);
 
-        $rows = database::loadAssocList($this->Table->realtablename, ['*'], $whereClause);
+        $rows = database::loadAssocList($this->Table->realtablename, $this->Table->selects, $whereClause, null, null, 1);
 
         if (count($rows) == 0)
             return -1;
 
         $row = $rows[0];
+
+        //delete images if exist
+        $imageMethods = new CustomTablesImageMethods;
 
         foreach ($this->Table->fields as $fieldRow) {
             $field = new Field($this, $fieldRow, $row);
@@ -647,7 +657,7 @@ class CT
             if (!str_contains($item['equation'], '.')) {
                 //example: user
                 //check if the record belong to the current user
-                $user_field_row = Fields::FieldRowByName($item['equation'], $this->Table->fields);
+                $user_field_row = $this->Table->getFieldByName($item['equation']);
                 $whereClauseOwner->addCondition($user_field_row['realfieldname'], $this->Env->user->id);
             } else {
                 //example: parents(children).user
@@ -675,9 +685,8 @@ class CT
                 }
 
                 $tempTable = new Table($this->Languages, $this->Env, $parent_table_row->id);
-                $parent_table_fields = $tempTable->fields;
 
-                $parent_join_field_row = Fields::FieldRowByName($parent_join_field, $parent_table_fields);
+                $parent_join_field_row = $tempTable->getFieldByName($parent_join_field);
 
                 if (count($parent_join_field_row) == 0) {
                     $this->errors[] = esc_html__("Menu Item - 'UserID Field name' parameter has an error: Table not found.", "customtables");
@@ -690,7 +699,7 @@ class CT
                 }
 
                 //User field
-                $parent_user_field_row = Fields::FieldRowByName($parent_user_field, $parent_table_fields);
+                $parent_user_field_row = $tempTable->getFieldByName($parent_user_field);
 
                 if (count($parent_user_field_row) == 0) {
                     $this->errors[] = sprintf("Menu Item - 'UserID Field name' parameter has an error: User field '%s' not found.", $parent_user_field);

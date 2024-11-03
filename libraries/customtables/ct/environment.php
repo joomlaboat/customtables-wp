@@ -13,6 +13,7 @@ namespace CustomTables;
 // no direct access
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use Exception;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Version;
 use Joomla\CMS\Factory;

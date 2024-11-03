@@ -129,7 +129,7 @@ class Table
         $whereClause = new MySQLWhereClause();
         $whereClause->addCondition('f.published', 1);
         $whereClause->addCondition('f.tableid', $this->tableid);
-        $this->fields = database::loadAssocList('#__customtables_fields AS f', Fields::getFieldRowSelectArray($this->fieldPrefix), $whereClause, 'f.ordering, f.fieldname');
+        $this->fields = database::loadAssocList('#__customtables_fields AS f', ['*', ['REAL_FIELD_NAME', $this->fieldPrefix]], $whereClause, 'f.ordering, f.fieldname');
 
         foreach ($this->fields as $fld) {
 
@@ -185,6 +185,30 @@ class Table
             } elseif ($field['type'] != 'dummy' and !Fields::isVirtualField($field))
                 $this->selects[] = $this->realtablename . '.' . $field['realfieldname'];
         }
+    }
+
+    function getFieldByName(string $fieldname)
+    {
+        if (is_null($this->fields))
+            return null;
+
+        foreach ($this->fields as $field) {
+            if ($field['fieldname'] == $fieldname)
+                return $field;
+        }
+        return null;
+    }
+
+    function getFieldById(int $fieldId)
+    {
+        if (is_null($this->fields))
+            return null;
+
+        foreach ($this->fields as $field) {
+            if ($field['id'] == $fieldId)
+                return $field;
+        }
+        return null;
     }
 
     /**

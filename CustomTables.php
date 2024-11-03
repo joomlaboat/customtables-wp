@@ -4,7 +4,7 @@
  * Plugin URI: https://ct4.us/
  * GitHub: https://github.com/joomlaboat/customtables-wp
  * Description: Custom Tables solution for WordPress
- * Version: 1.3.0
+ * Version: 1.3.1
  * Author: Ivan Komlev
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
@@ -33,7 +33,7 @@ define(__NAMESPACE__ . '\CTWP', __NAMESPACE__ . '\\');
 
 define(CTWP . 'PLUGIN_NAME', 'customtables');
 
-define(CTWP . 'PLUGIN_VERSION', '1.3.0');
+define(CTWP . 'PLUGIN_VERSION', '1.3.1');
 
 define(CTWP . 'PLUGIN_NAME_DIR', plugin_dir_path(__FILE__));
 
@@ -61,6 +61,8 @@ require_once(PLUGIN_NAME_DIR . 'inc/libraries/autoloader.php');
  * This action is documented in inc/core/class-activator.php
  */
 register_activation_hook(__FILE__, array(CTWP . 'Inc\Core\Activator', 'activate'));
+
+
 
 /**
  * The code that runs during plugin deactivation.
@@ -108,6 +110,9 @@ class CustomTables
 function customtables_init()
 {
     if (is_admin()) {
+
+
+
         //Make sure that this is called only when Custom Tables admin section is open
         return customTables::init();
     }
@@ -125,7 +130,7 @@ $page = common::inputGetCmd('page', '');
 
 function enqueue_codemirror()
 {
-    $version = '1.3.0';
+    $version = '1.3.1';
     wp_enqueue_style('customtables-js-modal', plugin_dir_url(__FILE__) . 'libraries/customtables/media/css/modal.css', false, $version);
     wp_enqueue_style('customtables-js-layouteditor', plugin_dir_url(__FILE__) . 'libraries/customtables/media/css/layouteditor.css', false, $version);
 
@@ -148,6 +153,8 @@ function customtables_dynamic_block_block_init()
 }
 
 add_action('init', 'CustomTablesWP\customtables_dynamic_block_block_init');
+// In your main CustomTables.php file, add this:
+add_action('admin_init', array(CTWP . 'Inc\Core\Activator', 'update'));
 
 /**
  * This function is called when the block is being rendered on the front end of the site

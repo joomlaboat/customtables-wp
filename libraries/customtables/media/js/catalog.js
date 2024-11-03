@@ -369,14 +369,11 @@ function ctToolBarDO(task, tableid) {
             let last = i === elements.length - 1;
             runTheTask(task, tableid, listing_id, url, accept_responses, last);
         }
-
-
     } else {
         let returnto = btoa(window.location.href);
         link = esPrepareLink(['task', "listing_id", 'returnto', 'ids'], ['task=' + task, 'ids=' + elements.toString(), 'returnto=' + returnto], link);
         window.location.href = link;
     }
-
 }
 
 //https://stackoverflow.com/a/1634841
