@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Exception;
 
@@ -70,7 +70,7 @@ class Table
         $this->fileboxes = null;
         $this->selects = null;
         $this->fieldPrefix = $this->Env->field_prefix;
-        $this->fieldInputPrefix = $this->Env->field_input_preprefix . $this->fieldPrefix;
+        $this->fieldInputPrefix = 'com' . $this->fieldPrefix;
 
         if (empty($tablename_or_id_not_sanitized))
             return;
@@ -123,7 +123,7 @@ class Table
         if ($this->fieldPrefix == 'NO-PREFIX')
             $this->fieldPrefix = '';
 
-        $this->fieldInputPrefix = $this->Env->field_input_preprefix . $this->fieldPrefix;
+        $this->fieldInputPrefix = 'com' . $this->fieldPrefix;
 
         //Fields
         $whereClause = new MySQLWhereClause();

@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use CustomTablesImageMethods;
 
@@ -41,7 +41,7 @@ class InputBox_image extends BaseInputBox
 
     protected function renderImageAndDeleteOption(Field $field, string $imageSrc, bool $isShortcut): string
     {
-        $prefix = $this->ct->Env->field_input_prefix . (!$this->ct->isEditForm ? $this->row[$this->ct->Table->realidfieldname] . '_' : '');
+        $prefix = $this->ct->Table->fieldInputPrefix . (!$this->ct->isEditForm ? $this->row[$this->ct->Table->realidfieldname] . '_' : '');
 
         $result = '<div style="" id="ct_uploadedfile_box_' . $field->fieldname . '">'
             . '<img src="' . $imageSrc . '" alt="Uploaded Image" style="width:150px;" id="ct_uploadfile_box_' . $field->fieldname . '_image" /><br/>';
@@ -92,7 +92,7 @@ class InputBox_image extends BaseInputBox
             $inputBoxFieldName_FileName = '<input type="hidden" name="' . $this->attributes['id'] . '_filename" id="' . $this->attributes['id'] . '_filename" value="" />';
 
             $result .= $inputBoxFieldName . $inputBoxFieldName_FileName
-                . common::translate('COM_CUSTOMTABLES_PERMITTED_MAX_FILE_SIZE') . ': ' . CTMiscHelper::formatSizeUnits($max_file_size);
+                . esc_html__("Permitted Max. File Size", "customtables") . ': ' . CTMiscHelper::formatSizeUnits($max_file_size);
 
             $result .= $ct_fileuploader . $ct_eventsMessage
                 . '<script>

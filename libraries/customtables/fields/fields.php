@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use CustomTablesFileMethods;
 use CustomTablesImageMethods;
@@ -103,7 +103,7 @@ class Field
             else
                 $this->valuerulecaption = null;
 
-            $this->prefix = $this->ct->Env->field_input_prefix;
+            $this->prefix = $this->ct->Table->fieldInputPrefix;
             $this->comesfieldname = $this->prefix . $this->fieldname;
 
             if (isset($fieldRow['typeparams']))

@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Exception;
 use Joomla\CMS\Factory;
@@ -210,15 +210,15 @@ class Ordering
         $order_list = [];
         $order_values = [];
 
-        $order_list[] = 'ID ' . common::translate('COM_CUSTOMTABLES_AZ');
-        $order_list[] = 'ID ' . common::translate('COM_CUSTOMTABLES_ZA');
+        $order_list[] = 'ID ' . esc_html__("A-Z", "customtables");
+        $order_list[] = 'ID ' . esc_html__("Z-A", "customtables");
 
         $order_values[] = '_id';
         $order_values[] = '_id desc';
 
-        $label = common::translate('COM_CUSTOMTABLES_PUBLISHED') . ' ';
-        $order_list[] = $label . common::translate('COM_CUSTOMTABLES_AZ');
-        $order_list[] = $label . common::translate('COM_CUSTOMTABLES_ZA');
+        $label = esc_html__("Published", "customtables") . ' ';
+        $order_list[] = $label . esc_html__("A-Z", "customtables");
+        $order_list[] = $label . esc_html__("Z-A", "customtables");
 
         $order_values[] = '_published';
         $order_values[] = '_published desc';
@@ -237,39 +237,39 @@ class Ordering
                 $typeParams = $row['typeparams'];
 
                 if ($fieldType == 'string' or $fieldType == 'email' or $fieldType == 'url') {
-                    $order_list[] = $fieldtitle . ' ' . common::translate('COM_CUSTOMTABLES_AZ');
+                    $order_list[] = $fieldtitle . ' ' . esc_html__("A-Z", "customtables");
                     $order_values[] = $fieldname;
-                    $order_list[] = $fieldtitle . ' ' . common::translate('COM_CUSTOMTABLES_ZA');
+                    $order_list[] = $fieldtitle . ' ' . esc_html__("Z-A", "customtables");
                     $order_values[] = $fieldname . ' desc';
                 } elseif ($fieldType == 'sqljoin') {
-                    $order_list[] = $fieldtitle . ' ' . common::translate('COM_CUSTOMTABLES_AZ');
+                    $order_list[] = $fieldtitle . ' ' . esc_html__("A-Z", "customtables");
                     $order_values[] = $fieldname . '.sqljoin.' . $typeParams;
-                    $order_list[] = $fieldtitle . ' ' . common::translate('COM_CUSTOMTABLES_ZA');
+                    $order_list[] = $fieldtitle . ' ' . esc_html__("Z-A", "customtables");
                     $order_values[] = $fieldname . '.sqljoin.' . $typeParams . ' desc';
                 } elseif ($fieldType == 'phponadd' or $fieldType == 'phponchange') {
-                    $order_list[] = $fieldtitle . ' ' . common::translate('COM_CUSTOMTABLES_AZ');
+                    $order_list[] = $fieldtitle . ' ' . esc_html__("A-Z", "customtables");
                     $order_values[] = $fieldname;
-                    $order_list[] = $fieldtitle . ' ' . common::translate('COM_CUSTOMTABLES_ZA');
+                    $order_list[] = $fieldtitle . ' ' . esc_html__("Z-A", "customtables");
                     $order_values[] = $fieldname . ' desc';
                 } elseif ($fieldType == 'int' or $fieldType == 'float' or $fieldType == 'ordering') {
-                    $order_list[] = $fieldtitle . ' ' . common::translate('COM_CUSTOMTABLES_MINMAX');
+                    $order_list[] = $fieldtitle . ' ' . esc_html__("Min-Max", "customtables");
                     $order_values[] = $fieldname;
-                    $order_list[] = $fieldtitle . ' ' . common::translate('COM_CUSTOMTABLES_MAXMIN');
+                    $order_list[] = $fieldtitle . ' ' . esc_html__("Max-Min", "customtables");
                     $order_values[] = $fieldname . " desc";
                 } elseif ($fieldType == 'changetime' or $fieldType == 'creationtime' or $fieldType == 'date') {
-                    $order_list[] = $fieldtitle . ' ' . common::translate('COM_CUSTOMTABLES_NEWOLD');
+                    $order_list[] = $fieldtitle . ' ' . esc_html__("New - Old", "customtables");
                     $order_values[] = $fieldname . " desc";
-                    $order_list[] = $fieldtitle . ' ' . common::translate('COM_CUSTOMTABLES_OLDNEW');
+                    $order_list[] = $fieldtitle . ' ' . esc_html__("Old - New", "customtables");
                     $order_values[] = $fieldname;
                 } elseif ($fieldType == 'multilangstring') {
-                    $order_list[] = $fieldtitle . ' ' . common::translate('COM_CUSTOMTABLES_AZ');
+                    $order_list[] = $fieldtitle . ' ' . esc_html__("A-Z", "customtables");
                     $order_values[] = $fieldname . $this->Table->Languages->Postfix;
-                    $order_list[] = $fieldtitle . ' ' . common::translate('COM_CUSTOMTABLES_ZA');
+                    $order_list[] = $fieldtitle . ' ' . esc_html__("Z-A", "customtables");
                     $order_values[] = $fieldname . $this->Table->Languages->Postfix . " desc";
                 } elseif ($fieldType == 'userid' or $fieldType == 'user') {
-                    $order_list[] = $fieldtitle . ' ' . common::translate('COM_CUSTOMTABLES_AZ');
+                    $order_list[] = $fieldtitle . ' ' . esc_html__("A-Z", "customtables");
                     $order_values[] = $fieldname . '.user';
-                    $order_list[] = $fieldtitle . ' ' . common::translate('COM_CUSTOMTABLES_ZA');
+                    $order_list[] = $fieldtitle . ' ' . esc_html__("Z-A", "customtables");
                     $order_values[] = $fieldname . '.user desc';
                 }
             }

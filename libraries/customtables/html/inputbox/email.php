@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 class InputBox_email extends BaseInputBox
 {

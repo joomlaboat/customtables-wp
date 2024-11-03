@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Joomla\CMS\Version;
 
@@ -87,7 +87,7 @@ class Documentation
                 }
 
                 if ($is4Pro)
-                    $result .= '<div class="ct_doc_pro_label"><a href="https://joomlaboat.com/custom-tables#buy-extension" target="_blank">' . common::translate('COM_CUSTOMTABLES_AVAILABLE') . '</a></div>';
+                    $result .= '<div class="ct_doc_pro_label"><a href="https://joomlaboat.com/custom-tables#buy-extension" target="_blank">' . esc_html__("Available in PRO Version", "customtables") . '</a></div>';
 
                 $result .= '</h4>';
 
@@ -104,11 +104,11 @@ class Documentation
                 if (!empty($type->params) and count($type->params) > 0) {
                     $content = $this->renderParametersInternal($type->params, '', '', '', '', true);
                     if ($content != '')
-                        $result .= '<hr/><h5>' . common::translate('COM_CUSTOMTABLES_FIELDTYPEPARAMS') . ':</h5>' . $content;
+                        $result .= '<hr/><h5>' . esc_html__("Field Type Parameters", "customtables") . ':</h5>' . $content;
                 }
 
-                $result .= '<hr/><h5>' . common::translate('COM_CUSTOMTABLES_VALUEPARAMS') . ':</h5><p>Example 1:<pre class="ct_doc_pre">'
-                    . '{{ <i>' . str_replace(' ', '', common::translate('COM_CUSTOMTABLES_FIELDNAME')) . '</i> }}</pre></p>';
+                $result .= '<hr/><h5>' . esc_html__("Value Processing Parameters", "customtables") . ':</h5><p>Example 1:<pre class="ct_doc_pre">'
+                    . '{{ <i>' . str_replace(' ', '', esc_html__("Field Name", "customtables")) . '</i> }}</pre></p>';
 
                 if (!empty($type->valueparams)) {
                     foreach ($type->valueparams as $p) {
@@ -116,7 +116,7 @@ class Documentation
 
                         $result .= $this->renderParametersInternal($params,
                             '{{ ',
-                            '<i>' . str_replace(' ', '', common::translate('COM_CUSTOMTABLES_FIELDNAME')) . '</i>',
+                            '<i>' . str_replace(' ', '', esc_html__("Field Name", "customtables")) . '</i>',
                             '',
                             ' }}',
                             $hideDefaultExample);
@@ -124,13 +124,13 @@ class Documentation
                     }
                 }
 
-                $result .= '<h5>' . common::translate('COM_CUSTOMTABLES_FIELDTYPE_PUREVALUE') . ':</h5>'
-                    . '<p>' . common::translate('COM_CUSTOMTABLES_EXAMPLE') . ':<br/><pre class="ct_doc_pre">'
-                    . '{{ <i>' . str_replace(' ', '', common::translate('COM_CUSTOMTABLES_FIELDNAME')) . '</i>.value }}'
+                $result .= '<h5>' . esc_html__("Pure Value (Unprocessed)", "customtables") . ':</h5>'
+                    . '<p>' . esc_html__("Example", "customtables") . ':<br/><pre class="ct_doc_pre">'
+                    . '{{ <i>' . str_replace(' ', '', esc_html__("Field Name", "customtables")) . '</i>.value }}'
                     . '</pre></p>';
 
 
-                $result .= '<hr/><h5>' . common::translate('COM_CUSTOMTABLES_EDITRECPARAMS') . ':</h5>';
+                $result .= '<hr/><h5>' . esc_html__("Edit Record Parameters", "customtables") . ':</h5>';
 
 
                 if (!empty($type->editparams)) {
@@ -151,7 +151,7 @@ class Documentation
                 }
 
                 $result .= '<p>Example 1:<pre class="ct_doc_pre">'
-                    . '{{ <i>' . str_replace(' ', '', common::translate('COM_CUSTOMTABLES_FIELDNAME')) . '</i>.edit }}</pre></p>';
+                    . '{{ <i>' . str_replace(' ', '', esc_html__("Field Name", "customtables")) . '</i>.edit }}</pre></p>';
 
                 if (!empty($type->editparams)) {
 
@@ -159,7 +159,7 @@ class Documentation
                         $params = $p->params;
                         $result .= $this->renderParametersInternal($params,
                             '{{ ',
-                            '<i>' . str_replace(' ', '', common::translate('COM_CUSTOMTABLES_FIELDNAME')) . '</i>',
+                            '<i>' . str_replace(' ', '', esc_html__("Field Name", "customtables")) . '</i>',
                             '.edit',
                             ' }}',
                             $hideDefaultExample);
@@ -181,7 +181,7 @@ class Documentation
 
                         $result .= $this->renderParametersInternal2($params,
                             '{{ ',
-                            '<i>' . str_replace(' ', '', common::translate('COM_CUSTOMTABLES_FIELDNAME')) . '</i>',
+                            '<i>' . str_replace(' ', '', esc_html__("Field Name", "customtables")) . '</i>',
                             '.' . $params_att->name,
                             ' }}',
                             $hideDefaultExample);
@@ -243,12 +243,12 @@ class Documentation
 
         if ($tag_name == '') {
             if (!(int)$hideDefaultExample) {
-                $result_new .= '<p>' . common::translate('COM_CUSTOMTABLES_EXAMPLE') . ': <pre class="ct_doc_pre">'
+                $result_new .= '<p>' . esc_html__("Example", "customtables") . ': <pre class="ct_doc_pre">'
                     . $opening_char . $tag_name . $postfix . ($cleanedParamsStr != "" ? '(' . $cleanedParamsStr . ')' : '') . $closing_char . '</pre></p>';
             }
         } else {
             if ($example_values_count > 0) {
-                $result_new .= '<p>' . common::translate('COM_CUSTOMTABLES_EXAMPLE') . ': <pre class="ct_doc_pre">'
+                $result_new .= '<p>' . esc_html__("Example", "customtables") . ': <pre class="ct_doc_pre">'
                     . $opening_char . $tag_name . $postfix . ($cleanedParamsStr != "" ? '(' . $cleanedParamsStr . ')' : '') . $closing_char . '</pre></p>';
             }
         }
@@ -265,13 +265,13 @@ class Documentation
             case 'number':
 
                 $result .= '<ul class="ct_doc_param_options">
-					<li><b>' . common::translate('COM_CUSTOMTABLES_DEFAULT') . '</b>: ' . $param_att->default . '</li>
+					<li><b>' . esc_html__("Default", "customtables") . '</b>: ' . $param_att->default . '</li>
 ';
                 if (!empty($param_att->min))
-                    $result .= '<li><b>' . common::translate('COM_CUSTOMTABLES_MIN') . '</b>: ' . $param_att->min . '</li>';
+                    $result .= '<li><b>' . esc_html__("Min", "customtables") . '</b>: ' . $param_att->min . '</li>';
 
                 if (!empty($param_att->max))
-                    $result .= '<li><b>' . common::translate('COM_CUSTOMTABLES_MAX') . '</b>: ' . $param_att->max . '</li>';
+                    $result .= '<li><b>' . esc_html__("Max", "customtables") . '</b>: ' . $param_att->max . '</li>';
 
                 $result .= '</ul>';
 
@@ -282,7 +282,7 @@ class Documentation
             case 'radio':
                 $options = explode(',', $param_att->options);
                 $value_example = '';
-                //<p>'.common::translate('COM_CUSTOMTABLES_OPTIONS').':</p>
+                //<p>'.esc_html__("Options", "customtables").':</p>
                 $result .= '<ul class="ct_doc_param_options">';
                 foreach ($options as $option) {
                     $parts = explode('|', $option);
@@ -426,12 +426,12 @@ class Documentation
 
         if ($tag_name == '') {
             if (!(int)$hideDefaultExample) {
-                $result_new .= '<p>' . common::translate('COM_CUSTOMTABLES_EXAMPLE') . ': <pre class="ct_doc_pre">'
+                $result_new .= '<p>' . esc_html__("Example", "customtables") . ': <pre class="ct_doc_pre">'
                     . $opening_char . $tag_name . $postfix . ($cleanedParamsStr != "" ? '(' . $cleanedParamsStr . ')' : '') . $closing_char . '</pre></p>';
             }
         } else {
             if ($example_values_count > 0) {
-                $result_new .= '<p>' . common::translate('COM_CUSTOMTABLES_EXAMPLE') . ': <pre class="ct_doc_pre">'
+                $result_new .= '<p>' . esc_html__("Example", "customtables") . ': <pre class="ct_doc_pre">'
                     . $opening_char . $tag_name . $postfix . ($cleanedParamsStr != "" ? '(' . $cleanedParamsStr . ')' : '') . $closing_char . '</pre></p>';
             }
         }
@@ -458,18 +458,18 @@ class Documentation
                 if (!empty($type->params) and count($type->params) > 0) {
                     $content = $this->renderParametersGitHub($type->params, '', '', '', '', true);
                     if ($content != '')
-                        $result .= '**' . common::translate('COM_CUSTOMTABLES_FIELDTYPEPARAMS') . ':**<br/><br/>' . $content;
+                        $result .= '**' . esc_html__("Field Type Parameters", "customtables") . ':**<br/><br/>' . $content;
                 }
 
-                $result .= '**' . common::translate('COM_CUSTOMTABLES_VALUEPARAMS') . ':**<br/><br/>Example:'
-                    . '`{{ ' . str_replace(' ', '', common::translate('COM_CUSTOMTABLES_FIELDNAME')) . ' }}`<br/><br/>';
+                $result .= '**' . esc_html__("Value Processing Parameters", "customtables") . ':**<br/><br/>Example:'
+                    . '`{{ ' . str_replace(' ', '', esc_html__("Field Name", "customtables")) . ' }}`<br/><br/>';
 
                 if (!empty($type->valueparams)) {
                     foreach ($type->valueparams as $p) {
                         $params = $p->params;
 
                         $result .= $this->renderParametersGitHub($params,
-                            '{{ ', str_replace(' ', '', common::translate('COM_CUSTOMTABLES_FIELDNAME')),
+                            '{{ ', str_replace(' ', '', esc_html__("Field Name", "customtables")),
                             '',
                             ' }}',
                             $hideDefaultExample);
@@ -479,13 +479,13 @@ class Documentation
 
                 }
 
-                $result .= '**' . common::translate('COM_CUSTOMTABLES_FIELDTYPE_PUREVALUE') . ':**<br/><br/>'
-                    . common::translate('COM_CUSTOMTABLES_EXAMPLE') . ':<br/><br/>'
-                    . '`{{ ' . str_replace(' ', '', common::translate('COM_CUSTOMTABLES_FIELDNAME')) . '.value }}`'
+                $result .= '**' . esc_html__("Pure Value (Unprocessed)", "customtables") . ':**<br/><br/>'
+                    . esc_html__("Example", "customtables") . ':<br/><br/>'
+                    . '`{{ ' . str_replace(' ', '', esc_html__("Field Name", "customtables")) . '.value }}`'
                     . '<br/><br/>';
 
-                $result .= '**' . common::translate('COM_CUSTOMTABLES_EDITRECPARAMS') . ':**<br/><br/>Example:'
-                    . '`{{ ' . str_replace(' ', '', common::translate('COM_CUSTOMTABLES_FIELDNAME')) . '.edit }}`<br/><br/>';
+                $result .= '**' . esc_html__("Edit Record Parameters", "customtables") . ':**<br/><br/>Example:'
+                    . '`{{ ' . str_replace(' ', '', esc_html__("Field Name", "customtables")) . '.edit }}`<br/><br/>';
 
                 if (!empty($type->editparams)) {
                     foreach ($type->editparams as $p) {
@@ -493,7 +493,7 @@ class Documentation
 
                         $result .= $this->renderParametersGitHub($params,
                             '{{ ',
-                            str_replace(' ', '', common::translate('COM_CUSTOMTABLES_FIELDNAME')),
+                            str_replace(' ', '', esc_html__("Field Name", "customtables")),
                             '.edit',
                             ' }}',
                             $hideDefaultExample);
@@ -516,7 +516,7 @@ class Documentation
 
                     $result .= $this->renderParametersGitHub2($params,
                         '{{ ',
-                        str_replace(' ', '', common::translate('COM_CUSTOMTABLES_FIELDNAME')),
+                        str_replace(' ', '', esc_html__("Field Name", "customtables")),
                         '.' . $params_att->name,
                         ' }}',
                         $hideDefaultExample);
@@ -591,13 +591,13 @@ class Documentation
         switch ($param_att->type) {
             case 'number':
 
-                $result .= '<pre>    </pre>* **' . common::translate('COM_CUSTOMTABLES_DEFAULT') . '** - ' . $param_att->default . '<br/>';
+                $result .= '<pre>    </pre>* **' . esc_html__("Default", "customtables") . '** - ' . $param_att->default . '<br/>';
 
                 if (!empty($param_att->min))
-                    $result .= '<pre>    </pre>* **' . common::translate('COM_CUSTOMTABLES_MIN') . '** - ' . $param_att->min . '<br/>';
+                    $result .= '<pre>    </pre>* **' . esc_html__("Min", "customtables") . '** - ' . $param_att->min . '<br/>';
 
                 if (!empty($param_att->max))
-                    $result .= '<pre>    </pre>* **' . common::translate('COM_CUSTOMTABLES_MAX') . '** - ' . $param_att->max . '<br/>';
+                    $result .= '<pre>    </pre>* **' . esc_html__("Max", "customtables") . '** - ' . $param_att->max . '<br/>';
 
                 $value_example = $param_att->min;
 
@@ -750,7 +750,7 @@ class Documentation
 
                 $result .= '<h3>' . $tagSetAtt->label;
                 if ($is4Pro)
-                    $result .= '<div class="ct_doc_pro_label"><a href="https://joomlaboat.com/custom-tables#buy-extension" target="_blank">' . common::translate('COM_CUSTOMTABLES_AVAILABLE') . '</a></div>';
+                    $result .= '<div class="ct_doc_pro_label"><a href="https://joomlaboat.com/custom-tables#buy-extension" target="_blank">' . esc_html__("Available in PRO Version", "customtables") . '</a></div>';
 
                 $result .= '</h3>';
 
@@ -811,7 +811,7 @@ if ($this->onlyWordpress) {
                 $result .= '<a name="' . $tag_att->twigclass . '_' . $tag_att->name . '"></a><h4 onClick="readmoreOpenClose(\'ctDocTag_' . $tag_att->twigclass . '_' . $tag_att->name . '\')">' . $startchar . $tag_att->name . $endchar . ' - <span>' . $label . '</span>';
 
                 if ($is4Pro)
-                    $result .= '<div class="ct_doc_pro_label"><a href="https://joomlaboat.com/custom-tables#buy-extension" target="_blank">' . common::translate('COM_CUSTOMTABLES_AVAILABLE') . '</a></div>';
+                    $result .= '<div class="ct_doc_pro_label"><a href="https://joomlaboat.com/custom-tables#buy-extension" target="_blank">' . esc_html__("Available in PRO Version", "customtables") . '</a></div>';
 
                 $result .= '</h4>';
 
@@ -835,7 +835,7 @@ if ($this->onlyWordpress) {
                             $hidedefaultexample);
 
                         if ($content != '')
-                            $result .= '<h5>' . common::translate('COM_CUSTOMTABLES_PARAMS') . ':</h5>' . $content;
+                            $result .= '<h5>' . esc_html__("Parameters", "customtables") . ':</h5>' . $content;
                     }
                 }
 
@@ -904,7 +904,7 @@ if ($this->onlyWordpress) {
                         }
 
                         if ($content != '')
-                            $result .= '**' . common::translate('COM_CUSTOMTABLES_PARAMS') . '**<br><br>' . $content;
+                            $result .= '**' . esc_html__("Parameters", "customtables") . '**<br><br>' . $content;
                     }
                 }
 
@@ -961,7 +961,7 @@ if ($this->onlyWordpress) {
                     $result .= '<h3>' . $fieldSetAtt->label;
 
                 if ($is4Pro)
-                    $result .= '<div class="ct_doc_pro_label"><a href="https://joomlaboat.com/custom-tables#buy-extension" target="_blank">' . common::translate('COM_CUSTOMTABLES_AVAILABLE') . '</a></div>';
+                    $result .= '<div class="ct_doc_pro_label"><a href="https://joomlaboat.com/custom-tables#buy-extension" target="_blank">' . esc_html__("Available in PRO Version", "customtables") . '</a></div>';
 
                 $result .= '</h3>';
 
@@ -997,13 +997,13 @@ if ($this->onlyWordpress) {
                     case 'number':
 
                         $result .= '<ul class="ct_doc_param_options">
-                            <li><b>' . common::translate('COM_CUSTOMTABLES_DEFAULT') . '</b>: ' . $fieldAtt->default . '</li>
+                            <li><b>' . esc_html__("Default", "customtables") . '</b>: ' . $fieldAtt->default . '</li>
         ';
                         if (!empty($fieldAtt->min))
-                            $result .= '<li><b>' . common::translate('COM_CUSTOMTABLES_MIN') . '</b>: ' . $fieldAtt->min . '</li>';
+                            $result .= '<li><b>' . esc_html__("Min", "customtables") . '</b>: ' . $fieldAtt->min . '</li>';
 
                         if (!empty($fieldAtt->max))
-                            $result .= '<li><b>' . common::translate('COM_CUSTOMTABLES_MAX') . '</b>: ' . $fieldAtt->max . '</li>';
+                            $result .= '<li><b>' . esc_html__("Max", "customtables") . '</b>: ' . $fieldAtt->max . '</li>';
 
                         $result .= '</ul>';
 
@@ -1012,7 +1012,7 @@ if ($this->onlyWordpress) {
                     case 'radio':
                         $options = explode(',', $fieldAtt->options);
                         $value_example = '';
-                        //<p>'.common::translate('COM_CUSTOMTABLES_OPTIONS').':</p>
+                        //<p>'.esc_html__("Options", "customtables").':</p>
                         $result .= '<ul class="ct_doc_param_options">';
                         foreach ($options as $option) {
                             $parts = explode('|', $option);

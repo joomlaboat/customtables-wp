@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Exception;
 
@@ -42,6 +42,7 @@ class Save_file
         $fileName = null;
 
         $fileData = common::inputPostString($this->field->comesfieldname . '_data', null, 'create-edit-record');
+
         if (!empty($fileData) and $fileData[0] == '{') {
 
             if (defined('_JEXEC'))
@@ -95,6 +96,8 @@ class Save_file
             }
         }
 
+        echo '$CompletePathToFile:' . $CompletePathToFile . '<br/>';
+
         if ($CompletePathToFile !== null and $CompletePathToFile != '') {
             //Upload new file
 
@@ -115,6 +118,11 @@ class Save_file
         } elseif ($to_delete == 'true') {
             $newValue = ['value' => null];//This way it will be clear if the value changed or not. If $this->newValue = null means that value not changed.
         }
+
+
+        print_r($newValue);
+//        die;
+
         return $newValue;
     }
 

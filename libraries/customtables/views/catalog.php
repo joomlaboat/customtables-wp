@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Exception;
 use LayoutProcessor;
@@ -33,8 +33,19 @@ class Catalog
      */
     function render($layoutName = null, $limit = 0): string
     {
+        // -------------------- Table
+
+        if ($this->ct->Table === null) {
+            $this->ct->getTable($this->ct->Params->tableName);
+
+            if ($this->ct->Table->tablename === null) {
+                $this->ct->errors[] = 'Catalog View: Table not selected.';
+                return 'Catalog View: Table not selected.';
+            }
+        }
+        
         if ($this->ct->Env->frmt == 'html')
-            common::loadJSAndCSS($this->ct->Params, $this->ct->Env);
+            common::loadJSAndCSS($this->ct->Params, $this->ct->Env, $this->ct->Table->fieldInputPrefix);
 
         if ($this->ct->Env->legacySupport) {
             try {
@@ -52,18 +63,7 @@ class Catalog
             }
         }
 
-// -------------------- Table
-
-        if ($this->ct->Table === null) {
-            $this->ct->getTable($this->ct->Params->tableName);
-
-            if ($this->ct->Table->tablename === null) {
-                $this->ct->errors[] = 'Catalog View: Table not selected.';
-                return 'Catalog View: Table not selected.';
-            }
-        }
-
-// --------------------- Filter
+        // --------------------- Filter
 
         $this->ct->setFilter($this->ct->Params->filter, $this->ct->Params->showPublished);
 
@@ -177,7 +177,7 @@ class Catalog
 
         if (!$recordsLoaded) {
             if (defined('_JEXEC'))
-                $this->ct->errors[] = common::translate('COM_CUSTOMTABLES_ERROR_TABLE_NOT_FOUND');
+                $this->ct->errors[] = esc_html__("Table not found.", "customtables");
 
             return 'CustomTables: Records not loaded.';
         }

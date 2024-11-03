@@ -11,7 +11,7 @@
 
 namespace CustomTables\Integrity;
 
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use CustomTables\common;
 use CustomTables\CT;
@@ -196,8 +196,8 @@ class IntegrityFields extends IntegrityChecks
                         $PureFieldType = Fields::makeProjectedFieldType($projected_data_type);
 
                         if (Fields::fixMYSQLField($ct->Table->realtablename, $real_field_name, $PureFieldType, $msg, $projected_field['fieldtitle'])) {
-                            $result .= '<p>' . common::translate('COM_CUSTOMTABLES_FIELD') . ' <span style="color:green;">'
-                                . $nice_field_name . '</span> ' . common::translate('COM_CUSTOMTABLES_FIELD_FIXED') . '.</p>';
+                            $result .= '<p>' . esc_html__("Field", "customtables") . ' <span style="color:green;">'
+                                . $nice_field_name . '</span> ' . esc_html__("fixed", "customtables") . '.</p>';
                         } else {
                             common::enqueueMessage($msg);
                         }
@@ -212,10 +212,10 @@ class IntegrityFields extends IntegrityChecks
 
                         $existing_field_type_string = Fields::projectedFieldTypeToString($ExistingFieldConvertedType);
 
-                        $result .= '<p>' . common::translate('COM_CUSTOMTABLES_FIELD') . ' <span style="color:orange;">' . $nice_field_name . '</span>'
-                            . ' ' . common::translate('COM_CUSTOMTABLES_FIELD_HAS_WRONG_TYPE') . ' <span style="color:red;">'
-                            . $existing_field_type_string . '</span> ' . common::translate('COM_CUSTOMTABLES_FIELD_INSTEAD_OF') . ' <span style="color:green;">'
-                            . Fields::projectedFieldTypeToString($projected_data_type) . '</span> <a href="' . $link . 'task=fixfieldtype&fieldname=' . $existingFieldName . '">' . common::translate('COM_CUSTOMTABLES_FIELD_TOFIX') . '</a></p>';
+                        $result .= '<p>' . esc_html__("Field", "customtables") . ' <span style="color:orange;">' . $nice_field_name . '</span>'
+                            . ' ' . esc_html__("has wrong type", "customtables") . ' <span style="color:red;">'
+                            . $existing_field_type_string . '</span> ' . esc_html__("instead of", "customtables") . ' <span style="color:green;">'
+                            . Fields::projectedFieldTypeToString($projected_data_type) . '</span> <a href="' . $link . 'task=fixfieldtype&fieldname=' . $existingFieldName . '">' . esc_html__("Fix?", "customtables") . '</a></p>';
                     }
                 }
             }

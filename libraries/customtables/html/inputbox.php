@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Exception;
 use tagProcessor_General;
@@ -84,7 +84,7 @@ class Inputbox
     {
         $this->row = $row;
         $this->field = new Field($this->ct, $this->field->fieldrow, $this->row);
-        $this->prefix = $this->ct->Env->field_input_prefix . (!$this->ct->isEditForm ? $this->row[$this->ct->Table->realidfieldname] . '_' : '');
+        $this->prefix = $this->ct->Table->fieldInputPrefix . (!$this->ct->isEditForm ? $this->row[$this->ct->Table->realidfieldname] . '_' : '');
         $this->attributes['name'] = $this->prefix . $this->field->fieldname;
         $this->attributes['id'] = $this->prefix . $this->field->fieldname;
 
@@ -169,7 +169,7 @@ class Inputbox
                     $inputBoxRenderer = new ProInputBoxTableJoin($this->ct, $this->field, $this->row, $this->option_list, $this->attributes);
                     return $inputBoxRenderer->render($value, $this->defaultValue);
                 } else {
-                    return common::translate('COM_CUSTOMTABLES_AVAILABLE');
+                    return esc_html__("Available in PRO Version", "customtables");
                 }
             //} else {
             //    return 'Table Join field type is not supported by WordPress version of the Custom Tables yet.';
@@ -187,7 +187,7 @@ class Inputbox
                         $inputBoxRenderer = new ProInputBoxTableJoinList($this->ct, $this->field, $this->row, $this->option_list, $this->attributes);
                         return $inputBoxRenderer->render($value, $this->defaultValue);
                     } else {
-                        return common::translate('COM_CUSTOMTABLES_AVAILABLE');
+                        return esc_html__("Available in PRO Version", "customtables");
                     }
                 } else {
                     return 'Table Join List field type is not supported by WordPress version of the Custom Tables yet.';
@@ -375,7 +375,7 @@ abstract class BaseInputBox
 
         // Optional default option
         $selected = ($value == '' ? ' selected' : '');
-        $select .= '<option value=""' . $selected . '> - ' . common::translate('COM_CUSTOMTABLES_SELECT') . '</option>';
+        $select .= '<option value=""' . $selected . '> - ' . esc_html__("Select", "customtables") . '</option>';
 
         // Generate options for each file in the folder
         foreach ($options as $option) {

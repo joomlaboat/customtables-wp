@@ -126,6 +126,7 @@ class template
                         $layouts = new Layouts($ct);
                         $mixedLayout_array = $layouts->renderMixedLayout($layoutId, $layoutType);
                         $mixedLayout_safe = $mixedLayout_array['html'];
+                        $this->enqueueList['FieldInputPrefix'] = $ct->Table->fieldPrefix;
                     } else {
                         $mixedLayout_safe = 'Table "' . $attributes['table'] . '" not found.';
                     }
@@ -213,12 +214,15 @@ class template
     {
         wp_enqueue_script('ct-catalog-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/catalog.js', array(), PLUGIN_VERSION, true);
         wp_enqueue_script('ct-edit-form-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), PLUGIN_VERSION, true);
+
+
         wp_enqueue_script('ct-uploader-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/uploader.js', array(), PLUGIN_VERSION, true);
 
         wp_enqueue_style('ct-catalog-style', CUSTOMTABLES_MEDIA_WEBPATH . 'css/style.css', array(), PLUGIN_VERSION, false);
 
         // Add inline script after enqueuing the main script
         wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url(home_url()) . '";');
+        wp_add_inline_script('ct-edit-form-script', 'let ctFieldInputPrefix = "' . $this->enqueueList['FieldInputPrefix'] . '";');
 
         // Add inline script after enqueuing the main script
         if (isset($this->enqueueList['style']))

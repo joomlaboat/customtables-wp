@@ -7,7 +7,7 @@
  * @license GNU/GPL Version 2 or later - http://www.gnu.org/licenses/gpl-2.0.html
  **/
 
-let es_LinkLoading = false;
+let ctLinkLoading = false;
 
 function ctCreateUser(msg, listing_id, toolbarBoxId, ModuleId) {
     if (confirm(msg)) {
@@ -57,9 +57,9 @@ function esPrepareLink(deleteParams, addParams, custom_link) {
 }
 
 function esEditObject(objId, toolbarBoxId, Itemid, tmpl, returnto) {
-    if (es_LinkLoading) return;
+    if (ctLinkLoading) return;
 
-    es_LinkLoading = true;
+    ctLinkLoading = true;
     document.getElementById(toolbarBoxId).innerHTML = '';
 
     let return_to = btoa(window.location.href);
@@ -96,7 +96,7 @@ function runTheTask(task, tableid, recordId, url, responses, last) {
                         if (task === 'delete') document.getElementById("ctTable_" + tableid).deleteRow(index); else ctCatalogUpdate(tableid, recordId, index);
                     }
 
-                    es_LinkLoading = false;
+                    ctLinkLoading = false;
 
                     if (last) {
                         let toolbarBoxId = 'esToolBar_' + task + '_box_' + tableid;
@@ -113,9 +113,9 @@ function runTheTask(task, tableid, recordId, url, responses, last) {
 }
 
 function ctRefreshRecord(tableid, recordId, toolbarBoxId, ModuleId) {
-    if (es_LinkLoading) return;
+    if (ctLinkLoading) return;
 
-    es_LinkLoading = true;
+    ctLinkLoading = true;
 
     if (document.getElementById(toolbarBoxId))
         document.getElementById(toolbarBoxId).innerHTML = '';
@@ -154,9 +154,9 @@ function ctLimitChanged(object) {
 }
 
 function ctPublishRecord(tableid, recordId, toolbarBoxId, publish, ModuleId) {
-    if (es_LinkLoading) return;
+    if (ctLinkLoading) return;
 
-    es_LinkLoading = true;
+    ctLinkLoading = true;
     document.getElementById(toolbarBoxId).innerHTML = '';
 
     let task = publish === 1 ? 'task=publish' : 'task=unpublish';
@@ -190,9 +190,9 @@ function findRowIndexById(tableid, rowId) {
 }
 
 function ctDeleteRecord(msg, tableid, recordId, toolbarBoxId, ModuleId) {
-    if (es_LinkLoading) return;
+    if (ctLinkLoading) return;
 
-    es_LinkLoading = true;
+    ctLinkLoading = true;
 
     if (confirm(msg)) {
 
@@ -228,7 +228,7 @@ function ctDeleteRecord(msg, tableid, recordId, toolbarBoxId, ModuleId) {
 
             window.location.href = link;
         }
-    } else es_LinkLoading = false;
+    } else ctLinkLoading = false;
 }
 
 function es_SearchBoxKeyPress(e) {
@@ -237,9 +237,9 @@ function es_SearchBoxKeyPress(e) {
 }
 
 function ctSearchBoxDo() {
-    if (es_LinkLoading) return;
+    if (ctLinkLoading) return;
 
-    es_LinkLoading = true;
+    ctLinkLoading = true;
     let w = [];
     let allSearchElements = document.querySelectorAll('[ctSearchBoxField]');
 
@@ -283,9 +283,9 @@ function ctSearchBoxDo() {
 }
 
 function ctSearchReset() {
-    if (es_LinkLoading) return;
+    if (ctLinkLoading) return;
 
-    es_LinkLoading = true;
+    ctLinkLoading = true;
 
     let link = ctWebsiteRoot + 'index.php?option=com_customtables&view=catalog&Itemid=' + ctItemId;
     link = esPrepareLink(['where', 'task', "listing_id", 'returnto'], [], link);
@@ -328,14 +328,14 @@ function getListOfSelectedRecords(tableid) {
 
 function ctToolBarDO(task, tableid) {
 
-    if (es_LinkLoading) return;
+    if (ctLinkLoading) return;
 
-    es_LinkLoading = true;
+    ctLinkLoading = true;
     const elements = getListOfSelectedRecords(tableid);
 
     if (elements.length === 0) {
         alert(TranslateText('COM_CUSTOMTABLES_JS_SELECT_RECORDS'));
-        es_LinkLoading = false;
+        ctLinkLoading = false;
         return;
     }
 
@@ -345,7 +345,7 @@ function ctToolBarDO(task, tableid) {
         if (elements.length === 1) msg = TranslateText('COM_CUSTOMTABLES_JS_SELECT_DO_U_WANT_TO_DELETE1l'); else msg = TranslateText('COM_CUSTOMTABLES_JS_SELECT_DO_U_WANT_TO_DELETE').replace('%s', elements.length);
 
         if (!confirm(msg)) {
-            es_LinkLoading = false;
+            ctLinkLoading = false;
             return;
         }
     }
@@ -404,14 +404,14 @@ function removeURLParameter(url, parameter) {
 
 function ct_UpdateAllRecordsValues(WebsiteRoot, Itemid, fieldname_, record_ids, postfix, ModuleId) {
     let ids = record_ids.split(',');
-    const obj_checkbox_off = document.getElementById("comes__" + fieldname_ + "_off");
+    const obj_checkbox_off = document.getElementById(ctFieldInputPrefix + "_" + fieldname_ + "_off");
     if (obj_checkbox_off) {
 
         for (let i = 0; i < ids.length; i++) {
-            let objectNameOff = "comes_" + ids[i] + "_" + fieldname_ + "_off";
+            let objectNameOff = ctFieldInputPrefix + ids[i] + "_" + fieldname_ + "_off";
             document.getElementById(objectNameOff).value = obj_checkbox_off.value;
 
-            let objectName = "comes_" + ids[i] + "_" + fieldname_;
+            let objectName = ctFieldInputPrefix + ids[i] + "_" + fieldname_;
             if (parseInt(obj_checkbox_off.value) === 1)
                 document.getElementById(objectName).checked = true;
             else
@@ -421,11 +421,11 @@ function ct_UpdateAllRecordsValues(WebsiteRoot, Itemid, fieldname_, record_ids, 
         }
 
     } else {
-        let objectName = "comes__" + fieldname_;
+        let objectName = ctFieldInputPrefix + "_" + fieldname_;
         let value = document.getElementById(objectName).value;
 
         for (let i = 0; i < ids.length; i++) {
-            let objectName = "comes_" + ids[i] + "_" + fieldname_;
+            let objectName = ctFieldInputPrefix + "_" + ids[i] + "_" + fieldname_;
             let obj = document.getElementById(objectName);
             obj.value = value;
             ct_UpdateSingleValue(WebsiteRoot, Itemid, fieldname_, ids[i], postfix, ModuleId);
@@ -448,16 +448,20 @@ function ct_UpdateSingleValue(WebsiteRoot, Itemid, fieldname_, record_id, postfi
 
     let params = "";
 
-    const obj_checkbox_off = document.getElementById("comes_" + record_id + "_" + fieldname_ + "_off");
+    const obj_checkbox_off = document.getElementById(ctFieldInputPrefix + record_id + "_" + fieldname_ + "_off");
     if (obj_checkbox_off) {
         //A bit confusing. But this is needed to save Unchecked values
         //It's because unchecked checkbox has value NULL
-        params = "comes_" + fieldname_ + "_off=" + obj_checkbox_off.value; // if this set 1 then the checkbox value will be 0
+        params = ctFieldInputPrefix + fieldname_ + "_off=" + obj_checkbox_off.value; // if this set 1 then the checkbox value will be 0
 
-        if (parseInt(obj_checkbox_off.value) === 1) params += "&comes_" + fieldname_ + "=0"; else params += "&comes_" + fieldname_ + "=1";
+        if (parseInt(obj_checkbox_off.value) === 1)
+            params += "&" + ctFieldInputPrefix + fieldname_ + "=0";
+        else
+            params += "&" + ctFieldInputPrefix + fieldname_ + "=1";
+
     } else {
-        let objectName = "comes_" + record_id + "_" + fieldname_;
-        params += "&comes_" + fieldname_ + "=" + document.getElementById(objectName).value;
+        let objectName = ctFieldInputPrefix + record_id + "_" + fieldname_;
+        params += "&" + ctFieldInputPrefix + fieldname_ + "=" + document.getElementById(objectName).value;
     }
     ct_UpdateSingleValueSet(WebsiteRoot, Itemid, fieldname_, record_id, postfix, ModuleId, params);
 }
@@ -475,7 +479,7 @@ function ct_UpdateSingleValueSet(WebsiteRoot, Itemid, fieldname_, record_id, pos
 
     params += "&listing_id=" + record_id;
 
-    const obj = document.getElementById("com_" + record_id + "_" + fieldname + postfix + "_div");
+    const obj = document.getElementById(ctFieldInputPrefix + record_id + "_" + fieldname + postfix + "_div");
     if (obj) obj.className = "ct_loader";
 
     let http = CreateHTTPRequestObject();   // defined in ajax.js
@@ -678,9 +682,9 @@ function ctValue_googlemapcoordinates(boxId, lat, long, zoom) {
 
 function ctSearchBarDateRangeUpdate(fieldName) {
     setTimeout(function () {
-        let obj = document.getElementById("es_search_box_" + fieldName);
-        let date_start = document.getElementById("es_search_box_" + fieldName + "_start").value
-        let date_end = document.getElementById("es_search_box_" + fieldName + "_end").value;
+        let obj = document.getElementById(ctFieldInputPrefix + "search_box_" + fieldName);
+        let date_start = document.getElementById(ctFieldInputPrefix + "search_box_" + fieldName + "_start").value
+        let date_end = document.getElementById(ctFieldInputPrefix + "search_box_" + fieldName + "_end").value;
         obj.value = date_start + "-to-" + date_end;
     }, 300)
 }

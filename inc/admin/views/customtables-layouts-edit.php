@@ -31,13 +31,18 @@ $onPageLoads = array();
     </script>
 <?php
 foreach ($this->admin_layout_edit->allTables as $table) {
-	$fields = Fields::getFields($table[0], true);
-	$list = array();
-	foreach ($fields as $field)
-		$list[] = [$field->id, $field->fieldname];
+    $tableID = $table[0];
 
-	echo '<div id="fieldsData' . $table[0] . '" style="display:none;">' . common::ctJsonEncode($list) . '</div>
+    $tempCT = new CT;
+    $tempCT->getTable($tableID);
+    if($tempCT->Table !== null) {
+        $list = [];
+        foreach ($tempCT->Table->fields as $field)
+            $list[] = [$field['id'], $field['fieldname']];
+
+        echo '<div id="fieldsData' . $tableID . '" style="display:none;">' . common::ctJsonEncode($list) . '</div>
     ';
+    }
 }
 ?>
 

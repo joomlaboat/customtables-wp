@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Exception;
 use Joomla\CMS\HTML\HTMLHelper;
@@ -137,7 +137,7 @@ class Edit
             }
         }
 
-        common::loadJSAndCSS($this->ct->Params, $this->ct->Env);
+        common::loadJSAndCSS($this->ct->Params, $this->ct->Env, $this->ct->Table->fieldInputPrefix);
 
         if (!$this->ct->Params->blockExternalVars and $this->ct->Params->showPageHeading and $this->ct->Params->pageTitle !== null) {
 

@@ -10,7 +10,7 @@
 
 namespace CustomTables;
 
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Exception;
 

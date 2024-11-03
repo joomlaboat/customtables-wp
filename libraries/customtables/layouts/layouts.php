@@ -13,7 +13,7 @@ namespace CustomTables;
 /* All tags already implemented using Twig */
 
 // no direct access
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Exception;
 use LayoutProcessor;
@@ -450,9 +450,9 @@ class Layouts
                 $listing_id = common::inputGetCmd('listing_id', 0);
                 if (!empty($listing_id)) {
                     if ($this->ct->deleteSingleRecord($listing_id) === 1) {
-                        common::enqueueMessage(common::translate('COM_CUSTOMTABLES_LISTOFRECORDS_N_ITEMS_DELETED_1'), 'notice');
+                        common::enqueueMessage(esc_html__("Record deleted.", "customtables"), 'notice');
                     } else {
-                        common::enqueueMessage(common::translate('COM_CUSTOMTABLES_LISTOFRECORDS_N_ITEMS_NOT_DELETED_1'));
+                        common::enqueueMessage(esc_html__("Record not deleted.", "customtables"));
                     }
                 }
             }
@@ -478,9 +478,9 @@ class Layouts
                         }
                     }
 
-                    common::enqueueMessage(common::translate('COM_CUSTOMTABLES_RECORD_SAVED'), 'notice');
+                    common::enqueueMessage(esc_html__("Record saved.", "customtables"), 'notice');
                 } else {
-                    common::enqueueMessage(common::translate('COM_CUSTOMTABLES_RECORD_NOT_SAVED'));
+                    common::enqueueMessage(esc_html__("Record cannot be saved.", "customtables"));
 
                     if ($record->ct->Params !== null and $record->ct->Params->msgItemIsSaved !== null)
                         common::enqueueMessage($record->ct->Params->msgItemIsSaved);
@@ -498,14 +498,14 @@ class Layouts
                 }
 
             } elseif ($task == 'cancel') {
-                common::enqueueMessage(common::translate('COM_CUSTOMTABLES_EDIT_CANCELED'), 'notice');
+                common::enqueueMessage(esc_html__("Edit canceled.", "customtables"), 'notice');
                 $link = common::getReturnToURL();
                 if ($link === null)
                     $link = $this->ct->Params->returnTo;
 
                 $link = CTMiscHelper::deleteURLQueryOption($link, 'view' . $this->ct->Table->tableid);
 
-                common::redirect($link, common::translate('COM_CUSTOMTABLES_EDIT_CANCELED'));
+                common::redirect($link, esc_html__("Edit canceled.", "customtables"));
             }
 
             $output['html'] = $this->renderEditForm();
@@ -741,7 +741,7 @@ class Layouts
 
             if (!in_array($field['type'], $fieldTypes_to_skip)) {
 
-                $attribute = 'for="' . $this->ct->Env->field_input_prefix . $field['fieldname'] . '"';
+                $attribute = 'for="' . $this->ct->Table->fieldInputPrefix . $field['fieldname'] . '"';
                 $label = '<th scope="row">
                             <label ' . $attribute . '>'
                     . '{{ ' . $field['fieldname'] . '.title }}'
@@ -855,11 +855,7 @@ class Layouts
      */
     protected function renderCatalog(): string
     {
-        if ($this->ct->Env->frmt == 'html')
-            common::loadJSAndCSS($this->ct->Params, $this->ct->Env);
-
         // -------------------- Table
-
         if ($this->ct->Table === null) {
             $this->ct->getTable($this->ct->Params->tableName);
 
@@ -868,6 +864,9 @@ class Layouts
                 return 'Catalog View: Table not selected.';
             }
         }
+
+        if ($this->ct->Env->frmt == 'html')
+            common::loadJSAndCSS($this->ct->Params, $this->ct->Env, $this->ct->Table->fieldInputPrefix);
 
         // --------------------- Filter
         $this->ct->setFilter($this->ct->Params->filter, $this->ct->Params->showPublished);
@@ -919,7 +918,7 @@ class Layouts
         if (!$this->ct->getRecords()) {
 
             if (defined('_JEXEC'))
-                $this->ct->errors[] = common::translate('COM_CUSTOMTABLES_ERROR_TABLE_NOT_FOUND');
+                $this->ct->errors[] = esc_html__("Table not found.", "customtables");
 
             return 'CustomTables: Records not loaded.';
         }

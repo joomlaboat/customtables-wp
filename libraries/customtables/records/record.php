@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Exception;
 use CustomTables\CustomPHP;
@@ -67,7 +67,7 @@ class record
 
         if (($this->ct->LayoutVariables['captcha'] ?? null)) {
             if (!$this->check_captcha()) {
-                common::enqueueMessage(common::translate('COM_CUSTOMTABLES_INCORRECT_CAPTCHA'));
+                common::enqueueMessage(esc_html__("Incorrect Captcha", "customtables"));
                 return false;
             }
         }
@@ -223,8 +223,8 @@ class record
                 }
 
                 $fn_str = [];
-                $fn_str[] = '"comes_' . $fieldName . '"';
-                $fn_str[] = "'comes_" . $fieldName . "'";
+                $fn_str[] = '"comes_' . $fieldName . '"'; // this is for old layout back support
+                $fn_str[] = "'comes_" . $fieldName . "'"; // this is for old layout back support
 
                 foreach ($fn_str as $s) {
                     if (str_contains($pageLayout, $s)) {

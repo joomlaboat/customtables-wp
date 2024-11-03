@@ -279,8 +279,14 @@ class Admin
                 if ($tableId == 0) {
                     $result = array('error' => 'tableid not set');
                 } else {
-                    $result = Fields::getFields($tableId, true);
 
+                    $tempCT = new CT;
+                    $tempCT->getTable($tableId);
+                    if ($tempCT->Table === null) {
+                        $result = array('error' => 'table id "' . $tableId . '" not found');
+                    } else {
+                        $result = $tempCT->Table->fields;
+                    }
                 }
                 header('Content-Type: application/json');
                 die(wp_json_encode($result));
@@ -339,9 +345,9 @@ class Admin
                 $output = $layouts->renderMixedLayout($layoutId, (int)$attributes->type);
 
                 $image_url = plugins_url('assets/block-glass.png', __FILE__);
-                $preview_html = '<div style="position: relative;">'.$output['html']
-                    .'<div style="position:absolute;top:0;left:0;width:100%;height:100%;background-image: url(\''. $image_url.'\');background-repeat: repeat;"></div>'
-.'</div>';
+                $preview_html = '<div style="position: relative;">' . $output['html']
+                    . '<div style="position:absolute;top:0;left:0;width:100%;height:100%;background-image: url(\'' . $image_url . '\');background-repeat: repeat;"></div>'
+                    . '</div>';
 
                 die($preview_html);
 
