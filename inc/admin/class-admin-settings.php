@@ -46,8 +46,8 @@ class Admin_Settings
 
             $fieldPrefix = common::inputPostString('fieldprefix','','settings');
             $fieldPrefix = trim(preg_replace("/[^a-zA-Z_\d]/", "_", $fieldPrefix));
-            if ($fieldPrefix === "")
-                $fieldPrefix = null;
+            if (empty($fieldPrefix))
+                $fieldPrefix = 'ct_';
 
             if(get_option('customtables-fieldprefix')===false)
                 add_option('customtables-fieldprefix', sanitize_text_field($fieldPrefix));

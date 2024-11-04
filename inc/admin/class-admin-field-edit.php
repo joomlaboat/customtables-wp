@@ -16,7 +16,7 @@ use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\Fields;
 use CustomTables\ListOfFields;
-use CustomTables\Tables;
+use CustomTables\TableHelper;
 use Exception;
 
 class Admin_Field_Edit
@@ -62,7 +62,7 @@ class Admin_Field_Edit
         }
 
         $this->fieldTypes = $this->helperListOfFields->getFieldTypesFromXML(true);
-        $this->allTables = Tables::getAllTables();
+        $this->allTables = TableHelper::getAllTables();
     }
 
     function handle_field_actions(): void

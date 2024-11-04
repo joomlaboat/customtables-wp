@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 //include ('customtables-layouts-edit-help.php');
 
 use CustomTables\common;
-use CustomTables\Fields;
+use CustomTables\CT;
 use CustomTables\ListOfLayouts;
 
 include('customtables-layouts-edit-head.php');

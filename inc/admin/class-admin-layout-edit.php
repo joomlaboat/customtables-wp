@@ -16,7 +16,7 @@ use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\Layouts;
 use CustomTables\ListOfLayouts;
-use CustomTables\Tables;
+use CustomTables\TableHelper;
 use Exception;
 
 class Admin_Layout_Edit
@@ -54,7 +54,7 @@ class Admin_Layout_Edit
             $this->layoutRow = null;
         }
 
-		$this->allTables = Tables::getAllTables();
+		$this->allTables = TableHelper::getAllTables();
 
         add_action('admin_enqueue_scripts', array($this, 'codemirror_enqueue_scripts'));
     }
