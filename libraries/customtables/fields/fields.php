@@ -210,7 +210,7 @@ class Fields
      * @throws Exception
      * @since 3.2.2
      */
-    public static function deleteField_byID(CT &$ct, $fieldId): bool
+    public static function deleteField_byID(CT $ct, int $fieldId): bool
     {
         if ($ct->Table->tablename === null) {
             die('deleteField_byID: Table not selected.');
@@ -736,6 +736,8 @@ class Fields
             } catch (Exception $e) {
                 throw new Exception('Add field details: ' . $e->getMessage());
             }
+
+            $ct->getTable($tableId);
         }
 
         if (!self::update_physical_field($ct, $fieldId, $data)) {
@@ -821,9 +823,9 @@ class Fields
 
         if ($fieldId != 0) {
             $fieldRow = $ct->Table->getFieldById($fieldId);
-            $ex_type = $fieldRow->type;
-            $ex_typeparams = $fieldRow->typeparams;
-            $realfieldname = $fieldRow->realfieldname;
+            $ex_type = $fieldRow['type'];
+            $ex_typeparams = $fieldRow['typeparams'];
+            $realfieldname = $fieldRow['realfieldname'];
         } else {
             $ex_type = '';
             $ex_typeparams = '';

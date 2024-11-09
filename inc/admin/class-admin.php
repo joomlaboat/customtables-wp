@@ -281,7 +281,7 @@ class Admin
                 } else {
 
                     $tempCT = new CT;
-                    $tempCT->getTable($tableId);
+                    $tempCT->getTable($tableId,null,false);
                     if ($tempCT->Table === null) {
                         $result = array('error' => 'table id "' . $tableId . '" not found');
                     } else {

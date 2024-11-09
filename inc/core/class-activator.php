@@ -36,10 +36,14 @@ class Activator {
 	}
 
     public static function update() {
-        $installed_version = get_option('customtables_version'); // Get stored version
+        $installed_version = get_option('customtables_version') ?? '1.0.0'; // Get stored version
         $current_version = \CustomTablesWP\PLUGIN_VERSION;  // Get current version from your constant
 
         if($installed_version != $current_version) {
+
+            echo 'Installed_version: '.$installed_version.'<br/>';
+            echo 'Current_version: '.$current_version.'<br/>';
+
             update_option('customtables_version', \CustomTablesWP\PLUGIN_VERSION);
             self::setFieldPrefix();
         }
@@ -104,6 +108,8 @@ class Activator {
             return true;
 
         } catch (Exception $e) {
+            echo 'CustomTables setFieldPrefix error: ' . $e->getMessage().'<br/>';
+
             error_log('CustomTables setFieldPrefix error: ' . $e->getMessage());
             return false;
         }

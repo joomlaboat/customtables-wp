@@ -116,18 +116,20 @@ class ImportCSV
 
             $found = false;
             foreach ($fields as $field) {
-                $clean_field_name = strtolower(preg_replace("/[^a-zA-Z1-9]/", "", $field['fieldtitle']));
+                if ((int)$field['published'] === 1) {
+                    $clean_field_name = strtolower(preg_replace("/[^a-zA-Z1-9]/", "", $field['fieldtitle']));
 
-                if ($fieldName_ == '#' or $fieldName_ == '') {
-                    $fieldList[] = -1;
-                    $fieldsFoundCount += 1;
-                    $found = true;
-                    break;
-                } elseif ($clean_field_name == $fieldName or (string)$field['fieldname'] == $fieldName or (string)$field['fieldtitle'] == $fieldName) {
-                    $fieldList[] = $index;
-                    $fieldsFoundCount += 1;
-                    $found = true;
-                    break;
+                    if ($fieldName_ == '#' or $fieldName_ == '') {
+                        $fieldList[] = -1;
+                        $fieldsFoundCount += 1;
+                        $found = true;
+                        break;
+                    } elseif ($clean_field_name == $fieldName or (string)$field['fieldname'] == $fieldName or (string)$field['fieldtitle'] == $fieldName) {
+                        $fieldList[] = $index;
+                        $fieldsFoundCount += 1;
+                        $found = true;
+                        break;
+                    }
                 }
                 $index++;
             }
@@ -157,10 +159,10 @@ class ImportCSV
     {
         foreach ($fieldList as $f_index) {
             if ($f_index >= 0) {
-                $fieldType = $fields[$f_index]->type;
+                $fieldType = $fields[$f_index]['type'];
                 if ($fieldType == 'sqljoin' or $fieldType == 'records') {
 
-                    $type_params = CTMiscHelper::csv_explode(',', $fields[$f_index]->typeparams);
+                    $type_params = CTMiscHelper::csv_explode(',', $fields[$f_index]['typeparams']);
 
                     $tableName = $type_params[0];
                     $fieldName = $type_params[1];
@@ -169,15 +171,15 @@ class ImportCSV
                     $ct->getTable($tableName);
 
                     if (!$ct->Table) {
-                        echo common::ctJsonEncode(['error' => 'sqljoin field(' . $fields[$f_index]->fieldtitle . ') table not found']);
+                        echo common::ctJsonEncode(['error' => 'sqljoin field(' . $fields[$f_index]['fieldtitle'] . ') table not found']);
                         die;//Import CSV field error
                     }
 
                     $SQJJoinField = $ct->Table->getFieldByName($fieldName);
 
-                    $fields[$f_index]->sqljoin = (object)[
+                    $fields[$f_index]['sqljoin'] = (object)[
                         'table' => $ct->Table->realtablename,
-                        'field' => $SQJJoinField->realfieldname,
+                        'field' => $SQJJoinField['realfieldname'],
                         'realidfieldname' => $ct->Table->realidfieldname,
                         'published_field_found' => $ct->Table->published_field_found];
                 }
@@ -199,8 +201,8 @@ class ImportCSV
 
         foreach ($fieldList as $f_index) {
             if ($f_index >= 0) {
-                $fieldType = $fields[$f_index]->type;
-                $fieldParamsString = $fields[$f_index]->typeparams;
+                $fieldType = $fields[$f_index]['type'];
+                $fieldParamsString = $fields[$f_index]['typeparams'];
                 $fieldParams = CTMiscHelper::csv_explode(',', $fieldParamsString);
 
                 if ($fieldType == 'sqljoin') {

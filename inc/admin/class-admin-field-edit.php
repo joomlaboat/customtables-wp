@@ -57,7 +57,7 @@ class Admin_Field_Edit
                     $this->fieldId = null;
 
                 if ($this->fieldId !== null)
-                    $this->fieldRow = Fields::getFieldRow($this->fieldId,true);
+                    $this->fieldRow = $this->ct->Table->getFieldById($this->fieldId);
             }
         }
 

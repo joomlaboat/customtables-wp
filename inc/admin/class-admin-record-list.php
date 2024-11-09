@@ -44,7 +44,7 @@ class Admin_Record_List extends WP_List_Table
 
 	    $this->tableId = common::inputGetInt('table');
         if ($this->tableId) {
-            $this->ct->getTable($this->tableId);
+            $this->ct->getTable($this->tableId,null,false);
             if ($this->ct->Table !== null and $this->ct->Table->published_field_found) {
 
 	            $whereClause = new MySQLWhereClause();
