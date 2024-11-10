@@ -209,9 +209,45 @@ foreach ($this->admin_field_edit->allTables as $table) {
                             <td>
                                 <div class="typeparams_box" id="typeparams_box"></div>
                                 <br/>
-                                <input type="text" name="typeparams" id="typeparams" class=""
+                                <input type="hidden" name="typeparams" id="typeparams" class=""
                                        readonly="readonly" maxlength="1024"
                                        value='<?php echo esc_html($this->admin_field_edit->fieldRow['typeparams']); ?>'>
+                            </td>
+                        </tr>
+
+                        <!-- Is Field Required -->
+                        <tr class="form-field">
+                            <th scope="row">
+                                <label for="isrequired">
+                                    <?php echo esc_html__('Is Required', 'customtables'); ?>
+                                </label>
+                            </th>
+                            <td>
+                                <fieldset>
+                                    <legend class="screen-reader-text">
+                                        <?php echo esc_html__('Is Required', 'customtables'); ?>
+                                    </legend>
+
+                                    <label class="radio-container">
+                                        <input type="radio"
+                                               name="isrequired"
+                                               value="1"
+                                            <?php checked($this->admin_field_edit->fieldRow['isrequired'], '1'); ?>
+                                        />
+                                        <span><?php echo esc_html__('Yes', 'customtables'); ?></span>
+                                    </label>
+
+                                    <br/>
+
+                                    <label class="radio-container">
+                                        <input type="radio"
+                                               name="isrequired"
+                                               value="0"
+                                            <?php checked($this->admin_field_edit->fieldRow['isrequired'], '0'); ?>
+                                        />
+                                        <span><?php echo esc_html__('No', 'customtables'); ?></span>
+                                    </label>
+                                </fieldset>
                             </td>
                         </tr>
                     </table>

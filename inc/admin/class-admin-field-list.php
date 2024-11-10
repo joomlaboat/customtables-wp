@@ -199,6 +199,7 @@ class Admin_Field_List extends WP_List_Table
 			$item['typeparams'] = str_replace('****apos****', "'", str_replace('****quote****', '"', common::escape($item['typeparams'])));
 			$item['table'] = str_replace('****apos****', "'", str_replace('****quote****', '"', common::escape($item['tabletitle'])));
 			$item['type'] = $this->getFieldTypeLabel($item['type']);
+            $item['isrequired'] = (int)$item['isrequired'] ? esc_html__('Yes', 'customtables') : esc_html__('No', 'customtables');
 			$newData[] = $item;
 		}
 		return $newData;
