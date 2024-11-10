@@ -310,5 +310,27 @@ class template
                 wp_enqueue_script('ct-google-gsi-client', 'https://accounts.google.com/gsi/client', array(), PLUGIN_VERSION, true);
             }
         }
+
+        wp_localize_script(
+            'ct-edit-form-script',
+            'ctTranslationScriptObject',
+            array(
+                'COM_CUSTOMTABLES_JS_SELECT_RECORDS' => __(esc_html__("Please select records first", "customtables"), 'customtables'),
+                'COM_CUSTOMTABLES_JS_SELECT_DO_U_WANT_TO_DELETE1' => __(esc_html__("Do you want to delete selected record?", "customtables"), 'customtables'),
+                'COM_CUSTOMTABLES_JS_SELECT_DO_U_WANT_TO_DELETE' => __(esc_html__("Do you want to delete %s records?", "customtables"), 'customtables'),
+                'COM_CUSTOMTABLES_JS_NOTHING_TO_SAVE' => __(esc_html__("Nothing to save. Check Edit From layout.", "customtables"), 'customtables'),
+                'COM_CUSTOMTABLES_JS_SESSION_EXPIRED' => __(esc_html__("Session expired. Please login again.", "customtables"), 'customtables'),
+                'COM_CUSTOMTABLES_SELECT' => __(esc_html__("Select", "customtables"), 'customtables'),
+                'COM_CUSTOMTABLES_SELECT_NOTHING' => __(esc_html__("No items to select", "customtables"), 'customtables'),
+                'COM_CUSTOMTABLES_ADD' => __(esc_html__("Add New", "customtables"), 'customtables'),
+                'COM_CUSTOMTABLES_REQUIRED' => __(esc_html__("%s required.", "customtables"), 'customtables'),
+                'COM_CUSTOMTABLES_NOT_SELECTED' => __(esc_html__("%s not selected.", "customtables"), 'customtables'),
+                'COM_CUSTOMTABLES_JS_EMAIL_INVALID' => __(esc_html__('The %s "%s" is not a valid Email.', "customtables"), 'customtables'),
+                'COM_CUSTOMTABLES_JS_URL_INVALID' => __(esc_html__('The %s "%s" is not a valid URL.', "customtables"), 'customtables'),
+                'COM_CUSTOMTABLES_JS_SECURE_URL_INVALID' => __(esc_html__('The %s "%s" must be secure - must start with "https://".', "customtables"), 'customtables'),
+                'COM_CUSTOMTABLES_JS_SIGNATURE_REQUIRED' => __(esc_html__('Please provide a signature first.', "customtables"), 'customtables'),
+                'COM_CUSTOMTABLES_JS_HOSTNAME_INVALID' => __(esc_html__('The value "%s" in the "%s" field must match "%s".', "customtables"), 'customtables')
+            )
+        );
     }
 }
