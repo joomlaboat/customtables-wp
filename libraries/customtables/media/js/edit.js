@@ -949,7 +949,7 @@ function ctRenderTableJoinSelectBox(control_name, r, index, execute_all, sub_ind
             if (typeof wrapper.dataset.addrecordmenualias !== 'undefined' && wrapper.dataset.addrecordmenualias !== '') {
                 let js = 'ctTableJoinAddRecordModalForm(\'' + control_name + '\',' + sub_index + ');';
                 let addText = TranslateText('COM_CUSTOMTABLES_ADD');
-                NoItemsText = addText + '<a href="javascript:' + js + '" className="toolbarIcons"><img src="components/com_customtables/libraries/customtables/media/images/icons/new.png" alt="' + addText + '" title="' + addText + '"></a>';
+                NoItemsText = addText + '<a href="javascript:' + js + '" className="toolbarIcons"><img src="' + ctWebsiteRoot + 'components/com_customtables/libraries/customtables/media/images/icons/new.png" alt="' + addText + '" title="' + addText + '"></a>';
             } else
                 NoItemsText = TranslateText('COM_CUSTOMTABLES_SELECT_NOTHING')
 
@@ -1146,7 +1146,7 @@ function ctInputBoxRecords_removeOptions(selectobj) {
 }
 
 function ctInputBoxRecords_addItem(control_name, control_name_postfix) {
-    //Old calls replaced
+
     let o = document.getElementById(control_name + control_name_postfix);
     o.selectedIndex = 0;
 
@@ -1155,10 +1155,9 @@ function ctInputBoxRecords_addItem(control_name, control_name_postfix) {
         ctInputBoxRecords_current_value[control_name] = "";
 
         let SQLJoinLink = document.getElementById(control_name + control_name_postfix + 'SQLJoinLink');
-        if (SQLJoinLink) {
+        if (SQLJoinLink)// {
             SQLJoinLink.selectedIndex = 0;
-            ctInputbox_UpdateSQLJoinLink(control_name, control_name_postfix);
-        }
+        ctInputbox_UpdateSQLJoinLink(control_name, control_name_postfix);
     }
 
     document.getElementById(control_name + '_addButton').style.visibility = "hidden";
@@ -1211,7 +1210,16 @@ function ctInputBoxRecords_deleteItem(control_name, control_name_postfix, index)
     ctInputBoxRecords_r[control_name].splice(index, 1);
     ctInputBoxRecords_v[control_name].splice(index, 1);
     ctInputBoxRecords_p[control_name].splice(index, 1);
+
     ctInputBoxRecords_showMultibox(control_name, control_name_postfix);
+
+    const addButton = document.getElementById(control_name + '_addButton');
+    const isHidden = addButton.style.visibility === 'hidden';
+
+    if (isHidden) {
+        ctInputBoxRecords_cancel(control_name, '_selector');
+        ctInputBoxRecords_addItem(control_name, '_selector')
+    }
 }
 
 function ctInputBoxRecords_showMultibox(control_name, control_name_postfix) {
@@ -1236,7 +1244,7 @@ function ctInputBoxRecords_showMultibox(control_name, control_name_postfix) {
 
         v += '</td>';
 
-        let deleteImage = 'components/com_customtables/libraries/customtables/media/images/icons/cancel.png';
+        let deleteImage = ctWebsiteRoot + 'components/com_customtables/libraries/customtables/media/images/icons/cancel.png';
 
         v += '<td style="border-bottom:1px dotted grey;min-width:16px;">';
         let onClick = "ctInputBoxRecords_deleteItem('" + control_name + "','" + control_name_postfix + "'," + i + ")";
@@ -1290,6 +1298,11 @@ function ctInputbox_UpdateSQLJoinLink(control_name, control_name_postfix) {
 
 function ctInputbox_UpdateSQLJoinLink_do(control_name, control_name_postfix) {
     //Old calls replaced
+    let controlElement = document.getElementById(control_name);
+    let selectedControlElements = Array.from(controlElement.options)
+        .filter(option => option.selected)
+        .map(option => option.value);
+
     let l = document.getElementById(control_name + control_name_postfix);
     let o = document.getElementById(control_name + 'SQLJoinLink');
     let v = '';
@@ -1313,28 +1326,51 @@ function ctInputbox_UpdateSQLJoinLink_do(control_name, control_name_postfix) {
 
     let elements = JSON.parse(document.getElementById(control_name + control_name_postfix + '_elements').innerHTML);
     let elementsID = document.getElementById(control_name + control_name_postfix + '_elementsID').innerHTML.split(",");
-    let elementsFilter = document.getElementById(control_name + control_name_postfix + '_elementsFilter').innerHTML.split(";");
     let elementsPublished = document.getElementById(control_name + control_name_postfix + '_elementsPublished').innerHTML.split(",");
 
-    for (let i = 0; i <= elements.length; i++) {
+    let filterElement = document.getElementById(control_name + control_name_postfix + '_elementsFilter');
+    let elementsFilter = []
+    if (filterElement)
+        elementsFilter = filterElement.innerHTML.split(";");
+
+    for (let i = 0; i < elements.length; i++) {
         let f = elementsFilter[i];
-        if (typeof f != "undefined" && elements[i] !== "") {
+
+        if (elements[i] !== "") {
 
             let eid = elementsID[i];
-            let published = elementsPublished[i];
-            let f_list = f.split(",");
+            if (selectedControlElements.indexOf(eid) === -1) {
 
-            if (f_list.indexOf(v) !== -1) {
-                let opt = document.createElement("option");
-                opt.value = eid;
-                if (eid === selectedValue)
-                    opt.selected = true;
+                let published = parseInt(elementsPublished[i]);
 
-                if (published === 0)
-                    opt.style.cssText = "color:red;";
+                if (typeof f != "undefined") {
+                    let f_list = f.split(",");
 
-                opt.innerHTML = elements[i];
-                l.appendChild(opt);
+                    if (f_list.indexOf(v) !== -1) {
+                        let opt = document.createElement("option");
+                        opt.value = eid;
+                        if (eid === selectedValue)
+                            opt.selected = true;
+
+                        if (published === 0)
+                            opt.style.cssText = "color:red;";
+
+                        opt.innerHTML = elements[i];
+                        l.appendChild(opt);
+                    }
+                } else {
+
+                    let opt = document.createElement("option");
+                    opt.value = eid;
+                    if (eid === selectedValue)
+                        opt.selected = true;
+
+                    if (published === 0)
+                        opt.style.cssText = "color:red;";
+
+                    opt.innerHTML = elements[i];
+                    l.appendChild(opt);
+                }
             }
         }
     }
@@ -1428,24 +1464,24 @@ function ctInputbox_signature(inputbox_id, width, height, format) {
 }
 
 function ctInputbox_signature_apply() {
-    for (let i = 0; i < ct_signaturePad_fields.length; i++) {
 
-        let inputbox_id = ct_signaturePad_fields[i];
+    if (ct_signaturePad_fields.length === 0)
+        return true;
 
-        if (ct_signaturePad[inputbox_id].isEmpty()) {
-            alert(TranslateText('COM_CUSTOMTABLES_JS_SIGNATURE_REQUIRED'));
-            return false;
-        } else {
+    let inputbox_id = ct_signaturePad_fields[0];
 
-            let format = ct_signaturePad_formats[inputbox_id];
+    if (ct_signaturePad[inputbox_id].isEmpty()) {
+        alert(TranslateText('COM_CUSTOMTABLES_JS_SIGNATURE_REQUIRED'));
+        return false;
+    } else {
 
-            //let dataURL = ct_signaturePad[inputbox_id].toDataURL('image/'+format+'+xml');
-            let dataURL = ct_signaturePad[inputbox_id].toDataURL('image/' + format);
-            document.getElementById(inputbox_id).setAttribute("value", dataURL);
-            return true;
-        }
+        let format = ct_signaturePad_formats[inputbox_id];
+
+        //let dataURL = ct_signaturePad[inputbox_id].toDataURL('image/'+format+'+xml');
+        let dataURL = ct_signaturePad[inputbox_id].toDataURL('image/' + format);
+        document.getElementById(inputbox_id).setAttribute("value", dataURL);
+        return true;
     }
-    return true;
 }
 
 /*
