@@ -10,12 +10,13 @@
 
 namespace CustomTablesWP\Inc\Admin;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\MySQLWhereClause;
+use CustomTables\TwigProcessor;
 use Exception;
 use WP_List_Table;
 
@@ -31,10 +32,10 @@ class Admin_Record_List extends WP_List_Table
     protected ?string $current_status;
     protected ?string $firstFieldRealName;
 
-	/**
-	 * @throws Exception
-	 * @since 1.0.0
-	 */
+    /**
+     * @throws Exception
+     * @since 1.0.0
+     */
     public function __construct()
     {
         $this->ct = new CT;
@@ -42,27 +43,27 @@ class Admin_Record_List extends WP_List_Table
         $this->count_trashed = 0;
         $this->count_published = 0;
 
-	    $this->tableId = common::inputGetInt('table');
+        $this->tableId = common::inputGetInt('table');
         if ($this->tableId) {
-            $this->ct->getTable($this->tableId,null,false);
+            $this->ct->getTable($this->tableId, null, false);
             if ($this->ct->Table !== null and $this->ct->Table->published_field_found) {
 
-	            $whereClause = new MySQLWhereClause();
-	            $whereClause->addCondition('published', -2,'!=');
-	            $this->count_all = database::loadColumn($this->ct->Table->realtablename,['COUNT_ROWS'], $whereClause)[0] ?? 0;
+                $whereClause = new MySQLWhereClause();
+                $whereClause->addCondition('published', -2, '!=');
+                $this->count_all = database::loadColumn($this->ct->Table->realtablename, ['COUNT_ROWS'], $whereClause)[0] ?? 0;
 
-	            $whereClause = new MySQLWhereClause();
-	            $whereClause->addCondition('published', -2);
-	            $this->count_trashed = database::loadColumn($this->ct->Table->realtablename,['COUNT_ROWS'], $whereClause)[0] ?? 0;
+                $whereClause = new MySQLWhereClause();
+                $whereClause->addCondition('published', -2);
+                $this->count_trashed = database::loadColumn($this->ct->Table->realtablename, ['COUNT_ROWS'], $whereClause)[0] ?? 0;
 
-	            $whereClause = new MySQLWhereClause();
-	            $whereClause->addCondition('published', 1);
-	            $this->count_published = database::loadColumn($this->ct->Table->realtablename,['COUNT_ROWS'], $whereClause)[0] ?? 0;
+                $whereClause = new MySQLWhereClause();
+                $whereClause->addCondition('published', 1);
+                $this->count_published = database::loadColumn($this->ct->Table->realtablename, ['COUNT_ROWS'], $whereClause)[0] ?? 0;
             }
         }
 
         $this->count_unpublished = $this->count_all - $this->count_published;
-	    $this->current_status = common::inputGetCmd('status');
+        $this->current_status = common::inputGetCmd('status');
 
         if ($this->current_status !== null and $this->current_status !== 'all') {
             if ($this->current_status == 'trash' and $this->count_trashed == 0)
@@ -84,14 +85,14 @@ class Admin_Record_List extends WP_List_Table
             $this->firstFieldRealName = $this->ct->Table->fields[0]['realfieldname'];
     }
 
-	/**
-	 * Prepares the list of items for displaying.
-	 *
-	 * Query, filter data, handle sorting, and pagination, and any other data-manipulation required prior to rendering
-	 *
-	 * @throws Exception
-	 * @since   1.0.0
-	 */
+    /**
+     * Prepares the list of items for displaying.
+     *
+     * Query, filter data, handle sorting, and pagination, and any other data-manipulation required prior to rendering
+     *
+     * @throws Exception
+     * @since   1.0.0
+     */
     function prepare_items()
     {
         $data = $this->get_data(); // Fetch your data here
@@ -118,21 +119,21 @@ class Admin_Record_List extends WP_List_Table
         $this->items = array_slice($data, (($current_page - 1) * $per_page), $per_page);
     }
 
-	/**
-	 * @throws Exception
-	 */
-	function get_data()
+    /**
+     * @throws Exception
+     */
+    function get_data()
     {
         // Fetch and return your data here
         if ($this->tableId === null or $this->ct->Table == null or $this->ct->Table->tablename === null)
             return [];
 
-	    $search = common::inputGetString('s');
-	    $orderBy = common::inputGetCmd('orderby');
+        $search = common::inputGetString('s');
+        $orderBy = common::inputGetCmd('orderby');
         if ($orderBy == 'customtables_record_firstfield' and $this->firstFieldRealName !== null)
             $orderBy = $this->firstFieldRealName;
 
-	    $order = common::inputGetCmd('order');
+        $order = common::inputGetCmd('order');
 
         //TODO: Fix this mess by replacing the state with a text code like 'published','unpublished','everything','any','trash'
         //$showPublished = 0 - show published
@@ -168,33 +169,37 @@ class Admin_Record_List extends WP_List_Table
             die('Table not found');
         }
 
-	    if($this->firstFieldRealName !== null)
-	    {
-            $newData = [];
-            foreach ($this->ct->Records as $item) {
 
-	            //$labelText = $this->firstFieldRealName !== null ? $item[$this->firstFieldRealName] : $item[$this->ct->Table->realidfieldname];
-	            $labelText = $item[$this->firstFieldRealName];//$item[$this->ct->Table->realidfieldname];
+        $newData = [];
+        foreach ($this->ct->Records as $item) {
 
+            foreach ($this->ct->Table->fields as $field) {
 
-	            if ($item['listing_published'] == -2)
-		            $label = '<span>' . $labelText . '</span>';
-	            else {
+                $fieldName = $field['fieldname'];
+                $twig = new TwigProcessor($this->ct, '{{ ' . $fieldName . ' }}');
+                $labelText = $twig->process($item);
 
-		            $label = '<a class="row-title" href="?page=customtables-records-edit&action=edit&table=' . $this->tableId . '&id=' . $item[$this->ct->Table->realidfieldname] . '">'
-			            . $labelText . '</a>';
+                if ($this->firstFieldRealName === $field['realfieldname']) {
+                    if ($item['listing_published'] == -2)
+                        $label = '<span>' . $labelText . '</span>';
+                    else {
 
-		            if ($this->ct->Table->published_field_found)
-			            $label .= (($this->current_status != 'unpublished' and $item['listing_published'] == 0) ? ' — <span class="post-state">Draft</span>' : '');
-	            }
+                        $label = '<a class="row-title" href="?page=customtables-records-edit&action=edit&table=' . $this->tableId . '&id=' . $item[$this->ct->Table->realidfieldname] . '">'
+                            . $labelText . '</a>';
 
-	            $item[$this->firstFieldRealName] = '<strong>' . $label . '</strong>';
+                        if ($this->ct->Table->published_field_found)
+                            $label .= (($this->current_status != 'unpublished' and $item['listing_published'] == 0) ? ' — <span class="post-state">Draft</span>' : '');
+                    }
 
-	            $newData[] = $item;
+                    $labelText = '<strong>' . $label . '</strong>';
+                }
+                
+                $item[$field['realfieldname']] = $labelText;
             }
-		    return $newData;
+
+            $newData[] = $item;
         }
-		return $this->ct->Records;
+        return $newData;
     }
 
     /**
@@ -225,13 +230,13 @@ class Admin_Record_List extends WP_List_Table
                 if ($first)
                     $columns['customtables_record_firstfield'] = $title;
                 else
-                    $columns[$this->ct->Env->field_prefix . $field['fieldname']] = $title;
+                    $columns[$this->ct->Table->fieldPrefix . $field['fieldname']] = $title;
 
                 $first = false;
             }
         }
 
-        $columns[$this->ct->Table->realidfieldname] = __((empty($this->ct->Table->realidfieldname) ? 'Id': $this->ct->Table->realidfieldname), 'customtables');
+        $columns[$this->ct->Table->realidfieldname] = __((empty($this->ct->Table->realidfieldname) ? 'Id' : $this->ct->Table->realidfieldname), 'customtables');
 
         return $columns;
     }
@@ -259,7 +264,7 @@ class Admin_Record_List extends WP_List_Table
                 if ($first)
                     $sortable_columns['customtables_record_firstfield'] = ['customtables_record_firstfield', true];
                 else
-                    $sortable_columns[$this->ct->Env->field_prefix . $field['fieldname']] = [$this->ct->Env->field_prefix . $field['fieldname'], false];
+                    $sortable_columns[$this->ct->Table->fieldPrefix . $field['fieldname']] = [$this->ct->Env->field_prefix . $field['fieldname'], false];
             }
 
             $first = false;
@@ -359,20 +364,20 @@ class Admin_Record_List extends WP_List_Table
     {
         $views = $this->get_views();
 
-	    $allowed_html = array(
-		    'a' => array(
-			    'href' => array(),
-			    'class' => array()
-		    ),
-		    'span' => array(
-			    'class' => array()
-		    )
-	    );
+        $allowed_html = array(
+            'a' => array(
+                'href' => array(),
+                'class' => array()
+            ),
+            'span' => array(
+                'class' => array()
+            )
+        );
 
         if (!empty($views)) {
             echo '<ul class="subsubsub">';
             foreach ($views as $view) {
-                echo '<li>' . wp_kses($view,$allowed_html) . '</li>';
+                echo '<li>' . wp_kses($view, $allowed_html) . '</li>';
             }
             echo '</ul>';
         }
@@ -442,13 +447,13 @@ class Admin_Record_List extends WP_List_Table
         return $actions;
     }
 
-	/**
-	 * Process actions triggered by the user
-	 *
-	 * @throws Exception
-	 * @since    1.0.0
-	 *
-	 */
+    /**
+     * Process actions triggered by the user
+     *
+     * @throws Exception
+     * @since    1.0.0
+     *
+     */
     function handle_record_actions()
     {
         /*
@@ -459,7 +464,7 @@ class Admin_Record_List extends WP_List_Table
          */
 
         // check for individual row actions
-	    $the_table_action = esc_html(wp_strip_all_tags($this->current_action()));
+        $the_table_action = esc_html(wp_strip_all_tags($this->current_action()));
 
         if ($this->ct->Table->published_field_found) {
             if ('restore' === $the_table_action) {
@@ -467,12 +472,12 @@ class Admin_Record_List extends WP_List_Table
                 if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'restore_nonce')) {
                     $this->invalid_nonce_redirect();
                 } else {
-	                $recordId = common::inputGetInt('id');
+                    $recordId = common::inputGetInt('id');
 
-	                $whereClauseUpdate = new MySQLWhereClause();
-	                $whereClauseUpdate->addCondition($this->ct->Table->realidfieldname, $recordId);
+                    $whereClauseUpdate = new MySQLWhereClause();
+                    $whereClauseUpdate->addCondition($this->ct->Table->realidfieldname, $recordId);
 
-                    database::update($this->ct->Table->realtablename, ['published'=>0], $whereClauseUpdate);
+                    database::update($this->ct->Table->realtablename, ['published' => 0], $whereClauseUpdate);
                     //echo '<div id="message" class="updated notice is-dismissible"><p>1 record restored from the Trash.</p></div>';
                     $this->graceful_redirect();
                 }
@@ -483,12 +488,12 @@ class Admin_Record_List extends WP_List_Table
                 if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'trash_nonce')) {
                     $this->invalid_nonce_redirect();
                 } else {
-	                $recordId = common::inputGetInt('id');
+                    $recordId = common::inputGetInt('id');
 
-	                $whereClauseUpdate = new MySQLWhereClause();
-	                $whereClauseUpdate->addCondition($this->ct->Table->realidfieldname, $recordId);
+                    $whereClauseUpdate = new MySQLWhereClause();
+                    $whereClauseUpdate->addCondition($this->ct->Table->realidfieldname, $recordId);
 
-                    database::update($this->ct->Table->realtablename, ['published' =>-2], $whereClauseUpdate);
+                    database::update($this->ct->Table->realtablename, ['published' => -2], $whereClauseUpdate);
                     //echo '<div id="message" class="updated notice is-dismissible"><p>1 record moved to the Trash.</p></div>';
                     $this->graceful_redirect();
                 }
@@ -500,9 +505,9 @@ class Admin_Record_List extends WP_List_Table
             if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'delete_nonce')) {
                 $this->invalid_nonce_redirect();
             } else {
-	            $recordId = common::inputGetCmd('id');
+                $recordId = common::inputGetCmd('id');
                 if ($recordId !== null) {
-					database::deleteRecord($this->ct->Table->realtablename,$this->ct->Table->realidfieldname,$recordId);
+                    database::deleteRecord($this->ct->Table->realtablename, $this->ct->Table->realidfieldname, $recordId);
                     //echo '<div id="message" class="updated notice is-dismissible"><p>1 record permanently deleted.</p></div>';
                     $this->graceful_redirect();
                 } else {
@@ -540,7 +545,7 @@ class Admin_Record_List extends WP_List_Table
      */
     public function invalid_nonce_redirect()
     {
-	    $page = common::inputGetCmd('page');
+        $page = common::inputGetCmd('page');
 
         wp_die(__('Invalid Nonce', 'customtables'),
             __('Error', 'customtables'),
@@ -576,8 +581,8 @@ class Admin_Record_List extends WP_List_Table
 
     function is_table_action($action): bool
     {
-	    $action1 = common::inputPostCmd('action','','bulk-' . $this->_args['plural']);
-	    $action2 = common::inputPostCmd('action2','','bulk-' . $this->_args['plural']);
+        $action1 = common::inputPostCmd('action', '', 'bulk-' . $this->_args['plural']);
+        $action2 = common::inputPostCmd('action2', '', 'bulk-' . $this->_args['plural']);
 
         if ($action1 === $action || $action2 === $action)
             return true;
@@ -587,33 +592,33 @@ class Admin_Record_List extends WP_List_Table
 
     function handle_record_actions_edit()
     {
-	    if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
-		    $this->invalid_nonce_redirect();
-	    } else {
-		    $recordId = (int)(isset($_POST['ids']) ? intval($_POST['id'][0]) : '');
-		    // Redirect to the edit page with the appropriate parameters
-		    $this->graceful_redirect('admin.php?page=customtables-records-edit&action=edit&table=' . $this->tableId . '&id=' . $recordId);
-	    }
+        if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
+            $this->invalid_nonce_redirect();
+        } else {
+            $recordId = (int)(isset($_POST['ids']) ? intval($_POST['id'][0]) : '');
+            // Redirect to the edit page with the appropriate parameters
+            $this->graceful_redirect('admin.php?page=customtables-records-edit&action=edit&table=' . $this->tableId . '&id=' . $recordId);
+        }
     }
 
-	/**
-	 * @throws Exception
-	 */
-	function handle_record_actions_publish(int $state): void
+    /**
+     * @throws Exception
+     */
+    function handle_record_actions_publish(int $state): void
     {
         // verify the nonce.
         if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
             $this->invalid_nonce_redirect();
         } else {
 
-			$records = (isset($_POST['ids']) && is_array($_POST['ids'])) ? common::sanitize_post_field_array($_POST['ids']) : [];
+            $records = (isset($_POST['ids']) && is_array($_POST['ids'])) ? common::sanitize_post_field_array($_POST['ids']) : [];
 
             foreach ($records as $recordId) {
 
-	            $whereClauseUpdate = new MySQLWhereClause();
-	            $whereClauseUpdate->addCondition('id', $recordId);
+                $whereClauseUpdate = new MySQLWhereClause();
+                $whereClauseUpdate->addCondition('id', $recordId);
 
-	            database::update($this->ct->Table->realtablename, ['published' => $state], $whereClauseUpdate);
+                database::update($this->ct->Table->realtablename, ['published' => $state], $whereClauseUpdate);
             }
 
             if (count($records) > 0)
@@ -623,25 +628,25 @@ class Admin_Record_List extends WP_List_Table
         }
     }
 
-	/**
-	 * @throws Exception
-	 */
-	function handle_record_actions_delete()
+    /**
+     * @throws Exception
+     */
+    function handle_record_actions_delete()
     {
-	    // verify the nonce.
-	    if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
-		    $this->invalid_nonce_redirect();
-	    } else {
+        // verify the nonce.
+        if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
+            $this->invalid_nonce_redirect();
+        } else {
 
-		    $records = (isset($_POST['ids']) && is_array($_POST['ids'])) ? common::sanitize_post_field_array($_POST['ids']) : [];
+            $records = (isset($_POST['ids']) && is_array($_POST['ids'])) ? common::sanitize_post_field_array($_POST['ids']) : [];
 
-		    if (count($records) > 0) {
-			    foreach ($records as $recordId)
-				    database::deleteRecord($this->ct->Table->realtablename,$this->ct->Table->realidfieldname,$recordId);
+            if (count($records) > 0) {
+                foreach ($records as $recordId)
+                    database::deleteRecord($this->ct->Table->realtablename, $this->ct->Table->realidfieldname, $recordId);
 
-			    $this->graceful_redirect();
-		    }
-		    echo '<div id="message" class="updated error is-dismissible"><p>Records not selected.</p></div>';
-	    }
+                $this->graceful_redirect();
+            }
+            echo '<div id="message" class="updated error is-dismissible"><p>Records not selected.</p></div>';
+        }
     }
 }

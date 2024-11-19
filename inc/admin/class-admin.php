@@ -130,6 +130,7 @@ class Admin
             // Add inline script after enqueuing the main script
             wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url(home_url()) . '";');
 
+            wp_enqueue_script('ct-catalog-base64', CUSTOMTABLES_MEDIA_WEBPATH . 'js/base64.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
             wp_enqueue_script('ct-edit-form-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), \CustomTablesWP\PLUGIN_VERSION);
 
             wp_enqueue_script('jquery');

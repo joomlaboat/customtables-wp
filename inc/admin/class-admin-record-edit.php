@@ -27,7 +27,7 @@ class Admin_Record_Edit
 	 */
 	public CT $ct;
 	public ?int $tableId;
-	public ?int $listing_id;
+	public ?string $listing_id;
 	public ?array $recordRow;
 	public string $formLink;
 	public string $pageLayout;

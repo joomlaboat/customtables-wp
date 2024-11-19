@@ -268,7 +268,7 @@ class SaveFieldQuerySet
 
             case 'usergroup':
                 if (defined('_JEXEC'))
-                    $value = common::inputPostInt($this->field->comesfieldname);
+                    $value = common::inputPostInt($this->field->comesfieldname, null, 'create-edit-field');
                 elseif (defined('WPINC'))
                     $value = common::inputPostCmd($this->field->comesfieldname, null, 'create-edit-record');
                 else
@@ -510,7 +510,7 @@ class SaveFieldQuerySet
                     if ($valueArray) {
                         return self::getCleanRecordValue($valueArray);
                     } else {
-                        $value_off = common::inputPostInt($field->comesfieldname . '_off');
+                        $value_off = common::inputPostInt($field->comesfieldname . '_off', null, 'create-edit-field');
                         if ($value_off) {
                             return '';
                         } else {

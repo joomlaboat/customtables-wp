@@ -21,8 +21,9 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>
 
 <?php
+
 foreach ($this->admin_field_edit->allTables as $table) {
-    $tableID = $table[0];
+    $tableID = $table['id'];
 
     $tempCT = new CT;
     $tempCT->getTable($tableID);

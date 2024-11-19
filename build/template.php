@@ -212,6 +212,7 @@ class template
 
     function enqueue_scripts()
     {
+        wp_enqueue_script('ct-catalog-base64', CUSTOMTABLES_MEDIA_WEBPATH . 'js/base64.js', array(), PLUGIN_VERSION, true);
         wp_enqueue_script('ct-catalog-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/catalog.js', array(), PLUGIN_VERSION, true);
         wp_enqueue_script('ct-edit-form-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), PLUGIN_VERSION, true);
 

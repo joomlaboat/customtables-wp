@@ -177,21 +177,21 @@ class Inputbox
 
             case 'records':
 
-                if (defined('_JEXEC')) {
-                    $path = CUSTOMTABLES_PRO_PATH . 'inputbox' . DIRECTORY_SEPARATOR;
+                //if (defined('_JEXEC')) {
+                $path = CUSTOMTABLES_PRO_PATH . 'inputbox' . DIRECTORY_SEPARATOR;
 
-                    if (file_exists($path . 'tablejoin.php') and file_exists($path . 'tablejoinlist.php')) {
-                        require_once($path . 'tablejoin.php');
-                        require_once($path . 'tablejoinlist.php');
+                if (file_exists($path . 'tablejoin.php') and file_exists($path . 'tablejoinlist.php')) {
+                    require_once($path . 'tablejoin.php');
+                    require_once($path . 'tablejoinlist.php');
 
-                        $inputBoxRenderer = new ProInputBoxTableJoinList($this->ct, $this->field, $this->row, $this->option_list, $this->attributes);
-                        return $inputBoxRenderer->render($value, $this->defaultValue);
-                    } else {
-                        return esc_html__("Available in PRO Version", "customtables");
-                    }
+                    $inputBoxRenderer = new ProInputBoxTableJoinList($this->ct, $this->field, $this->row, $this->option_list, $this->attributes);
+                    return $inputBoxRenderer->render($value, $this->defaultValue);
                 } else {
-                    return 'Table Join List field type is not supported by WordPress version of the Custom Tables yet.';
+                    return esc_html__("Available in PRO Version", "customtables");
                 }
+            //} else {
+            //  return 'Table Join List field type is not supported by WordPress version of the Custom Tables yet.';
+            //}
         }
         return '';
     }
