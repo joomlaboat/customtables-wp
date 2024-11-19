@@ -1288,7 +1288,7 @@
         </subvalueparams>
     </type>
 
-    <!-- WordPress NOT Ready - in progress 25 -->
+    <!-- WordPress Ready 25 -->
     <type ct_name="records" label="Table Join List"
           description="Concatenated ID list referencing another table." priority="2" proversion="1" wordpress="true"
           order="25">

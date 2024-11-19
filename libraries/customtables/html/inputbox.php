@@ -160,7 +160,6 @@ class Inputbox
                 if (!$this->isTwig)
                     return 'Old Table Join tags no longer supported';
 
-                //if (defined('_JEXEC')) {
                 $path = CUSTOMTABLES_PRO_PATH . 'inputbox' . DIRECTORY_SEPARATOR;
 
                 if (file_exists($path . 'tablejoin.php')) {
@@ -171,13 +170,8 @@ class Inputbox
                 } else {
                     return esc_html__("Available in PRO Version", "customtables");
                 }
-            //} else {
-            //    return 'Table Join field type is not supported by WordPress version of the Custom Tables yet.';
-            //}
 
             case 'records':
-
-                //if (defined('_JEXEC')) {
                 $path = CUSTOMTABLES_PRO_PATH . 'inputbox' . DIRECTORY_SEPARATOR;
 
                 if (file_exists($path . 'tablejoin.php') and file_exists($path . 'tablejoinlist.php')) {
@@ -189,9 +183,6 @@ class Inputbox
                 } else {
                     return esc_html__("Available in PRO Version", "customtables");
                 }
-            //} else {
-            //  return 'Table Join List field type is not supported by WordPress version of the Custom Tables yet.';
-            //}
         }
         return '';
     }

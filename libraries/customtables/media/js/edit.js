@@ -709,13 +709,7 @@ function checkRequiredFields(formObject) {
 
                 if (d.type === 'sqljoin') {
                     if (requiredFields[i].type === "hidden") {
-
-                        console.log("objName: " + objName);
-
-
                         let obj = document.getElementById(objName);
-
-                        console.log("obj.value: " + obj.value);
 
                         if (obj.value === '') {
                             alert(TranslateText('COM_CUSTOMTABLES_REQUIRED', label));
