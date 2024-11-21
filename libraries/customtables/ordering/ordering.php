@@ -35,6 +35,11 @@ class Ordering
         $this->fieldList = null;
     }
 
+    /**
+     * @throws Exception
+     *
+     * @since 3.0.0
+     */
     public static function addTableTagID(string $result, int $tableid): string
     {
         $params = array();
@@ -42,6 +47,11 @@ class Ordering
         return self::addEditHTMLTagParams($result, 'table', $params);
     }
 
+    /**
+     * @throws Exception
+     *
+     * @since 3.0.0
+     */
     public static function addEditHTMLTagParams(string $result, string $tag, array $paramsToAddEdit): string
     {
         $options = array();
@@ -66,6 +76,11 @@ class Ordering
         return $result;
     }
 
+    /**
+     * @throws Exception
+     *
+     * @since 3.0.0
+     */
     public static function addTableBodyTagParams(string $result, int $tableid): string
     {
         $params = array();
@@ -153,17 +168,16 @@ class Ordering
                 return '(SELECT ' . $select . ' FROM ' . $sqljoin_temp_ct->Table->realtablename
                     . ' WHERE ' . $sqljoin_temp_ct->Table->realtablename . '.' . $sqljoin_temp_ct->Table->realidfieldname . '=' . $Table->realtablename . '.' . $field->realfieldname . ')';
 
-            case 'date':
-            case 'creationtime':
-            case 'changetime':
-            case 'lastviewtime':
-                return $field->realfieldname;
-
             default:
                 return $field->realfieldname;
         }
     }
 
+    /**
+     * @throws Exception
+     *
+     * @since 3.0.0
+     */
     function parseOrderByParam(): void
     {
         if (defined('_JEXEC')) {
@@ -180,11 +194,11 @@ class Ordering
             } else {
                 if ($this->Params->forceSortBy != '') {
                     $ordering_param_string = $this->Params->forceSortBy;
-                } elseif (common::inputGetCmd('esordering', '')) {
-                    $ordering_param_string = common::inputGetString('esordering', '');
+                } elseif (common::inputGetCmd('esordering', '', 'create-edit-record')) {
+                    $ordering_param_string = common::inputGetString('esordering', '', 'create-edit-record');
                     $ordering_param_string = trim(preg_replace("/[^a-zA-Z-+%.: ,_]/", "", $ordering_param_string));
                 } else {
-                    $Itemid = common::inputGetInt('Itemid', 0);
+                    $Itemid = common::inputGetInt('Itemid', 0, 'create-edit-record');
                     $ordering_param_string = $app->getUserState('com_customtables.orderby_' . $Itemid, '');
 
                     if ($ordering_param_string == '') {
@@ -284,8 +298,8 @@ class Ordering
     public function saveorder(): bool
     {
         // Get the input
-        $pks = common::inputPost('cid', array(), 'array');
-        $order = common::inputPost('order', array(), 'array');
+        $pks = common::inputPostArray('cid', [], 'create-edit-record');
+        $order = common::inputPostArray('order', [], 'create-edit-record');
 
         // Sanitize the input
         $pks = ArrayHelper::toInteger($pks);

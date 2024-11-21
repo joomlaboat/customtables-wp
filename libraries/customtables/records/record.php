@@ -16,6 +16,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use Exception;
 use CustomTables\CustomPHP;
 use CustomTables\ctProHelpers;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 class record
 {
@@ -104,7 +107,7 @@ class record
                 $this->listing_id = database::insert($this->ct->Table->realtablename, $saveField->row_new);
             } catch (Exception $e) {
                 $this->ct->errors[] = $e->getMessage();
-                die($e->getMessage());
+                die('record.php:110 ' . $e->getMessage());
             }
 
         } else {
@@ -199,6 +202,13 @@ class record
         return true;
     }
 
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     *
+     * @since 3.0.0
+     */
     function getFieldsToSave($row): array
     {
         $this->ct->isEditForm = true; //These changes input box prefix

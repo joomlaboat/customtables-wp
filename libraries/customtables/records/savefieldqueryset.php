@@ -278,7 +278,7 @@ class SaveFieldQuerySet
 
             case 'usergroups':
 
-                require_once 'usergroups.php';
+                require_once 'Save_usergroups.php';
                 $usergroups = new Save_usergroups($this->ct, $this->field, $this->row_new);
                 $value = $usergroups->saveFieldSet();
 
@@ -304,7 +304,7 @@ class SaveFieldQuerySet
 
             case 'image':
 
-                require_once 'image.php';
+                require_once 'Save_image.php';
                 $image = new Save_image($this->ct, $this->field);
                 $value = $image->saveFieldSet($listing_id);
 
@@ -316,7 +316,7 @@ class SaveFieldQuerySet
 
             case 'blob':
 
-                require_once 'blob.php';
+                require_once 'Save_blob.php';
                 $image = new Save_blob($this->ct, $this->field, $this->row_new);
                 $value = $image->saveFieldSet($listing_id);
 
@@ -328,7 +328,7 @@ class SaveFieldQuerySet
 
             case 'file':
 
-                require_once 'file.php';
+                require_once 'Save_file.php';
 
                 $image = new Save_file($this->ct, $this->field, $this->row_new);
                 $value = $image->saveFieldSet($listing_id);
@@ -815,12 +815,12 @@ class SaveFieldQuerySet
 
         if ($this->ct->Params->emailSentStatusField != '') {
 
-            foreach ($this->ct->Table->fields as $fieldrow) {
-                $fieldname = $fieldrow['fieldname'];
+            foreach ($this->ct->Table->fields as $fieldRow) {
+                $fieldname = $fieldRow['fieldname'];
                 if ($this->ct->Params->emailSentStatusField == $fieldname) {
 
                     $data = [
-                        $fieldrow['realfieldname'] => $status
+                        $fieldRow['realfieldname'] => $status
                     ];
                     $whereClauseUpdate = new MySQLWhereClause();
                     $whereClauseUpdate->addCondition($this->ct->Table->realidfieldname, $listing_id);
@@ -889,12 +889,12 @@ class SaveFieldQuerySet
                 $i++;
             }
 
-            foreach ($this->ct->Table->fields as $fieldrow) {
-                if ($fieldrow['type'] == 'file') {
-                    $field = new Field($this->ct, $fieldrow, $row);
+            foreach ($this->ct->Table->fields as $fieldRow) {
+                if ($fieldRow['type'] == 'file') {
+                    $field = new Field($this->ct, $fieldRow, $row);
                     $FileFolder = FileUtils::getOrCreateDirectoryPath($field->params[0]);
 
-                    $filename = $FileFolder . $this->ct->Table->record[$fieldrow['realfieldname']];
+                    $filename = $FileFolder . $this->ct->Table->record[$fieldRow['realfieldname']];
                     if (file_exists($filename))
                         $attachments[] = $filename;//TODO: Check the functionality
                 }
