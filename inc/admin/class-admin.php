@@ -125,20 +125,32 @@ class Admin
             wp_enqueue_script('customtables-js-typeparams_j4', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/typeparams_j4.js', array(), $this->version, false);
         }
 
+        //if ($page == 'customtables-records' or $page == 'customtables-records-edit') {
+        //wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url(home_url()) . '";');
+        //}
+
         if ($page == 'customtables-records-edit') {
 
             // Add inline script after enqueuing the main script
-            wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url(home_url()) . '";');
-
             wp_enqueue_script('ct-catalog-base64', CUSTOMTABLES_MEDIA_WEBPATH . 'js/base64.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
             wp_enqueue_script('ct-edit-form-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), \CustomTablesWP\PLUGIN_VERSION);
+
+            $ctWebsiteRoot = home_url();
+            if ($ctWebsiteRoot !== '' and $ctWebsiteRoot[strlen($ctWebsiteRoot) - 1] !== '/')
+                $ctWebsiteRoot .= '/';
+
+            wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url($ctWebsiteRoot) . '";');
 
             wp_enqueue_script('jquery');
 
             // Enqueue jQuery UI
             wp_enqueue_script('jquery-ui-core');
 
-            wp_enqueue_script('ct-uploadfile-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/jquery.uploadfile.min.js', array(), \CustomTablesWP\PLUGIN_VERSION);
+            $filePath = CUSTOMTABLES_PRO_PATH . 'js' . DIRECTORY_SEPARATOR . 'jquery.uploadfile.js';
+
+            if (file_exists($filePath))
+                wp_enqueue_script('ct-uploadfile-script', home_url() . '/wp-content/plugins/customtablespro/js/jquery.uploadfile.js', array(), \CustomTablesWP\PLUGIN_VERSION);
+
             wp_enqueue_script('ct-uploader-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/uploader.js', array(), \CustomTablesWP\PLUGIN_VERSION);
 
 
@@ -282,7 +294,7 @@ class Admin
                 } else {
 
                     $tempCT = new CT;
-                    $tempCT->getTable($tableId,null,false);
+                    $tempCT->getTable($tableId, null, false);
                     if ($tempCT->Table === null) {
                         $result = array('error' => 'table id "' . $tableId . '" not found');
                     } else {
