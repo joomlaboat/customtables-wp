@@ -228,6 +228,8 @@ class template
 
         wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url($ctWebsiteRoot) . '";');
         wp_add_inline_script('ct-edit-form-script', 'let ctFieldInputPrefix = "' . $this->enqueueList['FieldInputPrefix'] . '";');
+        wp_add_inline_script('ct-edit-form-script', 'let gmapdata = [];');
+        wp_add_inline_script('ct-edit-form-script', 'let gmapmarker = [];');
 
         // Add inline script after enqueuing the main script
         if (isset($this->enqueueList['style']))
@@ -297,14 +299,14 @@ class template
         }
 
         //Google Map Coordinates
-        if (isset($this->enqueueList['fieldtype:googlemapcoordinates']) and $this->enqueueList['fieldtype:googlemapcoordinates']) {
+        //if (isset($this->enqueueList['fieldtype:googlemapcoordinates']) and $this->enqueueList['fieldtype:googlemapcoordinates']) {
 
             $googleMapAPIKey = get_option('customtables-googlemapapikey') ?? '';
             if ($googleMapAPIKey != '')
                 wp_enqueue_script('ct-google-map-script', 'https://maps.google.com/maps/api/js?key=' . $googleMapAPIKey . '&sensor=false', array(), PLUGIN_VERSION, true);
-        }
+        //}
 
-        //Google Map Coordinates
+        //Google Drive
         if (isset($this->enqueueList['fieldtype:file']) and $this->enqueueList['fieldtype:file']) {
 
             $GoogleDriveAPIKey = get_option('customtables-googledriveapikey') ?? '';

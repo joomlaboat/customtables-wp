@@ -129,6 +129,10 @@ class Admin
         //wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url(home_url()) . '";');
         //}
 
+        $ctWebsiteRoot = home_url();
+        if ($ctWebsiteRoot !== '' and $ctWebsiteRoot[strlen($ctWebsiteRoot) - 1] !== '/')
+            $ctWebsiteRoot .= '/';
+
         if ($page == 'customtables-records-edit') {
 
             // Add inline script after enqueuing the main script
@@ -136,11 +140,10 @@ class Admin
             wp_enqueue_script('ct-catalog-base64', CUSTOMTABLES_MEDIA_WEBPATH . 'js/base64.js', array(), \CustomTablesWP\PLUGIN_VERSION);
             wp_enqueue_script('ct-edit-form-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), \CustomTablesWP\PLUGIN_VERSION);
 
-            $ctWebsiteRoot = home_url();
-            if ($ctWebsiteRoot !== '' and $ctWebsiteRoot[strlen($ctWebsiteRoot) - 1] !== '/')
-                $ctWebsiteRoot .= '/';
 
             wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url($ctWebsiteRoot) . '";');
+            wp_add_inline_script('ct-edit-form-script', 'let gmapdata = [];');
+            wp_add_inline_script('ct-edit-form-script', 'let gmapmarker = [];');
 
             wp_enqueue_script('jquery');
 
@@ -165,6 +168,33 @@ class Admin
             wp_enqueue_script('ct-spectrum-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/spectrum.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
             wp_enqueue_style('ct-spectrum-style', CUSTOMTABLES_MEDIA_WEBPATH . 'css/spectrum.css', array(), \CustomTablesWP\PLUGIN_VERSION, false);
         }
+
+        if ($page == 'customtables-records') {
+            wp_enqueue_script('ct-catalog-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/catalog.js', array(), \CustomTablesWP\PLUGIN_VERSION, false);
+            wp_add_inline_script('ct-catalog-script', 'let ctWebsiteRoot = "' . esc_url($ctWebsiteRoot) . '";');
+            wp_add_inline_script('ct-catalog-script', 'let gmapdata = [];');
+            wp_add_inline_script('ct-catalog-script', 'let gmapmarker = [];');
+        }
+
+        //Google Map Coordinates
+        //if (isset($this->enqueueList['fieldtype:googlemapcoordinates']) and $this->enqueueList['fieldtype:googlemapcoordinates']) {
+
+            $googleMapAPIKey = get_option('customtables-googlemapapikey') ?? '';
+            if ($googleMapAPIKey != '')
+                wp_enqueue_script('ct-google-map-script', 'https://maps.google.com/maps/api/js?key=' . $googleMapAPIKey . '&sensor=false', array(), \CustomTablesWP\PLUGIN_VERSION, true);
+        //}
+
+        //Google Drive
+        //if (isset($this->enqueueList['fieldtype:file']) and $this->enqueueList['fieldtype:file']) {
+
+            $GoogleDriveAPIKey = get_option('customtables-googledriveapikey') ?? '';
+            $GoogleDriveClientId = get_option('customtables-googledriveclientid') ?? '';
+
+            if ($GoogleDriveAPIKey != '' and $GoogleDriveClientId != '') {
+                wp_enqueue_script('ct-google-api', 'https://apis.google.com/js/api.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
+                wp_enqueue_script('ct-google-gsi-client', 'https://accounts.google.com/gsi/client', array(), \CustomTablesWP\PLUGIN_VERSION, true);
+            }
+        //}
 
         wp_localize_script(
             'ct-edit-form-script',
