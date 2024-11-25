@@ -132,7 +132,8 @@ class Admin
         if ($page == 'customtables-records-edit') {
 
             // Add inline script after enqueuing the main script
-            wp_enqueue_script('ct-catalog-base64', CUSTOMTABLES_MEDIA_WEBPATH . 'js/base64.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
+            wp_enqueue_script('ct-catalog-ajax', CUSTOMTABLES_MEDIA_WEBPATH . 'js/ajax.js', array(), \CustomTablesWP\PLUGIN_VERSION);
+            wp_enqueue_script('ct-catalog-base64', CUSTOMTABLES_MEDIA_WEBPATH . 'js/base64.js', array(), \CustomTablesWP\PLUGIN_VERSION);
             wp_enqueue_script('ct-edit-form-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), \CustomTablesWP\PLUGIN_VERSION);
 
             $ctWebsiteRoot = home_url();
@@ -164,6 +165,12 @@ class Admin
             wp_enqueue_script('ct-spectrum-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/spectrum.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
             wp_enqueue_style('ct-spectrum-style', CUSTOMTABLES_MEDIA_WEBPATH . 'css/spectrum.css', array(), \CustomTablesWP\PLUGIN_VERSION, false);
         }
+
+        wp_localize_script(
+            'ct-edit-form-script',
+            'ctTranslationScriptObject',
+            common::getLocalizeScriptArray()
+        );
     }
 
     /**

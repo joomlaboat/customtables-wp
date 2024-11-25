@@ -14,8 +14,6 @@ use CustomTables\Fields;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-//include ('customtables-fields-edit-help.php');
-
 require_once ABSPATH . 'wp-admin/admin-header.php';
 
 ?>

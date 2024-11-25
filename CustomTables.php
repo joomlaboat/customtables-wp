@@ -21,6 +21,8 @@ namespace CustomTablesWP;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use CustomTables\common;
+use CustomTables\CT;
+use CustomTables\ProInputBoxTableJoin;
 use CustomTables\Value_file;
 
 do_action('my_custom_hook');
@@ -111,8 +113,6 @@ function customtables_init()
 {
     if (is_admin()) {
 
-
-
         //Make sure that this is called only when Custom Tables admin section is open
         return customTables::init();
     }
@@ -140,6 +140,18 @@ function enqueue_codemirror()
 
 if ($page == 'customtables-layouts-edit')
     add_action('admin_enqueue_scripts', 'CustomTablesWP\enqueue_codemirror');
+
+if ($page == 'customtables-api-tablejoin'){
+    $key = common::inputGetCmd('key');
+    if ($key != '') {
+        $path = CUSTOMTABLES_PRO_PATH . 'inputbox' . DIRECTORY_SEPARATOR;
+        if (file_exists($path . 'tablejoin.php')) {
+            require_once($path . 'tablejoin.php');
+            $ct = new CT;
+            ProInputBoxTableJoin::renderTableJoinSelectorJSON($ct, $key);//Inputbox
+        }
+    }
+}
 
 // Function to generate real content based on block attributes
 function customtables_dynamic_block_block_init()
