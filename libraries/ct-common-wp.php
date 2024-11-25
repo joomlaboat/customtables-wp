@@ -281,28 +281,21 @@ class common
         return (string)preg_replace('/[^A-Z\d]/i', '', sanitize_text_field($_GET[$parameter]));
     }
 
-    public static function inputPost($parameter, $default = null, $filter = null)
+    public static function inputPostArray($parameter, $default = null)
     {
-        if ($filter == 'array') {
+        if (isset($_POST[$parameter])) {
 
-            if (isset($_POST[$parameter])) {
+            if (is_array($_POST[$parameter])) {
+                $values = [];
+                foreach ($_POST[$parameter] as $value)
+                    $values[] = sanitize_text_field(wp_strip_all_tags($value));
 
-                if(is_array($_POST[$parameter])) {
-                    $values = [];
-                    foreach ($_POST[$parameter] as $value)
-                        $values[] = sanitize_text_field(wp_strip_all_tags($value));
-
-                    return $values;
-                }
-                else{
-                    return [wp_strip_all_tags($_POST[$parameter])];
-                }
-            } else
-                return $default;
-        } else {
-            echo 'common::inputPost (not array) not supported in WordPress';
-            die;
-        }
+                return $values;
+            } else {
+                return [wp_strip_all_tags($_POST[$parameter])];
+            }
+        } else
+            return $default;
     }
 
     public static function inputSet(string $parameter, string $value): void
@@ -555,7 +548,7 @@ class common
         $randomString = '';
         for ($i = 0; $i < $length; $i++)
             $randomString .= $characters[rand(0, $charactersLength - 1)];
-            //$randomString .= $characters[\wp_rand(0, $charactersLength - 1)];
+        //$randomString .= $characters[\wp_rand(0, $charactersLength - 1)];
 
         return $randomString;
     }
@@ -811,7 +804,8 @@ class common
         return isset($_SESSION[$key]) ? $_SESSION[$key] : $default;
     }
 
-    public static function getLocalizeScriptArray(){
+    public static function getLocalizeScriptArray()
+    {
         return [
             'COM_CUSTOMTABLES_JS_SELECT_RECORDS' => __(esc_html__("Please select records first", "customtables"), 'customtables'),
             'COM_CUSTOMTABLES_JS_SELECT_DO_U_WANT_TO_DELETE1' => __(esc_html__("Do you want to delete selected record?", "customtables"), 'customtables'),
