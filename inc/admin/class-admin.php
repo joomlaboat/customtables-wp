@@ -173,11 +173,14 @@ class Admin
         }
 
         if ($page == 'customtables-records') {
+
+            wp_enqueue_script('ct-edit-form-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/edit.js', array(), \CustomTablesWP\PLUGIN_VERSION);
+            wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url($ctWebsiteRoot) . '";');
+            wp_add_inline_script('ct-edit-form-script', 'let gmapdata = [];');
+            wp_add_inline_script('ct-edit-form-script', 'let gmapmarker = [];');
+            wp_add_inline_script('ct-edit-form-script', 'const CTEditHelper = new CustomTablesEdit();');
+
             wp_enqueue_script('ct-catalog-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/catalog.js', array(), \CustomTablesWP\PLUGIN_VERSION, false);
-            wp_add_inline_script('ct-catalog-script', 'let ctWebsiteRoot = "' . esc_url($ctWebsiteRoot) . '";');
-            wp_add_inline_script('ct-catalog-script', 'let gmapdata = [];');
-            wp_add_inline_script('ct-catalog-script', 'let gmapmarker = [];');
-            wp_add_inline_script('ct-catalog-script', 'const CTEditHelper = new CustomTablesEdit();');
         }
 
         //Google Map Coordinates

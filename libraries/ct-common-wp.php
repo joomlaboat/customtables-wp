@@ -846,4 +846,8 @@ class common
         ];
     }
 
+    public static function getSiteName()
+    {
+        return get_bloginfo('name');
+    }
 }
