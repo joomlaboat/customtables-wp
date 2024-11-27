@@ -22,15 +22,28 @@ class CustomTablesImageMethods
 {
     const allowedExtensions = ['jpg', 'png', 'gif', 'jpeg', 'webp'];
 
-    public static function getImageFolder(array $params)
+    /**
+     * @throws Exception
+     * @since 3.4.5
+     */
+    public static function getImageFolder(array $params, string $fieldType = 'image'): array
     {
+        if ($fieldType == 'filelink')
+            $index = 0;
+        elseif ($fieldType == 'file' or $fieldType == 'filebox')
+            $index = 1;
+        elseif ($fieldType == 'image' or $fieldType == 'imagegallery' or $fieldType == 'signature')
+            $index = 2;
+        else
+            throw new Exception('Invalid field type');
+
         $ImageFolderPath = null;
         $ImageFolder = null;
 
         if (defined('_JEXEC')) {
 
-            if (isset($params[2]) and !empty($params[2])) {
-                $ImageFolder = $params[2];
+            if (isset($params[$index]) and !empty($params[$index])) {
+                $ImageFolder = $params[$index];
 
                 if ($ImageFolder[0] != '/')
                     $ImageFolder = 'images/' . $ImageFolder;
@@ -53,8 +66,8 @@ class CustomTablesImageMethods
 
         } elseif (defined('WPINC')) {
 
-            if (isset($params[2]) and !empty($params[2])) {
-                $ImageFolder = $params[2];
+            if (isset($params[$index]) and !empty($params[$index])) {
+                $ImageFolder = $params[$index];
 
                 if ($ImageFolder[0] != '/')
                     $ImageFolder = 'wp-content/uploads/' . $ImageFolder;
@@ -68,7 +81,13 @@ class CustomTablesImageMethods
         if (!file_exists($ImageFolderPath))
             mkdir($ImageFolderPath, 0755, true);
 
-        return $ImageFolder;
+        if (strlen($ImageFolderPath) > 0 and $ImageFolderPath[strlen($ImageFolderPath) - 1] == DIRECTORY_SEPARATOR)
+            $ImageFolderPath = substr($ImageFolderPath, 0, strlen($ImageFolderPath) - 1);
+
+        if (strlen($ImageFolder) > 0 and $ImageFolder[strlen($ImageFolder) - 1] == '/')
+            $ImageFolder = substr($ImageFolder, 0, strlen($ImageFolder) - 1);
+
+        return ['path' => $ImageFolderPath, 'web' => common::UriRoot() . '/' . $ImageFolder];
     }
 
     public static function CheckImage($src): bool
@@ -81,8 +100,7 @@ class CustomTablesImageMethods
 
         if ($ms == 0)
             return false;
-        //if ($ms > $memoryLimit)
-        //return false;
+
         return true;
     }
 
@@ -124,11 +142,11 @@ class CustomTablesImageMethods
         }
     }
 
-    function DeleteExistingGalleryImage($ImageFolder, $ImageMainPrefix, $estableid, $galleryName, $photoId, string $imageParams, $deleteOriginals = false): void
+    function DeleteExistingGalleryImage(string $AbsoluteImageFolder, $ImageMainPrefix, $estableid, $galleryName, $photoId, string $imageParams, $deleteOriginals = false): void
     {
         //Delete original thumbnails
         if ($deleteOriginals) {
-            $filename = $ImageFolder . DIRECTORY_SEPARATOR . $ImageMainPrefix . $estableid . '_' . $galleryName
+            $filename = $AbsoluteImageFolder . DIRECTORY_SEPARATOR . $ImageMainPrefix . $estableid . '_' . $galleryName
                 . '__esthumb_' . $photoId . '.jpg';
             if (file_exists($filename))
                 unlink($filename);
@@ -139,14 +157,14 @@ class CustomTablesImageMethods
         foreach (CustomTablesImageMethods::allowedExtensions as $photo_ext) {
             //delete orginal full size images
             if ($deleteOriginals) {
-                $filename = $ImageFolder . DIRECTORY_SEPARATOR . $ImageMainPrefix . $estableid . '_' . $galleryName . '__original_' . $photoId . '.' . $photo_ext;
+                $filename = $AbsoluteImageFolder . DIRECTORY_SEPARATOR . $ImageMainPrefix . $estableid . '_' . $galleryName . '__original_' . $photoId . '.' . $photo_ext;
                 if (file_exists($filename))
                     unlink($filename);
             }
 
             //Delete custom size images
             foreach ($customSizes as $customSize) {
-                $filename = $ImageFolder . DIRECTORY_SEPARATOR . $ImageMainPrefix . $estableid . '_' . $galleryName . '_' . $customSize[0] . '_' . $photoId . '.' . $photo_ext;
+                $filename = $AbsoluteImageFolder . DIRECTORY_SEPARATOR . $ImageMainPrefix . $estableid . '_' . $galleryName . '_' . $customSize[0] . '_' . $photoId . '.' . $photo_ext;
                 if (file_exists($filename))
                     unlink($filename);
             }
@@ -349,7 +367,7 @@ class CustomTablesImageMethods
             $additional_params = $params[1];
 
         if (!str_contains($pathToImageFile, DIRECTORY_SEPARATOR))//in case when other applications pass full path to the file
-            $uploadedFile = CUSTOMTABLES_ABSPATH . 'tmp' . DIRECTORY_SEPARATOR . $pathToImageFile;
+            $uploadedFile = CUSTOMTABLES_TEMP_PATH . $pathToImageFile;
         else
             $uploadedFile = $pathToImageFile;
 
@@ -360,7 +378,7 @@ class CustomTablesImageMethods
                 $is_base64encoded = common::inputGetCmd('base64encoded', '');
                 if ($is_base64encoded == "true") {
                     $src = $uploadedFile;
-                    $dst = CUSTOMTABLES_ABSPATH . 'tmp' . DIRECTORY_SEPARATOR . 'decoded_' . basename($pathToImageFile);//TODO: Check this functionality
+                    $dst = CUSTOMTABLES_TEMP_PATH . 'decoded_' . basename($pathToImageFile);//TODO: Check this functionality
                     common::base64file_decode($src, $dst);
                 }
             }

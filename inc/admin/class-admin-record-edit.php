@@ -46,7 +46,7 @@ class Admin_Record_Edit
 
 		if ($this->tableId) {
 			$this->ct->getTable($this->tableId);
-			if ($this->ct->Table->tablename !== null) {
+			if ($this->ct->Table !== null) {
 
 				$this->listing_id = common::inputGetCmd('id');
 

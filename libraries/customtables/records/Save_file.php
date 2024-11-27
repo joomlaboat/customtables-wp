@@ -13,6 +13,7 @@ namespace CustomTables;
 // no direct access
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use CustomTablesImageMethods;
 use Exception;
 
 class Save_file
@@ -46,9 +47,9 @@ class Save_file
         if (!empty($fileData) and $fileData[0] == '{') {
 
             if (defined('_JEXEC'))
-                $CompletePathToFile = $this->downloadGoogleDriveFile($fileData, CUSTOMTABLES_ABSPATH . 'tmp');
+                $CompletePathToFile = $this->downloadGoogleDriveFile($fileData, CUSTOMTABLES_TEMP_PATH);
             elseif (defined('WPINC'))
-                $CompletePathToFile = $this->downloadGoogleDriveFile(stripslashes($fileData), CUSTOMTABLES_IMAGES_PATH);
+                $CompletePathToFile = $this->downloadGoogleDriveFile(stripslashes($fileData), CUSTOMTABLES_TEMP_PATH);
 
             if ($CompletePathToFile === null)
                 return null;
@@ -58,7 +59,7 @@ class Save_file
             if (defined('_JEXEC')) {
                 $temporaryFile = common::inputPostString($this->field->comesfieldname, null, 'create-edit-record');
                 if (!empty($temporaryFile))
-                    $CompletePathToFile = CUSTOMTABLES_ABSPATH . 'tmp' . DIRECTORY_SEPARATOR . $temporaryFile;
+                    $CompletePathToFile = CUSTOMTABLES_TEMP_PATH . $temporaryFile;
 
                 $fileName = common::inputPostString('com' . $this->field->realfieldname . '_filename', '', 'create-edit-record');
             } elseif (defined('WPINC')) {
@@ -72,43 +73,34 @@ class Save_file
         }
 
         //Set the variable to "false" to do not delete existing file
-        $FileFolder = FileUtils::getOrCreateDirectoryPath($this->field->params[1]);
+        $FileFolderArray = CustomTablesImageMethods::getImageFolder($this->field->params, $this->field->type);
+        //$FileFolder = FileUtils::getOrCreateDirectoryPath($this->field->params[1]);
 
         if (($CompletePathToFile !== null and $CompletePathToFile != '') or $to_delete == 'true') {
 
             $ExistingFile = $this->field->ct->Table->getRecordFieldValue($listing_id, $this->field->realfieldname);
 
-            $filepath = str_replace('/', DIRECTORY_SEPARATOR, $FileFolder);
-            if (substr($filepath, 0, 1) == DIRECTORY_SEPARATOR)
-                $filepath = str_replace(DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, CUSTOMTABLES_ABSPATH . $filepath);
-            else
-                $filepath = CUSTOMTABLES_ABSPATH . $filepath;
-
             if ($ExistingFile != '' and !self::checkIfTheFileBelongsToAnotherRecord($ExistingFile)) {
-                $filename_full = $filepath . DIRECTORY_SEPARATOR . $ExistingFile;
+                $filename_full = $FileFolderArray['path'] . DIRECTORY_SEPARATOR . $ExistingFile;
 
                 if (file_exists($filename_full)) {
-
                     echo 'filename exists : ' . $filename_full . '<br/>';
-
                     unlink($filename_full);
                 }
             }
         }
 
-        echo '$CompletePathToFile:' . $CompletePathToFile . '<br/>';
-
         if ($CompletePathToFile !== null and $CompletePathToFile != '') {
             //Upload new file
 
             if ($listing_id == 0) {
-                $fileSystemFileFolder = str_replace(DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, CUSTOMTABLES_ABSPATH . $FileFolder);
-                $value = $this->UploadSingleFile(null, $CompletePathToFile, $fileName, $fileSystemFileFolder);
+                //$fileSystemFileFolder = str_replace(DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, CUSTOMTABLES_ABSPATH . $FileFolder);
+                $value = $this->UploadSingleFile(null, $CompletePathToFile, $fileName, $FileFolderArray['path']);
             } else {
                 $ExistingFile = $this->field->ct->Table->getRecordFieldValue($listing_id, $this->field->realfieldname);
 
-                $fileSystemFileFolder = str_replace(DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, CUSTOMTABLES_ABSPATH . $FileFolder);
-                $value = $this->UploadSingleFile($ExistingFile, $CompletePathToFile, $fileName, $fileSystemFileFolder);
+                //$fileSystemFileFolder = str_replace(DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, CUSTOMTABLES_ABSPATH . $FileFolder);
+                $value = $this->UploadSingleFile($ExistingFile, $CompletePathToFile, $fileName, $FileFolderArray['path']);
             }
 
             //Set new image value
@@ -275,7 +267,7 @@ class Save_file
 
                 if (defined('_JEXEC')) {
                     $file = common::inputPostString($this->field->comesfieldname, '');
-                    $dst = JPATH_SITE . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'decoded_' . basename($file['name']);
+                    $dst = CUSTOMTABLES_TEMP_PATH . 'decoded_' . basename($file['name']);
                     common::base64file_decode($CompletePathToFile, $dst);
                     $CompletePathToFile = $dst;
                 } else {

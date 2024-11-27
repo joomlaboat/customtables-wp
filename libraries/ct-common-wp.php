@@ -302,11 +302,32 @@ class common
     {
         echo 'common::inputSet not supported in WordPress';
     }
-
-    public static function inputFiles(string $fileId)
+    public static function inputFiles(string $fileId, string $action)
     {
-        echo 'common::inputFiles not supported in WordPress';
-        return null;
+        if (isset($_POST['_wpnonce'])) {
+            if (function_exists('\wp_verify_nonce') and !wp_verify_nonce(sanitize_text_field($_POST['_wpnonce']), $action))
+                return null;
+        }
+
+        if (!isset($_FILES[$fileId])) {
+            return null;
+        }
+
+        $files = [];
+        $fileData = $_FILES[$fileId];
+
+        for ($i = 0; $i < count($fileData['name']); $i++) {
+            $files[] = [
+                'name' => $fileData['name'][$i],
+                'full_path' => $fileData['full_path'][$i] ?? $fileData['name'][$i],  // fallback for older PHP versions
+                'type' => $fileData['type'][$i],
+                'tmp_name' => $fileData['tmp_name'][$i],
+                'error' => $fileData['error'][$i],
+                'size' => $fileData['size'][$i]
+            ];
+        }
+
+        return $files;
     }
 
     public static function inputCookieSet(string $parameter, $value, $time, $path, $domain): void

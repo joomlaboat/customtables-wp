@@ -969,7 +969,7 @@ class database
             if ($primaryKeyType !== 'int')
                 $primaryKeyTypeString = $primaryKeyType;
 
-            $allColumns = array_merge(['`' . $privateKey . '` ' . $primaryKeyTypeString . ' NOT NULL AUTO_INCREMENT'], $columns, ['PRIMARY KEY  (`id`)']);
+            $allColumns = array_merge(['`' . $privateKey . '` ' . $primaryKeyTypeString . ' NOT NULL AUTO_INCREMENT'], $columns, ['PRIMARY KEY  (`' . $privateKey . '`)']);
 
             if ($keys !== null)
                 $allColumns = array_merge($allColumns, $keys);

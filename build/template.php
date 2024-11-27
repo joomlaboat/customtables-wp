@@ -230,6 +230,7 @@ class template
         wp_add_inline_script('ct-edit-form-script', 'let ctFieldInputPrefix = "' . $this->enqueueList['FieldInputPrefix'] . '";');
         wp_add_inline_script('ct-edit-form-script', 'let gmapdata = [];');
         wp_add_inline_script('ct-edit-form-script', 'let gmapmarker = [];');
+        wp_add_inline_script('ct-edit-form-script', 'const CTEditHelper = new CustomTablesEdit();');
 
         // Add inline script after enqueuing the main script
         if (isset($this->enqueueList['style']))

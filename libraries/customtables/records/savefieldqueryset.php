@@ -13,6 +13,7 @@ namespace CustomTables;
 // no direct access
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use CustomTablesImageMethods;
 use Exception;
 use LayoutProcessor;
 use tagProcessor_General;
@@ -306,6 +307,18 @@ class SaveFieldQuerySet
 
                 require_once 'Save_image.php';
                 $image = new Save_image($this->ct, $this->field);
+                $value = $image->saveFieldSet($listing_id);
+
+                //This way it will be clear if the value changed or not. If $this->newValue = null means that value not changed.
+                if ($value !== null and is_array($value))
+                    $this->setNewValue($value['value']);
+
+                return;
+
+            case 'imagegallery':
+
+                require_once 'Save_imagegallery.php';
+                $image = new Save_imagegallery($this->ct, $this->field);
                 $value = $image->saveFieldSet($listing_id);
 
                 //This way it will be clear if the value changed or not. If $this->newValue = null means that value not changed.
@@ -892,9 +905,10 @@ class SaveFieldQuerySet
             foreach ($this->ct->Table->fields as $fieldRow) {
                 if ($fieldRow['type'] == 'file') {
                     $field = new Field($this->ct, $fieldRow, $row);
-                    $FileFolder = FileUtils::getOrCreateDirectoryPath($field->params[0]);
+                    $FileFolderArray = CustomTablesImageMethods::getImageFolder($field->params, $field->type);
+                    //$FileFolder = FileUtils::getOrCreateDirectoryPath($field->params[0]);
 
-                    $filename = $FileFolder . $this->ct->Table->record[$fieldRow['realfieldname']];
+                    $filename = $FileFolderArray['path'] . DIRECTORY_SEPARATOR . $this->ct->Table->record[$fieldRow['realfieldname']];
                     if (file_exists($filename))
                         $attachments[] = $filename;//TODO: Check the functionality
                 }

@@ -144,6 +144,7 @@ class Admin
             wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url($ctWebsiteRoot) . '";');
             wp_add_inline_script('ct-edit-form-script', 'let gmapdata = [];');
             wp_add_inline_script('ct-edit-form-script', 'let gmapmarker = [];');
+            wp_add_inline_script('ct-edit-form-script', 'const CTEditHelper = new CustomTablesEdit();');
 
             wp_enqueue_script('jquery');
 
@@ -167,6 +168,8 @@ class Admin
             //Color Field Type
             wp_enqueue_script('ct-spectrum-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/spectrum.js', array(), \CustomTablesWP\PLUGIN_VERSION, true);
             wp_enqueue_style('ct-spectrum-style', CUSTOMTABLES_MEDIA_WEBPATH . 'css/spectrum.css', array(), \CustomTablesWP\PLUGIN_VERSION, false);
+
+            wp_enqueue_style('ct-edit-form-style', CUSTOMTABLES_MEDIA_WEBPATH . 'css/style.css', array(), \CustomTablesWP\PLUGIN_VERSION, false);
         }
 
         if ($page == 'customtables-records') {
@@ -174,6 +177,7 @@ class Admin
             wp_add_inline_script('ct-catalog-script', 'let ctWebsiteRoot = "' . esc_url($ctWebsiteRoot) . '";');
             wp_add_inline_script('ct-catalog-script', 'let gmapdata = [];');
             wp_add_inline_script('ct-catalog-script', 'let gmapmarker = [];');
+            wp_add_inline_script('ct-catalog-script', 'const CTEditHelper = new CustomTablesEdit();');
         }
 
         //Google Map Coordinates
