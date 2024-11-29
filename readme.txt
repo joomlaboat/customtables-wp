@@ -4,7 +4,7 @@ Contributors: @ivankomlev
 Donate link: https://www.patreon.com/joomlaboat
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
-Tested up to: 6.7.0
+Tested up to: 6.7.1
 Stable tag: 1.3.3
 Requires PHP: 7.4
 License: GPLv2 or later
@@ -24,7 +24,7 @@ Take your WordPress site to the next level with Custom Tables, a powerful plugin
 **Key Features**:
 
 Twig Template Language Support: Create dynamic layouts with ease using the modern Twig template language.
-24 Field Types: Choose from Integer, Decimal, Text String, Date, Email, Color, Image, and more to create complex data structures.
+31 Field Types: Choose from Integer, Decimal, Text String, Date, Email, Color, Image, and more to create complex data structures.
 Layout Editor: Simplify layout creation with the Auto-Create button, which generates a layout based on your table fields.
 Secure and Sanitized: All tables are stored in MySQL, with queries and field values properly sanitized for added security.
 
