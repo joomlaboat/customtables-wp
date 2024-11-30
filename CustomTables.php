@@ -4,7 +4,7 @@
  * Plugin URI: https://ct4.us/
  * GitHub: https://github.com/joomlaboat/customtables-wp
  * Description: Custom Tables solution for WordPress
- * Version: 1.3.3
+ * Version: 1.3.4
  * Author: Ivan Komlev
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
@@ -35,7 +35,7 @@ define(__NAMESPACE__ . '\CTWP', __NAMESPACE__ . '\\');
 
 define(CTWP . 'PLUGIN_NAME', 'customtables');
 
-define(CTWP . 'PLUGIN_VERSION', '1.3.3');
+define(CTWP . 'PLUGIN_VERSION', '1.3.4');
 
 define(CTWP . 'PLUGIN_NAME_DIR', plugin_dir_path(__FILE__));
 
@@ -130,7 +130,7 @@ $page = common::inputGetCmd('page', '');
 
 function enqueue_codemirror()
 {
-    $version = '1.3.3';
+    $version = '1.3.4';
     wp_enqueue_style('customtables-js-modal', plugin_dir_url(__FILE__) . 'libraries/customtables/media/css/modal.css', false, $version);
     wp_enqueue_style('customtables-js-layouteditor', plugin_dir_url(__FILE__) . 'libraries/customtables/media/css/layouteditor.css', false, $version);
 
@@ -269,3 +269,74 @@ function your_function_to_access_post()
 }
 
 add_action('wp', 'CustomTablesWP\your_function_to_access_post');
+
+
+function customtables__form_generation_function($attributes): string
+{
+
+    require_once plugin_dir_path(__FILE__) . 'build/template.php';
+
+    $temp =  new template();
+    return $temp->renderBlock($attributes);
+}
+
+add_shortcode('customtables', function($form_attributes) {
+
+    // Don't process shortcode in admin area
+    if (is_admin()) {
+        $shortcode = '[customtables';
+        if (is_array($form_attributes)) {
+            foreach ($form_attributes as $key => $value) {
+                $shortcode .= ' ' . $key . '="' . esc_attr($value) . '"';
+            }
+        }
+        $shortcode .= ']';
+        return $shortcode;
+    }
+
+    $defaults = array(
+        'view' => null,      // optional, int or string
+        'table' => '',      // optional, int or string
+        'layout' => null,     // optional, int or string
+        'filter' => '',     // optional, string
+        'order' => '',      // optional, string
+        'limit' => '',      // optional, int
+    );
+
+    $attributes = shortcode_atts($defaults, $form_attributes);
+
+    if (empty($attributes['table']) and empty($attributes['layout'])) {
+        return 'Error: "table" or "layout" are parameter is required';
+    }
+
+    if (isset($attributes['view']) and !empty($attributes['view'])) {
+        if ($attributes['view'] != 'edit' and $attributes['view'] != 'details' and $attributes['view'] == 'catalog')
+            return 'Error: "view" parameter can be "edititem" or "details" or "catalog")';
+    }
+
+    // Sanitize inputs
+    $params = array(
+        'view' => sanitize_text_field($attributes['view']),
+        'table' => sanitize_text_field($attributes['table']),
+        'layout' => sanitize_text_field($attributes['layout']),
+        'filter' => sanitize_text_field($attributes['filter']),
+        'order' => sanitize_text_field($attributes['order']),
+        'limit' => !empty($attributes['limit']) ? absint($attributes['limit']) : null
+    );
+
+    return customtables__form_generation_function($params);
+});
+
+/*
+
+The Custom Tables shortcode allows you to display tables and layouts with various options. Here's how to use it:
+Basic Requirements:
+
+You must provide either a table or layout parameter (at least one is required)
+If you specify a table without a layout, you can optionally add a view parameter
+
+Basic Usage:
+
+
+
+ * */

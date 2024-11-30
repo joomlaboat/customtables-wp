@@ -19,3 +19,49 @@ https://wordpress.org/plugins/developers/
 https://developer.wordpress.org/reference/functions/wp_enqueue_script/#notes
 https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/
 https://developer.wordpress.org/plugins/wordpress-org/plugin-developer-faq/
+
+
+# Shortcode Usage
+
+The Custom Tables shortcode allows you to display tables and layouts with various options. Here's how to use it:
+
+## Basic Requirements
+
+- You must provide either a `table` or `layout` parameter (at least one is required)
+- If you specify a `table` without a `layout`, you can optionally add a `view` parameter
+
+## Basic Usage
+
+```
+[customtables table="1"]                    # Display table #1
+[customtables table="countries"]            # Display table "countries", catalog view, default layout
+[customtables layout="2"]                   # Display layout #2, the table is associated with the layout
+[customtables layout="ListOfCountries"]     # Display layout "ListOfCountries" (layout ID or name can be used)
+```
+
+## Views
+
+When using table without layout:
+
+```
+[customtables table="countries" view="edit"]        # Add country record 
+[customtables table="1" view="details" id="2"]     # Details view of country table, record #2
+[customtables table="countries" view="catalog"]     # Catalog view of table "countries" with default layout
+```
+
+## Optional Parameters
+
+```
+filter="category=books"    # Filter the results
+order="title ASC"         # Set the order of results
+limit="10"               # Limit number of results
+```
+
+## Full Examples
+
+```
+[customtables table="countries" layout="CountryList" filter="continent=Europe" order="name ASC" limit="10"]
+[customtables table="countries" view="details" id="5" layout="CountryDetails"]
+```
+
+**Note:** You can use either numeric IDs or names for both tables and layouts. When using the `details` view, remember to include the `id` parameter to specify which record to display.

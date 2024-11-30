@@ -5,7 +5,7 @@ Donate link: https://www.patreon.com/joomlaboat
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
 Tested up to: 6.7.1
-Stable tag: 1.3.3
+Stable tag: 1.3.4
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -52,12 +52,13 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 
 == Changelog ==
 
-= 1.3.3
+= 1.3.4
+- Shortcode tag added. Example [customtables table="countries"]
 
+= 1.3.3
 - Image Gallery field type added.
 
 = 1.3.2
-
 - Listing IDs now stored as strings.
 - Back-end: Record lists display processed values.
 - Fixed Table Join field params config bug.
@@ -65,12 +66,10 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 - Resolved table import issues.
 
 = 1.3.1
-
 - Custom field prefixes are set automatically for ol tables
 - Custom Tables Library updated - code cleaned.
 
 = 1.3.0
-
 - Custom field prefix can be set.
 
 = 1.2.9

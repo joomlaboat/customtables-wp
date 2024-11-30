@@ -17,7 +17,6 @@ use Exception;
 use JApplicationHelper;
 use Joomla\CMS\User\User;
 use Joomla\CMS\User\UserFactoryInterface;
-use Joomla\CMS\Version;
 use JUserHelper;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Factory;
@@ -50,10 +49,8 @@ class CTUser
         $this->isUserAdministrator = false;
 
         if (defined('_JEXEC')) {
-            $version_object = new Version;
-            $version = (int)$version_object->getShortVersion();
 
-            if ($version < 4)
+            if (!CUSTOMTABLES_JOOMLA_MIN_4)
                 $user = Factory::getUser($this->id);//For older Joomla versions
             else {
 
@@ -307,10 +304,7 @@ class CTUser
         $userActivation = 0;//already activated
 
         // Initialise the table with JUser.
-        $version_object = new Version;
-        $version = (int)$version_object->getShortVersion();
-
-        if ($version < 4)
+        if (!CUSTOMTABLES_JOOMLA_MIN_4)
             $user = Factory::getUser(0);//For older Joomla versions
         else
             $user = new User();
@@ -336,10 +330,7 @@ class CTUser
         if (!$user->bind($data)) {
 
             if (defined('_JEXEC')) {
-                $version_object = new Version;
-                $version = (int)$version_object->getShortVersion();
-
-                if ($version < 4)
+                if (!CUSTOMTABLES_JOOMLA_MIN_4)
                     $msg = esc_html__("User registration failed.", "customtables") . ': ' . $user->getError() ?? '';
                 else
                     $msg = esc_html__("User registration failed.", "customtables") . ': ' . implode(',', $user->getErrors());
@@ -351,10 +342,7 @@ class CTUser
         // Store the data.
         if (!$user->save()) {
 
-            $version_object = new Version;
-            $version = (int)$version_object->getShortVersion();
-
-            if ($version < 4)
+            if (!CUSTOMTABLES_JOOMLA_MIN_4)
                 $msg = esc_html__("User registration not saved.", "customtables") . ': ' . $user->getError() ?? '';
             else
                 $msg = esc_html__("User registration not saved.", "customtables") . ': ' . implode(',', $user->getErrors());

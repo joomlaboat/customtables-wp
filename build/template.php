@@ -85,16 +85,29 @@ class template
     function renderBlock($attributes): string
     {
         $result = '';
-        if (isset($attributes['table'])) {
+        //if (isset($attributes['table'])) {
 
-            if ($attributes['table'] !== 0) {
+            //if (!empty($attributes['table'])) {
 
-                $mixedLayout_array = [];
+                //$mixedLayout_array = [];
                 $ct = new CT(null, false);
 
-                try {
+                if (!empty($attributes['table'])) {
                     $ct->getTable($attributes['table']);
-                    if ($ct->Table->tablename !== null) {
+                    if ($ct->Table->tablename === null) {
+                        return  'CustomTables: Table "' . $attributes['table'] . '" not found.';
+                    }
+                }elseif (!empty($attributes['layout']))
+                {
+                    $layoutId = $attributes['layout'];
+                }else{
+                    return  'CustomTables: Table or Layout are required.';
+                }
+
+
+                //try {
+
+                    //if ($ct->Table->tablename !== null) {
 
                         if (!isset($attributes['limit']) or $attributes['limit'] == "")
                             $attributes['limit'] = 20;
@@ -103,36 +116,57 @@ class template
                         $ct->Params->sortBy = $attributes['orderby'] ?? null;
                         $ct->Params->filter = $attributes['filter'] ?? null;
 
-                        $view = common::inputGetCmd('view' . $ct->Table->tableid);
-                        if ($view == 'edititem') {
-                            $layoutType = 2;
-                            $layoutId = (int)($attributes['editlayout'] ?? 0);
-                        } elseif ($view == 'details') {
-                            $layoutType = 4;
-                            $layoutId = (int)($attributes['detailslayout'] ?? 0);
-                        } else {
-                            $layoutType = $attributes['type'] ?? 1;
+                        $layouts = new Layouts($ct);
 
-                            if ((int)$layoutType == 1)
-                                $layoutId = (int)($attributes['cataloglayout'] ?? 0);
-                            elseif ((int)$layoutType == 2)
-                                $layoutId = (int)($attributes['editlayout'] ?? 0);
-                            elseif ((int)$layoutType == 4)
-                                $layoutId = (int)($attributes['detailslayout'] ?? 0);
+                        if (!empty($attributes['view'])) {
+                            if ($attributes['view'] == 'edit')
+                                $layoutType = 2;
+                            elseif ($attributes['view'] == 'details')
+                                $layoutType = 4;
+                            elseif ($attributes['view'] == 'catalog')
+                                $layoutType = 1;
                             else
-                                $layoutId = 0;
+                                $layoutType = 1;
+
+                            echo '$attributes[view]:'.$attributes['view'].'<br/>';
+                            echo '$layoutType:'.$layoutType.'<br/>';
+
+                            $mixedLayout_array = $layouts->renderMixedLayout(0, $layoutType);
+                        } else {
+                            if($ct->Table !== null) {
+                                $view = common::inputGetCmd('view' . $ct->Table->tableid);
+                                if ($view == 'edit' or $view == 'edititem') {
+                                    $layoutType = 2;
+                                    $layoutId = (int)($attributes['editlayout'] ?? 0);
+                                } elseif ($view == 'details') {
+                                    $layoutType = 4;
+                                    $layoutId = (int)($attributes['detailslayout'] ?? 0);
+                                } else {
+                                    $layoutType = $attributes['type'] ?? 1;
+
+                                    if ((int)$layoutType == 1)
+                                        $layoutId = (int)($attributes['cataloglayout'] ?? 0);
+                                    elseif ((int)$layoutType == 2)
+                                        $layoutId = (int)($attributes['editlayout'] ?? 0);
+                                    elseif ((int)$layoutType == 4)
+                                        $layoutId = (int)($attributes['detailslayout'] ?? 0);
+                                    else
+                                        $layoutId = 0;
+                                }
+                                $mixedLayout_array = $layouts->renderMixedLayout($layoutId, $layoutType);
+                            }
+                            else
+                                $mixedLayout_array = $layouts->renderMixedLayout($layoutId);
                         }
 
-                        $layouts = new Layouts($ct);
-                        $mixedLayout_array = $layouts->renderMixedLayout($layoutId, $layoutType);
                         $mixedLayout_safe = $mixedLayout_array['html'];
-                        $this->enqueueList['FieldInputPrefix'] = $ct->Table->fieldPrefix;
-                    } else {
-                        $mixedLayout_safe = 'Table "' . $attributes['table'] . '" not found.';
-                    }
-                } catch (Exception $e) {
-                    $mixedLayout_safe = 'Error: ' . $e->getMessage();
-                }
+                        $this->enqueueList['FieldInputPrefix'] = $ct->Table->fieldInputPrefix;
+                    //} else {
+                    //    $mixedLayout_safe = 'Table "' . $attributes['table'] . '" not found.';
+                    //}
+                //} catch (Exception $e) {
+                //    $mixedLayout_safe = 'Error: ' . $e->getMessage();
+                //}
 
                 $message = get_transient('plugin_error_message');
                 if ($message) {
@@ -202,11 +236,11 @@ class template
                 }
                 $result .= '<div>' . $mixedLayout_safe . '</div>';
 
-            } else {
-                $result .= '<blockquote style="background-color: #f8d7da; border-left: 5px solid #dc3545; padding: 10px;"><p>'
-                    . esc_html('Custom Tables: Table Not Selected.') . '</p></blockquote>';
-            }
-        }
+            //} else {
+            //    $result .= '<blockquote style="background-color: #f8d7da; border-left: 5px solid #dc3545; padding: 10px;"><p>'
+            //        . esc_html('Custom Tables: Table Not Selected.') . '</p></blockquote>';
+            //}
+        //}
         return $result;
     }
 
@@ -302,9 +336,9 @@ class template
         //Google Map Coordinates
         //if (isset($this->enqueueList['fieldtype:googlemapcoordinates']) and $this->enqueueList['fieldtype:googlemapcoordinates']) {
 
-            $googleMapAPIKey = get_option('customtables-googlemapapikey') ?? '';
-            if ($googleMapAPIKey != '')
-                wp_enqueue_script('ct-google-map-script', 'https://maps.google.com/maps/api/js?key=' . $googleMapAPIKey . '&sensor=false', array(), PLUGIN_VERSION, true);
+        $googleMapAPIKey = get_option('customtables-googlemapapikey') ?? '';
+        if ($googleMapAPIKey != '')
+            wp_enqueue_script('ct-google-map-script', 'https://maps.google.com/maps/api/js?key=' . $googleMapAPIKey . '&sensor=false', array(), PLUGIN_VERSION, true);
         //}
 
         //Google Drive
