@@ -450,7 +450,7 @@ class common
 
     public static function getReturnToURL(bool $decode = true): ?string
     {
-        $returnto_id = common::inputGetCmd('returnto');
+        $returnto_id = self::inputGetCmd('returnto');
 
         if (empty($returnto_id))
             return null;
@@ -495,9 +495,7 @@ class common
     {
         if ($currentURL === null) {
             // Get the current URL
-            //$current_url = esc_url_raw(home_url(add_query_arg(array(), $wp->request)));
-
-            $currentURL = common::curPageURL();
+            $currentURL = self::curPageURL();
         }
 
         // Generate a unique identifier for the session variable
@@ -664,7 +662,7 @@ class common
 
     protected static function getWhereParameters(): ?array
     {
-        $value = common::inputGetString('where');
+        $value = self::inputGetString('where');
         if ($value !== null) {
             $b = urldecode($value);
             $b = str_replace(' or ', ' and ', $b);
@@ -849,5 +847,48 @@ class common
     public static function getSiteName()
     {
         return get_bloginfo('name');
+    }
+
+    public static function getEmailFromName()
+    {
+        return get_option('blogname');
+    }
+
+    public static function getMailFrom()
+    {
+        return get_option('admin_email');
+    }
+
+    static public function sendEmail($email, $emailSubject, $emailBody, $isHTML = true, $attachments = array()): bool
+    {
+        $headers = array();
+
+        // Set HTML email if requested
+        if ($isHTML) {
+            $headers[] = 'Content-Type: text/html; charset=UTF-8';
+        }
+
+        // Set from name and email
+        $headers[] = 'From: ' . self::getEmailFromName() . ' <' . self::getMailFrom() . '>';
+
+        try {
+            $send = wp_mail(
+                $email,
+                $emailSubject,
+                $emailBody,
+                $headers,
+                $attachments
+            );
+        } catch (Exception $e) {
+            $msg = $e->getMessage();
+            self::enqueueMessage($msg);
+            return false;
+        }
+
+        if ($send !== true) {
+            return false;
+        }
+
+        return true;
     }
 }
