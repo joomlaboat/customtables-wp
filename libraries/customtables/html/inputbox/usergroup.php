@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use Exception;
 
@@ -59,7 +59,7 @@ class InputBox_usergroup extends BaseInputBox
         if (defined('_JEXEC')) {
             // Optional default option
             $selected = (0 === (int)$value) ? ' selected' : '';
-            $select .= '<option value=""' . $selected . '> - ' . esc_html__("Select", "customtables") . '</option>';
+            $select .= '<option value=""' . $selected . '> - ' . common::translate('COM_CUSTOMTABLES_SELECT') . '</option>';
 
             // Generate options for each file in the folder
             foreach ($records as $record) {
@@ -71,7 +71,7 @@ class InputBox_usergroup extends BaseInputBox
 
             // Optional default option
             $selected = ('' === $value) ? ' selected' : '';
-            $select .= '<option value=""' . $selected . '> - ' . esc_html__("Select", "customtables") . '</option>';
+            $select .= '<option value=""' . $selected . '> - ' . common::translate('COM_CUSTOMTABLES_SELECT') . '</option>';
 
             // Generate options for each file in the folder
             foreach ($records as $record) {

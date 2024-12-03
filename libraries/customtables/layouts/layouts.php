@@ -13,7 +13,7 @@ namespace CustomTables;
 /* All tags already implemented using Twig */
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use Exception;
 use LayoutProcessor;
@@ -120,6 +120,10 @@ class Layouts
 
         $row = $rows[0];
         $this->tableId = (int)$row['tableid'];
+
+        if ($this->ct->Table === null)
+            $this->ct->getTable($this->tableId);
+
         $this->layoutId = (int)$row['id'];
         $this->layoutType = (int)$row['layouttype'];
 
@@ -399,17 +403,21 @@ class Layouts
      * @throws Exception
      * @since 3.2.2
      */
-    function renderMixedLayout(int $layoutId, int $layoutType = null): array
+    function renderMixedLayout($layoutId, ?int $layoutType = null): array
     {
-        if ($this->ct->Table->fields === null)
-            return ['html' => 'CustomTable: Table not selected'];
-
-        if ($layoutId !== 0) {
+        if (!empty($layoutId)) {
             $this->getLayout($layoutId);
             if ($this->layoutType === null)
                 return ['html' => 'CustomTable: Layout "' . $layoutId . '" not found'];
 
+            if ($this->ct->Table->fields === null)
+                return ['html' => 'CustomTable: Table not selected or not found'];
+
         } else {
+
+            if ($this->ct->Table->fields === null)
+                return ['html' => 'CustomTable: Table not selected'];
+
             if ($layoutType == 1 or $layoutType == 5)
                 $this->layoutCode = $this->createDefaultLayout_SimpleCatalog($this->ct->Table->fields);
             elseif ($layoutType == 2) {
@@ -450,9 +458,9 @@ class Layouts
                 $listing_id = common::inputGetCmd('listing_id', 0);
                 if (!empty($listing_id)) {
                     if ($this->ct->deleteSingleRecord($listing_id) === 1) {
-                        common::enqueueMessage(esc_html__("Record deleted.", "customtables"), 'notice');
+                        common::enqueueMessage(common::translate('COM_CUSTOMTABLES_LISTOFRECORDS_N_ITEMS_DELETED_1'), 'notice');
                     } else {
-                        common::enqueueMessage(esc_html__("Record not deleted.", "customtables"));
+                        common::enqueueMessage(common::translate('COM_CUSTOMTABLES_LISTOFRECORDS_N_ITEMS_NOT_DELETED_1'));
                     }
                 }
             }
@@ -478,9 +486,9 @@ class Layouts
                         }
                     }
 
-                    common::enqueueMessage(esc_html__("Record saved.", "customtables"), 'notice');
+                    common::enqueueMessage(common::translate('COM_CUSTOMTABLES_RECORD_SAVED'), 'notice');
                 } else {
-                    common::enqueueMessage(esc_html__("Record cannot be saved.", "customtables"));
+                    common::enqueueMessage(common::translate('COM_CUSTOMTABLES_RECORD_NOT_SAVED'));
 
                     if ($record->ct->Params !== null and $record->ct->Params->msgItemIsSaved !== null)
                         common::enqueueMessage($record->ct->Params->msgItemIsSaved);
@@ -498,14 +506,14 @@ class Layouts
                 }
 
             } elseif ($task == 'cancel') {
-                common::enqueueMessage(esc_html__("Edit canceled.", "customtables"), 'notice');
+                common::enqueueMessage(common::translate('COM_CUSTOMTABLES_EDIT_CANCELED'), 'notice');
                 $link = common::getReturnToURL();
                 if ($link === null)
                     $link = $this->ct->Params->returnTo;
 
                 $link = CTMiscHelper::deleteURLQueryOption($link, 'view' . $this->ct->Table->tableid);
 
-                common::redirect($link, esc_html__("Edit canceled.", "customtables"));
+                common::redirect($link, common::translate('COM_CUSTOMTABLES_EDIT_CANCELED'));
             }
 
             $output['html'] = $this->renderEditForm();
@@ -518,7 +526,11 @@ class Layouts
         } elseif ($this->layoutType == 4 or $this->layoutType == 6) {
             //Details or Catalog Item
             if ($this->ct->Table->record === null) {
-                $listing_id = common::inputGetCmd('listing_id');
+                if ($this->ct->Params->listing_id !== null)
+                    $listing_id = $this->ct->Params->listing_id;
+                else
+                    $listing_id = common::inputGetCmd('listing_id');
+
                 if ($listing_id !== null)
                     $this->ct->Table->loadRecord($listing_id);
             }
@@ -925,7 +937,7 @@ class Layouts
         if (!$this->ct->getRecords()) {
 
             if (defined('_JEXEC'))
-                $this->ct->errors[] = esc_html__("Table not found.", "customtables");
+                $this->ct->errors[] = common::translate('COM_CUSTOMTABLES_ERROR_TABLE_NOT_FOUND');
 
             return 'CustomTables: Records not loaded.';
         }
@@ -962,7 +974,7 @@ class Layouts
     {
         $recordRow = null;
 
-        if ($this->ct->Table->tablename !== null) {
+        if ($this->ct->Table !== null) {
             $listing_id = common::inputGetCmd('listing_id');
 
             if ($listing_id !== null) {
@@ -983,8 +995,11 @@ class Layouts
      */
     protected function renderDetails(): string
     {
-
-        if ($this->ct->Table->tablename !== null) {
+        if ($this->ct->Table->record === null) {
+            return 'Record not loaded!';
+        }
+        /*
+        if ($this->ct->Table !== null) {
             $listing_id = common::inputGetCmd('listing_id');
 
             if ($listing_id !== null) {
@@ -994,19 +1009,19 @@ class Layouts
         } else
             return 'Table not selected';
 
-        if ($this->ct->Table->record === null) {
-            return 'Record not loaded!';
-        }
+
+        */
 
         $details = new Details($this->ct);
         $details->layoutDetailsContent = $this->layoutCode;
         $details->pageLayoutNameString = $this->pageLayoutNameString;
         $details->pageLayoutLink = $this->pageLayoutLink;
 
-        if (isset($row)) {
-            if ($this->ct->Env->advancedTagProcessor and class_exists('CustomTables\ctProHelpers'))
-                $row = ctProHelpers::getSpecificVersionIfSet($this->ct, $row);
-        }
+        $row = $this->ct->Table->record;
+        //if (isset($this->ct->Table->record)) {
+        if ($this->ct->Env->advancedTagProcessor and class_exists('CustomTables\ctProHelpers'))
+            $row = ctProHelpers::getSpecificVersionIfSet($this->ct, $this->ct->Table->record);
+        //}
 
         $details->row = $row;
 

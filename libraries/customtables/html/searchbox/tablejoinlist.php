@@ -13,7 +13,7 @@ namespace CustomTables;
 // no direct access
 use Exception;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 class Search_tablejoinlist extends BaseSearch
 {
@@ -95,7 +95,7 @@ class Search_tablejoinlist extends BaseSearch
             );
 
         } else {
-            return esc_html__("Available in PRO Version", "customtables");
+            return common::translate('COM_CUSTOMTABLES_AVAILABLE');
         }
     }
 }

@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use Exception;
 use Joomla\CMS\Factory;
@@ -49,8 +49,8 @@ class Twig_HTML_Tags
             return '';
         }
 
-        return '<span class="ctCatalogRecordCount">' . esc_html__("Found", "customtables") . ': ' . $this->ct->Table->recordcount
-            . ' ' . esc_html__("Result(s)", "customtables") . '</span>';
+        return '<span class="ctCatalogRecordCount">' . common::translate('COM_CUSTOMTABLES_FOUND') . ': ' . $this->ct->Table->recordcount
+            . ' ' . common::translate('COM_CUSTOMTABLES_RESULT_S') . '</span>';
     }
 
     /**
@@ -117,7 +117,7 @@ class Twig_HTML_Tags
             return '{{ html.add }} not supported.';
         }
 
-        $alt = esc_html__("Add New", "customtables");
+        $alt = common::translate('COM_CUSTOMTABLES_ADD');
 
         if ($this->ct->Env->toolbarIcons != '')
             $img = '<i class="ba-btn-transition ' . $this->ct->Env->toolbarIcons . ' fa-plus-circle" data-icon="' . $this->ct->Env->toolbarIcons . ' fa-plus-circle" title="' . $alt . '"></i>';
@@ -174,7 +174,7 @@ class Twig_HTML_Tags
                     </script>
                     <input type="hidden" name="' . $this->ct->Table->fieldInputPrefix . $objectName . '" id="' . $this->ct->Table->fieldInputPrefix . $objectName . '" value="" />
                     <input type="hidden" name="' . $this->ct->Table->fieldInputPrefix . $objectName . '_filename" id="' . $this->ct->Table->fieldInputPrefix . $objectName . '_filename" value="" />
-			' . esc_html__("Permitted Max. File Size", "customtables") . ': ' . CTMiscHelper::formatSizeUnits($max_file_size) . '
+			' . common::translate('COM_CUSTOMTABLES_PERMITTED_MAX_FILE_SIZE') . ': ' . CTMiscHelper::formatSizeUnits($max_file_size) . '
                     </form>
                 </div>
 ';
@@ -220,7 +220,7 @@ class Twig_HTML_Tags
             return '';
 
         $pagination = new JESPagination($this->ct->Table->recordcount, $this->ct->LimitStart, $this->ct->Limit, '');
-        return esc_html__("Show", "customtables") . ': ' . $pagination->getLimitBox($the_step);
+        return common::translate('COM_CUSTOMTABLES_SHOW') . ': ' . $pagination->getLimitBox($the_step);
     }
 
     function orderby(): string
@@ -235,9 +235,9 @@ class Twig_HTML_Tags
             return '';
 
         if ($this->ct->Params->forceSortBy !== null and $this->ct->Params->forceSortBy != '')
-            $this->ct->errors[] = esc_html__("Order by field is locked because 'Forced sort by field' parameter is set. Administrator - Check menu item settings.", "customtables");
+            $this->ct->errors[] = common::translate('COM_CUSTOMTABLES_ERROR_SORT_BY_FIELD_LOCKED');
 
-        return esc_html__("Order by", "customtables") . ': ' . OrderingHTML::getOrderBox($this->ct->Ordering);
+        return common::translate('COM_CUSTOMTABLES_ORDER_BY') . ': ' . OrderingHTML::getOrderBox($this->ct->Ordering);
     }
 
     /**
@@ -249,7 +249,7 @@ class Twig_HTML_Tags
     function goback($defaultLabel = null, $image_icon = '', $attribute = '', string $returnto = ''): string //WordPress Ready
     {
         if ($defaultLabel === null)
-            $label = esc_html__("Go Back", "customtables");
+            $label = common::translate('COM_CUSTOMTABLES_GO_BACK');
         else
             $label = $defaultLabel;
 
@@ -325,16 +325,16 @@ class Twig_HTML_Tags
 
                     switch ($mode) {
                         case 'publish':
-                            $alt = esc_html__("Publish Selected", "customtables");
+                            $alt = common::translate('COM_CUSTOMTABLES_PUBLISH_SELECTED');
                             break;
                         case 'unpublish':
-                            $alt = esc_html__("Unpublish Selected", "customtables");
+                            $alt = common::translate('COM_CUSTOMTABLES_UNPUBLISH_SELECTED');
                             break;
                         case 'refresh':
-                            $alt = esc_html__("Refresh Selected", "customtables");
+                            $alt = common::translate('COM_CUSTOMTABLES_REFRESH_SELECTED');
                             break;
                         case 'delete':
-                            $alt = esc_html__("Delete Selected", "customtables");
+                            $alt = common::translate('COM_CUSTOMTABLES_DELETE_SELECTED');
                             break;
                         default:
                             return 'unsupported batch toolbar icon.';
@@ -410,10 +410,10 @@ class Twig_HTML_Tags
 
         $onClick = 'window.open("' . $link . '","win2","status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,width=640,height=480,directories=no,location=no");return false;';
         if ($this->ct->Env->print == 1) {
-            $vlu = '<p><a href="#" onclick="window.print();return false;"><img src="' . CUSTOMTABLES_MEDIA_WEBPATH . 'images/icons/print.png" alt="' . esc_html__("Print", "customtables") . '"  /></a></p>';
+            $vlu = '<p><a href="#" onclick="window.print();return false;"><img src="' . CUSTOMTABLES_MEDIA_WEBPATH . 'images/icons/print.png" alt="' . common::translate('COM_CUSTOMTABLES_PRINT') . '"  /></a></p>';
         } else {
             if ($label == '')
-                $label = esc_html__("Print", "customtables");
+                $label = common::translate('COM_CUSTOMTABLES_PRINT');
 
             if ($linktype != '')
                 $vlu = '<a href="#" onclick=\'' . $onClick . '\'><i class="ba-btn-transition fas fa-print" data-icon="fas fa-print" title="' . $label . '"></i></a>';
@@ -513,7 +513,7 @@ class Twig_HTML_Tags
                     'fieldname' => '_id',
                     'type' => '_id',
                     'typeparams' => '',
-                    'fieldtitle' . $this->ct->Languages->Postfix => esc_html__("Record ID", "customtables"),
+                    'fieldtitle' . $this->ct->Languages->Postfix => common::translate('COM_CUSTOMTABLES_ID'),
                     'realfieldname' => $this->ct->Table->realtablename,
                     'isrequired' => false,
                     'defaultvalue' => null,
@@ -526,7 +526,7 @@ class Twig_HTML_Tags
                     'fieldname' => '_published',
                     'type' => '_published',
                     'typeparams' => '',
-                    'fieldtitle' . $this->ct->Languages->Postfix => esc_html__("Published", "customtables"),
+                    'fieldtitle' . $this->ct->Languages->Postfix => common::translate('COM_CUSTOMTABLES_PUBLISHED'),
                     'realfieldname' => 'listing_published',
                     'isrequired' => false,
                     'defaultvalue' => null,
@@ -557,7 +557,7 @@ class Twig_HTML_Tags
 
         //Add control elements
         $fieldTitles = $this->getFieldTitles($list_of_fields);
-        $field_title = implode(' ' . esc_html__("or", "customtables") . ' ', $fieldTitles);
+        $field_title = implode(' ' . common::translate('COM_CUSTOMTABLES_OR') . ' ', $fieldTitles);
         $cssClass = 'ctSearchBox';
 
         if ($class != '')
@@ -595,9 +595,9 @@ class Twig_HTML_Tags
             $fieldname = $fieldname_pair[0];
 
             if ($fieldname == '_id')
-                $field_titles[] = esc_html__("Record ID", "customtables");
+                $field_titles[] = common::translate('COM_CUSTOMTABLES_ID');
             elseif ($fieldname == '_published')
-                $field_titles[] = esc_html__("Published", "customtables");
+                $field_titles[] = common::translate('COM_CUSTOMTABLES_PUBLISHED');
             else {
                 foreach ($this->ct->Table->fields as $fld) {
                     if ($fld['fieldname'] == $fieldname) {
@@ -637,7 +637,7 @@ class Twig_HTML_Tags
         else
             $class .= ' btn button-apply btn-primary';
 
-        $default_Label = esc_html__("Search", "customtables");
+        $default_Label = common::translate('COM_CUSTOMTABLES_SEARCH');
 
         if ($label == common::ctStripTags($label)) {
             if ($this->ct->Env->toolbarIcons != '') {
@@ -675,7 +675,7 @@ class Twig_HTML_Tags
         else
             $class .= ' btn button-apply btn-primary';
 
-        $default_Label = esc_html__("Search Reset", "customtables");
+        $default_Label = common::translate('COM_CUSTOMTABLES_SEARCHRESET');
         if ($label == common::ctStripTags($label)) {
             if ($this->ct->Env->toolbarIcons != '') {
                 $img = '<i class=\'' . $this->ct->Env->toolbarIcons . ' fa-times\' data-icon=\'' . $this->ct->Env->toolbarIcons . ' fa-times\' title=\'' . $label . '\'></i>';
@@ -893,7 +893,7 @@ class Twig_HTML_Tags
     protected function renderSaveButton($optional_class, $title, $formName): string
     {
         if ($title == '')
-            $title = esc_html__("Save", "customtables");
+            $title = common::translate('COM_CUSTOMTABLES_SAVE');
 
         return $this->renderButtonHTML($optional_class, $title, $formName, "customtables_button_save", $this->ct->Env->encoded_current_url,
             true, "saveandcontinue");
@@ -938,7 +938,7 @@ class Twig_HTML_Tags
     protected function renderSaveAndCloseButton($optional_class, $title, $redirectLink, $formName): string
     {
         if ($title == '')
-            $title = esc_html__("Save & Close", "customtables");
+            $title = common::translate('COM_CUSTOMTABLES_SAVEANDCLOSE');
 
         $returnToEncoded = common::makeReturnToURL($redirectLink);
         return $this->renderButtonHTML($optional_class, $title, $formName, "customtables_button_saveandclose", $returnToEncoded, true, "save");
@@ -951,7 +951,7 @@ class Twig_HTML_Tags
     protected function renderSaveAndPrintButton($optional_class, $title, $redirectLink, $formName): string
     {
         if ($title == '')
-            $title = esc_html__("Next", "customtables");
+            $title = common::translate('COM_CUSTOMTABLES_NEXT');
 
         $returnToEncoded = common::makeReturnToURL($redirectLink);
 
@@ -965,7 +965,7 @@ class Twig_HTML_Tags
     protected function renderSaveAsCopyButton($optional_class, $title, $redirectLink, $formName): string
     {
         if ($title == '')
-            $title = esc_html__("Save as Copy", "customtables");
+            $title = common::translate('COM_CUSTOMTABLES_SAVEASCOPYANDCLOSE');
 
         $returnToEncoded = common::makeReturnToURL($redirectLink);
 
@@ -982,7 +982,7 @@ class Twig_HTML_Tags
             return '';
 
         if ($title == '')
-            $title = esc_html__("Cancel", "customtables");
+            $title = common::translate('COM_CUSTOMTABLES_CANCEL');
 
         if ($optional_class != '')
             $cancel_class = $optional_class;
@@ -997,7 +997,7 @@ class Twig_HTML_Tags
     protected function renderDeleteButton($optional_class, $title, $redirectLink)
     {
         if ($title == '')
-            $title = esc_html__("Delete", "customtables");
+            $title = common::translate('COM_CUSTOMTABLES_DELETE');
 
         if ($this->ct->Env->frmt == 'json')
             return $title;
@@ -1011,7 +1011,7 @@ class Twig_HTML_Tags
 
         return '<input id="customtables_button_delete" type="button" class="' . $class . '" value="' . $title . '"
 				onClick=\'
-                if (confirm("' . esc_html__("Do you want to delete?", "customtables") . '"))
+                if (confirm("' . common::translate('COM_CUSTOMTABLES_DO_U_WANT_TO_DELETE') . '"))
                 {
                     this.form.task.value="delete";
                     ' . ($returnToEncoded != '' ? 'this.form.returnto.value="' . $returnToEncoded . '";' : '') . '

@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use CustomTablesImageMethods;
 use Exception;
@@ -79,10 +79,10 @@ class Value_image extends BaseValue
 
         return '
                 <div style="margin:10px; border:lightgrey 1px solid;border-radius:10px;padding:10px;display:inline-block;vertical-align:top;">
-				' . esc_html__("Min. Image Size", "customtables") . ': 10px x 10px<br/>
-				' . esc_html__("Max. Image Size", "customtables") . ': 1000px x 1000px<br/>
-				' . esc_html__("Permitted Max. File Size", "customtables") . ': ' . CTMiscHelper::formatSizeUnits($max_file_size) . '<br/>
-				' . esc_html__("File Format", "customtables") . ': JPEG, GIF, PNG, WEBP
+				' . common::translate('COM_CUSTOMTABLES_MIN_SIZE') . ': 10px x 10px<br/>
+				' . common::translate('COM_CUSTOMTABLES_MAX_SIZE') . ': 1000px x 1000px<br/>
+				' . common::translate('COM_CUSTOMTABLES_PERMITTED_MAX_FILE_SIZE') . ': ' . CTMiscHelper::formatSizeUnits($max_file_size) . '<br/>
+				' . common::translate('COM_CUSTOMTABLES_FORMAT') . ': JPEG, GIF, PNG, WEBP
 				</div>';
     }
     */

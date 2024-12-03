@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use Exception;
 use LayoutProcessor;
@@ -102,7 +102,7 @@ class Details
         if (!is_null($this->ct->Params->recordsTable) and !is_null($this->ct->Params->recordsUserIdField) and !is_null($this->ct->Params->recordsField)) {
             if (!$this->checkRecordUserJoin($this->ct->Params->recordsTable, $this->ct->Params->recordsUserIdField, $this->ct->Params->recordsField, $this->ct->Params->listing_id)) {
                 //YOU ARE NOT AUTHORIZED TO ACCESS THIS SOURCE;
-                $this->ct->errors[] = esc_html__("Not authorized", "customtables");
+                $this->ct->errors[] = common::translate('COM_CUSTOMTABLES_NOT_AUTHORIZED');
                 return false;
             }
         }
@@ -175,7 +175,7 @@ class Details
         if ($filter != '') {
             $this->ct->setFilter($filter, 2); //2 = Show any - published and unpublished
         } else {
-            $this->ct->errors[] = esc_html__("No filter found. Administrator - Check menu item settings.", "customtables");
+            $this->ct->errors[] = common::translate('COM_CUSTOMTABLES_ERROR_NOFILTER');
             return null;
         }
 
@@ -233,7 +233,7 @@ class Details
     protected function getDataById($listing_id)
     {
         if (is_numeric($listing_id) and intval($listing_id) == 0) {
-            $this->ct->errors[] = esc_html__("No filter found. Administrator - Check menu item settings.", "customtables");
+            $this->ct->errors[] = common::translate('COM_CUSTOMTABLES_ERROR_NOFILTER');
             return null;
         }
 

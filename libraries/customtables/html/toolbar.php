@@ -55,7 +55,7 @@ class RecordToolbar
                 case 'refresh':
                     if (defined('_JEXEC')) {
                         $rid = 'esRefreshIcon' . $this->rid;
-                        $alt = esc_html__("Refresh", "customtables");
+                        $alt = common::translate('COM_CUSTOMTABLES_REFRESH');
 
                         if ($this->ct->Env->toolbarIcons != '')
                             $img = '<i class="ba-btn-transition ' . $this->ct->Env->toolbarIcons . ' fa-sync" data-icon="' . $this->ct->Env->toolbarIcons . ' fa-sync" title="' . $alt . '"></i>';
@@ -102,7 +102,7 @@ class RecordToolbar
 
     protected function renderEditIcon($isModal = false): string
     {
-        $alt = esc_html__("Edit", "customtables");
+        $alt = common::translate('COM_CUSTOMTABLES_EDIT');
 
         if ($this->ct->Env->toolbarIcons != '')
             $img = '<i class="ba-btn-transition ' . $this->ct->Env->toolbarIcons . ' fa-pen" data-icon="' . $this->ct->Env->toolbarIcons . ' fa-pen" title="' . $alt . '"></i>';
@@ -210,7 +210,7 @@ class RecordToolbar
     protected function renderCopyIcon(): string
     {
         $Label = 'Would you like to copy (' . $this->firstFieldValueLabel() . ')?';
-        $alt = esc_html__("Copy", "customtables");
+        $alt = common::translate('COM_CUSTOMTABLES_COPY');
 
         if (defined('_JEXEC')) {
             if ($this->ct->Env->toolbarIcons != '')
@@ -300,7 +300,7 @@ class RecordToolbar
                 else
                     $img = '<img src="' . $this->iconPath . 'key-add.png" border="0" alt="' . $alt . '" title="' . $alt . '">';
 
-                $resetLabel = esc_html__("Do you want to create a new User Account for", "customtables") . ' ' . $this->firstFieldValueLabel();
+                $resetLabel = common::translate('COM_CUSTOMTABLES_USERWILLBECREATED') . ' ' . $this->firstFieldValueLabel();
                 $action = 'ctCreateUser("' . $resetLabel . '", ' . $this->listing_id . ', "' . $rid . '",' . ($this->ct->Params->ModuleId ?? 0) . ')';
             } else {
                 $user_full_name = ucwords(strtolower($userRow['name']));
@@ -327,7 +327,7 @@ class RecordToolbar
     {
         $deleteLabel = $this->firstFieldValueLabel();
 
-        $alt = esc_html__("Delete", "customtables");
+        $alt = common::translate('COM_CUSTOMTABLES_DELETE');
 
         if ($this->ct->Env->toolbarIcons != '')
             $img = '<i class="ba-btn-transition ' . $this->ct->Env->toolbarIcons . ' fa-trash" data-icon="' . $this->ct->Env->toolbarIcons . ' fa-trash" title="' . $alt . '"></i>';
@@ -347,7 +347,7 @@ class RecordToolbar
 
                 if ($this->row['listing_published']) {
                     $link = 'javascript:ctPublishRecord(' . $this->Table->tableid . ',\'' . $this->listing_id . '\', \'' . $rid . '\',0,' . $this->ct->Params->ModuleId . ');';
-                    $alt = esc_html__("Unpublish", "customtables");
+                    $alt = common::translate('COM_CUSTOMTABLES_UNPUBLISH');
 
                     if ($this->ct->Env->toolbarIcons != '')
                         $img = '<i class="ba-btn-transition ' . $this->ct->Env->toolbarIcons . ' fa-check-circle" data-icon="' . $this->ct->Env->toolbarIcons . ' fa-check-circle" title="' . $alt . '"></i>';
@@ -355,7 +355,7 @@ class RecordToolbar
                         $img = '<img src="' . $this->iconPath . 'publish.png" border="0" alt="' . $alt . '" title="' . $alt . '">';
                 } else {
                     $link = 'javascript:ctPublishRecord(' . $this->Table->tableid . ',\'' . $this->listing_id . '\', \'' . $rid . '\',1,' . $this->ct->Params->ModuleId . ');';
-                    $alt = esc_html__("Publish", "customtables");
+                    $alt = common::translate('COM_CUSTOMTABLES_PUBLISH');
 
                     if ($this->ct->Env->toolbarIcons != '')
                         $img = '<i class="ba-btn-transition ' . $this->ct->Env->toolbarIcons . ' fa-ban" data-icon="' . $this->ct->Env->toolbarIcons . ' fa-ban" title="' . $alt . '"></i>';
@@ -365,7 +365,7 @@ class RecordToolbar
                 return '<div id="' . $rid . '" class="toolbarIcons"><a href="' . $link . '">' . $img . '</a></div>';
             } else {
                 if (!$this->row['listing_published'])
-                    return esc_html__("Published", "customtables");
+                    return common::translate('COM_CUSTOMTABLES_PUBLISHED');
             }
         } elseif (defined('WPINC')) {
             return '';

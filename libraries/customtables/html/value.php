@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 use CustomTablesImageMethods;
 use Exception;
@@ -208,9 +208,9 @@ class Value
                 return InputBox_filebox::process($FileBoxRows, $this->field, $this->row[$this->ct->Table->realidfieldname], $option_list);
 
             case 'usergroup':
-                if (defined('_JEXEC')) {
+                if (defined('_JEXEC'))
                     return CTUser::showUserGroup_Joomla((int)$rowValue);
-                } elseif (defined('WPINC'))
+                elseif (defined('WPINC'))
                     return $this->ct->Env->user->showUserGroup_WordPress((int)$rowValue);
                 else
                     return null;
@@ -235,9 +235,9 @@ class Value
 
             case 'checkbox':
                 if ((int)$rowValue)
-                    return esc_html__("Yes", "customtables");
+                    return common::translate('COM_CUSTOMTABLES_YES');
                 else
-                    return esc_html__("No", "customtables");
+                    return common::translate('COM_CUSTOMTABLES_NO');
 
             case 'date':
 

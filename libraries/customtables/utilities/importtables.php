@@ -14,7 +14,7 @@ use Exception;
 use JTableNested;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 class ImportTables
 {
