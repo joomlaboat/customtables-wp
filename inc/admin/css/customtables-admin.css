@@ -31,3 +31,32 @@
     font-weight: 700;
     font-size:14px;
 }
+
+
+
+.CustomTablesDocumentationTips pre{
+    display: inline-block;
+}
+.CustomTablesDocumentationTips .copy-button {
+    cursor: pointer;
+    padding: 4px 8px;
+    margin-left: 8px;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+}
+.CustomTablesDocumentationTips .copy-button:hover {
+    background: #e0e0e0;
+}
+.CustomTablesDocumentationTips .copy-icon {
+    width: 14px;
+    height: 14px;
+    margin-right: 4px;
+}
+.CustomTablesDocumentationTips .shortcode-container {
+    display: inline-flex;
+    align-items: center;
+}

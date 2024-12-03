@@ -138,3 +138,59 @@ function showLayoutTagModalForm() {
     showModalTagsList();
     activateTabsWordPress('layouteditor_fields');
 }
+
+
+function createCopyButton(text) {
+    const button = document.createElement('button');
+    button.title = 'Copy';
+    button.className = 'copy-button';
+    button.innerHTML = `
+        <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>`;
+
+    button.addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText(text);
+            button.textContent = 'Copied!';
+            setTimeout(() => {
+                button.innerHTML = `
+                    <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>`;
+            }, 2000);
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+        }
+    });
+
+    return button;
+}
+
+// Initialize copy buttons when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const container = document.querySelector('.CustomTablesDocumentationTips');
+    if (container) {
+        const pres = document.querySelectorAll('pre');
+        pres.forEach(pre => {
+            // Create container
+            const container = document.createElement('div');
+            container.className = 'shortcode-container';
+
+            // Move the pre content to the container
+            const text = pre.textContent;
+            pre.textContent = ''; // Clear original content
+
+            // Add text and copy button to container
+            const textSpan = document.createElement('span');
+            textSpan.textContent = text;
+            container.appendChild(textSpan);
+            container.appendChild(createCopyButton(text));
+
+            // Add container to pre
+            pre.appendChild(container);
+        });
+    }
+});

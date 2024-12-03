@@ -228,19 +228,21 @@ if ($this->admin_table_edit->ct->Env->advancedTagProcessor) {
 
 
 <?php if (!empty($new_tablename)): ?>
+<div class="CustomTablesDocumentationTips">
     <h4>Adding Catalog Views and Edit Forms</h4>
     <p>You can use these shortcodes to display table records and add/edit forms:</p>
     <br/>
     <p style="font-weight:bold;">Basic Catalog Views</p>
-    <pre>[customtables table="<?php echo $new_tablename; ?>"] - Displays catalog view using table name</pre>
-    <pre>[customtables table="<?php echo $this->admin_table_edit->tableId; ?>"] - Displays catalog view using table ID</pre>
-    <pre>[customtables table="<?php echo $new_tablename; ?>" view="catalog"] - Explicit catalog view</pre>
+    <div><pre>[customtables table="<?php echo $new_tablename; ?>"]</pre> - Displays catalog view using table name</div>
+    <div><pre>[customtables table="<?php echo $this->admin_table_edit->tableId; ?>"]</pre> - Displays catalog view using table ID</div>
+    <div><pre>[customtables table="<?php echo $new_tablename; ?>" view="catalog"]</pre> - Explicit catalog view</div>
     <p style="font-weight:bold;">Edit Forms</p>
-    <pre>[customtables table="<?php echo $new_tablename; ?>" view="edit"] - Adds a form to create a new record</pre>
+    <div><pre>[customtables table="<?php echo $new_tablename; ?>" view="edit"]</pre> - Adds a form to create a new record</div>
     <p style="font-weight:bold;">Catalog with Parameters</p>
-    <pre>[customtables table="<?php echo $new_tablename; ?>" view="catalog" limit="5"] - Shows only 5 records</pre>
+    <div><pre>[customtables table="<?php echo $new_tablename; ?>" view="catalog" limit="5"]</pre> - Shows only 5 records</div>
     <p>Note: The limit parameter controls the number of displayed records. Use limit="0" or omit the parameter to show
         all records.</p>
+</div>
 <?php endif; ?>
 
     <p><a href="https://ct4.us/contact-us/"

@@ -23,6 +23,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 $onPageLoads = array();
 
 ?>
+
     <script>
 		<?php if ($this->admin_layout_edit->ct->Env->advancedTagProcessor): ?>
         proversion = true;
@@ -45,6 +46,7 @@ foreach ($this->admin_layout_edit->allTables as $table) {
     ';
     }
 }
+
 ?>
 
     <div class="wrap">
@@ -148,20 +150,20 @@ foreach ($this->admin_layout_edit->allTables as $table) {
         <p><a href="https://ct4.us/contact-us/" target="_blank"><?php echo esc_html__('Have questions? Get in touch with our support team.', 'customtables'); ?></a></p>
     </div>
 
-
-
 <?php if($this->admin_layout_edit->layoutId != 0): ?>
+<div class="CustomTablesDocumentationTips">
     <h4>Adding Layout Output</h4>
     <p>You can use these shortcodes to display table records or add/edit/details forms using layouts.</p>
     <br/>
     <p style="font-weight:bold;">Basic Catalog Views</p>
-    <pre>[customtables layout="<?php echo $this->admin_layout_edit->layoutRow['layoutname']; ?>"] - Displays layout using layout name</pre>
-    <pre>[customtables layout="<?php echo $this->admin_layout_edit->layoutId; ?>"] - Displays layout using layout ID</pre>
+    <div><pre>[customtables layout="<?php echo $this->admin_layout_edit->layoutRow['layoutname']; ?>"]</pre> - Displays layout using layout name</div>
+    <div><pre>[customtables layout="<?php echo $this->admin_layout_edit->layoutId; ?>"]</pre> - Displays layout using layout ID</div>
     <p style="font-weight:bold;">Edit or Details Forms</p>
-    <pre>[customtables layout="<?php echo $this->admin_layout_edit->layoutRow['layoutname']; ?>" id="1"] - Displays edit/details form for record #1</pre>
+    <div><pre>[customtables layout="<?php echo $this->admin_layout_edit->layoutRow['layoutname']; ?>" id="1"]</pre> - Displays edit/details form for record #1</div>
     <p style="font-weight:bold;">Catalog with Parameters</p>
-    <pre>[customtables layout="<?php echo $this->admin_layout_edit->layoutRow['layoutname']; ?>" limit="5"] - Shows only 5 records</pre>
+    <div><pre>[customtables layout="<?php echo $this->admin_layout_edit->layoutRow['layoutname']; ?>" limit="5"]</pre> - Shows only 5 records</div>
     <p>Note: The limit parameter controls the number of displayed records. Use limit="0" or omit the parameter to show all records.</p>
+</div>
 <?php endif; ?>
 
 
