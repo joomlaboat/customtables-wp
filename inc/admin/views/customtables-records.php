@@ -79,5 +79,21 @@ $page = common::inputGetCmd('page');
         </div>
     </div>
 </div>
+
+<?php if(!empty($this->admin_record_list->ct->Table)): ?>
+    <h4>Adding Catalog Views and Edit Forms</h4>
+    <p>You can use these shortcodes to display table records and add/edit forms:</p>
+    <br/>
+    <p style="font-weight:bold;">Basic Catalog Views</p>
+    <pre>[customtables table="<?php echo $this->admin_record_list->ct->Table->tablename; ?>"] - Displays catalog view using table name</pre>
+    <pre>[customtables table="<?php echo $this->admin_record_list->ct->Table->tableid; ?>"] - Displays catalog view using table ID</pre>
+    <pre>[customtables table="<?php echo $this->admin_record_list->ct->Table->tablename; ?>" view="catalog"] - Explicit catalog view</pre>
+    <p style="font-weight:bold;">Edit Forms</p>
+    <pre>[customtables table="<?php echo $this->admin_record_list->ct->Table->tablename; ?>" view="edit"] - Adds a form to create a new record</pre>
+    <p style="font-weight:bold;">Catalog with Parameters</p>
+    <pre>[customtables table="<?php echo $this->admin_record_list->ct->Table->tablename; ?>" view="catalog" limit="5"] - Shows only 5 records</pre>
+    <p>Note: The limit parameter controls the number of displayed records. Use limit="0" or omit the parameter to show all records.</p>
+<?php endif; ?>
+
 <p><a href="https://ct4.us/contact-us/" target="_blank"><?php echo esc_html__('We are here to help. Contact us for support.', 'customtables'); ?></a></p>
 

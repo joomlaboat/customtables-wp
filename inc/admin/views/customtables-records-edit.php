@@ -85,7 +85,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 
 
                     <?php
-                    $buttonText = ($this->admin_record_edit->listing_id == 0) ? __('Save New Record') : __('Save Record');
+                    $buttonText = (empty($this->admin_record_edit->listing_id)) ? __('Save New Record') : __('Save Record');
 
                     $editForm = new Edit($this->admin_record_edit->ct);
                     $editForm->layoutContent = $this->admin_record_edit->pageLayout;
@@ -106,6 +106,21 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
             <?php endif; ?>
         <?php } // End if (current_user_can('install_plugins')) ?>
     </div>
+
+
+<?php if(!empty($this->admin_record_edit->ct->Table)): ?>
+    <h4>Adding Record Edit Forms</h4>
+    <p>You can use these shortcodes to insert forms for adding or editing records:</p>
+    <br/>
+    <pre>[customtables table="<?php echo $this->admin_record_edit->ct->Table->tablename; ?>" view="edit"] - Adds a form to create a new record</pre>
+
+    <?php if(!empty($this->admin_record_edit->listing_id)): ?>
+    <pre>[customtables table="<?php echo $this->admin_record_edit->ct->Table->tablename; ?>" view="edit" id="<?php echo $this->admin_record_edit->listing_id; ?>"] - Adds a form to edit record #<?php echo $this->admin_record_edit->listing_id; ?></pre>
+    <pre>[customtables table="<?php echo $this->admin_record_edit->ct->Table->tablename; ?>" view="details" id="<?php echo $this->admin_record_edit->listing_id; ?>"] - Adds a details form of the record #<?php echo $this->admin_record_edit->listing_id; ?></pre>
+    <p>Note: Replace "<?php echo $this->admin_record_edit->listing_id; ?>" with the ID of the record you want to edit.</p>
+    <?php endif; ?>
+
+<?php endif; ?>
 
     <p><a href="https://ct4.us/contact-us/" target="_blank"><?php echo esc_html__('Support needed? Contact us.', 'customtables'); ?></a></p>
 <?php

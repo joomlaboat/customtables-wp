@@ -87,159 +87,157 @@ class template
         $result = '';
         //if (isset($attributes['table'])) {
 
-            //if (!empty($attributes['table'])) {
+        //if (!empty($attributes['table'])) {
 
-                //$mixedLayout_array = [];
-                $ct = new CT(null, false);
+        //$mixedLayout_array = [];
+        $ct = new CT(null, false);
 
-                if (!empty($attributes['table'])) {
-                    $ct->getTable($attributes['table']);
-                    if ($ct->Table->tablename === null) {
-                        return  'CustomTables: Table "' . $attributes['table'] . '" not found.';
-                    }
-                }elseif (!empty($attributes['layout']))
-                {
-                    $layoutId = $attributes['layout'];
-                }else{
-                    return  'CustomTables: Table or Layout are required.';
+        if (!empty($attributes['table'])) {
+            $ct->getTable($attributes['table']);
+            if ($ct->Table->tablename === null) {
+                return 'CustomTables: Table "' . $attributes['table'] . '" not found.';
+            }
+        } elseif (!empty($attributes['layout'])) {
+            $layoutId = $attributes['layout'];
+        } else {
+            return 'CustomTables: Table or Layout are required.';
+        }
+
+
+        //try {
+
+        //if ($ct->Table->tablename !== null) {
+
+        if (!isset($attributes['limit']) or $attributes['limit'] == "")
+            $attributes['limit'] = 20;
+
+        if (!empty($attributes['id']))
+            $ct->Params->listing_id = $attributes['id'];
+
+        $ct->Params->limit = $attributes['limit'];
+        $ct->Params->sortBy = $attributes['orderby'] ?? null;
+        $ct->Params->filter = $attributes['filter'] ?? null;
+
+        $layouts = new Layouts($ct);
+
+        if (!empty($attributes['view'])) {
+            if ($attributes['view'] == 'edit')
+                $layoutType = 2;
+            elseif ($attributes['view'] == 'details')
+                $layoutType = 4;
+            elseif ($attributes['view'] == 'catalog')
+                $layoutType = 1;
+            else
+                $layoutType = 1;
+
+            $mixedLayout_array = $layouts->renderMixedLayout(0, $layoutType);
+        } else {
+            if ($ct->Table !== null) {
+                $view = common::inputGetCmd('view' . $ct->Table->tableid);
+                if ($view == 'edit' or $view == 'edititem') {
+                    $layoutType = 2;
+                    $layoutId = (int)($attributes['editlayout'] ?? 0);
+                } elseif ($view == 'details') {
+                    $layoutType = 4;
+                    $layoutId = (int)($attributes['detailslayout'] ?? 0);
+                } else {
+                    $layoutType = $attributes['type'] ?? 1;
+
+                    if ((int)$layoutType == 1)
+                        $layoutId = (int)($attributes['cataloglayout'] ?? 0);
+                    elseif ((int)$layoutType == 2)
+                        $layoutId = (int)($attributes['editlayout'] ?? 0);
+                    elseif ((int)$layoutType == 4)
+                        $layoutId = (int)($attributes['detailslayout'] ?? 0);
+                    else
+                        $layoutId = 0;
                 }
+                $mixedLayout_array = $layouts->renderMixedLayout($layoutId, $layoutType);
+            } else
+                $mixedLayout_array = $layouts->renderMixedLayout($layoutId);
+        }
 
+        $mixedLayout_safe = $mixedLayout_array['html'];
+        $this->enqueueList['FieldInputPrefix'] = $ct->Table->fieldInputPrefix;
+        //} else {
+        //    $mixedLayout_safe = 'Table "' . $attributes['table'] . '" not found.';
+        //}
+        //} catch (Exception $e) {
+        //    $mixedLayout_safe = 'Error: ' . $e->getMessage();
+        //}
 
-                //try {
+        $message = get_transient('plugin_error_message');
+        if ($message) {
+            $result .= '<blockquote style="background-color: #f8d7da; border-left: 5px solid #dc3545; padding: 10px;"><p>' . esc_html($message) . '</p></blockquote>';
+            // Once displayed, clear the transient
+            delete_transient('plugin_error_message');
+        }
 
-                    //if ($ct->Table->tablename !== null) {
+        $success_message = get_transient('plugin_success_message');
+        if (!empty($success_message)) {
+            $result .= '<blockquote style="background-color: #d4edda;border-left: 5px solid #28a745;padding: 10px;"><p>' . esc_html($success_message) . '</p></blockquote>';
+            // Optionally, you can delete the transient after displaying it
+            delete_transient('plugin_success_message');
+        }
 
-                        if (!isset($attributes['limit']) or $attributes['limit'] == "")
-                            $attributes['limit'] = 20;
+        if (!is_admin()) {
+            if (isset($mixedLayout_array['style'])) {
 
-                        $ct->Params->limit = $attributes['limit'];
-                        $ct->Params->sortBy = $attributes['orderby'] ?? null;
-                        $ct->Params->filter = $attributes['filter'] ?? null;
+                if (!isset($this->enqueueList['style']) or $this->enqueueList['style'] === null)
+                    $this->enqueueList['style'] = [];
 
-                        $layouts = new Layouts($ct);
+                if (!in_array($mixedLayout_array['style'], $this->enqueueList['style']))
+                    $this->enqueueList['style'][] = $mixedLayout_array['style'];
+            }
 
-                        if (!empty($attributes['view'])) {
-                            if ($attributes['view'] == 'edit')
-                                $layoutType = 2;
-                            elseif ($attributes['view'] == 'details')
-                                $layoutType = 4;
-                            elseif ($attributes['view'] == 'catalog')
-                                $layoutType = 1;
-                            else
-                                $layoutType = 1;
+            if (isset($mixedLayout_array['script']))
+                $this->enqueueList['script'] = $mixedLayout_array['script'];
 
-                            echo '$attributes[view]:'.$attributes['view'].'<br/>';
-                            echo '$layoutType:'.$layoutType.'<br/>';
+            if (isset($mixedLayout_array['captcha']))
+                $this->enqueueList['recaptcha'] = $mixedLayout_array['captcha'];
 
-                            $mixedLayout_array = $layouts->renderMixedLayout(0, $layoutType);
-                        } else {
-                            if($ct->Table !== null) {
-                                $view = common::inputGetCmd('view' . $ct->Table->tableid);
-                                if ($view == 'edit' or $view == 'edititem') {
-                                    $layoutType = 2;
-                                    $layoutId = (int)($attributes['editlayout'] ?? 0);
-                                } elseif ($view == 'details') {
-                                    $layoutType = 4;
-                                    $layoutId = (int)($attributes['detailslayout'] ?? 0);
-                                } else {
-                                    $layoutType = $attributes['type'] ?? 1;
+            if (isset($mixedLayout_array['scripts']))
+                $this->enqueueList['scripts'] = $mixedLayout_array['scripts'];
 
-                                    if ((int)$layoutType == 1)
-                                        $layoutId = (int)($attributes['cataloglayout'] ?? 0);
-                                    elseif ((int)$layoutType == 2)
-                                        $layoutId = (int)($attributes['editlayout'] ?? 0);
-                                    elseif ((int)$layoutType == 4)
-                                        $layoutId = (int)($attributes['detailslayout'] ?? 0);
-                                    else
-                                        $layoutId = 0;
-                                }
-                                $mixedLayout_array = $layouts->renderMixedLayout($layoutId, $layoutType);
-                            }
-                            else
-                                $mixedLayout_array = $layouts->renderMixedLayout($layoutId);
-                        }
+            if (isset($mixedLayout_array['styles']))
+                $this->enqueueList['styles'] = $mixedLayout_array['styles'];
 
-                        $mixedLayout_safe = $mixedLayout_array['html'];
-                        $this->enqueueList['FieldInputPrefix'] = $ct->Table->fieldInputPrefix;
-                    //} else {
-                    //    $mixedLayout_safe = 'Table "' . $attributes['table'] . '" not found.';
-                    //}
-                //} catch (Exception $e) {
-                //    $mixedLayout_safe = 'Error: ' . $e->getMessage();
-                //}
+            if (isset($mixedLayout_array['jslibrary']))
+                $this->enqueueList['jslibrary'] = $mixedLayout_array['jslibrary'];
 
-                $message = get_transient('plugin_error_message');
-                if ($message) {
-                    $result .= '<blockquote style="background-color: #f8d7da; border-left: 5px solid #dc3545; padding: 10px;"><p>' . esc_html($message) . '</p></blockquote>';
-                    // Once displayed, clear the transient
-                    delete_transient('plugin_error_message');
-                }
+            //Fields
+            if (isset($mixedLayout_array['fieldtypes'])) {
 
-                $success_message = get_transient('plugin_success_message');
-                if (!empty($success_message)) {
-                    $result .= '<blockquote style="background-color: #d4edda;border-left: 5px solid #28a745;padding: 10px;"><p>' . esc_html($success_message) . '</p></blockquote>';
-                    // Optionally, you can delete the transient after displaying it
-                    delete_transient('plugin_success_message');
-                }
+                if (in_array('date', $mixedLayout_array['fieldtypes']))
+                    $this->enqueueList['fieldtype:date'] = true;
 
-                if (!is_admin()) {
-                    if (isset($mixedLayout_array['style'])) {
+                if (in_array('datetime', $mixedLayout_array['fieldtypes']))
+                    $this->enqueueList['fieldtype:datetime'] = true;
 
-                        if (!isset($this->enqueueList['style']) or $this->enqueueList['style'] === null)
-                            $this->enqueueList['style'] = [];
+                if (in_array('color', $mixedLayout_array['fieldtypes']))
+                    $this->enqueueList['fieldtype:color'] = true;
 
-                        if (!in_array($mixedLayout_array['style'], $this->enqueueList['style']))
-                            $this->enqueueList['style'][] = $mixedLayout_array['style'];
-                    }
+                if (in_array('googlemapcoordinates', $mixedLayout_array['fieldtypes']))
+                    $this->enqueueList['fieldtype:googlemapcoordinates'] = true;
 
-                    if (isset($mixedLayout_array['script']))
-                        $this->enqueueList['script'] = $mixedLayout_array['script'];
+                if (in_array('file', $mixedLayout_array['fieldtypes']))
+                    $this->enqueueList['fieldtype:file'] = true;
+            }
 
-                    if (isset($mixedLayout_array['captcha']))
-                        $this->enqueueList['recaptcha'] = $mixedLayout_array['captcha'];
+            //add_filter( 'wp_title', 'customtables_wp_title', 10, 2 );
+            //add_action('wp_enqueue_scripts', array($this, 'ct_enqueue_frontend_scripts'), 10);
+            //add_action('wp_enqueue_scripts', 'ct_enqueue_frontend_scripts', 10);
+            //add_action('init', 'ct_enqueue_frontend_scripts', 10);
+            //wp_add_inline_script('ct-sadckmt', 'alert(1)');
+            //wp_enqueue_script('jquery-ui-tabs');
+            //add_action('wp_footer', 'ct_enqueue_frontend_scripts', 100);
+        }
+        $result .= '<div>' . $mixedLayout_safe . '</div>';
 
-                    if (isset($mixedLayout_array['scripts']))
-                        $this->enqueueList['scripts'] = $mixedLayout_array['scripts'];
-
-                    if (isset($mixedLayout_array['styles']))
-                        $this->enqueueList['styles'] = $mixedLayout_array['styles'];
-
-                    if (isset($mixedLayout_array['jslibrary']))
-                        $this->enqueueList['jslibrary'] = $mixedLayout_array['jslibrary'];
-
-                    //Fields
-                    if (isset($mixedLayout_array['fieldtypes'])) {
-
-                        if (in_array('date', $mixedLayout_array['fieldtypes']))
-                            $this->enqueueList['fieldtype:date'] = true;
-
-                        if (in_array('datetime', $mixedLayout_array['fieldtypes']))
-                            $this->enqueueList['fieldtype:datetime'] = true;
-
-                        if (in_array('color', $mixedLayout_array['fieldtypes']))
-                            $this->enqueueList['fieldtype:color'] = true;
-
-                        if (in_array('googlemapcoordinates', $mixedLayout_array['fieldtypes']))
-                            $this->enqueueList['fieldtype:googlemapcoordinates'] = true;
-
-                        if (in_array('file', $mixedLayout_array['fieldtypes']))
-                            $this->enqueueList['fieldtype:file'] = true;
-                    }
-
-                    //add_filter( 'wp_title', 'customtables_wp_title', 10, 2 );
-                    //add_action('wp_enqueue_scripts', array($this, 'ct_enqueue_frontend_scripts'), 10);
-                    //add_action('wp_enqueue_scripts', 'ct_enqueue_frontend_scripts', 10);
-                    //add_action('init', 'ct_enqueue_frontend_scripts', 10);
-                    //wp_add_inline_script('ct-sadckmt', 'alert(1)');
-                    //wp_enqueue_script('jquery-ui-tabs');
-                    //add_action('wp_footer', 'ct_enqueue_frontend_scripts', 100);
-                }
-                $result .= '<div>' . $mixedLayout_safe . '</div>';
-
-            //} else {
-            //    $result .= '<blockquote style="background-color: #f8d7da; border-left: 5px solid #dc3545; padding: 10px;"><p>'
-            //        . esc_html('Custom Tables: Table Not Selected.') . '</p></blockquote>';
-            //}
+        //} else {
+        //    $result .= '<blockquote style="background-color: #f8d7da; border-left: 5px solid #dc3545; padding: 10px;"><p>'
+        //        . esc_html('Custom Tables: Table Not Selected.') . '</p></blockquote>';
+        //}
         //}
         return $result;
     }

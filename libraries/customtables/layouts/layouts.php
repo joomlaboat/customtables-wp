@@ -120,10 +120,6 @@ class Layouts
 
         $row = $rows[0];
         $this->tableId = (int)$row['tableid'];
-
-        if ($this->ct->Table === null)
-            $this->ct->getTable($this->tableId);
-
         $this->layoutId = (int)$row['id'];
         $this->layoutType = (int)$row['layouttype'];
 
@@ -403,21 +399,17 @@ class Layouts
      * @throws Exception
      * @since 3.2.2
      */
-    function renderMixedLayout($layoutId, ?int $layoutType = null): array
+    function renderMixedLayout(int $layoutId, int $layoutType = null): array
     {
-        if (!empty($layoutId)) {
+        if ($this->ct->Table->fields === null)
+            return ['html' => 'CustomTable: Table not selected'];
+
+        if ($layoutId !== 0) {
             $this->getLayout($layoutId);
             if ($this->layoutType === null)
                 return ['html' => 'CustomTable: Layout "' . $layoutId . '" not found'];
 
-            if ($this->ct->Table->fields === null)
-                return ['html' => 'CustomTable: Table not selected or not found'];
-
         } else {
-
-            if ($this->ct->Table->fields === null)
-                return ['html' => 'CustomTable: Table not selected'];
-
             if ($layoutType == 1 or $layoutType == 5)
                 $this->layoutCode = $this->createDefaultLayout_SimpleCatalog($this->ct->Table->fields);
             elseif ($layoutType == 2) {

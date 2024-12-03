@@ -13,13 +13,9 @@ or any other type of data that you need to display on your site.
 3. Activate the plugin through the 'Plugins' menu in WordPress
 
 ## Useful links
-https://developer.wordpress.org/plugins/
-https://wpmudev.com/blog/wordpress-admin-tables/
-https://wordpress.org/plugins/developers/
-https://developer.wordpress.org/reference/functions/wp_enqueue_script/#notes
-https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/
-https://developer.wordpress.org/plugins/wordpress-org/plugin-developer-faq/
+https://ct4.us/
 
+https://joomlaboat.com/
 
 # Shortcode Usage
 

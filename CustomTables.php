@@ -295,6 +295,7 @@ add_shortcode('customtables', function($form_attributes) {
     }
 
     $defaults = array(
+        'id' => null,      // optional, int or string
         'view' => null,      // optional, int or string
         'table' => '',      // optional, int or string
         'layout' => null,     // optional, int or string
@@ -316,6 +317,7 @@ add_shortcode('customtables', function($form_attributes) {
 
     // Sanitize inputs
     $params = array(
+        'id' => sanitize_text_field($attributes['id']),
         'view' => sanitize_text_field($attributes['view']),
         'table' => sanitize_text_field($attributes['table']),
         'layout' => sanitize_text_field($attributes['layout']),
