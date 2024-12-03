@@ -9,7 +9,7 @@
  **/
 
 // no direct access
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use CustomTables\common;
 use CustomTables\CT;

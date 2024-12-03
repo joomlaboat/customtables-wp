@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use CustomTablesImageMethods;
 use Exception;
@@ -666,13 +666,13 @@ class CT
                 //example: parents(children).user
                 $statement_parts = explode('.', $item['equation']);
                 if (count($statement_parts) != 2) {
-                    $this->errors[] = common::translate('COM_CUSTOMTABLES_MENUITEM_USERID_FIELD_ERROR');
+                    $this->errors[] = esc_html__("Menu Item - 'UserID Field name' parameter has a syntax error. Error is about '(' character. Correct example: parent(children).user", "customtables");
                     return $whereClause;
                 }
 
                 $table_parts = explode('(', $statement_parts[0]);
                 if (count($table_parts) != 2) {
-                    $this->errors[] = common::translate('COM_CUSTOMTABLES_MENUITEM_USERID_FIELD_ERROR');
+                    $this->errors[] = esc_html__("Menu Item - 'UserID Field name' parameter has a syntax error. Error is about '(' character. Correct example: parent(children).user", "customtables");
                     return $whereClause;
                 }
 
@@ -683,7 +683,7 @@ class CT
                 $parent_table_row = TableHelper::getTableRowByName($parent_tablename);
 
                 if (!is_object($parent_table_row)) {
-                    $this->errors[] = common::translate('COM_CUSTOMTABLES_MENUITEM_TABLENOTFOUND_ERROR');
+                    $this->errors[] = esc_html__("Menu Item - 'UserID Field name' parameter has an error: Table not found.", "customtables");
                     return $whereClause;
                 }
 
@@ -692,7 +692,7 @@ class CT
                 $parent_join_field_row = $tempTable->getFieldByName($parent_join_field);
 
                 if (count($parent_join_field_row) == 0) {
-                    $this->errors[] = common::translate('COM_CUSTOMTABLES_MENUITEM_TABLENOTFOUND_ERROR');
+                    $this->errors[] = esc_html__("Menu Item - 'UserID Field name' parameter has an error: Table not found.", "customtables");
                     return $whereClause;
                 }
 

@@ -9,7 +9,7 @@
  **/
 
 // If this file is called directly, abort.
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;

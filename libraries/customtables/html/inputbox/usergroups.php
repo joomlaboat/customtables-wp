@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Exception;
 
@@ -84,7 +84,7 @@ class InputBox_usergroups extends BaseInputBox
 
         if (!$multiple) {
             $htmlResult .= '<option value=""'
-                . (in_array("", $valueArray) ? ' selected' : '') . '>- ' . common::translate('COM_CUSTOMTABLES_SELECT') . '</option>';
+                . (in_array("", $valueArray) ? ' selected' : '') . '>- ' . esc_html__("Select", "customtables") . '</option>';
         }
 
         foreach ($records as $row) {
