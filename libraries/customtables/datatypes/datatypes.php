@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined('_JEXEC') or die();
 
 class DataTypes
 {
@@ -65,7 +65,6 @@ class DataTypes
 			'blob' => 'COM_CUSTOMTABLES_FIELDS_BLOB',
 			'language' => 'COM_CUSTOMTABLES_FIELDS_LANGUAGE'
 		);
-
 		return $typeArray;
 	}
 
