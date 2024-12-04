@@ -340,9 +340,19 @@ class common
         die('common::inputCookieGet not supported in WordPress');
     }
 
-    public static function inputServer($parameter, $default = null, $filter = null)
+	/**
+	 * @throws Exception
+	 */
+	public static function inputServer($parameter, $default = null, $filter = null)
     {
-        die('common::inputServer not supported in WordPress');
+		if(!class_exists('CustomTables\ctProHelpers'))
+			return 'Please install Custom Tables Pro.';
+
+		if (!method_exists('CustomTables\ctProHelpers', 'inputServer')) {
+			throw new Exception(__('Please install Custom Tables Pro.', 'customtables'));
+		}
+
+		return ctProHelpers::inputServer($parameter, $default, $filter);
     }
 
     public static function folderList(string $directory): ?array
