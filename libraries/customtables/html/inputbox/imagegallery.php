@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Exception;
 
@@ -57,7 +57,7 @@ class InputBox_imagegallery extends BaseInputBox
 				$index = -intval($img['id']);
 				$result .= '<div class="preview-item" data-file-index="' . $index . '">';
 				$result .= '<img src="' . $img['src'] . '" class="preview-image" />';
-				$result .= '<button type="button" title="' . common::translate('COM_CUSTOMTABLES_DELETE') . '" class="remove-btn" onclick="CTEditHelper.ImageGalleryRemoveFile(this, \'' . $this->attributes['id'] . '\', ' . $index . ')">×</button></div>';
+				$result .= '<button type="button" title="' . esc_html__("Delete", "customtables") . '" class="remove-btn" onclick="CTEditHelper.ImageGalleryRemoveFile(this, \'' . $this->attributes['id'] . '\', ' . $index . ')">×</button></div>';
 			}
 
 			$result .= '</div>
@@ -113,7 +113,7 @@ class InputBox_imagegallery extends BaseInputBox
 					$inputBoxFieldName_FileName = '<input type="hidden" name="' . $this->attributes['id'] . '_filename" id="' . $this->attributes['id'] . '_filename" value="" />';
 
 					$result .= $inputBoxFieldName . $inputBoxFieldName_FileName
-						. common::translate('COM_CUSTOMTABLES_PERMITTED_MAX_FILE_SIZE') . ': ' . CTMiscHelper::formatSizeUnits($max_file_size);
+						. esc_html__("Permitted Max. File Size", "customtables") . ': ' . CTMiscHelper::formatSizeUnits($max_file_size);
 
 					$result .= $ct_fileuploader . $ct_eventsMessage
 						. '<script>

@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // No direct access to this file
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Exception;
 
@@ -26,7 +26,7 @@ class ImportCSV
 		if (file_exists($filename))
 			return self::importCSVdata($filename, $ct_tableid);
 		else
-			return common::translate('COM_CUSTOMTABLES_FILE_NOT_FOUND');
+			return esc_html__("File not found", "customtables");
 	}
 
 	/**
@@ -38,7 +38,7 @@ class ImportCSV
 		$arrayOfLines = self::getLines($filename);
 
 		if ($arrayOfLines === null)
-			return common::translate('COM_CUSTOMTABLES_CSV_FILE_EMPTY');
+			return esc_html__("CSV file is empty.", "customtables");
 
 		$ct = new CT;
 		$ct->getTable($ct_tableid);

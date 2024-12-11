@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use CustomTablesImageMethods;
 use DateInvalidTimeZoneException;
@@ -236,9 +236,9 @@ class Value
 
 			case 'checkbox':
 				if ((int)$rowValue)
-					return common::translate('COM_CUSTOMTABLES_YES');
+					return esc_html__("Yes", "customtables");
 				else
-					return common::translate('COM_CUSTOMTABLES_NO');
+					return esc_html__("No", "customtables");
 
 			case 'date':
 
