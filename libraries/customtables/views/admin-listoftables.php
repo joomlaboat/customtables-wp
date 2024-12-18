@@ -137,7 +137,7 @@ class ListOfTables
 
 		$newTableName = strtolower(trim(preg_replace("/\W/", "", $newTableName)));
 
-		$customPHP = common::inputPostString('customphp', null, 'create-edit-table');
+		$customPHP = common::inputPostString('customidfield', null, 'create-edit-table');
 		$data ['customphp'] = $customPHP;
 
 		$customPHP = common::inputPostString('customidfield', null, 'create-edit-table');
