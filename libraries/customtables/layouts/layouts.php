@@ -455,12 +455,21 @@ class Layouts
 			//Simple Catalog or Catalog Page
 			if ($task == 'delete') {
 
+				$clean = common::inputGetInt('clean', 0);
+
 				$listing_id = common::inputGetCmd('listing_id', 0);
 				if (!empty($listing_id)) {
 					if ($this->ct->deleteSingleRecord($listing_id) === 1) {
-						common::enqueueMessage(esc_html__("Record deleted.", "customtables"), 'notice');
+
+						if ($clean == 1)
+							die('deleted');
+						else
+							common::enqueueMessage(esc_html__("Record deleted.", "customtables"), 'notice');
 					} else {
-						common::enqueueMessage(esc_html__("Record not deleted.", "customtables"));
+						if ($clean == 1)
+							die('error');
+						else
+							common::enqueueMessage(esc_html__("Record not deleted.", "customtables"));
 					}
 				}
 			}
