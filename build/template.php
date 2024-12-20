@@ -106,8 +106,6 @@ class template
 
         //try {
 
-        //if ($ct->Table->tablename !== null) {
-
         if (!isset($attributes['limit']) or $attributes['limit'] == "")
             $attributes['limit'] = 20;
 
@@ -233,12 +231,6 @@ class template
             //add_action('wp_footer', 'ct_enqueue_frontend_scripts', 100);
         }
         $result .= '<div>' . $mixedLayout_safe . '</div>';
-
-        //} else {
-        //    $result .= '<blockquote style="background-color: #f8d7da; border-left: 5px solid #dc3545; padding: 10px;"><p>'
-        //        . esc_html('Custom Tables: Table Not Selected.') . '</p></blockquote>';
-        //}
-        //}
         return $result;
     }
 
@@ -332,12 +324,9 @@ class template
         }
 
         //Google Map Coordinates
-        //if (isset($this->enqueueList['fieldtype:googlemapcoordinates']) and $this->enqueueList['fieldtype:googlemapcoordinates']) {
-
         $googleMapAPIKey = get_option('customtables-googlemapapikey') ?? '';
         if ($googleMapAPIKey != '')
             wp_enqueue_script('ct-google-map-script', 'https://maps.google.com/maps/api/js?key=' . $googleMapAPIKey . '&sensor=false', array(), PLUGIN_VERSION, true);
-        //}
 
         //Google Drive
         if (isset($this->enqueueList['fieldtype:file']) and $this->enqueueList['fieldtype:file']) {
