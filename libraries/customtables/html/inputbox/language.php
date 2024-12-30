@@ -20,6 +20,23 @@ class InputBox_language extends BaseInputBox
 		parent::__construct($ct, $field, $row, $option_list, $attributes);
 	}
 
+	function getOptions(?string $value): array
+	{
+		$options = [];
+		$lang = new Languages();
+
+		foreach ($lang->LanguageList as $language) {
+
+			$option = ["value" => $language->language, "label" => $language->caption];
+
+			if ($language->language === $value)
+				$option['selected'] = true;
+
+			$options[] = $option;
+		}
+		return $options;
+	}
+
 	function render(?string $value, ?string $defaultValue): string
 	{
 		if ($value === null or $value === '') {

@@ -32,6 +32,7 @@ class Layouts
 	var ?string $layoutCode;
 	var ?string $layoutCodeCSS;
 	var ?string $layoutCodeJS;
+	var ?array $params;
 
 	function __construct(&$ct)
 	{
@@ -111,7 +112,8 @@ class Layouts
 			'layoutcss',
 			'layoutjs',
 			'layouttype',
-			'MODIFIED_TIMESTAMP'
+			'MODIFIED_TIMESTAMP',
+			'params'
 		];
 
 		$rows = database::loadAssocList('#__customtables_layouts', $selects, $whereClause, null, null, 1);
@@ -126,6 +128,16 @@ class Layouts
 
 		$this->layoutId = (int)$row['id'];
 		$this->layoutType = (int)$row['layouttype'];
+
+		if ($row['params'] === null) {
+			$this->params = null;
+		} else {
+			try {
+				$this->params = json_decode($row['params'], true);
+			} catch (Exception $e) {
+				$this->params = null; //If there is some JSON syntax error for some reason, it impossible but just in case, set null.
+			}
+		}
 
 		if ($this->ct->Env->isMobile and trim($row['layoutmobile']) != '') {
 			$layoutCode = $row['layoutmobile'];
@@ -150,7 +162,7 @@ class Layouts
 		if ($processLayoutTag)
 			$this->processLayoutTag($layoutCode);
 
-		if ($addHeaderCode and $this->ct->Env->advancedTagProcessor)
+		if ($addHeaderCode and $this->ct->Env->advancedTagProcessor and $this->ct->Env->clean == 0)
 			$this->addCSSandJSIfNeeded($row, $checkLayoutFile);
 
 		$this->pageLayoutNameString = $row['layoutname'];
@@ -403,8 +415,11 @@ class Layouts
 	 * @throws Exception
 	 * @since 3.2.2
 	 */
-	function renderMixedLayout($layoutId, ?int $layoutType = null): array
+	function renderMixedLayout($layoutId, ?int $layoutType = null, ?int $clean = null, bool $mustReturn = false, ?string $task = null): array
 	{
+		if ($clean === null)
+			$clean = common::inputGetInt('clean', 0);
+
 		if (!empty($layoutId)) {
 			$this->getLayout($layoutId);
 			if ($this->layoutType === null)
@@ -432,6 +447,9 @@ class Layouts
 			elseif ($layoutType == 9)
 				$this->layoutCode = $this->createDefaultLayout_CSV($this->ct->Table->fields);
 		}
+
+		if ($this->params !== null)
+			$this->ct->Params->setParams($this->params);
 		/*
 		 * <option value="1">Simple Catalog</option>
 				<option value="5">Catalog Page</option>
@@ -445,30 +463,38 @@ class Layouts
 				<option value="10">JSON File</option>
 		 */
 
-		$task = common::inputPostCmd('task', null, 'create-edit-record');
+		$output = ['style' => $this->layoutCodeCSS, 'script' => $this->layoutCodeJS];
+
+		if ($task === null)
+			$task = common::inputPostCmd('task', null, 'create-edit-record');
+
 		if ($task === null)
 			$task = common::inputGetCmd('task');
-
-		$output = ['style' => $this->layoutCodeCSS, 'script' => $this->layoutCodeJS];
 
 		if (in_array($this->layoutType, [1, 5, 8, 9, 10])) {
 			//Simple Catalog or Catalog Page
 			if ($task == 'delete') {
 
-				$clean = common::inputGetInt('clean', 0);
-
 				$listing_id = common::inputGetCmd('listing_id', 0);
 				if (!empty($listing_id)) {
 					if ($this->ct->deleteSingleRecord($listing_id) === 1) {
 
-						if ($clean == 1)
-							die('deleted');
-						else
+						if ($clean == 1) {
+							if ($mustReturn) {
+								return ['success' => true, 'message' => esc_html__("Record deleted.", "customtables"), 'short' => 'deleted'];
+							} else {
+								die('deleted');
+							}
+						} else
 							common::enqueueMessage(esc_html__("Record deleted.", "customtables"), 'notice');
 					} else {
-						if ($clean == 1)
-							die('error');
-						else
+						if ($clean == 1) {
+							if ($mustReturn) {
+								return ['success' => false, 'message' => esc_html__("Record not deleted.", "customtables"), 'short' => 'error'];
+							} else {
+								die('error');
+							}
+						} else
 							common::enqueueMessage(esc_html__("Record not deleted.", "customtables"));
 					}
 				}
@@ -495,9 +521,24 @@ class Layouts
 						}
 					}
 
-					common::enqueueMessage(esc_html__("Record saved.", "customtables"), 'notice');
+					if ($clean == 1) {
+						if ($mustReturn) {
+							return ['success' => true, 'message' => esc_html__("Record saved.", "customtables"), 'short' => 'updated'];
+						} else {
+							die('updated');
+						}
+					} else
+						common::enqueueMessage(esc_html__("Record saved.", "customtables"), 'notice');
 				} else {
-					common::enqueueMessage(esc_html__("Record cannot be saved.", "customtables"));
+
+					if ($clean == 1) {
+						if ($mustReturn) {
+							return ['success' => false, 'message' => esc_html__("Record cannot be saved.", "customtables"), 'short' => 'error'];
+						} else {
+							die('error');
+						}
+					} else
+						common::enqueueMessage(esc_html__("Record cannot be saved.", "customtables"));
 
 					if ($record->ct->Params !== null and $record->ct->Params->msgItemIsSaved !== null)
 						common::enqueueMessage($record->ct->Params->msgItemIsSaved);
@@ -546,14 +587,29 @@ class Layouts
 		} elseif ($this->layoutType == 4 or $this->layoutType == 6) {
 			//Details or Catalog Item
 			if ($this->ct->Table->record === null) {
+
 				if ($this->ct->Params->listing_id !== null)
 					$listing_id = $this->ct->Params->listing_id;
 				else
 					$listing_id = common::inputGetCmd('listing_id');
 
+				$filter = null;
+				if ($this->ct->Params->filter !== null)
+					$filter = $this->ct->Params->filter;
+
+				$this->ct->setFilter($filter);
+
 				if ($listing_id !== null)
-					$this->ct->Table->loadRecord($listing_id);
+					$this->ct->Filter->whereClause->addCondition($this->ct->Table->realidfieldname, $listing_id);
+
+				if ($this->ct->getRecords(false, 1)) {
+					if (count($this->ct->Records) > 0) {
+						$this->ct->Table->record = $this->ct->Records[0];
+						$this->ct->Params->listing_id = $this->ct->Table->record[$this->ct->Table->realidfieldname];
+					}
+				}
 			}
+
 			$output['html'] = $this->renderDetails();
 		} else
 			$output['html'] = 'CustomTable: Unknown Layout Type';
@@ -561,6 +617,9 @@ class Layouts
 		$output['scripts'] = $this->ct->LayoutVariables['scripts'] ?? null;
 		$output['styles'] = $this->ct->LayoutVariables['styles'] ?? null;
 		$output['jslibrary'] = $this->ct->LayoutVariables['jslibrary'] ?? null;
+
+		$output['success'] = true;
+
 		return $output;
 	}
 
@@ -904,7 +963,7 @@ class Layouts
 			}
 		}
 
-		if ($this->ct->Env->frmt == 'html')
+		if ($this->ct->Env->frmt == 'html' and !$this->ct->Env->clean)
 			common::loadJSAndCSS($this->ct->Params, $this->ct->Env, $this->ct->Table->fieldInputPrefix);
 
 		// --------------------- Filter

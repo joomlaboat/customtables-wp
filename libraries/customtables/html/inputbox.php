@@ -78,26 +78,261 @@ class Inputbox
 
 	/**
 	 * @throws Exception
-	 * @since 3.2.2
+	 * @since 3.4.8
 	 */
-	function render(?string $value, ?array $row): ?string
+	function getTypeDetails(?string $value, ?array $row): ?array
 	{
 		$this->row = $row;
-		$this->field = new Field($this->ct, $this->field->fieldrow, $this->row);
-		$this->prefix = $this->ct->Table->fieldInputPrefix . (!$this->ct->isEditForm ? $this->row[$this->ct->Table->realidfieldname] . '_' : '');
-		$this->attributes['name'] = $this->prefix . $this->field->fieldname;
-		$this->attributes['id'] = $this->prefix . $this->field->fieldname;
 
-		if ($this->row === null and !isset($this->attributes['placeholder']))
-			$this->attributes['placeholder'] = $this->place_holder;
+		$input = [];
 
-		if ($this->field->defaultvalue !== '' and $value === null) {
-			$twig = new TwigProcessor($this->ct, $this->field->defaultvalue);
-			$this->defaultValue = $twig->process($this->row);
-		} else
-			$this->defaultValue = null;
+		$input["type"] = $this->field->type;
+		$input["required"] = (bool)$this->field->isrequired;
 
+		switch ($this->field->type) {
+			case 'alias':
+			case 'filelink':
+			case 'email':
+			case 'string':
+				$input["renderAs"] = "text";
+				$input['value'] = $value;
+				break;
 
+			case 'color':
+				$input["renderAs"] = "color";
+				$input['value'] = $value;
+				break;
+
+			case 'blob':
+				$input['value'] = $value;
+				break;
+
+			case 'date':
+				$input["renderAs"] = "date";
+				$input['value'] = $value;
+				break;
+
+			case 'file':
+				$input["renderAs"] = "file";
+				$input['value'] = $value;
+				break;
+
+			case 'filebox':
+				$input["renderAs"] = "file";
+				$input["multiple"] = true;
+				$input['value'] = $value;
+				break;
+
+			case 'float':
+				$input["renderAs"] = "number";
+				$input['value'] = (float)$value;
+				break;
+
+			case 'googlemapcoordinates':
+				$input["renderAs"] = "text";
+				$input["comment"] = "latitude,longitude";
+				$valueArray = explode(',', $value);
+				$input['value'] = array_map('floatval', $valueArray);
+				break;
+
+			case 'int':
+				$input["renderAs"] = "number";
+				$input['value'] = (int)$value;
+				break;
+
+			case 'image':
+				$input["renderAs"] = "file";
+				$input['value'] = $value;
+				break;
+
+			case 'imagegallery':
+				$input["renderAs"] = "file";
+				$input["multiple"] = true;
+				$input['value'] = $value;
+				break;
+
+			case 'multilangstring':
+				$input["renderAs"] = "text";
+				$input["multiple"] = true;
+				$input['value'] = $value;
+				break;
+
+			case 'multilangstring':
+				$input["renderAs"] = "textarea";
+				$input["multiple"] = true;
+				$input['value'] = $value;
+				break;
+
+			case 'ordering':
+				$input["renderAs"] = "number";
+				$input['value'] = (int)$value;
+				break;
+
+			case 'text':
+				$input["renderAs"] = "textarea";
+				$input['value'] = $value;
+				break;
+
+			case 'url':
+				$input["renderAs"] = "url";
+				$input['value'] = $value;
+				break;
+
+			case 'signature':
+			case 'time':
+				$input['value'] = $value;
+				break;
+
+			case 'user':
+			case 'userid':
+				$input["renderAs"] = "select";
+				$input['value'] = (int)$value;
+				break;
+
+			case 'checkbox':
+				$input["renderAs"] = "checkbox";
+				$input['value'] = (bool)$value;
+				break;
+
+			case 'language':
+				$input["renderAs"] = "select";
+				$input['value'] = $value;
+				break;
+
+			case 'article':
+				$input["renderAs"] = "select";
+				$input['value'] = (int)$value;
+				break;
+
+			case 'radio':
+				$input["renderAs"] = "radio";
+				$input['value'] = $value;
+				break;
+
+			case 'usergroup':
+				$input["renderAs"] = "select";
+				$input['value'] = (int)$value;
+				break;
+
+			case 'usergroups':
+				$input["renderAs"] = "select";
+				$valueArray = CTMiscHelper::csv_explode(',', $value, '"', false, true);
+				$input['value'] = array_map('intval', $valueArray);
+				break;
+
+			case 'sqljoin':
+				$input["type"] = 'lookuptable';
+				$input["renderAs"] = "select";
+				$input['value'] = is_numeric($value) ? (int)$value : $value;
+				break;
+
+			case 'records':
+				$input["type"] = 'lookuptable';
+				$input["multiple"] = true;
+				$input["renderAs"] = "select";
+				$valueArray = CTMiscHelper::csv_explode(',', $value, '"', false, true);
+				$input['value'] = array_map('intval', $valueArray);
+				break;
+		}
+
+		$options = $this->getOptions($value);
+		if ($options !== null) {
+			if ($this->field->type === 'sqljoin' or $this->field->type === 'records') {
+				if (count($options) === 1)
+					$input['options'] = $options;
+				else {
+
+					$newOptions = [];
+					$level = 1;
+					foreach ($options as $option) {
+						$newOption = [
+							"level" => $level,
+							"table" => $option["table"],
+							"field" => $option["field"],
+							"options" => $option["options"]
+						];
+
+						$newOptions[] = $newOption;
+						$level += 1;
+					}
+					$input['cascade'] = $newOptions;
+				}
+			} else {
+				$input['options'] = $options;
+			}
+		}
+
+		return $input;
+	}
+
+	/**
+	 * @throws Exception
+	 * @since 3.2.2
+	 */
+	function getOptions(?string $value): ?array
+	{
+		switch ($this->field->type) {
+			case 'alias':
+			case 'blob':
+			case 'color':
+			case 'date':
+			case 'email':
+			case 'file':
+			case 'filebox':
+			case 'filelink':
+			case 'float':
+			case 'googlemapcoordinates':
+			case 'int':
+			case 'image':
+			case 'imagegallery':
+			case 'multilangstring':
+			case 'multilangtext':
+			case 'ordering':
+			case 'signature':
+			case 'string':
+			case 'text':
+			case 'time':
+			case 'url':
+			case 'user':
+			case 'userid':
+				return null;
+
+			case 'checkbox':
+				return [["value" => 0, "label" => "No"], ["value" => 1, "label" => "Yes"]];
+
+			case 'article':
+			case 'radio':
+			case 'language':
+			case 'usergroup':
+			case 'usergroups':
+				$inputBoxRenderer = $this->loadClassByFieldType();
+
+				if ($inputBoxRenderer === null)
+					return null;
+
+				return $inputBoxRenderer->getOptions($value);
+
+			case 'sqljoin':
+
+				$path = CUSTOMTABLES_PRO_PATH . 'inputbox' . DIRECTORY_SEPARATOR;
+
+				if (file_exists($path . 'tablejoin.php')) {
+					require_once($path . 'tablejoin.php');
+
+					$inputBoxRenderer = new ProInputBoxTableJoin($this->ct, $this->field, $this->row, $this->option_list, $this->attributes);
+					return $inputBoxRenderer->getOptions($value);
+				} else {
+					return ['success' => false, 'message' => esc_html__("Available in PRO Version", "customtables")];
+				}
+
+			case 'records':
+				return ['success' => false, 'message' => 'Unsupported'];
+		}
+		return null;
+	}
+
+	protected function loadClassByFieldType()
+	{
 		//Try to instantiate a class dynamically
 		$aliasMap = [
 			'blob' => 'file',
@@ -120,8 +355,31 @@ class Inputbox
 		if (file_exists($additionalFile)) {
 			require_once($additionalFile);
 			$className = '\CustomTables\InputBox_' . $fieldTypeShort;
-			$inputBoxRenderer = new $className($this->ct, $this->field, $this->row, $this->option_list, $this->attributes);
+			return new $className($this->ct, $this->field, $this->row, $this->option_list, $this->attributes);
 		}
+		return null;
+	}
+
+	/**
+	 * @throws Exception
+	 * @since 3.2.2
+	 */
+	function render(?string $value, ?array $row): ?string
+	{
+		$this->row = $row;
+		$this->field = new Field($this->ct, $this->field->fieldrow, $this->row);
+		$this->prefix = $this->ct->Table->fieldInputPrefix . (!$this->ct->isEditForm ? $this->row[$this->ct->Table->realidfieldname] . '_' : '');
+		$this->attributes['name'] = $this->prefix . $this->field->fieldname;
+		$this->attributes['id'] = $this->prefix . $this->field->fieldname;
+
+		if ($this->row === null and !isset($this->attributes['placeholder']))
+			$this->attributes['placeholder'] = $this->place_holder;
+
+		if ($this->field->defaultvalue !== '' and $value === null) {
+			$twig = new TwigProcessor($this->ct, $this->field->defaultvalue);
+			$this->defaultValue = $twig->process($this->row);
+		} else
+			$this->defaultValue = null;
 
 		switch ($this->field->type) {
 
@@ -154,6 +412,11 @@ class Inputbox
 			case 'userid':
 			case 'usergroup':
 			case 'usergroups':
+
+				$inputBoxRenderer = $this->loadClassByFieldType();
+				if ($inputBoxRenderer === null)
+					return null;
+
 				return $inputBoxRenderer->render($value, $this->defaultValue);
 
 			case 'sqljoin':

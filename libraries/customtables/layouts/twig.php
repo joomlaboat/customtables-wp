@@ -406,15 +406,15 @@ class fieldObject
 				return null;
 
 			return $image['src'];
-
-		} elseif ($this->field->type == 'records') {
-			$a = explode(",", $this->ct->Table->record[$rfn]);
-			$b = array();
-			foreach ($a as $c) {
-				if ($c != "")
-					$b[] = $c;
-			}
-			$vlu = implode(',', $b);
+			/*
+					} elseif ($this->field->type == 'records') {
+						$a = explode(",", $this->ct->Table->record[$rfn]);
+						$b = array();
+						foreach ($a as $c) {
+							if ($c != "")
+								$b[] = $c;
+						}
+						$vlu = implode(',', $b);*/
 		} elseif ($this->field->type == 'imagegallery') {
 
 			require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR
@@ -445,9 +445,13 @@ class fieldObject
 				$vlu = $this->escapeJsonCharacters($vlu);
 
 			return $vlu;
+		} elseif ($this->field->type == 'usergroups' or $this->field->type == 'records') {
+			$valueArray = CTMiscHelper::csv_explode(',', $this->ct->Table->record[$rfn], '"', false, true);
+			$vlu = implode(',', $valueArray);
 		} else {
 			$vlu = $this->ct->Table->record[$rfn];
 		}
+
 
 		if ($this->DoHTMLSpecialChars)
 			$vlu = $this->escapeJsonCharacters($vlu);
@@ -508,10 +512,65 @@ class fieldObject
 		return $this->field->type;
 	}
 
+	public function required()
+	{
+		$args = func_get_args();
+
+		if (count($args) == 2)
+			$options = $args;
+		else
+			$options = ['true', 'false'];
+
+		return $this->field->isrequired ? $options[0] : $options[1];
+	}
+
 	public function params(): ?array
 	{
 		return $this->field->params;
 	}
+
+	public function input(): ?array
+	{
+		if (!isset($this->field->fieldrow))
+			return [];
+
+		if (Fields::isVirtualField($this->field->fieldrow))
+			return [];
+
+		$args = [];
+		$Inputbox = new Inputbox($this->ct, $this->field->fieldrow, $args);
+
+		$this->ct->editFields[] = $this->field->fieldname;
+
+		if (!in_array($this->field->type, $this->ct->editFieldTypes))
+			$this->ct->editFieldTypes[] = $this->field->type;
+
+		$value = $Inputbox->getDefaultValueIfNeeded($this->ct->Table->record);
+		return $Inputbox->getTypeDetails($value, $this->ct->Table->record);
+	}
+
+	/*
+	public function options(): ?array
+	{
+		if (!isset($this->field->fieldrow))
+			return [];
+
+		if (Fields::isVirtualField($this->field->fieldrow))
+			return [];
+
+		$args = [];
+
+		$Inputbox = new Inputbox($this->ct, $this->field->fieldrow, $args);
+
+		$this->ct->editFields[] = $this->field->fieldname;
+
+		if (!in_array($this->field->type, $this->ct->editFieldTypes))
+			$this->ct->editFieldTypes[] = $this->field->type;
+
+		$value = $Inputbox->getDefaultValueIfNeeded($this->ct->Table->record);
+		return $Inputbox->getOptions($value, $this->ct->Table->record);
+	}
+	*/
 
 	/**
 	 * @throws Exception

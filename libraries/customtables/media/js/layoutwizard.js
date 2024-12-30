@@ -630,7 +630,9 @@ function FillLayout() {
 	result += '<option value="501">- Catalog Page (No Features)</option>';
 	result += '<option value="600"' + (layoutType === 6 ? ' selected="selected"' : '') + '>Catalog Item</option>';
 	result += '<option value="200"' + (layoutType === 2 ? ' selected="selected"' : '') + '>Edit form</option>';
+	result += '<option value="210">- Edit form (REST API)</option>';
 	result += '<option value="400"' + (layoutType === 4 ? ' selected="selected"' : '') + '>Details</option>';
+	result += '<option value="410">- Details (REST API)</option>';
 	result += '<option value="700"' + (layoutType === 7 ? ' selected="selected"' : '') + '>Email Message</option>';
 	result += '<option value="800"' + (layoutType === 8 ? ' selected="selected"' : '') + '>XML File</option>';
 	result += '<option value="900"' + (layoutType === 9 ? ' selected="selected"' : '') + '>CSV File</option>';
@@ -758,9 +760,19 @@ function modal_layoutTypeSelector_update() {
 			resultOption += '<p><input type="checkbox" id="wizardGuide_add_saveascopy_cancel" checked="checked" /> Add "Cancel" button</p>';
 			break;
 
+		case 210:
+			//Edit Form - REST API for dynamic form generation.
+			resultOption += getFieldOptions();
+			break;
+
 		case 400:
 			//Details Page
 			resultOption += '<p><input type="checkbox" id="wizardGuide_add_goback" checked="checked" /> Add "Go Back" button</p>';
+			resultOption += getFieldOptions();
+			break;
+
+		case 410:
+			//Details Page - REST API for dynamic form generation.
 			resultOption += getFieldOptions();
 			break;
 
@@ -880,12 +892,20 @@ function layoutWizardGenerateLayout(event) {
 			layout_obj.value = getLayout_Edit();
 			break;
 
+		case 210:
+			layout_obj.value = getLayout_Edit_REST_API();
+			break;
+
 		case 300:
 			layout_obj.value = getLayout_Record();
 			break;
 
 		case 400:
 			layout_obj.value = getLayout_Details();
+			break;
+
+		case 410:
+			layout_obj.value = getLayout_Details_REST_API();
 			break;
 
 		case 500:
@@ -1471,6 +1491,86 @@ function getFieldsToSkip() {
 	return fields_to_skip;
 }
 
+function getLayout_Details_REST_API() {
+	let result = "";
+	let l = wizardFields.length;
+
+	result += '{\n';
+	result += '\t  "table": "{{ table.name }}",\r\n';
+	result += '\t  "tablelabel": "{{ table.title }}",\r\n';
+	result += '\t  "fields": [\r\n';
+
+	let fieldtypes_to_skip = ['log', 'filebox', 'imagegallery', 'dummy'];
+	let fields_to_skip = getFieldsToSkip();
+
+	let fields = [];
+	for (let index = 0; index < l; index++) {
+		let field = wizardFields[index];
+
+		if (fieldtypes_to_skip.indexOf(field.type) === -1 && fields_to_skip.indexOf(field.fieldname) === -1) {
+			fields.push(field);
+		}
+	}
+
+	for (let index = 0; index < fields.length; index++) {
+		let field = fields[index];
+
+		result += '\t  \t  {\n';
+		result += '\t  \t  \t  "fieldname": "' + field.fieldname + '",\r\n';
+		result += '\t  \t  \t  "label": "{{ ' + field.fieldname + '.title }}",\r\n';
+		result += '\t  \t  \t  "value": "{{ ' + field.fieldname + '.value }}",\r\n';
+		result += '\t  \t  \t  "processedValue": "{{ ' + field.fieldname + ' }}"\r\n';
+		result += '\t  \t  }' + (index < fields.length - 1 ? ',' : '') + '\n';
+	}
+
+	result += '\t  ]\r\n';
+	result += '}';
+
+	return result;
+}
+
+function getLayout_Edit_REST_API() {
+	let result = "";
+	let l = wizardFields.length;
+
+	result += '{\n';
+	result += '\t  "table": "{{ table.name }}",\r\n';
+	result += '\t  "tablelabel": "{{ table.title }}",\r\n';
+	result += '\t  "fields": [\r\n';
+
+	let fieldtypes_to_skip = ['log', 'phponview', 'phponchange', 'phponadd', 'md5', 'id', 'server', 'userid', 'viewcount', 'lastviewtime', 'changetime', 'creationtime', 'filebox', 'dummy'];
+	let fields_to_skip = getFieldsToSkip();
+
+	let fields = [];
+	for (let index = 0; index < l; index++) {
+		let field = wizardFields[index];
+
+		if (fieldtypes_to_skip.indexOf(field.type) === -1 && fields_to_skip.indexOf(field.fieldname) === -1) {
+			fields.push(field);
+		}
+	}
+
+	for (let index = 0; index < fields.length; index++) {
+		let field = fields[index];
+
+		result += '\t  \t  {\n';
+		result += '\t  \t  \t  "fieldname": "' + field.fieldname + '",\r\n';
+		result += '\t  \t  \t  "label": "{{ ' + field.fieldname + '.title }}",\r\n';
+		//result += '\t  \t  \t  "type": "{{ ' + field.fieldname + '.type }}",\r\n';
+		//result += '\t  \t  \t  "params": "{{ ' + field.fieldname + '.params | join(",") }}",\r\n';
+		//result += '\t  \t  \t  "options": {{ ' + field.fieldname + '.options | json_encode }},\r\n';
+		//result += '\t  \t  \t  "required": {{ ' + field.fieldname + '.required }},\r\n';
+		//result += '\t  \t  \t  "value": {{ ' + field.fieldname + '.value | json_encode }},\r\n';
+		result += '\t  \t  \t  "input": {{ ' + field.fieldname + '.input | json_encode }}\r\n';
+		result += '\t  \t  }' + (index < fields.length - 1 ? ',' : '') + '\n';
+	}
+
+	result += '\t  ]\r\n';
+	result += '}';
+
+	return result;
+}
+
 function getLayout_Edit() {
 	let result = "";
 	let l = wizardFields.length;
@@ -1633,14 +1733,29 @@ function getLayout_JSON() {
 	let result = "";
 	let l = wizardFields.length;
 
+	let idFieldNameFound = false;
+	for (let index = 0; index < l; index++) {
+		let field = wizardFields[index];
+		if (field.fieldname === 'id') {
+			idFieldNameFound = true;
+			break;
+		}
+	}
+
 	result += '[\r\n{% block record %}\r\n{';
 
 	let obj = document.getElementById("wizardGuide_add_record_id");
-	if (!obj || obj.checked)
-		result += '"id_":"{{ record.id }}",\r\n';
+	if (!obj || obj.checked) {
+		if (idFieldNameFound)
+			result += '"_id":{{ record.id }},\r\n';
+		else
+			result += '"id":{{ record.id }},\r\n';
+	}
 
 	let fieldtypes_to_skip = ['log', 'filebox', 'dummy', 'ordering'];
-	let fieldtypes_to_purevalue = ['image', 'filebox', 'file'];
+	let fieldtypes_to_purevalue = ['image', 'filebox', 'file', 'article', 'imagegallery'];
+
+	let fieldtypes_numbers = ['int', 'ordering', 'time', 'float', 'viewcount', 'imagegallery', 'id', 'filebox', 'checkbox', 'userid', 'article'];
 	let fields_to_skip = getFieldsToSkip();
 	let firstField = true;
 
@@ -1652,9 +1767,19 @@ function getLayout_JSON() {
 			if (!firstField)
 				result += ',\r\n';
 
-			if (fieldtypes_to_purevalue.indexOf(field.type) === -1)
-				result += '"' + field.fieldname + '":"{{ ' + field.fieldname + ' }}"';
-			else
+			if (fieldtypes_to_purevalue.indexOf(field.type) === -1) {
+
+				if (field.type === "usergroup") {
+					if (typeof wp === 'undefined')
+						result += '"' + field.fieldname + '":{{ ' + field.fieldname + ' }}';
+					else
+						result += '"' + field.fieldname + '":"{{ ' + field.fieldname + ' }}"';
+
+				} else if (fieldtypes_numbers.indexOf(field.type) !== -1) {
+					result += '"' + field.fieldname + '":{{ ' + field.fieldname + ' }}';
+				} else
+					result += '"' + field.fieldname + '":"{{ ' + field.fieldname + ' }}"';
+			} else
 				result += '"' + field.fieldname + '":"{{ ' + field.fieldname + '.value }}"';
 
 			firstField = false;
