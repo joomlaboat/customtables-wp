@@ -4,7 +4,7 @@
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
- * @copyright (C) 2018-2024. Ivan Komlev
+ * @copyright (C) 2018-2025. Ivan Komlev
  * @license GNU/GPL Version 2 or later - https://www.gnu.org/licenses/gpl-2.0.html
  **/
 
@@ -515,7 +515,7 @@ class Twig_Record_Tags
 			return '';
 		}
 
-		$join_ct->setFilter($complete_filter, 2);
+		$join_ct->setFilter($complete_filter, CUSTOMTABLES_SHOWPUBLISHED_ANY);
 		if ($join_ct->getRecords(false, $limit, $orderby)) {
 			$twig = new TwigProcessor($join_ct, $pageLayout);
 

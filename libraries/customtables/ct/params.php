@@ -4,7 +4,7 @@
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
- * @copyright (C) 2018-2024. Ivan Komlev
+ * @copyright (C) 2018-2025. Ivan Komlev
  * @license GNU/GPL Version 2 or later - https://www.gnu.org/licenses/gpl-2.0.html
  **/
 
@@ -282,7 +282,7 @@ class Params
 			$this->filter = $menu_params['filter'] ?? null;
 		}
 
-		$this->showPublished = (int)($menu_params['showpublished'] ?? 1);
+		$this->showPublished = (int)($menu_params['showpublished'] ?? CUSTOMTABLES_SHOWPUBLISHED_PUBLISHED_ONLY);
 
 		//Group BY
 		$this->groupBy = $menu_params['groupby'] ?? null;
@@ -496,7 +496,8 @@ class Params
 			$this->filter = $menu_params['filter'] ?? null;
 		}
 
-		$this->showPublished = (int)($menu_params['showpublished'] ?? 1);
+
+		$this->showPublished = (int)($menu_params['showpublished'] ?? CUSTOMTABLES_SHOWPUBLISHED_PUBLISHED_ONLY);
 
 		//Group BY
 		$this->groupBy = $menu_params['groupby'] ?? null;

@@ -3,7 +3,7 @@
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
- * @copyright Copyright (C) 2018-2024. All Rights Reserved
+ * @copyright Copyright (C) 2018-2025. All Rights Reserved
  * @license GNU/GPL Version 2 or later - http://www.gnu.org/licenses/gpl-2.0.html
  **/
 
@@ -277,9 +277,9 @@ function ctSearchBoxDo() {
 						if (obj.dataset.match === 'exact')
 							w.push(n[1] + '==' + objValue);
 						else if (obj.dataset.match === 'startwith')
-							w.push(n[1] + '==' + objValue + '%');
+							w.push(n[1] + '==' + objValue + '*');
 						else if (obj.dataset.match === 'endwith')
-							w.push(n[1] + '==%' + objValue);
+							w.push(n[1] + '==*' + objValue);
 						else
 							w.push(n[1] + operator + objValue);
 					}

@@ -4,7 +4,7 @@
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
- * @copyright (C) 2018-2024. Ivan Komlev
+ * @copyright (C) 2018-2025. Ivan Komlev
  * @license GNU/GPL Version 2 or later - https://www.gnu.org/licenses/gpl-2.0.html
  **/
 
@@ -229,30 +229,6 @@ class Table
 			return $rows[0][$resultField];
 
 		return "";
-	}
-
-	/**
-	 * @throws Exception
-	 * @since 3.2.2
-	 */
-	function loadRecord(?string $listing_id): ?array
-	{
-		if ($this->selects === null)
-			throw new Exception('Table::loadRecord - Table not set.');
-
-		$whereClause = new MySQLWhereClause();
-		if (empty($listing_id)) {
-			$this->record = null;
-			return null;
-		}
-
-		$whereClause->addCondition($this->realidfieldname, $listing_id);
-		$rows = database::loadAssocList($this->realtablename, $this->selects, $whereClause, null, null, 1);
-
-		if (count($rows) < 1) return $this->record = null;
-
-		$this->record = $rows[0];
-		return $rows[0];
 	}
 
 	/**

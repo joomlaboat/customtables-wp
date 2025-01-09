@@ -4,7 +4,7 @@
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
- * @copyright (C) 2018-2024. Ivan Komlev
+ * @copyright (C) 2018-2025. Ivan Komlev
  * @license GNU/GPL Version 2 or later - https://www.gnu.org/licenses/gpl-2.0.html
  **/
 
@@ -397,7 +397,10 @@ class Value_file extends BaseValue
 			return;
 		}
 
-		$this->row = $this->ct->Table->loadRecord($this->listing_id);
+		if ($this->listing_id !== null)
+			$this->ct->getRecord($this->listing_id);
+
+		$this->row = $this->ct->Table->record;
 		$this->field = new Field($this->ct, $fieldRow, $this->row);
 
 		if ($this->field->type == 'blob') {

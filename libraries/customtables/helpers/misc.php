@@ -4,7 +4,7 @@
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
- * @copyright (C) 2018-2024. Ivan Komlev
+ * @copyright (C) 2018-2025. Ivan Komlev
  * @license GNU/GPL Version 2 or later - https://www.gnu.org/licenses/gpl-2.0.html
  **/
 
@@ -628,6 +628,9 @@ class CTMiscHelper
 	 */
 	public static function applyContentPlugins(string &$htmlResult): string
 	{
+		if (!defined('_JEXEC'))
+			return $htmlResult;
+
 		$mainframe = Factory::getApplication();
 
 		if (method_exists($mainframe, 'getParams')) {
@@ -651,8 +654,7 @@ class CTMiscHelper
 				$htmlResult = $o->text;
 			}
 
-			if (defined('_JEXEC'))
-				$myDoc->setTitle(common::translate($pageTitle)); //because content plugins may overwrite the title
+			$myDoc->setTitle(common::translate($pageTitle)); //because content plugins may overwrite the title
 
 		}
 		return $htmlResult;

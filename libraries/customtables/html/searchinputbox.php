@@ -4,7 +4,7 @@
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
- * @copyright (C) 2018-2024. Ivan Komlev
+ * @copyright (C) 2018-2025. Ivan Komlev
  * @license GNU/GPL Version 2 or later - https://www.gnu.org/licenses/gpl-2.0.html
  **/
 
@@ -74,9 +74,9 @@ class SearchInputBox
 			$value = common::getWhereParameter($f);
 		}
 
-		if ($matchType == 'startwith' and $value != '' and $value[strlen($value) - 1] == '%') {
+		if ($matchType == 'startwith' and $value != '' and $value[strlen($value) - 1] == '*') {
 			$value = substr($value, 0, strlen($value) - 1);
-		} else if ($matchType == 'endwith' and $value != '' and $value[0] == '%') {
+		} else if ($matchType == 'endwith' and $value != '' and $value[0] == '*') {
 			$value = substr($value, 1, strlen($value) - 1);
 		}
 

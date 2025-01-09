@@ -4,7 +4,7 @@
  * @subpackage administrator/components/com_customtables/js/layoutwizard.js
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
- * @copyright Copyright (C) 2018-2024. All Rights Reserved
+ * @copyright Copyright (C) 2018-2025. All Rights Reserved
  * @license GNU/GPL Version 2 or later - http://www.gnu.org/licenses/gpl-2.0.html
  **/
 
@@ -1755,7 +1755,7 @@ function getLayout_JSON() {
 	let fieldtypes_to_skip = ['log', 'filebox', 'dummy', 'ordering'];
 	let fieldtypes_to_purevalue = ['image', 'filebox', 'file', 'article', 'imagegallery'];
 
-	let fieldtypes_numbers = ['int', 'ordering', 'time', 'float', 'viewcount', 'imagegallery', 'id', 'filebox', 'checkbox', 'userid', 'article'];
+	let fieldtypes_numbers = ['int', 'ordering', 'time', 'float', 'viewcount', 'imagegallery', 'id', 'filebox', 'checkbox', 'article'];
 	let fields_to_skip = getFieldsToSkip();
 	let firstField = true;
 

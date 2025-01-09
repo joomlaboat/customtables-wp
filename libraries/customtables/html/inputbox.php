@@ -4,7 +4,7 @@
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
- * @copyright (C) 2018-2024. Ivan Komlev
+ * @copyright (C) 2018-2025. Ivan Komlev
  * @license GNU/GPL Version 2 or later - https://www.gnu.org/licenses/gpl-2.0.html
  **/
 
@@ -238,9 +238,9 @@ class Inputbox
 		$options = $this->getOptions($value);
 		if ($options !== null) {
 			if ($this->field->type === 'sqljoin' or $this->field->type === 'records') {
-				if (count($options) === 1)
-					$input['options'] = $options;
-				else {
+				if (count($options) === 1) {
+					$input['options'] = $options[0]['options'];
+				} else {
 
 					$newOptions = [];
 					$level = 1;

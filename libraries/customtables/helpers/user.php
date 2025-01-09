@@ -4,7 +4,7 @@
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
- * @copyright (C) 2018-2024. Ivan Komlev
+ * @copyright (C) 2018-2025. Ivan Komlev
  * @license GNU/GPL Version 2 or later - https://www.gnu.org/licenses/gpl-2.0.html
  **/
 
@@ -109,7 +109,8 @@ class CTUser
 			return false;
 		}
 
-		$ct->Table->loadRecord($listing_id);
+		if ($listing_id !== null)
+			$ct->getRecord($listing_id);
 
 		if ($ct->Table->record === null) {
 			common::enqueueMessage('User record ID: "' . $listing_id . '" not found.');

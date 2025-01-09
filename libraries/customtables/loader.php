@@ -4,7 +4,7 @@
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
- * @copyright (C) 2018-2024. Ivan Komlev
+ * @copyright (C) 2018-2025. Ivan Komlev
  * @license GNU/GPL Version 2 or later - https://www.gnu.org/licenses/gpl-2.0.html
  **/
 
@@ -35,6 +35,15 @@ function CustomTablesLoader($include_utilities = false, $include_html = false, $
 {
 	if (defined('CUSTOMTABLES_MEDIA_WEBPATH'))
 		return;
+
+	if (!defined('CUSTOMTABLES_SHOWPUBLISHED_PUBLISHED_ONLY'))
+		define('CUSTOMTABLES_SHOWPUBLISHED_PUBLISHED_ONLY', 0);
+
+	if (!defined('CUSTOMTABLES_SHOWPUBLISHED_UNPUBLISHED_ONLY'))
+		define('CUSTOMTABLES_SHOWPUBLISHED_UNPUBLISHED_ONLY', 1);
+
+	if (!defined('CUSTOMTABLES_SHOWPUBLISHED_ANY'))
+		define('CUSTOMTABLES_SHOWPUBLISHED_ANY', 2);
 
 	$libraryPath = null;
 

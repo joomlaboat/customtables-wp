@@ -4,7 +4,7 @@
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
- * @copyright (C) 2018-2024. Ivan Komlev
+ * @copyright (C) 2018-2025. Ivan Komlev
  * @license GNU/GPL Version 2 or later - https://www.gnu.org/licenses/gpl-2.0.html
  **/
 
@@ -61,7 +61,7 @@ class Filtering
 	 */
 	function addQueryWhereFilter(): void
 	{
-		if (common::inputGetBase64('where')) {
+		if (common::inputGetString('where')) {
 			$decodedURL = common::inputGetString('where', '');
 			$filter_string = $this->sanitizeAndParseFilter(urldecode($decodedURL));//base64_decode
 
@@ -94,7 +94,7 @@ class Filtering
 
 		//This is old and probably not needed any more because we use MySQLWhereClause class that sanitize individual values.
 		//I leave it here just in case
-		$paramWhere = str_ireplace('*', '=', $paramWhere);
+		$paramWhere = str_ireplace('*', '%', $paramWhere);
 		$paramWhere = str_ireplace('\\', '', $paramWhere);
 		$paramWhere = str_ireplace('drop ', '', $paramWhere);
 		$paramWhere = str_ireplace('select ', '', $paramWhere);
@@ -1133,12 +1133,7 @@ class LinkJoinFilters
 		}
 
 		$selects[] = $ct->Table->realtablename . '.' . $fieldRow['realfieldname'];
-
 		$rows = database::loadAssocList($ct->Table->realtablename, $selects, $whereClause, $fieldRow['realfieldname']);
-
-		$result .= '
-			<div id="' . $control_name . '_ctInputBoxRecords_current_value" style="display:none;"></div>
-';
 
 		$result .= '<select id="' . $control_name . 'SQLJoinLink" class="' . common::convertClassString('form-select') . '" onchange="ctInputbox_UpdateSQLJoinLink(\'' . $control_name . '\',\'' . $control_name_postfix . '\')">';
 		$result .= '<option value="">- ' . esc_html__("Select", "customtables") . '</option>';

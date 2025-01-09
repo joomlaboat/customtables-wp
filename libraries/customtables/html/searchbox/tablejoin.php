@@ -4,7 +4,7 @@
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
- * @copyright (C) 2018-2024. Ivan Komlev
+ * @copyright (C) 2018-2025. Ivan Komlev
  * @license GNU/GPL Version 2 or later - https://www.gnu.org/licenses/gpl-2.0.html
  **/
 
@@ -145,7 +145,7 @@ class Search_tablejoin extends BaseSearch
 		$list_values = $this->get_List_Values($ct, $value_field, $dynamic_filter);
 
 		$htmlResult = self::renderDynamicFilter($ct, $value, $dynamic_filter, $control_name);
-		$htmlResult .= self::renderDropdownSelector_Box($list_values, $value, $control_name, $dynamic_filter, $addNoValue);
+		$htmlResult .= self::renderDropdownSelector_Box($list_values, (string)$value, $control_name, $dynamic_filter, $addNoValue);
 
 		return $htmlResult;
 	}
@@ -161,9 +161,9 @@ class Search_tablejoin extends BaseSearch
 		$paramsArray['limit'] = 0;
 		$paramsArray['establename'] = $tableName;
 		if ($allowUnpublished)
-			$paramsArray['showpublished'] = 2;//0 - published only; 1 - hidden only; 2 - Any
+			$paramsArray['showpublished'] = CUSTOMTABLES_SHOWPUBLISHED_ANY;//0 - published only; 1 - hidden only; 2 - Any
 		else
-			$paramsArray['showpublished'] = 0;//0 - published only; 1 - hidden only; 2 - Any
+			$paramsArray['showpublished'] = CUSTOMTABLES_SHOWPUBLISHED_PUBLISHED_ONLY;//0 - published only; 1 - hidden only; 2 - Any
 
 		$paramsArray['groupby'] = '';
 
@@ -282,7 +282,7 @@ class Search_tablejoin extends BaseSearch
 		return $htmlResult;
 	}
 
-	protected function renderDropdownSelector_Box($list_values, $current_value, $control_name, $dynamic_filter, $addNoValue = false): string
+	protected function renderDropdownSelector_Box($list_values, string $current_value, $control_name, $dynamic_filter, $addNoValue = false): string
 	{
 		if (str_contains(($this->attributes['class'] ?? ''), ' ct_improved_selectbox'))
 			return self::renderDropdownSelector_Box_improved($list_values, $current_value, $control_name, $dynamic_filter);
@@ -290,17 +290,17 @@ class Search_tablejoin extends BaseSearch
 			return self::renderDropdownSelector_Box_simple($list_values, $current_value, $control_name, $dynamic_filter, $addNoValue);
 	}
 
-	protected function renderDropdownSelector_Box_improved($list_values, $current_value, $control_name, $dynamic_filter, $addNoValue = false): string
+	protected function renderDropdownSelector_Box_improved($list_values, string $current_value, $control_name, $dynamic_filter, $addNoValue = false): string
 	{
 		if (defined('WPINC')) {
 			return 'renderDropdownSelector_Box_improved not yet supported by WordPress version of the Custom Tables.';
 		}
 
 		HTMLHelper::_('formbehavior.chosen', '.ct_improved_selectbox');
-		return $this->renderDropdownSelector_Box_simple($list_values, $current_value, $control_name, $dynamic_filter, $addNoValue);
+		return $this->renderDropdownSelector_Box_simple($list_values, (string)$current_value, $control_name, $dynamic_filter, $addNoValue);
 	}
 
-	protected function renderDropdownSelector_Box_simple($list_values, $current_value, $control_name, $dynamic_filter, $addNoValue = false): string
+	protected function renderDropdownSelector_Box_simple($list_values, string $current_value, $control_name, $dynamic_filter, $addNoValue = false): string
 	{
 		$htmlResult = '';
 
@@ -311,9 +311,9 @@ class Search_tablejoin extends BaseSearch
 		if (str_contains(($this->attributes['class'] ?? ''), ' ct_virtualselect_selectbox'))
 			$this->attributes['data-search'] = true;
 
-		$htmlresult_select = '<SELECT ' . BaseInputBox::attributes2String($this->attributes) . '>';
+		$htmlResult_select = '<SELECT ' . BaseInputBox::attributes2String($this->attributes) . '>';
 
-		$htmlresult_select .= '<option value="">- ' . esc_html__("Select", "customtables") . ' ' . $this->attributes['data-label'] . '</option>';
+		$htmlResult_select .= '<option value="">- ' . esc_html__("Select", "customtables") . ' ' . $this->attributes['data-label'] . '</option>';
 
 		foreach ($list_values as $list_value) {
 			if ($list_value[2] == 0)//if unpublished
@@ -321,14 +321,16 @@ class Search_tablejoin extends BaseSearch
 			else
 				$style = '';
 
-			if ($dynamic_filter == '')
-				$htmlresult_select .= '<option value="' . $list_value[0] . '"' . ($list_value[0] == $current_value ? ' selected="SELECTED"' : '') . $style . '>' . htmlspecialchars(common::ctStripTags($list_value[1] ?? '')) . '</option>';
+			if ($dynamic_filter == '') {
+				$listValueString = (string)$list_value[0];
+				$htmlResult_select .= '<option value="' . $listValueString . '"' . ($listValueString == $current_value ? ' selected="SELECTED"' : '') . $style . '>LV:' . $listValueString . ' - ' . htmlspecialchars(common::ctStripTags($list_value[1] ?? '')) . '</option>';
+			}
 		}
 
 		if ($addNoValue)
-			$htmlresult_select .= '<option value="-1"' . ((int)$current_value == -1 ? ' selected="SELECTED"' : '') . '>- ' . esc_html__("Not Specified", "customtables") . '</option>';
+			$htmlResult_select .= '<option value="-1"' . ((int)$current_value == -1 ? ' selected="SELECTED"' : '') . '>- ' . esc_html__("Not Specified", "customtables") . '</option>';
 
-		$htmlresult_select .= '</SELECT>';
+		$htmlResult_select .= '</SELECT>';
 
 		if ($dynamic_filter != '') {
 			$elements = array();
@@ -355,11 +357,8 @@ class Search_tablejoin extends BaseSearch
 			<div id="' . $control_name . '_elementsPublished" style="display:none;">' . implode(',', $elementsPublished) . '</div>
 ';
 
-			$htmlResult .= $htmlresult_select;
-
-			$htmlResult .= '
-			<div id="' . $control_name . '_ctInputBoxRecords_current_value" style="display:none;">' . $current_value . '</div>
-';
+			$htmlResult .= $htmlResult_select;
+			$htmlResult .= '<div id="' . $control_name . '_ctInputBoxRecords_current_value" style="display:none;">' . $current_value . '</div>';
 
 			$htmlResult .= '
 			<script>
@@ -383,7 +382,7 @@ class Search_tablejoin extends BaseSearch
 			</script>
 ';
 		} else {
-			$htmlResult .= $htmlresult_select;
+			$htmlResult .= $htmlResult_select;
 		}
 		return $htmlResult;
 	}

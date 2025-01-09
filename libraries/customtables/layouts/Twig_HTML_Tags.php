@@ -4,7 +4,7 @@
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
- * @copyright (C) 2018-2024. Ivan Komlev
+ * @copyright (C) 2018-2025. Ivan Komlev
  * @license GNU/GPL Version 2 or later - https://www.gnu.org/licenses/gpl-2.0.html
  **/
 
@@ -68,8 +68,6 @@ class Twig_HTML_Tags
 			$this->ct->Params->loadParameterUsingMenuAlias($Alias_or_ItemId);
 
 		$add_userGroup = (int)$this->ct->Params->addUserGroups;
-
-		//echo '$add_userGroup=' . $add_userGroup . '*<br/>';
 
 		if (!$this->ct->Env->isUserAdministrator and !in_array($add_userGroup, $userGroups))
 			return '2'; //Not permitted
@@ -572,7 +570,7 @@ class Twig_HTML_Tags
 		if (count($first_fld) == 0)
 			return 'Unsupported field type or field not found.';
 
-		$vlu = $SearchBox->renderFieldBox('es_search_box_', $objectName, $first_fld,
+		$vlu = $SearchBox->renderFieldBox($this->ct->Table->fieldInputPrefix . 'search_box_', $objectName, $first_fld,
 			$cssClass, '0',
 			'', '', $onchange, $field_title, $matchType, $stringLength);//action should be a space not empty or
 		//0 because it's not an edit box, and we pass onChange value even " " is the value;
@@ -610,9 +608,9 @@ class Twig_HTML_Tags
 	protected function prepareSearchElement($fld): string
 	{
 		if (isset($fld['fields']) and count($fld['fields']) > 0) {
-			return 'es_search_box_' . $fld['fieldname'] . ':' . implode(';', $fld['fields']) . ':';
+			return $this->ct->Table->fieldInputPrefix . 'search_box_' . $fld['fieldname'] . ':' . implode(';', $fld['fields']) . ':';
 		} else {
-			return 'es_search_box_' . $fld['fieldname'] . ':' . $fld['fieldname'] . ':';
+			return $this->ct->Table->fieldInputPrefix . 'search_box_' . $fld['fieldname'] . ':' . $fld['fieldname'] . ':';
 		}
 	}
 
