@@ -5,7 +5,7 @@ Donate link: https://www.patreon.com/joomlaboat
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
 Tested up to: 6.7.1
-Stable tag: 1.3.6
+Stable tag: 1.3.7
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -51,6 +51,22 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 [Please contact us here with your query.](https://ct4.us/contact-us/)
 
 == Changelog ==
+
+= 1.3.7
+- Added {{ document.config }} parameters support for WordPress
+- Introduced {{ fieldname.required(v1,v2) }} tag with conditional output
+- Implemented {{ fieldname.input }} tag with comprehensive field details
+- Enhanced language prefix handling for WordPress compatibility
+- Fixed Layout Tag button class for WordPress
+- Resolved content loading issues by removing unnecessary slashes
+- Added Parameters tab with filtering capability for Catalog View
+- Enhanced Layout Auto Creator with proper JSON value formatting
+- Implemented “Start with” and “End with” search options
+- Hidden unnecessary “%” characters in search interface
+- Added minimum search string length parameter
+- Fixed Image field type preview functionality
+- Enhanced Catalog Item delete JavaScript functionality
+- Improved date field type with enhanced description and UNIX format conversion
 
 = 1.3.6
 - Added {{ document.config() }} tag
