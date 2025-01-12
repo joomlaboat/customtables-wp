@@ -85,11 +85,7 @@ class template
     function renderBlock($attributes): string
     {
         $result = '';
-        //if (isset($attributes['table'])) {
 
-        //if (!empty($attributes['table'])) {
-
-        //$mixedLayout_array = [];
         $ct = new CT([], true);
 
         if (!empty($attributes['table'])) {
@@ -157,12 +153,6 @@ class template
 
         $mixedLayout_safe = $mixedLayout_array['html'];
         $this->enqueueList['FieldInputPrefix'] = $ct->Table->fieldInputPrefix;
-        //} else {
-        //    $mixedLayout_safe = 'Table "' . $attributes['table'] . '" not found.';
-        //}
-        //} catch (Exception $e) {
-        //    $mixedLayout_safe = 'Error: ' . $e->getMessage();
-        //}
 
         $message = get_transient('plugin_error_message');
         if ($message) {
