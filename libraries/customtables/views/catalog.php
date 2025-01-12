@@ -50,11 +50,7 @@ class Catalog
 			if (isset($Layouts->layoutId)) {
 				$pageLayoutNameString = ($layoutName == '' ? 'InlinePageLayout' : $layoutName);
 				$pageLayoutLink = common::UriRoot(true, true) . 'administrator/index.php?option=com_customtables&view=listoflayouts&task=layouts.edit&id=' . $Layouts->layoutId;
-
 				$this->ct->setFilter($this->ct->Params->filter, $this->ct->Params->showPublished);
-				$filter = $Layouts->params['filter'] ?? null;
-				if ($filter !== null)
-					$this->ct->Filter->addWhereExpression($filter);
 			} else {
 				throw new Exception('Layout "' . $layoutName . '" not found.');
 				//$this->ct->errors[] = 'Layout "' . $layoutName . '" not found.';
@@ -127,14 +123,14 @@ class Catalog
 			}
 		}
 
-		if ($this->ct->Params->listing_id !== null)
+		if (!empty($this->ct->Params->listing_id))
 			$this->ct->Filter->whereClause->addCondition($this->ct->Table->realtablename . '.' . $this->ct->Table->tablerow['realidfieldname'], $this->ct->Params->listing_id);
 
 // --------------------- Sorting
 		$this->ct->Ordering->parseOrderByParam();
 
 // --------------------- Limit
-		if ($this->ct->Params->listing_id !== null)
+		if (!empty($this->ct->Params->listing_id))
 			$this->ct->applyLimits(1);
 		else
 			$this->ct->applyLimits($limit);

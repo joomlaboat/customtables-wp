@@ -39,7 +39,7 @@ class Admin_Record_Edit
 	public function __construct()
 	{
 		require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoffields.php');
-		$this->ct = new CT;
+		$this->ct = new CT([],true);
 		$this->tableId = common::inputGetInt('table');
 		$this->recordRow = null;
 		$this->listing_id = null;

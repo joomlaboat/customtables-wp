@@ -137,8 +137,7 @@ class Search_tablejoin extends BaseSearch
 			$order_by_field = $value_field;
 
 		//Get Database records
-		$ct = new CT();
-
+		$ct = new CT([], true);
 		$this->getSearchResult($ct, $filter, $tableName, $order_by_field, $allowUnpublished);
 
 		//Process records depending on field type and layout
@@ -175,7 +174,7 @@ class Search_tablejoin extends BaseSearch
 		else
 			$paramsArray['filter'] = ''; //!IMPORTANT - NO FILTER
 
-		$ct->setParams($paramsArray);
+		$ct->Params->setParams($paramsArray);
 
 		// -------------------- Table
 		$ct->getTable($ct->Params->tableName);

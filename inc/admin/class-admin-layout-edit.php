@@ -38,7 +38,7 @@ class Admin_Layout_Edit
     public function __construct()
     {
         require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoflayouts.php');
-        $this->ct = new CT;
+        $this->ct = new CT([],true);
         $this->helperListOfLayouts = new ListOfLayouts($this->ct);
 	    $this->layoutId = common::inputGetInt('layout');
 

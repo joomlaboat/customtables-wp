@@ -90,7 +90,7 @@ class template
         //if (!empty($attributes['table'])) {
 
         //$mixedLayout_array = [];
-        $ct = new CT(null, false);
+        $ct = new CT([], true);
 
         if (!empty($attributes['table'])) {
             $ct->getTable($attributes['table']);

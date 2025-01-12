@@ -376,9 +376,9 @@ class Value_file extends BaseValue
 	 */
 	public function display()
 	{
-		$this->ct = new CT;
-
+		$this->ct = new CT([], true);
 		$this->ct->getTable($this->tableid);
+
 		if ($this->ct->Table === null) {
 			$this->ct->errors[] = 'Table not selected (79).';
 			return;
@@ -397,8 +397,10 @@ class Value_file extends BaseValue
 			return;
 		}
 
-		if ($this->listing_id !== null)
-			$this->ct->getRecord($this->listing_id);
+		if (!empty($this->listing_id)) {
+			$this->ct->Params->listing_id = $this->listing_id;
+			$this->ct->getRecord();
+		}
 
 		$this->row = $this->ct->Table->record;
 		$this->field = new Field($this->ct, $fieldRow, $this->row);

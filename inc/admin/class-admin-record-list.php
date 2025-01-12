@@ -38,7 +38,7 @@ class Admin_Record_List extends WP_List_Table
      */
     public function __construct()
     {
-        $this->ct = new CT;
+        $this->ct = new CT([],true);
         $this->count_all = 0;
         $this->count_trashed = 0;
         $this->count_published = 0;

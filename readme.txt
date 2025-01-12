@@ -1,6 +1,7 @@
 === Custom Tables - Create, Read, Update and Delete ===
 
 Contributors: @ivankomlev
+Author URI: https://ct4.us
 Donate link: https://www.patreon.com/joomlaboat
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0

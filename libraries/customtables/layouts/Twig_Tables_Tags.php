@@ -38,14 +38,15 @@ class Twig_Tables_Tags
 		if ($fieldname == '')
 			throw new Exception('{{ ' . $tag . '("' . $table . '",field_name) }} - Value field not specified.');
 
-		$join_ct = new CT;
+		$join_ct = new CT([], true);
 		$join_ct->getTable($table);
 		$join_ct->Params->forceSortBy = $orderby;
 		$join_table_fields = $join_ct->Table->fields;
 
 		if (is_numeric($record_id_or_filter) and (int)$record_id_or_filter > 0) {
 			try {
-				if (!$join_ct->getRecord($record_id_or_filter))
+				$join_ct->Params->listing_id = $record_id_or_filter;
+				if (!$join_ct->getRecord())
 					return '';
 
 			} catch (Exception $e) {
@@ -53,8 +54,7 @@ class Twig_Tables_Tags
 			}
 		} else {
 			try {
-				$join_ct->setFilter($record_id_or_filter, CUSTOMTABLES_SHOWPUBLISHED_ANY);
-
+				$join_ct->Params->filter = $record_id_or_filter;
 				if (!$join_ct->getRecord())
 					return '';
 
@@ -108,7 +108,7 @@ class Twig_Tables_Tags
 		if ($layoutname == '')
 			throw new Exception('{{ tables.getrecord("' . $layoutname . '","' . $record_id_or_filter . '","' . $orderby . '") }} - Layout name not specified.');
 
-		$join_ct = new CT;
+		$join_ct = new CT([], true);
 		$layouts = new Layouts($join_ct);
 
 		$pageLayout = $layouts->getLayout($layoutname, false);//It is safer to process layout after rendering the table
@@ -122,12 +122,11 @@ class Twig_Tables_Tags
 		$join_ct->Params->forceSortBy = $orderby;
 
 		if (is_numeric($record_id_or_filter) and (int)$record_id_or_filter > 0) {
-			if (!$join_ct->getRecord($record_id_or_filter))
+			$join_ct->Params->listing_id = $record_id_or_filter;
+			if (!$join_ct->getRecord())
 				return '';
-
 		} else {
-			$join_ct->setFilter($record_id_or_filter, CUSTOMTABLES_SHOWPUBLISHED_ANY);
-
+			$join_ct->Params->filter = $record_id_or_filter;
 			if (!$join_ct->getRecord())
 				return '';
 		}
@@ -151,7 +150,7 @@ class Twig_Tables_Tags
 		if ($layoutname == '')
 			throw new Exception('{{ tables.getrecords("' . $layoutname . '","' . $filter . '","' . $orderby . '") }} - Layout name not specified.');
 
-		$join_ct = new CT;
+		$join_ct = new CT([], true);
 		$layouts = new Layouts($join_ct);
 		$pageLayout = $layouts->getLayout($layoutname, false);//It is safer to process layout after rendering the table
 		if ($layouts->tableId === null)

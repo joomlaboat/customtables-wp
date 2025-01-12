@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use CustomTables\CT;
 use CustomTables\IntegrityChecks;
 
-$ct = new CT;
+$ct = new CT([],true);
 $result = IntegrityChecks::check($ct);
 
 $allowed_html = array(

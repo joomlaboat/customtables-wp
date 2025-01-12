@@ -40,7 +40,7 @@ class ImportCSV
 		if ($arrayOfLines === null)
 			return esc_html__("CSV file is empty.", "customtables");
 
-		$ct = new CT;
+		$ct = new CT([], true);
 		$ct->getTable($ct_tableid);
 		$line = $arrayOfLines[0];
 		$prepareFieldList = self::prepareFieldList($line, $ct->Table->fields);
@@ -167,7 +167,7 @@ class ImportCSV
 					$tableName = $type_params[0];
 					$fieldName = $type_params[1];
 
-					$ct = new CT;
+					$ct = new CT([], true);
 					$ct->getTable($tableName);
 
 					if (!$ct->Table) {
@@ -334,6 +334,7 @@ class ImportCSV
 	 */
 	private static function findSQLJoin($realtablename, $join_realfieldname, $realidfieldname, bool $published_field_found, $vlu)
 	{
+		//TODO method not found
 		$whereClause = new MySQLWhereClause();
 		$whereClause->addCondition($join_realfieldname, $vlu);
 		return findRecord($realtablename, $realidfieldname, $published_field_found, $whereClause);

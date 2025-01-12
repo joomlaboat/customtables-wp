@@ -23,7 +23,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 foreach ($this->admin_field_edit->allTables as $table) {
     $tableID = $table['id'];
 
-    $tempCT = new CT;
+    $tempCT = new CT([],true);
     $tempCT->getTable($tableID);
     if($tempCT->Table !== null) {
         $list = [];

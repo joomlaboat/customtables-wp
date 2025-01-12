@@ -32,7 +32,7 @@ class Admin_Table_Edit
 	public function __construct()
 	{
 		require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoftables.php');
-		$this->ct = new CT;
+		$this->ct = new CT([],true);
 		$this->helperListOfTables = new ListOfTables($this->ct);
 		$this->tableId = common::inputGetInt('table');
 

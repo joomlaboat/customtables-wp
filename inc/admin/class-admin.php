@@ -337,7 +337,7 @@ class Admin
                     $result = array('error' => 'tableid not set');
                 } else {
 
-                    $tempCT = new CT;
+                    $tempCT = new CT([],true);
                     $tempCT->getTable($tableId, null, false);
                     if ($tempCT->Table === null) {
                         $result = array('error' => 'table id "' . $tableId . '" not found');
@@ -379,7 +379,7 @@ class Admin
                 if ($attributes === null)
                     die('Table not found, probably deleted.');
 
-                $ct = new CT(null, false);
+                $ct = new CT([], true);
                 $ct->getTable($attributes->table);
 
                 if ($attributes->limit === null or $attributes->limit == "")

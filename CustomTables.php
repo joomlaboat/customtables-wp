@@ -6,6 +6,7 @@
  * Description: Custom Tables solution for WordPress
  * Version: 1.3.7
  * Author: Ivan Komlev
+ * Author URI: https://ct4.us
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain: customtables
@@ -147,7 +148,7 @@ if ($page == 'customtables-api-tablejoin'){
         $path = CUSTOMTABLES_PRO_PATH . 'inputbox' . DIRECTORY_SEPARATOR;
         if (file_exists($path . 'tablejoin.php')) {
             require_once($path . 'tablejoin.php');
-            $ct = new CT;
+            $ct = new CT([],true);
             ProInputBoxTableJoin::renderTableJoinSelectorJSON($ct, $key);//Inputbox
         }
     }

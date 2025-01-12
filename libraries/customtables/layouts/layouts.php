@@ -32,7 +32,6 @@ class Layouts
 	var ?string $layoutCode;
 	var ?string $layoutCodeCSS;
 	var ?string $layoutCodeJS;
-	var ?array $params;
 
 	function __construct(&$ct)
 	{
@@ -129,13 +128,12 @@ class Layouts
 		$this->layoutId = (int)$row['id'];
 		$this->layoutType = (int)$row['layouttype'];
 
-		if ($row['params'] === null) {
-			$this->params = null;
-		} else {
+		if (!empty($row['params'])) {
 			try {
-				$this->params = json_decode($row['params'], true);
+				$params = json_decode($row['params'], true);
+				$this->ct->Params->setParams($params);
 			} catch (Exception $e) {
-				$this->params = null; //If there is some JSON syntax error for some reason, it impossible but just in case, set null.
+				//$this->params = null; //If there is some JSON syntax error for some reason, it impossible but just in case, set null.
 			}
 		}
 
@@ -448,8 +446,6 @@ class Layouts
 				$this->layoutCode = $this->createDefaultLayout_CSV($this->ct->Table->fields);
 		}
 
-		if ($this->params !== null)
-			$this->ct->Params->setParams($this->params);
 		/*
 		 * <option value="1">Simple Catalog</option>
 				<option value="5">Catalog Page</option>
@@ -588,7 +584,8 @@ class Layouts
 					$listing_id = common::inputGetCmd('listing_id');
 
 				if (!empty($listing_id)) {
-					$this->ct->getRecord($listing_id);
+					$this->ct->Params->listing_id = $listing_id;
+					$this->ct->getRecord();
 				}
 			}
 
@@ -603,13 +600,15 @@ class Layouts
 			//Details or Catalog Item
 			if ($this->ct->Table->record === null) {
 
-				if ($this->ct->Params->listing_id !== null)
+				if (!empty($this->ct->Params->listing_id))
 					$listing_id = $this->ct->Params->listing_id;
 				else
 					$listing_id = common::inputGetCmd('listing_id');
 
-				if ($listing_id !== null)
-					$this->ct->getRecord($listing_id);
+				if (!empty($listing_id)) {
+					$this->ct->Params->listing_id = $listing_id;
+					$this->ct->getRecord();
+				}
 			}
 
 			$details = new Details($this->ct);
@@ -1007,14 +1006,14 @@ class Layouts
 			}
 		}
 
-		if ($this->ct->Params->listing_id !== null)
+		if (!empty($this->ct->Params->listing_id))
 			$this->ct->Filter->whereClause->addCondition($this->ct->Table->realtablename . '.' . $this->ct->Table->tablerow['realidfieldname'], $this->ct->Params->listing_id);
 
 		// --------------------- Sorting
 		$this->ct->Ordering->parseOrderByParam();
 
 		// --------------------- Limit
-		if ($this->ct->Params->listing_id !== null)
+		if (!empty($this->ct->Params->listing_id))
 			$this->ct->applyLimits(1);
 		else
 			$this->ct->applyLimits($this->ct->Params->limit ?? 0);

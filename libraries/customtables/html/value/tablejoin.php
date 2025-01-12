@@ -57,7 +57,7 @@ class Value_tablejoin extends BaseValue
 		if (empty($field->params[0]))
 			return 'Table not selected.';
 
-		$ct = new CT;
+		$ct = new CT([], true);
 		$ct->getTable($field->params[0]);
 
 		//TODO: add selector to the output box
@@ -66,8 +66,10 @@ class Value_tablejoin extends BaseValue
 		if ($ct->Table === null)
 			return 'Table not found.';
 
-		if ($listing_id !== null)
-			$ct->getRecord($listing_id);
+		if (!empty($listing_id)) {
+			$ct->Params->listing_id = $listing_id;
+			$ct->getRecord();
+		}
 
 		$twig = new TwigProcessor($ct, $layoutcode);
 		$value = $twig->process($ct->Table->record);

@@ -32,7 +32,7 @@ $onPageLoads = array();
     </script>
 <?php
 foreach ($this->admin_layout_edit->allTables as $table) {
-    $tempCT = new CT;
+    $tempCT = new CT([],true);
 
     $tempCT->getTable($table['id']);
     if($tempCT->Table !== null) {

@@ -205,7 +205,7 @@ class TwigProcessor
 
 		if ($row == null and isset($this->ct->LayoutVariables['layout_type']) and in_array($this->ct->LayoutVariables['layout_type'], [1, 5])) {
 
-			if ($this->ct->Params->listing_id != null and $this->ct->Params->listing_id != '')
+			if (!empty($this->ct->Params->listing_id))
 				$isSingleRecord = true;
 		}
 
@@ -804,7 +804,7 @@ class fieldObject
 		if ($this->ct->isRecordNull($this->ct->Table->record) or count($this->ct->Table->record) < 2)
 			return '';
 
-		$join_ct = new CT;
+		$join_ct = new CT([], true);
 		$Layouts = new Layouts($join_ct);
 		$layoutCode = $Layouts->getLayout($layoutName);
 

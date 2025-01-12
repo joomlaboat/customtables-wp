@@ -44,7 +44,7 @@ class Admin_Field_List extends WP_List_Table
 	public function __construct()
 	{
 		require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoffields.php');
-		$this->ct = new CT;
+		$this->ct = new CT([],true);
 		$this->helperListOfFields = new ListOfFields($this->ct);
 
 		$this->tableId = common::inputGetInt('table');
