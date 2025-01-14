@@ -13,7 +13,7 @@ namespace CustomTables;
 /* All tags already implemented using Twig */
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
 
 use Exception;
 use LayoutProcessor;
@@ -1090,7 +1090,8 @@ class Layouts
 			'layoutcss',
 			'layoutjs',
 			'layouttype',
-			'MODIFIED_TIMESTAMP'
+			'MODIFIED_TIMESTAMP',
+			'params'
 		];
 
 		$whereClause = new MySQLWhereClause();
