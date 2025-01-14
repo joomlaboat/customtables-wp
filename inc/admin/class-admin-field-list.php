@@ -44,13 +44,13 @@ class Admin_Field_List extends WP_List_Table
 	public function __construct()
 	{
 		require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoffields.php');
-		$this->ct = new CT([],true);
+		$this->ct = new CT([], true);
 		$this->helperListOfFields = new ListOfFields($this->ct);
 
 		$this->tableId = common::inputGetInt('table');
 
 		if ($this->tableId) {
-			$this->ct->getTable($this->tableId, null,true);
+			$this->ct->getTable($this->tableId, null, true);
 
 			$whereClause = new MySQLWhereClause();
 			$whereClause->addCondition('tableid', $this->tableId);
@@ -142,20 +142,20 @@ class Admin_Field_List extends WP_List_Table
 		$orderby = common::inputGetCmd('orderby');
 		$order = common::inputGetCmd('order');
 
-        switch ($this->current_status) {
-            case 'published':
-                $published = 1;
-                break;
-            case 'unpublished':
-                $published = 0;
-                break;
-            case 'trash':
-                $published = -2;
-                break;
-            default:
-                $published = null;
-                break;
-        }
+		switch ($this->current_status) {
+			case 'published':
+				$published = 1;
+				break;
+			case 'unpublished':
+				$published = 0;
+				break;
+			case 'trash':
+				$published = -2;
+				break;
+			default:
+				$published = null;
+				break;
+		}
 
 		try {
 			$data = $this->helperListOfFields->getListQuery($this->tableId, $published, $search, null, $orderby, $order);
@@ -199,7 +199,7 @@ class Admin_Field_List extends WP_List_Table
 			$item['typeparams'] = str_replace('****apos****', "'", str_replace('****quote****', '"', common::escape($item['typeparams'])));
 			$item['table'] = str_replace('****apos****', "'", str_replace('****quote****', '"', common::escape($item['tabletitle'])));
 			$item['type'] = $this->getFieldTypeLabel($item['type']);
-            $item['isrequired'] = (int)$item['isrequired'] ? esc_html__('Yes', 'customtables') : esc_html__('No', 'customtables');
+			$item['isrequired'] = (int)$item['isrequired'] ? esc_html__('Yes', 'customtables') : esc_html__('No', 'customtables');
 			$newData[] = $item;
 		}
 		return $newData;
@@ -322,18 +322,18 @@ class Admin_Field_List extends WP_List_Table
 	 */
 	function column_default($item, $column_name)
 	{
-        switch ($column_name) {
-            case 'fieldtitle':
-            case 'type':
-            case 'typeparams':
-            case 'isrequired':
-            case 'table':
-            case 'id':
-            case 'fieldname':
-                return $item[$column_name];
-            default:
-                return print_r($item, true);
-        }
+		switch ($column_name) {
+			case 'fieldtitle':
+			case 'type':
+			case 'typeparams':
+			case 'isrequired':
+			case 'table':
+			case 'id':
+			case 'fieldname':
+				return $item[$column_name];
+			default:
+				return print_r($item, true);
+		}
 	}
 
 	/**
@@ -445,8 +445,6 @@ class Admin_Field_List extends WP_List_Table
 	 */
 	function handle_field_actions()
 	{
-		echo 'step1';
-
 		// check for individual row actions
 		$the_table_action = esc_html(wp_strip_all_tags($this->current_action()));
 
