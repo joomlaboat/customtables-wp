@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // No direct access to this file
-if (!defined('ABSPATH')) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Exception;
 

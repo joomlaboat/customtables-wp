@@ -25,6 +25,10 @@ if ($this->admin_table_edit->ct->Env->advancedTagProcessor) {
 
     $customidfield = $this->admin_table_edit->ct->Table->tablerow['customidfield'] ?? '';
     $customidfieldtype = $this->admin_table_edit->ct->Table->tablerow['customidfieldtype'] ?? '';
+	$primarykeypattern = $this->admin_table_edit->ct->Table->tablerow['primarykeypattern'] ?? '';
+	if(empty($primarykeypattern))
+		$primarykeypattern = 'AUTO_INCREMENT';
+
     $customfieldprefix = $this->admin_table_edit->ct->Table->tablerow['customfieldprefix'] ?? '';
 }
 
@@ -189,6 +193,24 @@ if ($this->admin_table_edit->ct->Env->advancedTagProcessor) {
                                     </td>
                                 </tr>
 
+								<tr class="form-field form">
+									<th scope="row">
+										<label for="primarykeypattern">
+											<?php echo esc_html__('Primary Key Generation Pattern', 'customtables'); ?>
+										</label>
+									</th>
+									<td>
+										<input name="primarykeypattern" type="text" id="primarykeypattern"
+											   value="<?php echo esc_attr($primarykeypattern); ?>" aria-required="false"
+											   autocapitalize="none" autocorrect="off" autocomplete="off"
+											   maxlength="255"/>
+										<br/>
+										<span class="description">
+											Define how primary keys are generated for new records. Use AUTO_INCREMENT for automatic numbering, or create custom patterns using Twig syntax. Examples: AUTO_INCREMENT, PROJECT-{{ random(1000,9999) }}, {{ 'prefix-' ~ now|date('Y-m-d H:i:s.u')|md5 }}, PRJ-{{ (now|date('Y-m-d H:i:s.u')|md5)|slice(0,10) }}-{{ random(1000,9999) }}
+										</span>
+									</td>
+								</tr>
+
                                 <tr class="form-field form">
                                     <th scope="row">
                                         <label for="customfieldprefix">
@@ -200,6 +222,10 @@ if ($this->admin_table_edit->ct->Env->advancedTagProcessor) {
                                                value="<?php echo esc_attr($customfieldprefix); ?>" aria-required="false"
                                                autocapitalize="none" autocorrect="off" autocomplete="off"
                                                maxlength="255"/>
+										<br/>
+										<span class="description">
+											Field name prefix. Example by default: es_phone. Type '-' to save fields without prefix, be careful because MySQL has many registered names like, 'group', 'select', 'where' etc. If you change the filed prefix then you will have to manually change all the field prefixes.
+										</span>
                                     </td>
                                 </tr>
                             </table>

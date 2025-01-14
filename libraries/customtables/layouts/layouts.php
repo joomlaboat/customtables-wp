@@ -13,7 +13,7 @@ namespace CustomTables;
 /* All tags already implemented using Twig */
 
 // no direct access
-if (!defined('ABSPATH')) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Exception;
 use LayoutProcessor;
