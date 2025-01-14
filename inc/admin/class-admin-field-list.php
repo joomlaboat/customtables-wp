@@ -50,7 +50,7 @@ class Admin_Field_List extends WP_List_Table
 		$this->tableId = common::inputGetInt('table');
 
 		if ($this->tableId) {
-			$this->ct->getTable($this->tableId);
+			$this->ct->getTable($this->tableId, null,true);
 
 			$whereClause = new MySQLWhereClause();
 			$whereClause->addCondition('tableid', $this->tableId);
@@ -445,6 +445,8 @@ class Admin_Field_List extends WP_List_Table
 	 */
 	function handle_field_actions()
 	{
+		echo 'step1';
+
 		// check for individual row actions
 		$the_table_action = esc_html(wp_strip_all_tags($this->current_action()));
 
@@ -487,7 +489,9 @@ class Admin_Field_List extends WP_List_Table
 			if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'delete_nonce')) {
 				$this->invalid_nonce_redirect();
 			} else {
+
 				$fieldId = common::inputGetInt('field');
+
 				if ($fieldId !== null) {
 					Fields::deleteField_byID($this->ct, $fieldId);
 					//echo '<div id="message" class="updated notice is-dismissible"><p>1 field permanently deleted.</p></div>';
