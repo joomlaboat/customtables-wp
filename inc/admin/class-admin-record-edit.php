@@ -39,7 +39,7 @@ class Admin_Record_Edit
 	public function __construct()
 	{
 		require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoffields.php');
-		$this->ct = new CT([],true);
+		$this->ct = new CT([], true);
 		$this->tableId = common::inputGetInt('table');
 		$this->recordRow = null;
 		$this->listing_id = null;
@@ -50,12 +50,9 @@ class Admin_Record_Edit
 
 				$this->listing_id = common::inputGetCmd('id');
 
-				if (empty($this->listing_id))
-					$this->listing_id = null;
-
-				if ($this->listing_id !== null) {
-
-					$this->ct->getRecord($this->listing_id);
+				if (!empty($this->listing_id)) {
+					$this->ct->Params->listing_id = $this->listing_id;
+					$this->ct->getRecord();
 					$this->recordRow = $this->ct->Table->record;
 				}
 			}
@@ -65,7 +62,7 @@ class Admin_Record_Edit
 
 		$Layouts = new Layouts($this->ct);
 		$this->ct->LayoutVariables['layout_type'] = 2;
-		$this->pageLayout = $Layouts->createDefaultLayout_Edit_WP($this->ct->Table->fields, false,false,false);
+		$this->pageLayout = $Layouts->createDefaultLayout_Edit_WP($this->ct->Table->fields, false, false, false);
 
 		$this->formLink = 'admin.php?page=customtables-records-edit&table=' . $this->tableId
 			. ($this->listing_id !== null ? '&id=' . $this->listing_id : '');
@@ -87,20 +84,20 @@ class Admin_Record_Edit
 			$record->editForm->layoutContent = $Layouts->createDefaultLayout_Edit($this->ct->Table->fields, false);
 
 			$listing_id = common::inputGetCmd('id');
-            $saved = $record->save($listing_id, false);
+			$saved = $record->save($listing_id, false);
 
 
-            if ($saved) {
-                if ($this->ct->Env->advancedTagProcessor and !empty($this->ct->Table->tablerow['customphp'])) {
-                    try {
-                        $action = $record->isItNewRecord ? 'create' : 'update';
-                        $customPHP = new CustomPHP($this->ct, $action);
-                        $customPHP->executeCustomPHPFile($this->ct->Table->tablerow['customphp'], $record->row_new, $record->row_old);
-                    } catch (Exception $e) {
-                        $this->ct->errors[] = 'Custom PHP file: ' . $this->ct->Table->tablerow['customphp'] . ' (' . $e->getMessage() . ')';
-                    }
-                }
-            }
+			if ($saved) {
+				if ($this->ct->Env->advancedTagProcessor and !empty($this->ct->Table->tablerow['customphp'])) {
+					try {
+						$action = $record->isItNewRecord ? 'create' : 'update';
+						$customPHP = new CustomPHP($this->ct, $action);
+						$customPHP->executeCustomPHPFile($this->ct->Table->tablerow['customphp'], $record->row_new, $record->row_old);
+					} catch (Exception $e) {
+						$this->ct->errors[] = 'Custom PHP file: ' . $this->ct->Table->tablerow['customphp'] . ' (' . $e->getMessage() . ')';
+					}
+				}
+			}
 
 			$url = 'admin.php?page=customtables-records&table=' . $this->tableId;
 
