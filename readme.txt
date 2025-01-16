@@ -1,6 +1,5 @@
-=== Custom Tables - Create, Read, Update and Delete ===
-
-Contributors: @ivankomlev
+=== CustomTables - Create, Read, Update and Delete ===
+Contributors: ivankomlev
 Author URI: https://ct4.us
 Donate link: https://www.patreon.com/joomlaboat
 Tags: custom tables, custom database tables, database, catalog, forms
@@ -8,11 +7,10 @@ Requires at least: 6.0
 Tested up to: 6.7.1
 Stable tag: 1.3.9
 Requires PHP: 7.4
-License: GPLv2 or later
+License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 The Custom Tables plugin allows you to create and manage custom database tables, display catalogs, forms, and tables using Twig templating language.
-
 
 == Description ==
 
@@ -37,7 +35,6 @@ Secure and Sanitized: All tables are stored in MySQL, with queries and field val
 = More information =
 Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](https://github.com/joomlaboat/custom-tables/wiki).
 
-
 == Screenshots ==
 
 1. "Create Table" screen
@@ -53,18 +50,18 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 
 == Changelog ==
 
-= 1.3.9
+= 1.3.9 =
 - Table settings: Primary Key Pattern added.
 - Layout Editor: Params tab added
 - Filter parameter added.
 - Delete field permanently -  bug fixed.
 
-= 1.3.8
+= 1.3.8 =
 - Filter parameter se in the menu item cannot be overwritten by the url query parameter.
 - Date Picker field label added.
 - Back-end: List of records search fixed.
 
-= 1.3.7
+= 1.3.7 =
 - Added {{ document.config }} parameters support for WordPress
 - Introduced {{ fieldname.required(v1,v2) }} tag with conditional output
 - Implemented {{ fieldname.input }} tag with comprehensive field details
@@ -80,7 +77,7 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 - Enhanced Catalog Item delete JavaScript functionality
 - Improved date field type with enhanced description and UNIX format conversion
 
-= 1.3.6
+= 1.3.6 =
 - Added {{ document.config() }} tag
 - Enabled Server field type for WordPress
 - Improved Table Join description
@@ -89,30 +86,30 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 - Fixed Text Area field type description
 - Resolved WordPress edit form issues
 
-= 1.3.5
+= 1.3.5 =
 - Server Info field type added.
 
-= 1.3.4
+= 1.3.4 =
 - Shortcode tag added. Example [customtables table="countries"]
 
-= 1.3.3
+= 1.3.3 =
 - Image Gallery field type added.
 
-= 1.3.2
+= 1.3.2 =
 - Listing IDs now stored as strings.
 - Back-end: Record lists display processed values.
 - Fixed Table Join field params config bug.
 - Added Table Join List field type.
 - Resolved table import issues.
 
-= 1.3.1
+= 1.3.1 =
 - Custom field prefixes are set automatically for ol tables
 - Custom Tables Library updated - code cleaned.
 
-= 1.3.0
+= 1.3.0 =
 - Custom field prefix can be set.
 
-= 1.2.9
+= 1.2.9 =
 - {{ url.getwhere('param') }} tag added.
 - Added support for the 'Filter' parameter, now functional with Custom Tables Block.
 - Implemented 'Group By' functionality for the {{ tables.getrecords() }} tag.
@@ -169,8 +166,8 @@ CSS style class file loads properly. Field type property null check added.
 = 1.1.5 =
 First public WordPress plugin release.
 
-
 == Upgrade Notice ==
+
 = 1.1.5 =
 * First public WordPress plugin release.
 

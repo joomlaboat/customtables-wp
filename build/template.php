@@ -1,12 +1,5 @@
 <?php
 /**
- * Plugin Name:       CustomTables
- * Plugin URI:        https://ct4.us/
- * GitHub:            https://github.com/joomlaboat/customtables-wp
- * Author:            Ivan Komlev
- * License:           GPL-2.0+
- * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- *
  * All the parameters passed to the function where this file is being required are accessible in this scope:
  *
  * @param array $attributes The array of attributes for this block.
