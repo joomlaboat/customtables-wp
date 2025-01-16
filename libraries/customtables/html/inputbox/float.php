@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
 
 class InputBox_float extends BaseInputBox
 {

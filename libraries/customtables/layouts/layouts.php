@@ -13,10 +13,11 @@ namespace CustomTables;
 /* All tags already implemented using Twig */
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
 
 use Exception;
-use LayoutProcessor;
+
+//use LayoutProcessor;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -388,6 +389,7 @@ class Layouts
 	 */
 	function parseRawLayoutContent(string $content, bool $applyContentPlugins = true): string
 	{
+		/*
 		if ($this->ct->Env->legacySupport) {
 			require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'layout.php');
 
@@ -395,6 +397,7 @@ class Layouts
 			$LayoutProc->layout = $content;
 			$content = $LayoutProc->fillLayout($this->ct->Table->record);
 		}
+		*/
 
 		$twig = new TwigProcessor($this->ct, $content);
 		$content = $twig->process($this->ct->Table->record);

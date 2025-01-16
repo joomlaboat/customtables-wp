@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
 
 use Joomla\CMS\Editor\Editor;
 use Joomla\CMS\Uri\Uri;

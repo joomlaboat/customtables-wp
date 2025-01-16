@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
 
 use CustomTablesImageMethods;
 use Exception;
@@ -153,7 +153,7 @@ class Value_file extends BaseValue
 		$listing_id = $this->ct->Table->record[$this->ct->Table->realidfieldname] ?? null;
 
 		if (empty($this->rowValue))
-			return '';
+			return null;
 
 		return self::process($this->rowValue, $this->field, $this->option_list, $listing_id);
 	}

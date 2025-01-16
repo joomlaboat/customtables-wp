@@ -11,14 +11,15 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
 
 use Exception;
-use tagProcessor_General;
-use tagProcessor_Item;
-use tagProcessor_If;
-use tagProcessor_Page;
-use tagProcessor_Value;
+
+//use tagProcessor_General;
+//use tagProcessor_Item;
+//use tagProcessor_If;
+//use tagProcessor_Page;
+//use tagProcessor_Value;
 
 class Inputbox
 {
@@ -471,6 +472,7 @@ class Inputbox
 
 				//Process default value, not processing PHP tag
 				if ($value != '') {
+					/*
 					if ($this->ct->Env->legacySupport) {
 						tagProcessor_General::process($this->ct, $value, $row);
 						tagProcessor_Item::process($this->ct, $value, $row);
@@ -478,6 +480,7 @@ class Inputbox
 						tagProcessor_Page::process($this->ct, $value);
 						tagProcessor_Value::processValues($this->ct, $value, $row);
 					}
+					*/
 
 					$twig = new TwigProcessor($this->ct, $value);
 					$value = $twig->process($row);

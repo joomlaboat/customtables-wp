@@ -11,10 +11,11 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
 
 use Exception;
-use LayoutProcessor;
+
+//use LayoutProcessor;
 
 class Twig_Tables_Tags
 {
@@ -164,11 +165,12 @@ class Twig_Tables_Tags
 			$join_ct->setFilter($filter, CUSTOMTABLES_SHOWPUBLISHED_ANY);
 			if ($join_ct->getRecords(false, $limit, $orderby, $groupby)) {
 
+				/*
 				if ($join_ct->Env->legacySupport) {
 					$LayoutProc = new LayoutProcessor($join_ct);
 					$LayoutProc->layout = $pageLayout;
 					$pageLayout = $LayoutProc->fillLayout();
-				}
+				}*/
 
 				$twig = new TwigProcessor($join_ct, $pageLayout);
 				$value = $twig->process();

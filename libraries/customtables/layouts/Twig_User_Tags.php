@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
 
 use Exception;
 use Joomla\CMS\HTML\HTMLHelper;

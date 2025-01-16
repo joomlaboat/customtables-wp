@@ -10,7 +10,7 @@
 
 namespace CustomTables;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
 
 class InputBox_fileLink extends BaseInputBox
 {

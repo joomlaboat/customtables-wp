@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
 
 use CustomTablesImageMethods;
 use DateInvalidTimeZoneException;
@@ -223,6 +223,9 @@ class Value
 				$processor_file = CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'html'
 					. DIRECTORY_SEPARATOR . 'value' . DIRECTORY_SEPARATOR . 'file.php';
 				require_once($processor_file);
+
+				if (empty($rowValue))
+					return null;
 
 				return Value_file::process($rowValue, $this->field, $option_list, $this->row[$this->ct->Table->realidfieldname], 0);
 

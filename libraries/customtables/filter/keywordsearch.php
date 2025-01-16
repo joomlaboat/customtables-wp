@@ -14,7 +14,7 @@ use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\MySQLWhereClause;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
 
 require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'ordering.php');
 

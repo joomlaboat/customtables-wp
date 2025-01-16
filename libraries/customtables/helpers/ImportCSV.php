@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // No direct access to this file
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
 
 use Exception;
 
@@ -21,7 +21,7 @@ class ImportCSV
 	 * @throws Exception
 	 * @since 3.2.2
 	 */
-	public static function importCSVFile($filename, $ct_tableid): string
+	public static function importCSVFile($filename, $ct_tableid): ?string
 	{
 		if (file_exists($filename))
 			return self::importCSVdata($filename, $ct_tableid);
@@ -33,7 +33,7 @@ class ImportCSV
 	 * @throws Exception
 	 * @since 3.2.2
 	 */
-	private static function importCSVData(string $filename, int $ct_tableid): string
+	private static function importCSVData(string $filename, int $ct_tableid): ?string
 	{
 		$arrayOfLines = self::getLines($filename);
 
@@ -61,12 +61,12 @@ class ImportCSV
 					try {
 						database::insert($ct->Table->realtablename, $result->data);
 					} catch (Exception $e) {
-						return $e->getMessage();
+						throw new Exception($e->getMessage());
 					}
 				}
 			}
 		}
-		return '';
+		return null;
 	}
 
 	//https://stackoverflow.com/questions/26717462/php-best-approach-to-detect-csv-delimiter/59581170
@@ -271,8 +271,11 @@ class ImportCSV
 					}
 				} elseif ($fieldType == 'date' or $fieldType == 'creationtime' or $fieldType == 'changetime') {
 					if (isset($line[$i]) and $line[$i] != '') {
-						$whereClause->addCondition($fields[$f_index]['realfieldname'], $line[$i]);
-						$data[$fields[$f_index]['realfieldname']] = $line[$i];
+
+						$dateString = CTMiscHelper::standardizeDate($line[$i]);
+
+						$whereClause->addCondition($fields[$f_index]['realfieldname'], $dateString);
+						$data[$fields[$f_index]['realfieldname']] = $dateString;
 					} else {
 						$whereClause->addCondition($fields[$f_index]['realfieldname'], null);
 						$data[$fields[$f_index]['realfieldname']] = null;

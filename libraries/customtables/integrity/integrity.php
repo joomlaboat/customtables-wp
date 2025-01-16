@@ -11,7 +11,7 @@
 
 namespace CustomTables;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
 
 use CustomTables\Integrity\IntegrityCoreTables;
 use CustomTables\Integrity\IntegrityTables;
