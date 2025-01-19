@@ -137,7 +137,9 @@ class Admin
             wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url($ctWebsiteRoot) . '";');
             wp_add_inline_script('ct-edit-form-script', 'let gmapdata = [];');
             wp_add_inline_script('ct-edit-form-script', 'let gmapmarker = [];');
-            wp_add_inline_script('ct-edit-form-script', 'const CTEditHelper = new CustomTablesEdit();');
+
+			$wp_version_decimal = floatval(substr(get_bloginfo('version'), 0, 3));
+			wp_add_inline_script('ct-edit-form-script', 'const CTEditHelper = new CustomTablesEdit("WordPress",' . $wp_version_decimal . ');');
 
             wp_enqueue_script('jquery');
 
@@ -171,7 +173,9 @@ class Admin
             wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url($ctWebsiteRoot) . '";');
             wp_add_inline_script('ct-edit-form-script', 'let gmapdata = [];');
             wp_add_inline_script('ct-edit-form-script', 'let gmapmarker = [];');
-            wp_add_inline_script('ct-edit-form-script', 'const CTEditHelper = new CustomTablesEdit();');
+
+			$wp_version_decimal = floatval(substr(get_bloginfo('version'), 0, 3));
+			wp_add_inline_script('ct-edit-form-script', 'const CTEditHelper = new CustomTablesEdit("WordPress",' . $wp_version_decimal . ');');
 
             wp_enqueue_script('ct-catalog-script', CUSTOMTABLES_MEDIA_WEBPATH . 'js/catalog.js', array(), \CustomTablesWP\PLUGIN_VERSION, false);
         }

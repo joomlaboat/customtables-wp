@@ -237,7 +237,8 @@ class template
 		wp_add_inline_script('ct-edit-form-script', 'let ctFieldInputPrefix = "' . $this->enqueueList['FieldInputPrefix'] . '";');
 		wp_add_inline_script('ct-edit-form-script', 'let gmapdata = [];');
 		wp_add_inline_script('ct-edit-form-script', 'let gmapmarker = [];');
-		wp_add_inline_script('ct-edit-form-script', 'const CTEditHelper = new CustomTablesEdit();');
+		$wp_version_decimal = floatval(substr(get_bloginfo('version'), 0, 3));
+		wp_add_inline_script('ct-edit-form-script', 'const CTEditHelper = new CustomTablesEdit("WordPress",' . $wp_version_decimal . ');');
 
 		// Add inline script after enqueuing the main script
 		if (isset($this->enqueueList['style']))
