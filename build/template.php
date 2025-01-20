@@ -99,11 +99,20 @@ class template
 			$attributes['limit'] = 20;
 
 		if (!empty($attributes['id']))
-			$ct->Params->listing_id = $attributes['id'];
+			$menu_params['listingid']=$attributes['listingid'];
+			//$ct->Params->listing_id = $attributes['id'];
 
-		$ct->Params->limit = $attributes['limit'];
-		$ct->Params->sortBy = $attributes['orderby'] ?? null;
-		$ct->Params->filter = $attributes['filter'] ?? null;
+		//$ct->Params->limit = $attributes['limit'];
+		//$ct->Params->sortBy = $attributes['orderby'] ?? null;
+		//$ct->Params->filter = $attributes['filter'] ?? null;
+
+		$menu_params=[];
+		$menu_params['listingid']=$attributes['listingid'];
+		$menu_params['filter']=$attributes['filter'];
+		$menu_params['sortby']=$attributes['orderby'];
+		$menu_params['limit']=$attributes['limit'];
+
+		$ct->Params->setParams($menu_params);
 
 		$layouts = new Layouts($ct);
 
@@ -144,21 +153,24 @@ class template
 				$mixedLayout_array = $layouts->renderMixedLayout($layoutId);
 		}
 
+		if (!empty($mixedLayout_array['redirect']))
+			common::redirect($mixedLayout_array['redirect'], $mixedLayout_array['message'], $mixedLayout_array['success']);
+
 		$mixedLayout_safe = $mixedLayout_array['html'];
 		$this->enqueueList['FieldInputPrefix'] = $ct->Table->fieldInputPrefix;
 
-		$message = get_transient('plugin_error_message');
+		$message = get_transient('customtables_error_message');
 		if ($message) {
 			$result .= '<blockquote style="background-color: #f8d7da; border-left: 5px solid #dc3545; padding: 10px;"><p>' . esc_html($message) . '</p></blockquote>';
 			// Once displayed, clear the transient
-			delete_transient('plugin_error_message');
+			delete_transient('customtables_error_message');
 		}
 
-		$success_message = get_transient('plugin_success_message');
+		$success_message = get_transient('customtables_success_message');
 		if (!empty($success_message)) {
 			$result .= '<blockquote style="background-color: #d4edda;border-left: 5px solid #28a745;padding: 10px;"><p>' . esc_html($success_message) . '</p></blockquote>';
 			// Optionally, you can delete the transient after displaying it
-			delete_transient('plugin_success_message');
+			delete_transient('customtables_success_message');
 		}
 
 		if (!is_admin()) {
@@ -213,6 +225,7 @@ class template
 			//wp_enqueue_script('jquery-ui-tabs');
 			//add_action('wp_footer', 'ct_enqueue_frontend_scripts', 100);
 		}
+
 		$result .= '<div>' . $mixedLayout_safe . '</div>';
 		return $result;
 	}

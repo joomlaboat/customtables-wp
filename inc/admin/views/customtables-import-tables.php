@@ -14,18 +14,18 @@ $max_file_size = CTMiscHelper::file_upload_max_size();
 
 <?php
 
-$message = get_transient('plugin_error_message');
+$message = get_transient('customtables_error_message');
 if ($message) {
 	echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($message) . '</p></div>';
 	// Once displayed, clear the transient
-	delete_transient('plugin_error_message');
+	delete_transient('customtables_error_message');
 }
 
-$success_message = get_transient('plugin_success_message');
+$success_message = get_transient('customtables_success_message');
 if (!empty($success_message)) {
 	echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($success_message) . '</p></div>';
 	// Optionally, you can delete the transient after displaying it
-	delete_transient('plugin_success_message');
+	delete_transient('customtables_success_message');
 }
 
 ?>

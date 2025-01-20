@@ -43,16 +43,16 @@ $page = common::inputGetCmd('page');
 
     <?php
 
-    $message = get_transient('plugin_error_message', 30); // timeout in seconds
+    $message = get_transient('customtables_error_message', 30); // timeout in seconds
     if ($message) {
         echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($message) . '</p></div>';
-        delete_transient('plugin_error_message');
+        delete_transient('customtables_error_message');
     }
 
-    $success_message = get_transient('plugin_success_message', 30); // timeout in seconds
+    $success_message = get_transient('customtables_success_message', 30); // timeout in seconds
     if (!empty($success_message)) {
         echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($success_message) . '</p></div>';
-        delete_transient('plugin_success_message');
+        delete_transient('customtables_success_message');
     }
     ?>
 

@@ -39,7 +39,7 @@ class Admin_Import_Records
 
             $tableId = common::inputGetInt('table', 0);
             if ($tableId == 0) {
-                set_transient('plugin_error_message', esc_html__('Table not selected or not found.', 'customtables'), 60);
+                set_transient('customtables_error_message', esc_html__('Table not selected or not found.', 'customtables'), 60);
                 return;
             }
 
@@ -76,7 +76,7 @@ class Admin_Import_Records
                     unlink($move_file['file']);
 
                     if ($msg == "") {
-                        set_transient('plugin_success_message', 'The records have been added from the CSV file successfully.', 60);
+                        set_transient('customtables_success_message', 'The records have been added from the CSV file successfully.', 60);
 
                         $url = 'admin.php?page=customtables-records&table=' . $tableId;
 
@@ -86,13 +86,13 @@ class Admin_Import_Records
                         exit;
 
                     } else
-                        set_transient('plugin_error_message', 'Error processing file: ' . esc_html($msg), 60);
+                        set_transient('customtables_error_message', 'Error processing file: ' . esc_html($msg), 60);
                 } else {
                     // Store message for 60 seconds
                     if (isset($move_file['error']))
-                        set_transient('plugin_error_message', 'Error uploading file: ' . esc_html($move_file['error']), 60);
+                        set_transient('customtables_error_message', 'Error uploading file: ' . esc_html($move_file['error']), 60);
                     else
-                        set_transient('plugin_error_message', 'Unknown error while uploading file', 60);
+                        set_transient('customtables_error_message', 'Unknown error while uploading file', 60);
                 }
             }
         }

@@ -21,8 +21,8 @@ $page = common::inputGetCmd('page');
         )
     );
 
-    $messages = get_transient('plugin_success_message');
-    delete_transient('plugin_success_message');
+    $messages = get_transient('customtables_success_message');
+    delete_transient('customtables_success_message');
 
     if (!empty($messages)) {
         if (is_array($messages)) {
@@ -33,8 +33,8 @@ $page = common::inputGetCmd('page');
         }
     }
 
-    $errors = get_transient('plugin_error_message');
-    delete_transient('plugin_error_message');
+    $errors = get_transient('customtables_error_message');
+    delete_transient('customtables_error_message');
     if (!empty($errors)) {
         echo '<div class="error"><ul>';
         if (is_array($errors)) {
