@@ -387,11 +387,11 @@ class Admin
 
                 $layouts = new Layouts($ct);
 
-                if ((int)$attributes->type == 1)
+                if ((int)$attributes->type == CUSTOMTABLES_LAYOUT_TYPE_SIMPLE_CATALOG)
                     $layoutId = (int)$attributes->cataloglayout;
-                elseif ((int)$attributes->type == 2)
+                elseif ((int)$attributes->type == CUSTOMTABLES_LAYOUT_TYPE_EDIT_FORM)
                     $layoutId = (int)$attributes->editlayout;
-                elseif ((int)$attributes->type == 4)
+                elseif ((int)$attributes->type == CUSTOMTABLES_LAYOUT_TYPE_DETAILS)
                     $layoutId = (int)$attributes->detailslayout;
                 else
                     $layoutId = 0;

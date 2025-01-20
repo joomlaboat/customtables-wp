@@ -156,12 +156,12 @@ class Admin_Layout_List extends WP_List_Table {
 			$item['layoutname'] = '<strong>' . $label . '</strong>';
 
 			//Convert all Layout Types
-			if ( $item['layouttype'] == 5 ) {
-				$item['layouttype'] = 1;
+			if ( $item['layouttype'] == CUSTOMTABLES_LAYOUT_TYPE_CATALOG_PAGE ) {
+				$item['layouttype'] = CUSTOMTABLES_LAYOUT_TYPE_SIMPLE_CATALOG;
 			}
 
-			if ( $item['layouttype'] == 3 or $item['layouttype'] == 6 ) {
-				$item['layouttype'] = 4;
+			if ($item['layouttype'] == CUSTOMTABLES_LAYOUT_TYPE_CATALOG_ITEM ) {
+				$item['layouttype'] = CUSTOMTABLES_LAYOUT_TYPE_DETAILS;
 			}
 
 

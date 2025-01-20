@@ -118,32 +118,32 @@ class template
 
 		if (!empty($attributes['view'])) {
 			if ($attributes['view'] == 'edit')
-				$layoutType = 2;
+				$layoutType = CUSTOMTABLES_LAYOUT_TYPE_EDIT_FORM;
 			elseif ($attributes['view'] == 'details')
-				$layoutType = 4;
+				$layoutType = CUSTOMTABLES_LAYOUT_TYPE_DETAILS;
 			elseif ($attributes['view'] == 'catalog')
-				$layoutType = 1;
+				$layoutType = CUSTOMTABLES_LAYOUT_TYPE_SIMPLE_CATALOG;
 			else
-				$layoutType = 1;
+				$layoutType = CUSTOMTABLES_LAYOUT_TYPE_SIMPLE_CATALOG;
 
 			$mixedLayout_array = $layouts->renderMixedLayout(0, $layoutType);
 		} else {
 			if ($ct->Table !== null) {
 				$view = common::inputGetCmd('view' . $ct->Table->tableid);
 				if ($view == 'edit' or $view == 'edititem') {
-					$layoutType = 2;
+					$layoutType = CUSTOMTABLES_LAYOUT_TYPE_EDIT_FORM;
 					$layoutId = (int)($attributes['editlayout'] ?? 0);
 				} elseif ($view == 'details') {
-					$layoutType = 4;
+					$layoutType = CUSTOMTABLES_LAYOUT_TYPE_DETAILS;
 					$layoutId = (int)($attributes['detailslayout'] ?? 0);
 				} else {
-					$layoutType = $attributes['type'] ?? 1;
+					$layoutType = $attributes['type'] ?? CUSTOMTABLES_LAYOUT_TYPE_SIMPLE_CATALOG;
 
-					if ((int)$layoutType == 1)
+					if ((int)$layoutType == CUSTOMTABLES_LAYOUT_TYPE_SIMPLE_CATALOG)
 						$layoutId = (int)($attributes['cataloglayout'] ?? 0);
-					elseif ((int)$layoutType == 2)
+					elseif ((int)$layoutType == CUSTOMTABLES_LAYOUT_TYPE_EDIT_FORM)
 						$layoutId = (int)($attributes['editlayout'] ?? 0);
-					elseif ((int)$layoutType == 4)
+					elseif ((int)$layoutType == CUSTOMTABLES_LAYOUT_TYPE_DETAILS)
 						$layoutId = (int)($attributes['detailslayout'] ?? 0);
 					else
 						$layoutId = 0;

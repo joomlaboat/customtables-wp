@@ -53,7 +53,7 @@ class Admin_Record_Edit
 		}
 
 		$Layouts = new Layouts($this->ct);
-		$this->ct->LayoutVariables['layout_type'] = 2;
+		$this->ct->LayoutVariables['layout_type'] = CUSTOMTABLES_LAYOUT_TYPE_EDIT_FORM;
 		$this->pageLayout = $Layouts->createDefaultLayout_Edit_WP($this->ct->Table->fields, false, false, false);
 
 		$this->formLink = 'admin.php?page=customtables-records-edit&table=' . $this->tableId
