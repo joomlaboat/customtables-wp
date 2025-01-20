@@ -13,7 +13,7 @@ namespace CustomTables;
 // no direct access
 use Exception;
 
-if (!defined('ABSPATH')) exit;
+defined('_JEXEC') or die();
 
 class ListOfLayouts
 {

@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('ABSPATH')) exit;
+defined('_JEXEC') or die();
 
 use Exception;
 
@@ -45,7 +45,7 @@ class InputBox_usergroups extends BaseInputBox
 		if (defined('_JEXEC')) {
 			// Optional default option
 
-			$option = ["value" => "", "label" => ' - ' . esc_html__("Select", "customtables")];
+			$option = ["value" => "", "label" => ' - ' . common::translate('COM_CUSTOMTABLES_SELECT')];
 
 			if (count($valueArray) === 0)
 				$option['selected'] = true;
@@ -67,7 +67,7 @@ class InputBox_usergroups extends BaseInputBox
 
 			$value = trim($value);
 
-			$option = ["value" => "", "label" => ' - ' . esc_html__("Select", "customtables")];
+			$option = ["value" => "", "label" => ' - ' . common::translate('COM_CUSTOMTABLES_SELECT')];
 
 			if ("" === $value)
 				$option['selected'] = true;
@@ -150,7 +150,7 @@ class InputBox_usergroups extends BaseInputBox
 
 		if (!$multiple) {
 			$htmlResult .= '<option value=""'
-				. (in_array("", $valueArray) ? ' selected' : '') . '>- ' . esc_html__("Select", "customtables") . '</option>';
+				. (in_array("", $valueArray) ? ' selected' : '') . '>- ' . common::translate('COM_CUSTOMTABLES_SELECT') . '</option>';
 		}
 
 		foreach ($records as $row) {

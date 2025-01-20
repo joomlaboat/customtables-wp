@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('ABSPATH')) exit;
+defined('_JEXEC') or die();
 
 use CustomTablesImageMethods;
 use Exception;
@@ -170,7 +170,7 @@ class CT
 		if (!is_null($this->Params->recordsTable) and !is_null($this->Params->recordsUserIdField) and !is_null($this->Params->recordsField)) {
 			if (!$this->checkRecordUserJoin($this->Params->recordsTable, $this->Params->recordsUserIdField, $this->Params->recordsField, $this->Params->listing_id)) {
 				//YOU ARE NOT AUTHORIZED TO ACCESS THIS SOURCE;
-				throw new Exception(esc_html__("Not authorized", "customtables"));
+				throw new Exception(common::translate('COM_CUSTOMTABLES_NOT_AUTHORIZED'));
 			}
 		}
 
@@ -741,13 +741,13 @@ class CT
 				//example: parents(children).user
 				$statement_parts = explode('.', $item['equation']);
 				if (count($statement_parts) != 2) {
-					$this->errors[] = esc_html__("Menu Item - 'UserID Field name' parameter has a syntax error. Error is about '(' character. Correct example: parent(children).user", "customtables");
+					$this->errors[] = common::translate('COM_CUSTOMTABLES_MENUITEM_USERID_FIELD_ERROR');
 					return $whereClause;
 				}
 
 				$table_parts = explode('(', $statement_parts[0]);
 				if (count($table_parts) != 2) {
-					$this->errors[] = esc_html__("Menu Item - 'UserID Field name' parameter has a syntax error. Error is about '(' character. Correct example: parent(children).user", "customtables");
+					$this->errors[] = common::translate('COM_CUSTOMTABLES_MENUITEM_USERID_FIELD_ERROR');
 					return $whereClause;
 				}
 
@@ -758,7 +758,7 @@ class CT
 				$parent_table_row = TableHelper::getTableRowByName($parent_tablename);
 
 				if (!is_object($parent_table_row)) {
-					$this->errors[] = esc_html__("Menu Item - 'UserID Field name' parameter has an error: Table not found.", "customtables");
+					$this->errors[] = common::translate('COM_CUSTOMTABLES_MENUITEM_TABLENOTFOUND_ERROR');
 					return $whereClause;
 				}
 
@@ -767,7 +767,7 @@ class CT
 				$parent_join_field_row = $tempTable->getFieldByName($parent_join_field);
 
 				if (count($parent_join_field_row) == 0) {
-					$this->errors[] = esc_html__("Menu Item - 'UserID Field name' parameter has an error: Table not found.", "customtables");
+					$this->errors[] = common::translate('COM_CUSTOMTABLES_MENUITEM_TABLENOTFOUND_ERROR');
 					return $whereClause;
 				}
 

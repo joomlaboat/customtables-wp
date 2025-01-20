@@ -11,7 +11,7 @@
 
 namespace CustomTables\Integrity;
 
-if (!defined('ABSPATH')) exit;
+defined('_JEXEC') or die();
 
 use CustomTables;
 use CustomTables\common;

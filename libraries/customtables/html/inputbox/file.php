@@ -14,7 +14,7 @@ namespace CustomTables;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 
-if (!defined('ABSPATH')) exit;
+defined('_JEXEC') or die();
 
 class InputBox_file extends BaseInputBox
 {
@@ -188,8 +188,8 @@ class InputBox_file extends BaseInputBox
 			$result .= '<input type="hidden" name="' . $this->field->prefix . $this->field->fieldname . '_filename" id="' . $this->field->prefix . $this->field->fieldname . '_filename" value="" />';
 			$result .= '<input type="hidden" name="' . $this->field->prefix . $this->field->fieldname . '_data" id="' . $this->field->prefix . $this->field->fieldname . '_data" value="" />';
 
-			$result .= esc_html__("Permitted File Types", "customtables") . ': ' . $accepted_file_types . '<br/>';
-			$result .= esc_html__("Permitted Max. File Size", "customtables") . ': ' . CTMiscHelper::formatSizeUnits($max_file_size);
+			$result .= common::translate('COM_CUSTOMTABLES_PERMITTED_FILE_TYPES') . ': ' . $accepted_file_types . '<br/>';
+			$result .= common::translate('COM_CUSTOMTABLES_PERMITTED_MAX_FILE_SIZE') . ': ' . CTMiscHelper::formatSizeUnits($max_file_size);
 
 			$joomla_params = ComponentHelper::getParams('com_customtables');
 			$GoogleDriveAPIKey = $joomla_params->get('GoogleDriveAPIKey');
@@ -267,8 +267,8 @@ class InputBox_file extends BaseInputBox
 			$result .= '<input type="hidden" name="' . $this->field->prefix . $this->field->fieldname . '_filename" id="' . $this->field->prefix . $this->field->fieldname . '_filename" value="" />';
 			$result .= '<input type="hidden" name="' . $this->field->prefix . $this->field->fieldname . '_data" id="' . $this->field->prefix . $this->field->fieldname . '_data" value="" />';
 
-			$result .= esc_html__("Permitted File Types", "customtables") . ': ' . $accepted_file_types . '<br/>';
-			$result .= esc_html__("Permitted Max. File Size", "customtables") . ': ' . CTMiscHelper::formatSizeUnits($max_file_size);
+			$result .= common::translate('COM_CUSTOMTABLES_PERMITTED_FILE_TYPES') . ': ' . $accepted_file_types . '<br/>';
+			$result .= common::translate('COM_CUSTOMTABLES_PERMITTED_MAX_FILE_SIZE') . ': ' . CTMiscHelper::formatSizeUnits($max_file_size);
 		}
 
 		return '<div style="' . $style . '"' . ($this->field->isrequired == 1 ? ' class="inputbox required"' : '') . ' id="' . $element_id . '" '

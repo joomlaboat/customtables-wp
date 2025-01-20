@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('ABSPATH')) exit;
+defined('_JEXEC') or die();
 
 use CustomTablesImageMethods;
 use Exception;
@@ -89,7 +89,7 @@ class Save_imagegallery
 
 		//Check file
 		if (!CustomTablesImageMethods::CheckImage($uploadedFile)) {
-			common::enqueueMessage(esc_html__("Broken Image or too large", "customtables"));
+			common::enqueueMessage(common::translate('COM_CUSTOMTABLES_ERROR_BROKEN_IMAGE'));
 			unlink($uploadedFile);
 			return false;
 		}

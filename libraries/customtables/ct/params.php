@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-if (!defined('ABSPATH')) exit;
+defined('_JEXEC') or die();
 
 use Exception;
 use Joomla\CMS\Helper\ModuleHelper;
@@ -396,8 +396,7 @@ class Params
 		}
 		$this->requiredLabel = $menu_params['requiredlabel'] ?? null;
 
-		//$this->msgItemIsSaved = $menu_params['msgitemissaved'] ?? esc_html__("Record saved.", "customtables");
-		$this->msgItemIsSaved = (empty($menu_params['msgitemissaved']) ? esc_html__("Record saved.", "customtables") : $menu_params['msgitemissaved']);
+		$this->msgItemIsSaved = (empty($menu_params['msgitemissaved']) ? common::translate('COM_CUSTOMTABLES_RECORD_SAVED') : $menu_params['msgitemissaved']);
 		if ($this->msgItemIsSaved == '-')
 			$this->msgItemIsSaved = null;//Do not show "save message"
 
@@ -555,7 +554,7 @@ class Params
 		}
 		$this->requiredLabel = $menu_params['requiredlabel'] ?? null;
 
-		$this->msgItemIsSaved = (empty($menu_params['msgitemissaved']) ? esc_html__("Record saved.", "customtables") : $menu_params['msgitemissaved']);
+		$this->msgItemIsSaved = (empty($menu_params['msgitemissaved']) ? common::translate('COM_CUSTOMTABLES_RECORD_SAVED') : $menu_params['msgitemissaved']);
 		if ($this->msgItemIsSaved == '-')
 			$this->msgItemIsSaved = null;//Do not show "save message"
 

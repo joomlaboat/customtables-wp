@@ -8,7 +8,7 @@
  * @license GNU/GPL Version 2 or later - https://www.gnu.org/licenses/gpl-2.0.html
  **/
 
-if (!defined('ABSPATH')) exit;
+defined('_JEXEC') or die();
 
 use CustomTables\database;
 use CustomTables\MySQLWhereClause;
