@@ -13,7 +13,7 @@ namespace CustomTables;
 /* All tags already implemented using Twig */
 
 // no direct access
-defined('_JEXEC') or die();
+if (!defined('ABSPATH')) exit;
 
 use Exception;
 
@@ -885,7 +885,7 @@ class Layouts
 				}
 			}
 
-			$message = ($count == 1 ? common::translate('COM_CUSTOMTABLES_LISTOFRECORDS_N_ITEMS_DELETED_1') :
+			$message = ($count == 1 ? esc_html__("Record deleted.", "customtables") :
 				common::translate('COM_CUSTOMTABLES_LISTOFRECORDS_N_ITEMS_DELETED', $count));
 			return ['success' => true, 'message' => $message, 'short' => 'deleted'];
 		}
@@ -952,7 +952,7 @@ class Layouts
 				}
 			}
 
-			$message = ($count == 1 ? common::translate('COM_CUSTOMTABLES_LISTOFRECORDS_N_ITEMS_REFRESHED_1') :
+			$message = ($count == 1 ? esc_html__("Record refreshed", "customtables") :
 				common::translate('COM_CUSTOMTABLES_LISTOFRECORDS_N_ITEMS_REFRESHED', $count));
 
 			return ['success' => true, 'message' => $message, 'short' => 'refreshed'];
@@ -976,7 +976,7 @@ class Layouts
 			return ['success' => true, 'message' => $e->getMessage(), 'short' => 'error'];
 		}
 
-		return ['success' => true, 'message' => common::translate('COM_CUSTOMTABLES_RECORDS_COPIED'), 'short' => 'copied'];
+		return ['success' => true, 'message' => esc_html__("Record(s) copied successfully.", "customtables"), 'short' => 'copied'];
 	}
 
 	/**
@@ -1002,12 +1002,12 @@ class Layouts
 			}
 
 			if ($status == 1) {
-				$message = ($count == 1 ? common::translate('COM_CUSTOMTABLES_LISTOFRECORDS_N_ITEMS_PUBLISHED_1') :
+				$message = ($count == 1 ? esc_html__("Record published", "customtables") :
 					common::translate('COM_CUSTOMTABLES_LISTOFRECORDS_N_ITEMS_PUBLISHED', $count));
 
 				$statusMessage = ($status == 1 ? 'published' : 'unpublished');
 			} else {
-				$message = ($count == 1 ? common::translate('COM_CUSTOMTABLES_LISTOFRECORDS_N_ITEMS_UNPUBLISHED_1') :
+				$message = ($count == 1 ? esc_html__("Record unpublished", "customtables") :
 					common::translate('COM_CUSTOMTABLES_LISTOFRECORDS_N_ITEMS_UNPUBLISHED', $count));
 
 				$statusMessage = 'unpublished';
@@ -1030,7 +1030,7 @@ class Layouts
 			$link = $this->ct->Params->returnTo;
 
 		$link = CTMiscHelper::deleteURLQueryOption($link, 'view' . $this->ct->Table->tableid);
-		return ['success' => true, 'message' => common::translate('COM_CUSTOMTABLES_EDIT_CANCELED'), 'short' => 'canceled', 'redirect' => $link];
+		return ['success' => true, 'message' => esc_html__("Edit canceled.", "customtables"), 'short' => 'canceled', 'redirect' => $link];
 	}
 
 	/**
@@ -1109,7 +1109,7 @@ class Layouts
 			$output['short'] = $action == 'create' ? 'created' : 'updated';
 		} else {
 			if ($record->incorrectCaptcha)
-				$output = ['success' => false, 'message' => common::translate('COM_CUSTOMTABLES_INCORRECT_CAPTCHA'), 'short' => 'error'];
+				$output = ['success' => false, 'message' => esc_html__("Incorrect Captcha", "customtables"), 'short' => 'error'];
 			else
 				$output = ['success' => false, 'message' => 'error', 'short' => 'error'];
 		}
@@ -1181,7 +1181,7 @@ class Layouts
 		if (!$this->ct->getRecords()) {
 
 			if (defined('_JEXEC'))
-				$this->ct->errors[] = common::translate('COM_CUSTOMTABLES_ERROR_TABLE_NOT_FOUND');
+				$this->ct->errors[] = esc_html__("Table not found.", "customtables");
 
 			return 'CustomTables: Records not loaded.';
 		}

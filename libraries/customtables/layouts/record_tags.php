@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if (!defined('ABSPATH')) exit;
 
 use Exception;
 use Joomla\CMS\Router\Route;
@@ -148,7 +148,7 @@ class Twig_Record_Tags
 		elseif ($type == 'custom')
 			return $this->ct->Table->record['listing_published'] == 1 ? $customTextPositive : $customTextNegative;
 		else
-			return (int)$this->ct->Table->record['listing_published'] == 1 ? common::translate('COM_CUSTOMTABLES_YES') : common::translate('COM_CUSTOMTABLES_NO');
+			return (int)$this->ct->Table->record['listing_published'] == 1 ? esc_html__("Yes", "customtables") : esc_html__("No", "customtables");
 	}
 
 	function number(): ?int

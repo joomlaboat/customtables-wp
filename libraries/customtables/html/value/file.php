@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if (!defined('ABSPATH')) exit;
 
 use CustomTablesImageMethods;
 use Exception;
@@ -140,7 +140,7 @@ class Value_file extends BaseValue
 	 */
 	public static function wrong(): bool
 	{
-		common::enqueueMessage(common::translate('COM_CUSTOMTABLES_NOT_AUTHORIZED'));
+		common::enqueueMessage(esc_html__("Not authorized", "customtables"));
 		return false;
 	}
 
@@ -436,7 +436,7 @@ class Value_file extends BaseValue
 			} else
 				$this->render_file_output($filepath);
 		} else {
-			$this->ct->errors[] = common::translate('COM_CUSTOMTABLES_DOWNLOAD_LINK_IS_EXPIRED');
+			$this->ct->errors[] = esc_html__("Download link is expired", "customtables");
 		}
 
 	}
@@ -475,7 +475,7 @@ class Value_file extends BaseValue
 		$rows = database::loadAssocList($this->ct->Table->realtablename, [$this->field->realfieldname], $whereClause, null, null, 1);
 
 		if (count($rows) < 1) {
-			$this->ct->errors[] = common::translate('COM_CUSTOMTABLES_FILE_NOT_FOUND');
+			$this->ct->errors[] = esc_html__("File not found", "customtables");
 			return;
 		}
 
@@ -555,7 +555,7 @@ class Value_file extends BaseValue
 	function render_file_output(string $filePath): bool
 	{
 		if (!file_exists($filePath)) {
-			$this->ct->errors[] = common::translate('COM_CUSTOMTABLES_FILE_NOT_FOUND') . ': \'' . $filePath . '\'';
+			$this->ct->errors[] = esc_html__("File not found", "customtables") . ': \'' . $filePath . '\'';
 			return false;
 		}
 

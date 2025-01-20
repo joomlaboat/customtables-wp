@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if (!defined('ABSPATH')) exit;
 
 use Exception;
 use CustomTables\CustomPHP;
@@ -67,8 +67,8 @@ class record
 
 		if (!$this->ct->CheckAuthorization(CUSTOMTABLES_ACTION_DELETE)) {
 			$this->unauthorized = true;
-			$this->message = common::translate('COM_CUSTOMTABLES_NOT_AUTHORIZED');
-			throw new Exception(common::translate('COM_CUSTOMTABLES_NOT_AUTHORIZED'));
+			$this->message = esc_html__("Not authorized", "customtables");
+			throw new Exception(esc_html__("Not authorized", "customtables"));
 		}
 
 		try {
@@ -98,8 +98,8 @@ class record
 
 		if (!$this->ct->CheckAuthorization(CUSTOMTABLES_ACTION_PUBLISH)) {
 			$this->unauthorized = true;
-			$this->message = common::translate('COM_CUSTOMTABLES_NOT_AUTHORIZED');
-			throw new Exception(common::translate('COM_CUSTOMTABLES_NOT_AUTHORIZED'));
+			$this->message = esc_html__("Not authorized", "customtables");
+			throw new Exception(esc_html__("Not authorized", "customtables"));
 		}
 
 		try {
@@ -125,8 +125,8 @@ class record
 
 		if (!$this->ct->CheckAuthorization(CUSTOMTABLES_ACTION_ADD)) {
 			$this->unauthorized = true;
-			$this->message = common::translate('COM_CUSTOMTABLES_NOT_AUTHORIZED');
-			throw new Exception(common::translate('COM_CUSTOMTABLES_NOT_AUTHORIZED'));
+			$this->message = esc_html__("Not authorized", "customtables");
+			throw new Exception(esc_html__("Not authorized", "customtables"));
 		}
 
 		$newRow = $this->ct->Table->record;
@@ -184,8 +184,8 @@ class record
 
 		if (!$this->ct->CheckAuthorization(CUSTOMTABLES_ACTION_EDIT)) {
 			$this->unauthorized = true;
-			$this->message = common::translate('COM_CUSTOMTABLES_NOT_AUTHORIZED');
-			throw new Exception(common::translate('COM_CUSTOMTABLES_NOT_AUTHORIZED'));
+			$this->message = esc_html__("Not authorized", "customtables");
+			throw new Exception(esc_html__("Not authorized", "customtables"));
 		}
 
 		try {
@@ -223,7 +223,7 @@ class record
 
 		if (!$this->ct->CheckAuthorization($isCopy ? CUSTOMTABLES_ACTION_COPY : CUSTOMTABLES_ACTION_EDIT)) {
 			$this->unauthorized = true;
-			throw new Exception(common::translate('COM_CUSTOMTABLES_NOT_AUTHORIZED'));
+			throw new Exception(esc_html__("Not authorized", "customtables"));
 		}
 
 		$fieldsToSave = $this->getFieldsToSave($this->row_old); //will Read page Layout to find fields to save
@@ -231,7 +231,7 @@ class record
 		if (($this->ct->LayoutVariables['captcha'] ?? null)) {
 			if (!$this->check_captcha()) {
 				$this->incorrectCaptcha = true;
-				throw new Exception(common::translate('COM_CUSTOMTABLES_INCORRECT_CAPTCHA'));
+				throw new Exception(esc_html__("Incorrect Captcha", "customtables"));
 			}
 		}
 

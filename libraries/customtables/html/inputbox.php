@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if (!defined('ABSPATH')) exit;
 
 use Exception;
 
@@ -323,7 +323,7 @@ class Inputbox
 					$inputBoxRenderer = new ProInputBoxTableJoin($this->ct, $this->field, $this->row, $this->option_list, $this->attributes);
 					return $inputBoxRenderer->getOptions($value);
 				} else {
-					return ['success' => false, 'message' => common::translate('COM_CUSTOMTABLES_AVAILABLE')];
+					return ['success' => false, 'message' => esc_html__("Available in PRO Version", "customtables")];
 				}
 
 			case 'records':
@@ -432,7 +432,7 @@ class Inputbox
 					$inputBoxRenderer = new ProInputBoxTableJoin($this->ct, $this->field, $this->row, $this->option_list, $this->attributes);
 					return $inputBoxRenderer->render($value, $this->defaultValue);
 				} else {
-					return common::translate('COM_CUSTOMTABLES_AVAILABLE');
+					return esc_html__("Available in PRO Version", "customtables");
 				}
 
 			case 'records':
@@ -445,7 +445,7 @@ class Inputbox
 					$inputBoxRenderer = new ProInputBoxTableJoinList($this->ct, $this->field, $this->row, $this->option_list, $this->attributes);
 					return $inputBoxRenderer->render($value, $this->defaultValue);
 				} else {
-					return common::translate('COM_CUSTOMTABLES_AVAILABLE');
+					return esc_html__("Available in PRO Version", "customtables");
 				}
 		}
 		return '';
@@ -632,7 +632,7 @@ abstract class BaseInputBox
 
 		// Optional default option
 		$selected = ($value == '' ? ' selected' : '');
-		$select .= '<option value=""' . $selected . '> - ' . common::translate('COM_CUSTOMTABLES_SELECT') . '</option>';
+		$select .= '<option value=""' . $selected . '> - ' . esc_html__("Select", "customtables") . '</option>';
 
 		// Generate options for each file in the folder
 		foreach ($options as $option) {

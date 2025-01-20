@@ -17,7 +17,7 @@ use Joomla\CMS\HTML\HTMLHelper;
 
 //use LayoutProcessor;
 
-defined('_JEXEC') or die();
+if (!defined('ABSPATH')) exit;
 
 class Twig_Document_Tags
 {

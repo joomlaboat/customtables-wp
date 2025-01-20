@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if (!defined('ABSPATH')) exit;
 
 use CustomTablesImageMethods;
 use Exception;
@@ -717,13 +717,13 @@ class SaveFieldQuerySet
 
 			$email = $this->ct->Env->user->email . '';
 			if ($email != '') {
-				$this->ct->messages[] = common::translate('COM_CUSTOMTABLES_ERROR_ALREADY_EXISTS');
+				$this->ct->messages[] = esc_html__("already exists.", "customtables");
 				return false; //all good, user already assigned.
 			}
 		}
 
 		if (count($field->params) < 3) {
-			$this->ct->errors[] = common::translate('COM_CUSTOMTABLES_USERACCOUNT_PARAMCOUNT_ERROR');
+			$this->ct->errors[] = esc_html__("User field name parameters count is less than 3.", "customtables");
 			return false;
 		}
 
@@ -757,13 +757,13 @@ class SaveFieldQuerySet
 		$user_email = $new_parts[2];
 
 		if ($user_groups == '') {
-			$this->ct->errors[] = common::translate('COM_CUSTOMTABLES_USERACCOUNT_GROUPFIELD_NOT_SET');
+			$this->ct->errors[] = esc_html__("User group field not set.", "customtables");
 			return false;
 		} elseif ($user_name == '') {
-			$this->ct->errors[] = common::translate('COM_CUSTOMTABLES_USERACCOUNT_NAME_NOT_SET');
+			$this->ct->errors[] = esc_html__("User name field not set.", "customtables");
 			return false;
 		} elseif ($user_email == '') {
-			$this->ct->errors[] = common::translate('COM_CUSTOMTABLES_USERACCOUNT_EMAIL_NOT_SET');
+			$this->ct->errors[] = esc_html__("User email field not set.", "customtables");
 			return false;
 		}
 
@@ -779,12 +779,12 @@ class SaveFieldQuerySet
 				CTUser::UpdateUserField($this->ct->Table->realtablename, $this->ct->Table->realidfieldname, $field->realfieldname,
 					$existing_user_id, $this->ct->Table->record[$this->ct->Table->realidfieldname]);
 
-				$this->ct->messages[] = common::translate('COM_CUSTOMTABLES_RECORD_USER_UPDATED');
+				$this->ct->messages[] = esc_html__("Record user updated.", "customtables");
 			} else {
 				$this->ct->errors[] =
-					common::translate('COM_CUSTOMTABLES_ERROR_USER_WITH_EMAIL')
+					esc_html__("User with email", "customtables")
 					. ' "' . $user_email . '" '
-					. common::translate('COM_CUSTOMTABLES_ERROR_ALREADY_EXISTS');
+					. esc_html__("already exists.", "customtables");
 			}
 		} else {
 			CTUser::CreateUser($this->ct->Table->realtablename, $this->ct->Table->realidfieldname, $user_email, $user_name,
@@ -930,10 +930,10 @@ class SaveFieldQuerySet
 
 			if ($sent !== true) {
 				//Something went wrong. Email not sent.
-				$this->ct->errors[] = common::translate('COM_CUSTOMTABLES_ERROR_SENDING_EMAIL') . ': ' . $EmailTo . ' (' . $Subject . ')';
+				$this->ct->errors[] = esc_html__("Error sending email.", "customtables") . ': ' . $EmailTo . ' (' . $Subject . ')';
 				$status = 0;
 			} else {
-				$this->ct->messages[] = common::translate('COM_CUSTOMTABLES_EMAIL_SENT_TO') . ': ' . $EmailTo . ' (' . $Subject . ')';
+				$this->ct->messages[] = esc_html__("Email sent to", "customtables") . ': ' . $EmailTo . ' (' . $Subject . ')';
 				$status = 1;
 			}
 		}

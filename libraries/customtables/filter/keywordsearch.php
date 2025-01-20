@@ -14,7 +14,7 @@ use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\MySQLWhereClause;
 
-defined('_JEXEC') or die();
+if (!defined('ABSPATH')) exit;
 
 require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'ordering.php');
 
@@ -79,10 +79,10 @@ class CustomTablesKeywordSearch
 		$AndOrOr_text = 'UNKNOWN';
 
 		if ($AndOrOr == 'OR')
-			$AndOrOr_text = common::translate('COM_CUSTOMTABLES_OR');
+			$AndOrOr_text = esc_html__("or", "customtables");
 
 		if ($AndOrOr == 'AND')
-			$AndOrOr_text = common::translate('COM_CUSTOMTABLES_AND');
+			$AndOrOr_text = esc_html__("and", "customtables");
 
 		foreach ($mod_fieldlist as $mod_field) {
 			$inner = '';
@@ -104,7 +104,7 @@ class CustomTablesKeywordSearch
 					$this->getKeywordSearch($inner, $whereClause, $result_rows, $count, $listing_ids);
 			}
 
-			$this->PathValue[] = common::translate('COM_CUSTOMTABLES_CONTAINS') . ' "' . $keywords . '"';
+			$this->PathValue[] = esc_html__("Contains", "customtables") . ' "' . $keywords . '"';
 
 			if (count($keyword_arr) > 1) //Do not search because there is only one keyword, and it's already checked
 			{
@@ -132,7 +132,7 @@ class CustomTablesKeywordSearch
 				if ($whereClause->hasConditions())
 					$this->getKeywordSearch($inner, $whereClause, $result_rows, $count, $listing_ids);
 
-				$this->PathValue[] = common::translate('COM_CUSTOMTABLES_CONTAINS') . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
+				$this->PathValue[] = esc_html__("Contains", "customtables") . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
 			}
 
 			$inner = '';
@@ -162,7 +162,7 @@ class CustomTablesKeywordSearch
 			if ($whereClause->hasConditions())
 				$this->getKeywordSearch($inner, $whereClause, $result_rows, $count, $listing_ids);
 
-			$this->PathValue[] = common::translate('COM_CUSTOMTABLES_CONTAINS') . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
+			$this->PathValue[] = esc_html__("Contains", "customtables") . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
 		}
 
 		$whereClause = new MySQLWhereClause();
@@ -246,7 +246,7 @@ class CustomTablesKeywordSearch
 			if ($whereClause->hasConditions())
 				$this->getKeywordSearch($inner, $whereClause, $result_rows, $count, $listing_ids);
 
-			$this->PathValue[] = common::translate('COM_CUSTOMTABLES_CONTAINS') . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
+			$this->PathValue[] = esc_html__("Contains", "customtables") . ' "' . implode('" ' . $AndOrOr_text . ' "', $kw_text_array) . '"';
 		}
 		return $result_rows;
 	}

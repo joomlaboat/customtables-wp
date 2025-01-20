@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if (!defined('ABSPATH')) exit;
 
 use Exception;
 
@@ -192,7 +192,7 @@ class Catalog
 
 		if (!$recordsLoaded) {
 			if (defined('_JEXEC'))
-				$this->ct->errors[] = common::translate('COM_CUSTOMTABLES_ERROR_TABLE_NOT_FOUND');
+				$this->ct->errors[] = esc_html__("Table not found.", "customtables");
 
 			return 'CustomTables: Records not loaded.';
 		}

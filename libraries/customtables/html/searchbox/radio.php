@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if (!defined('ABSPATH')) exit;
 
 class Search_radio extends BaseSearch
 {
@@ -24,7 +24,7 @@ class Search_radio extends BaseSearch
 	function render($value): string
 	{
 		$options = [];
-		$options[] = '<option value="" ' . ($value == '' ? 'SELECTED' : '') . '>- ' . common::translate('COM_CUSTOMTABLES_SELECT') . ' ' . $this->field->title . '</option>';
+		$options[] = '<option value="" ' . ($value == '' ? 'SELECTED' : '') . '>- ' . esc_html__("Select", "customtables") . ' ' . $this->field->title . '</option>';
 
 		foreach ($this->field->params as $param)
 			$options[] = '<option value="' . $param . '" ' . ($value == $param ? 'SELECTED' : '') . '>' . $param . '</option>';

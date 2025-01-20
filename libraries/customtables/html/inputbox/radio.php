@@ -13,7 +13,7 @@ namespace CustomTables;
 // no direct access
 use Exception;
 
-defined('_JEXEC') or die();
+if (!defined('ABSPATH')) exit;
 
 class InputBox_radio extends BaseInputBox
 {

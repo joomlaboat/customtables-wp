@@ -10,7 +10,7 @@
 
 namespace CustomTables;
 
-defined('_JEXEC') or die();
+if (!defined('ABSPATH')) exit;
 
 class InputBox_fileLink extends BaseInputBox
 {
@@ -47,7 +47,7 @@ class InputBox_fileLink extends BaseInputBox
 
 		if (file_exists($real_path)) {
 
-			$options [] = '<option value="">' . common::translate('COM_CUSTOMTABLES_SELECT_FILE') . '</option>'; // Optional default option
+			$options [] = '<option value="">' . esc_html__("Select file", "customtables") . '</option>'; // Optional default option
 
 			$files = scandir($real_path);
 			foreach ($files as $file) {
@@ -58,7 +58,7 @@ class InputBox_fileLink extends BaseInputBox
 				}
 			}
 		} else
-			$options [] = '<option value="">' . common::translate('COM_CUSTOMTABLES_PATH') . ' (' . $path . ') ' . common::translate('COM_CUSTOMTABLES_NOTFOUND') . '</option>';
+			$options [] = '<option value="">' . esc_html__("Path", "customtables") . ' (' . $path . ') ' . esc_html__("not found.", "customtables") . '</option>';
 
 		return '<select ' . self::attributes2String($this->attributes) . '>' . implode('', $options) . '</select>';
 	}

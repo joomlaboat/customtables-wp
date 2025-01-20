@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if (!defined('ABSPATH')) exit;
 
 use Exception;
 
@@ -48,7 +48,7 @@ class InputBox_usergroup extends BaseInputBox
 		if (defined('_JEXEC')) {
 			// Optional default option
 
-			$option = ["value" => "", "label" => ' - ' . common::translate('COM_CUSTOMTABLES_SELECT')];
+			$option = ["value" => "", "label" => ' - ' . esc_html__("Select", "customtables")];
 
 			if (0 === (int)$value)
 				$option['selected'] = true;
@@ -70,7 +70,7 @@ class InputBox_usergroup extends BaseInputBox
 
 			$value = trim($value);
 
-			$option = ["value" => "", "label" => ' - ' . common::translate('COM_CUSTOMTABLES_SELECT')];
+			$option = ["value" => "", "label" => ' - ' . esc_html__("Select", "customtables")];
 
 			if ("" === $value)
 				$option['selected'] = true;
@@ -130,7 +130,7 @@ class InputBox_usergroup extends BaseInputBox
 		if (defined('_JEXEC')) {
 			// Optional default option
 			$selected = (0 === (int)$value) ? ' selected' : '';
-			$select .= '<option value=""' . $selected . '> - ' . common::translate('COM_CUSTOMTABLES_SELECT') . '</option>';
+			$select .= '<option value=""' . $selected . '> - ' . esc_html__("Select", "customtables") . '</option>';
 
 			// Generate options for each file in the folder
 			foreach ($records as $record) {
@@ -142,7 +142,7 @@ class InputBox_usergroup extends BaseInputBox
 
 			// Optional default option
 			$selected = ('' === $value) ? ' selected' : '';
-			$select .= '<option value=""' . $selected . '> - ' . common::translate('COM_CUSTOMTABLES_SELECT') . '</option>';
+			$select .= '<option value=""' . $selected . '> - ' . esc_html__("Select", "customtables") . '</option>';
 
 			// Generate options for each file in the folder
 			foreach ($records as $record) {

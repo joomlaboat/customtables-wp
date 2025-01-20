@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 // no direct access
-defined('_JEXEC') or die();
+if (!defined('ABSPATH')) exit;
 
 use Exception;
 
@@ -43,7 +43,7 @@ class InputBox_article extends BaseInputBox
 			throw new Exception('Cannot load a list of articles. Details: ' . $e->getMessage());
 		}
 
-		$option = ["value" => 0, "label" => ' - ' . common::translate('COM_CUSTOMTABLES_SELECT')];
+		$option = ["value" => 0, "label" => ' - ' . esc_html__("Select", "customtables")];
 		if (0 === (int)$value)
 			$option['selected'] = true;
 
