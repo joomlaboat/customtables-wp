@@ -242,8 +242,7 @@ class Layouts
 				return ['success' => false, 'message' => 'CustomTable: Layout "' . $layoutId . '" not found', 'short' => 'error'];
 			if ($this->ct->Table->fields === null)
 				return ['success' => false, 'message' => 'CustomTable: Table not selected or not found', 'short' => 'error'];
-		} else {
-
+		} elseif ($task !== 'cancel') {
 			if ($this->ct->Table === null)
 				return ['success' => false, 'message' => 'CustomTable: Table not selected', 'short' => 'error'];
 
@@ -262,15 +261,18 @@ class Layouts
 				$this->layoutCode = $this->createDefaultLayout_CSV($this->ct->Table->fields);
 		}
 
-		//Do the task if set
-		if ($task === null)
-			$task = common::inputPostCmd('task', null, 'create-edit-record');
+		if ($task !== 'none') {
 
-		if ($task === null)
-			$task = common::inputGetCmd('task');
+			// Some API controllers do not use tasks at all. "record" - detailed view for example
+			if (empty($task))
+				$task = common::inputPostCmd('task', null, 'create-edit-record');
 
-		if ($task !== null)
-			return $this->doTasks($task);
+			if (empty($task))
+				$task = common::inputGetCmd('task');
+
+			if (!empty($task))
+				return $this->doTasks($task);
+		}
 
 		if (in_array($this->layoutType, [
 			CUSTOMTABLES_LAYOUT_TYPE_SIMPLE_CATALOG,
@@ -300,8 +302,8 @@ class Layouts
 			if ($this->ct->Env->clean == 0) {
 				$formLink = common::curPageURL();
 				//$formLink = $this->ct->Env->WebsiteRoot . 'index.php?option=com_customtables&amp;view=edititem' . ($this->ct->Params->ItemId != 0 ? '&amp;Itemid=' . $this->ct->Params->ItemId : '');
-				if (!is_null($this->ct->Params->ModuleId))
-					$formLink .= '&amp;ModuleId=' . $this->ct->Params->ModuleId;
+				//if (!is_null($this->ct->Params->ModuleId))
+				//$formLink .= '&amp;ModuleId=' . $this->ct->Params->ModuleId;
 			} else {
 				$formLink = null;
 			}
@@ -1035,7 +1037,9 @@ class Layouts
 		if ($link === null)
 			$link = $this->ct->Params->returnTo;
 
-		$link = CTMiscHelper::deleteURLQueryOption($link, 'view' . $this->ct->Table->tableid);
+		if ($this->ct->Table !== null)
+			$link = CTMiscHelper::deleteURLQueryOption($link, 'view' . $this->ct->Table->tableid);
+
 		return ['success' => true, 'message' => esc_html__("Edit canceled.", "customtables"), 'short' => 'canceled', 'redirect' => $link];
 	}
 

@@ -63,7 +63,7 @@ class record
 		$this->ct->getRecord();
 
 		if ($this->ct->Table->record === null)
-			throw new Exception(common::translate('Records not found'));
+			throw new Exception(esc_html__("not found.", "customtables"));
 
 		if (!$this->ct->CheckAuthorization(CUSTOMTABLES_ACTION_DELETE)) {
 			$this->unauthorized = true;
@@ -221,7 +221,7 @@ class record
 		} else
 			$this->row_old[$this->ct->Table->realidfieldname] = null;
 
-		if (!$this->ct->CheckAuthorization($isCopy ? CUSTOMTABLES_ACTION_COPY : CUSTOMTABLES_ACTION_EDIT)) {
+		if (!$this->ct->CheckAuthorization($isCopy ? CUSTOMTABLES_ACTION_COPY : (empty($listing_id) ? CUSTOMTABLES_ACTION_ADD : CUSTOMTABLES_ACTION_EDIT))) {
 			$this->unauthorized = true;
 			throw new Exception(esc_html__("Not authorized", "customtables"));
 		}
@@ -310,7 +310,6 @@ class record
 		}
 
 		if ($this->isItNewRecord) {// or $isCopy
-			echo '$this->isItNewRecord or $isCopy<br/>';
 			if (!empty($this->listing_id)) {
 				$this->ct->Params->listing_id = $this->listing_id;
 				$this->ct->getRecord();

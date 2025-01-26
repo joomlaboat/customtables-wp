@@ -14,10 +14,11 @@ namespace CustomTables;
 if (!defined('ABSPATH')) exit;
 
 use Exception;
-use Joomla\CMS\Helper\ModuleHelper;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Helper\ModuleHelper;
 use Joomla\CMS\Router\Route;
 use Joomla\Registry\Registry;
+use Throwable;
 
 class Params
 {
@@ -150,40 +151,36 @@ class Params
 	 * @throws Exception
 	 * @since 3.2
 	 */
-	public function constructJoomlaParams(?string $ModuleId = null): void
+	public function constructJoomlaParams(): void
 	{
 		$this->app = Factory::getApplication();
-		$menu_paramsArray = [];
 
-		if (is_null($ModuleId)) {
-			$ModuleIdInt = common::inputGetInt('ModuleId');
+		//This is used for module tasks
+		$ModuleId = common::inputGetInt('ModuleId');
 
-			if ($ModuleIdInt)
-				$ModuleId = strval($ModuleIdInt);
-			else
-				$ModuleId = null;
-		}
+		if ($ModuleId !== null) {
 
-		if (!is_null($ModuleId)) {
 			$this->ModuleId = $ModuleId;
-			$module = ModuleHelper::getModuleById($ModuleId);
+			$module = ModuleHelper::getModuleById((string)$ModuleId);
 			$menu_params = new Registry;//Joomla Specific
 			$menu_params->loadString($module->params);
 			$menu_paramsArray = self::menuParamsRegistry2Array($menu_params);
 			$this->blockExternalVars = false;
-			//Do not block external var parameters because this is the edit form or a task
-		} elseif (method_exists($this->app, 'getParams')) {
+			$this->setParams($menu_paramsArray);
+			return;
+		}
+
+		if (method_exists($this->app, 'getParams')) {
 			try {
 				if ($this->app->getLanguage() !== null) {
 					$menu_params_registry = @$this->app->getParams();//Joomla specific
 					$menu_paramsArray = self::menuParamsRegistry2Array($menu_params_registry);
-				} else
-					$menu_paramsArray = null;
-			} catch (Exception $e) {
-				$menu_paramsArray = null;
+					$this->setParams($menu_paramsArray);
+				}
+			} catch (Throwable $e) {
+				throw new Exception($e->getMessage());
 			}
 		}
-		$this->setParams($menu_paramsArray);
 	}
 
 	public static function menuParamsRegistry2Array(Registry $menu_params_registry): array
@@ -368,15 +365,7 @@ class Params
 		if ($this->deleteUserGroups == 0)
 			$this->deleteUserGroups = $this->editUserGroups;
 
-		$this->publishStatus = $menu_params['publishstatus'] ?? null;
-
-		if ($this->publishStatus === null) {
-			if (!$this->blockExternalVars)
-				$this->publishStatus = common::inputGetInt('published');
-			else
-				$this->publishStatus = 1;
-		} else
-			$this->publishStatus = (int)$this->publishStatus;
+		$this->publishStatus = $menu_params['publishstatus'] ?? 1;
 
 		//Emails
 		$this->onRecordAddSendEmail = (int)($menu_params['onrecordaddsendemail'] ?? null);
@@ -387,12 +376,19 @@ class Params
 
 		//Form Saved
 		if (!$this->blockExternalVars and common::inputGetCmd('returnto'))
-			$this->returnTo = common::getReturnToURL();
+			$this->returnTo = common::getReturnToURL();//base 64 decode "returnto" value
 		else {
-			if (CUSTOMTABLES_JOOMLA_MIN_4 and !empty($this->ItemId))
-				$this->returnTo = $menu_params['returnto'] ?? Route::_(sprintf('index.php/?option=com_customtables&Itemid=%d', $this->ItemId));
-			else
-				$this->returnTo = $menu_params['returnto'] ?? null;
+
+			if ($this->ModuleId === null) {
+				if (CUSTOMTABLES_JOOMLA_MIN_4 and !empty($this->ItemId)) {
+					//Check if current ItemId is not the same as set $this->ItemId
+					if ($this->ItemId != common::inputGetInt('Itemid'))
+						$this->returnTo = $menu_params['returnto'] ?? Route::_(sprintf('index.php/?option=com_customtables&Itemid=%d', $this->ItemId));
+				} else
+					$this->returnTo = $menu_params['returnto'] ?? null;
+			} else {
+				$this->returnTo = common::curPageURL();
+			}
 		}
 		$this->requiredLabel = $menu_params['requiredlabel'] ?? null;
 
@@ -529,15 +525,7 @@ class Params
 		if ($this->deleteUserGroups == 0)
 			$this->deleteUserGroups = $this->editUserGroups;
 
-		$this->publishStatus = $menu_params['publishstatus'] ?? null;
-
-		if ($this->publishStatus === null) {
-			if (!$this->blockExternalVars)
-				$this->publishStatus = common::inputGetInt('published');
-			else
-				$this->publishStatus = 1;
-		} else
-			$this->publishStatus = (int)$this->publishStatus;
+		$this->publishStatus = $menu_params['publishstatus'] ?? 1;
 
 		//Emails
 		$this->onRecordAddSendEmail = (int)($menu_params['onrecordaddsendemail'] ?? null);

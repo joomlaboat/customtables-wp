@@ -47,7 +47,7 @@ class CT
 	 * @throws Exception
 	 * @since 3.0.0
 	 */
-	function __construct(?array $menuParams, bool $blockExternalVars = true, ?string $ModuleId = null, bool $enablePlugin = true)
+	function __construct(?array $menuParams = [], bool $blockExternalVars = true)
 	{
 		$this->errors = [];
 		$this->messages = [];
@@ -67,7 +67,7 @@ class CT
 
 		$this->Languages = new Languages;
 
-		$this->Env = new Environment($enablePlugin);
+		$this->Env = new Environment();
 		$this->Params = new Params($menuParams, $blockExternalVars);
 
 		$this->GroupBy = null;
@@ -356,9 +356,8 @@ class CT
 	function getRecordsByKeyword(): void
 	{
 		//Joomla Method
-		$moduleId = common::inputGetInt('ModuleId', 0);
-		if ($moduleId != 0) {
-			$keywordSearch = common::inputGetString('eskeysearch_' . $moduleId, '');
+		if ($this->Params->ModuleId !== null) {
+			$keywordSearch = common::inputGetString('eskeysearch_' . $this->Params->ModuleId, '');
 			if ($keywordSearch != '') {
 				require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'filter' . DIRECTORY_SEPARATOR . 'keywordsearch.php');
 
@@ -673,12 +672,6 @@ class CT
 			return true;
 		}
 
-		//echo '$action2:' . $action . '<br/>';
-		//echo '$userGroup:' . $userGroup . '<br/>';
-		//echo '$this->Env->user->groups:';
-		//print_r($this->Env->user->groups);
-		//die;
-
 		if (empty($this->Params->listing_id))
 			return $this->Env->user->checkUserGroupAccess($userGroup);
 
@@ -824,7 +817,7 @@ class CT
 		if ($access == 'core.edit' and empty($this->listing_id))
 			$access = 'core.create'; //add new
 
-		if ($this->ct->Env->user->authorise($access, 'com_customtables')) {
+		if ($this->Env->user->authorise($access, 'com_customtables')) {
 			$this->isAuthorized = true;
 			return true;
 		}
@@ -832,9 +825,9 @@ class CT
 		if ($access != 'core.edit')
 			return false;
 
-		if ($this->ct->Params->userIdField != '') {
-			if ($this->ct->checkIfItemBelongsToUser($this->listing_id, $this->ct->Params->userIdField)) {
-				if ($this->ct->Env->user->authorise('core.edit.own', 'com_customtables')) {
+		if ($this->Params->userIdField != '') {
+			if ($this->checkIfItemBelongsToUser($this->listing_id, $this->ct->Params->userIdField)) {
+				if ($this->Env->user->authorise('core.edit.own', 'com_customtables')) {
 					$this->isAuthorized = true;
 					return true;
 				} else

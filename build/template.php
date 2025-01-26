@@ -99,18 +99,18 @@ class template
 			$attributes['limit'] = 20;
 
 		if (!empty($attributes['id']))
-			$menu_params['listingid']=$attributes['listingid'];
-			//$ct->Params->listing_id = $attributes['id'];
+			$menu_params['listingid'] = $attributes['listingid'];
+		//$ct->Params->listing_id = $attributes['id'];
 
 		//$ct->Params->limit = $attributes['limit'];
 		//$ct->Params->sortBy = $attributes['orderby'] ?? null;
 		//$ct->Params->filter = $attributes['filter'] ?? null;
 
-		$menu_params=[];
-		$menu_params['listingid']=$attributes['listingid'];
-		$menu_params['filter']=$attributes['filter'];
-		$menu_params['sortby']=$attributes['orderby'];
-		$menu_params['limit']=$attributes['limit'];
+		$menu_params = [];
+		$menu_params['listingid'] = $attributes['listingid'];
+		$menu_params['filter'] = $attributes['filter'];
+		$menu_params['sortby'] = $attributes['orderby'];
+		$menu_params['limit'] = $attributes['limit'];
 
 		$ct->Params->setParams($menu_params);
 
@@ -155,6 +155,22 @@ class template
 
 		if (!empty($mixedLayout_array['redirect']))
 			common::redirect($mixedLayout_array['redirect'], $mixedLayout_array['message'], $mixedLayout_array['success']);
+
+		if ($mixedLayout_array ['success']) {
+			if ($ct->Env->clean) {
+				if ($ct->Env->frmt == 'json')
+					CTMiscHelper::fireSuccess($mixedLayout_array ['id'] ?? null, $mixedLayout_array ['data'] ?? null, $ct->Params->msgItemIsSaved);
+				else
+					die($mixedLayout_array ['short'] ?? 'done');
+			}
+		}else{
+			if ($ct->Env->clean) {
+				if ($ct->Env->frmt == 'json')
+					CTMiscHelper::fireError(500, $mixedLayout_array['message'] ?? 'Error');
+				else
+					die($mixedLayout_array['short'] ?? 'error');
+			}
+		}
 
 		$mixedLayout_safe = $mixedLayout_array['html'];
 		$this->enqueueList['FieldInputPrefix'] = $ct->Table->fieldInputPrefix;

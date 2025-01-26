@@ -97,14 +97,14 @@ class Twig_HTML_Tags
 			}
 
 
-			if (!is_null($this->ct->Params->ModuleId))
-				$link .= '&amp;ModuleId=' . $this->ct->Params->ModuleId;
+			//if (!is_null($this->ct->Params->ModuleId))
+			//	$link .= '&amp;ModuleId=' . $this->ct->Params->ModuleId;
 
 			if (common::inputGetCmd('tmpl', '') != '')
 				$link .= '&amp;tmpl=' . common::inputGetCmd('tmpl', '');
 
-			if (!is_null($this->ct->Params->ModuleId))
-				$link .= '&amp;ModuleId=' . $this->ct->Params->ModuleId;
+			//if (!is_null($this->ct->Params->ModuleId))
+			//$link .= '&amp;ModuleId=' . $this->ct->Params->ModuleId;
 		} elseif (defined('WPINC')) {
 			$link = common::curPageURL();
 			$link = CTMiscHelper::deleteURLQueryOption($link, 'view' . $this->ct->Table->tableid);
@@ -344,7 +344,8 @@ class Twig_HTML_Tags
 					} else
 						$img = '<img src="' . CUSTOMTABLES_MEDIA_WEBPATH . 'images/icons/' . $mode . '.png" border="0" alt="' . $alt . '" title="' . $alt . '" />';
 
-					$link = 'javascript:ctToolBarDO("' . $mode . '", ' . $this->ct->Table->tableid . ')';
+					$moduleIDString = $this->ct->Params->ModuleId === null ? 'null' : $this->ct->Params->ModuleId;
+					$link = 'javascript:ctToolBarDO("' . $mode . '", ' . $this->ct->Table->tableid . ', ' . $moduleIDString . ')';
 					$html_buttons[] = '<div id="' . $rid . '" class="toolbarIcons"><a href=\'' . $link . '\'>' . $img . '</a></div>';
 				}
 			}
@@ -919,9 +920,9 @@ class Twig_HTML_Tags
 		$parentField = common::inputGetCmd('parentfield');
 
 		if ($parentField === null)
-			$onclick = 'setTask(event, "' . $task . '","' . $redirect . '",true,"' . $formName . '",' . $isModal . ',null);';
+			$onclick = 'setTask(event, "' . $task . '","' . $redirect . '",true,"' . $formName . '",' . $isModal . ',null,' . ($this->ct->Params->ModuleId === null ? 'null' : $this->ct->Params->ModuleId) . ');';
 		else
-			$onclick = 'setTask(event, "' . $task . '","' . $redirect . '",true,"' . $formName . '",' . $isModal . ',"' . $parentField . '");';
+			$onclick = 'setTask(event, "' . $task . '","' . $redirect . '",true,"' . $formName . '",' . $isModal . ',"' . $parentField . '"' . ($this->ct->Params->ModuleId === null ? 'null' : $this->ct->Params->ModuleId) . ');';
 
 		return '<input id="' . $buttonId . '" type="submit" class="' . common::convertClassString($the_class) . '"' . $attribute . ' onClick=\'' . $onclick . '\' value="' . $title . '">';
 	}
@@ -985,7 +986,6 @@ class Twig_HTML_Tags
 			$cancel_class = 'ctEditFormButton btn button-cancel';
 
 		$returnToEncoded = common::makeReturnToURL($redirectLink);
-
 		return $this->renderButtonHTML($cancel_class, $title, $formName, "customtables_button_cancel", $returnToEncoded, false, "cancel");
 	}
 
