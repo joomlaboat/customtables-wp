@@ -158,7 +158,7 @@ class Params
 		//This is used for module tasks
 		$ModuleId = common::inputGetInt('ModuleId');
 
-		if ($ModuleId !== null) {
+		if (!empty($ModuleId)) {
 
 			$this->ModuleId = $ModuleId;
 			$module = ModuleHelper::getModuleById((string)$ModuleId);
@@ -305,7 +305,10 @@ class Params
 
 		//Filter
 		$this->userIdField = $menu_params['useridfield'] ?? null;
-		$this->filter = $menu_params['filter'] ?? null; //TODO: Test it. Check the security issue here. menu item filter must be on
+
+		if (!empty($menu_params['filter']))
+			$this->filter = $menu_params['filter']; //TODO: Test it. Check the security issue here. menu item filter must be on
+
 		$this->showPublished = (int)($menu_params['showpublished'] ?? CUSTOMTABLES_SHOWPUBLISHED_PUBLISHED_ONLY);
 
 		//Group BY
@@ -352,17 +355,25 @@ class Params
 		$this->cartMsgItemUpdated = $menu_params['cart_msgitemupdated'] ?? null;
 
 		//Permissions
-		$this->editUserGroups = $menu_params['editusergroups'] ?? null;
-		$this->addUserGroups = $menu_params['addusergroups'] ?? 0;
-		if ($this->addUserGroups == 0)
+		if (!empty($menu_params['editusergroups']))
+			$this->editUserGroups = $menu_params['editusergroups'];
+
+		if (!empty($menu_params['addusergroups']))
+			$this->addUserGroups = $menu_params['addusergroups'];
+
+		if ($this->addUserGroups == 0)//If add user group not set then edit user group will be used
 			$this->addUserGroups = $this->editUserGroups;
 
-		$this->publishUserGroups = $menu_params['publishusergroups'] ?? 0;
-		if ($this->publishUserGroups == 0)
+		if (!empty($menu_params['publishusergroups']))
+			$this->publishUserGroups = $menu_params['publishusergroups'];
+
+		if ($this->publishUserGroups == 0)//If publish user group not set then edit user group will be used
 			$this->publishUserGroups = $this->editUserGroups;
 
-		$this->deleteUserGroups = $menu_params['deleteusergroups'] ?? 0;
-		if ($this->deleteUserGroups == 0)
+		if (!empty($menu_params['deleteusergroups']))
+			$this->deleteUserGroups = $menu_params['deleteusergroups'];
+		
+		if ($this->deleteUserGroups == 0)//If publish user group not set then edit user group will be used
 			$this->deleteUserGroups = $this->editUserGroups;
 
 		$this->publishStatus = $menu_params['publishstatus'] ?? 1;
@@ -379,7 +390,7 @@ class Params
 			$this->returnTo = common::getReturnToURL();//base 64 decode "returnto" value
 		else {
 
-			if ($this->ModuleId === null) {
+			if (empty($this->ModuleId)) {
 				if (CUSTOMTABLES_JOOMLA_MIN_4 and !empty($this->ItemId)) {
 					//Check if current ItemId is not the same as set $this->ItemId
 					if ($this->ItemId != common::inputGetInt('Itemid'))

@@ -275,7 +275,7 @@ class CTUser
 
 		if ($realUserId !== null) {
 			CTUser::UpdateUserField($realtablename, $realidfieldname, $useridfieldname, $realUserId, $listing_id);
-			common::enqueueMessage(esc_html__("New user created. Password sent to his/her email.", "customtables"));
+			common::enqueueMessage(esc_html__("New users created. Passwords sent to their emails.", "customtables"));
 		} else {
 			$msg = esc_html__("This User cannot be created:", "customtables");
 			common::enqueueMessage($msg);

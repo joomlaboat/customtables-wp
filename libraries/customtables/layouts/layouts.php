@@ -290,36 +290,37 @@ class Layouts
 				else
 					$listing_id = common::inputGetCmd('listing_id');
 
-				if (!empty($listing_id)) {
+				if (!empty($listing_id))
 					$this->ct->Params->listing_id = $listing_id;
+
+				if (!empty($listing_id) or !empty($this->ct->Params->filter))
 					$this->ct->getRecord();
-				}
 			}
 
 			$editForm = new Edit($this->ct);
 			$editForm->layoutContent = $this->layoutCode;
 
-			if ($this->ct->Env->clean == 0) {
+			if ($this->ct->Env->clean == 0)
 				$formLink = common::curPageURL();
-				//$formLink = $this->ct->Env->WebsiteRoot . 'index.php?option=com_customtables&amp;view=edititem' . ($this->ct->Params->ItemId != 0 ? '&amp;Itemid=' . $this->ct->Params->ItemId : '');
-				//if (!is_null($this->ct->Params->ModuleId))
-				//$formLink .= '&amp;ModuleId=' . $this->ct->Params->ModuleId;
-			} else {
+			else
 				$formLink = null;
-			}
 
 			if ($this->ct->Env->isModal)
 				$formName = 'ctEditModalForm';
 			else
 				$formName = 'ctEditForm';
 
-			if (!is_null($this->ct->Params->ModuleId))
+			if (!empty($this->ct->Params->ModuleId))
 				$formName .= $this->ct->Params->ModuleId;
 
-			$output['html'] = $editForm->render($this->ct->Table->record,
-				$formLink,
-				$formName,
-				$this->ct->Env->clean == 0);
+			if ($this->ct->CheckAuthorization(CUSTOMTABLES_ACTION_EDIT)) {
+				$output['html'] = $editForm->render($this->ct->Table->record,
+					$formLink,
+					$formName,
+					$this->ct->Env->clean == 0);
+			} else {
+				return ['success' => false, 'message' => esc_html__("Not authorized", "customtables"), 'short' => 'error'];
+			}
 
 			if (isset($this->ct->LayoutVariables['captcha']) and $this->ct->LayoutVariables['captcha'])
 				$output['captcha'] = true;
@@ -762,7 +763,6 @@ class Layouts
 
 		$result .= '</table>';
 
-
 		if ($addToolbar)
 			$result .= '<div style="text-align:center;">{{ html.button("save") }} {{ html.button("saveandclose") }} {{ html.button("saveascopy") }} {{ html.button("cancel") }}</div>
 ';
@@ -773,7 +773,6 @@ class Layouts
 	{
 		$this->layoutType = CUSTOMTABLES_LAYOUT_TYPE_DETAILS;
 		$result = '<legend>{{ table.title }}</legend>{{ html.goback() }}<div class="form-horizontal">';
-
 		$fieldTypes_to_skip = ['dummy'];
 
 		foreach ($fields as $field) {
@@ -867,6 +866,8 @@ class Layouts
 			return $this->doTask_cancel();
 		} elseif ($task == 'saveandcontinue' or $task == 'save' or $task == 'saveascopy') {
 			return $this->doTask_save($task);
+		} elseif ($task == 'createuser') {
+			return $this->doTask_createuser();
 		}
 		return ['success' => false, 'message' => 'Unknown task', 'short' => 'error'];
 	}
@@ -1126,6 +1127,44 @@ class Layouts
 		return $output;
 	}
 
+	private function doTask_createuser(): array
+	{
+		$listing_ids = $this->getListingIds();
+
+		if (count($listing_ids) > 0) {
+
+			$count = 0;
+
+			foreach ($listing_ids as $listing_id) {
+				try {
+					$this->ct->Params->listing_id = $listing_id;
+					$this->ct->getRecord();
+
+					if ($this->ct->Table->record === null)
+						return ['success' => false, 'message' => 'User record ID: "' . $this->ct->Params->listing_id . '" not found.', 'short' => 'error'];
+
+					$fieldRow = $this->ct->Table->getFieldByName($this->ct->Table->useridfieldname);
+
+					$saveField = new SaveFieldQuerySet($this->ct, $this->ct->Table->record, false);
+					$field = new Field($this->ct, $fieldRow);
+
+					if (!$saveField->Try2CreateUserAccount($field))
+						return ['success' => false, 'message' => esc_html__("This User cannot be created:", "customtables"), 'short' => 'error'];
+
+					$count += 1;
+				} catch (Exception $e) {
+					return ['success' => true, 'message' => $e->getMessage(), 'short' => 'error'];
+				}
+			}
+
+			$message = ($count == 1 ? esc_html__("New user created. Password sent to his/her email.", "customtables") :
+				esc_html__("New users created. Passwords sent to their emails.", "customtables"));
+
+			return ['success' => true, 'message' => $message, 'short' => 'user_created'];
+		}
+		return ['success' => false, 'message' => 'Records not selected', 'short' => 'error'];
+	}
+
 	/**
 	 * @throws Exception
 	 * @since 3.2.2
@@ -1232,22 +1271,62 @@ class Layouts
 		//Details or Catalog Item
 		if ($this->ct->Table->record === null) {
 
-			if (!empty($this->ct->Params->listing_id))
-				$listing_id = $this->ct->Params->listing_id;
-			else
-				$listing_id = common::inputGetCmd('listing_id');
+			if (empty($this->ct->Params->listing_id) and !empty(common::inputGetCmd('listing_id')))
+				$this->ct->Params->listing_id = common::inputGetCmd('listing_id');
 
-			if (!empty($listing_id)) {
-				$this->ct->Params->listing_id = $listing_id;
-				$this->ct->getRecord();
-			}
+			$this->ct->getRecord();
 		}
 
-		$details = new Details($this->ct);
-		$details->layoutDetailsContent = $this->layoutCode;
-		$details->pageLayoutNameString = $this->pageLayoutNameString;
-		$details->pageLayoutLink = $this->pageLayoutLink;
-		return $details->render();
+		return $this->renderDetailedLayoutDO();
+	}
+
+	/**
+	 * @throws SyntaxError
+	 * @throws RuntimeError
+	 * @throws LoaderError
+	 * @throws Exception
+	 * @since 3.0.0
+	 */
+	public function renderDetailedLayoutDO(): string
+	{
+		$twig = new TwigProcessor($this->ct, $this->layoutCode, false, false, true, $this->pageLayoutNameString, $this->pageLayoutLink);
+		$layoutDetailsContent = $twig->process($this->ct->Table->record);
+
+		if ($twig->errorMessage !== null)
+			$this->ct->errors[] = $twig->errorMessage;
+
+		if ($this->ct->Params->allowContentPlugins)
+			$layoutDetailsContent = CTMiscHelper::applyContentPlugins($layoutDetailsContent);
+
+
+		if (!is_null($this->ct->Table->record)) {
+			//Save view log
+			$this->SaveViewLogForRecord();
+		}
+
+		return $layoutDetailsContent;
+	}
+
+	/**
+	 * @throws Exception
+	 * @since 3.2.2
+	 */
+	protected function SaveViewLogForRecord(): void
+	{
+		$updateFields = [];
+
+		foreach ($this->ct->Table->fields as $field) {
+			if ($field['type'] == 'lastviewtime')
+				$updateFields[$field['realfieldname']] = common::currentDate();
+			elseif ($field['type'] == 'viewcount')
+				$updateFields[$field['realfieldname']] = ((int)($this->ct->Table->record[$field['realfieldname']]) + 1);
+		}
+
+		if (count($updateFields) > 0) {
+			$whereClauseUpdate = new MySQLWhereClause();
+			$whereClauseUpdate->addCondition($this->ct->Table->realidfieldname, $this->ct->Table->record[$this->ct->Table->realidfieldname]);
+			database::update($this->ct->Table->realtablename, $updateFields, $whereClauseUpdate);
+		}
 	}
 
 	/**
@@ -1278,6 +1357,4 @@ class Layouts
 
 		return $rows[0];
 	}
-
-
 }
