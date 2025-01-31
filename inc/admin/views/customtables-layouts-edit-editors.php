@@ -61,23 +61,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 		</div>
 
 		<div class="gtab params-tab" style="margin-left:-20px;">
-			<table class="form-table" role="presentation">
-				<tr class="form-field form-required">
-					<!-- Layout Name Field -->
-					<th scope="row">
-						<label for="filter">
-							<?php echo esc_html__('Filter', 'customtables'); ?>
-							<!--<span class="description"></span>-->
-						</label>
-					</th>
-					<td>
-						<input name="filter" type="text" id="filter" style="min-width: 150px;"
-							   value="<?php echo esc_attr($this->admin_layout_edit->params['filter'] ?? ''); ?>"
-							   aria-required="false"
-							   autocapitalize="none" autocorrect="off" autocomplete="off" maxlength="1024"/>
-					</td>
-				</tr>
-			</table>
+			<?php include('customtables-layouts-edit-params.php'); ?>
 		</div>
 	<?php endif; ?>
 </div>
