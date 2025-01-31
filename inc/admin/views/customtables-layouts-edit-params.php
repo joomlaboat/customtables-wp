@@ -80,6 +80,7 @@
 		</td>
 	</tr>
 
+	<?php /*
 	<tr class="form-field form-required">
 		<th scope="row">
 			<label for="publishstatus">
@@ -95,5 +96,5 @@
 			<br/>
 			<span class="description">Sets the default publish status for newly created records. If none selected, inherits from parent layout or defaults to Published.</span>
 		</td>
-	</tr>
+	</tr> */ ?>
 </table>

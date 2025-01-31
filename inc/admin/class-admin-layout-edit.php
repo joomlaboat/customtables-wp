@@ -112,20 +112,16 @@ class Admin_Layout_Edit
 	 */
 	function get_role_selector(string $paramName, bool $allowGuests = false): string
 	{
-		$selected_roles = $this->params[$paramName] ?? '';
-
-		// Get all WordPress roles
-		// Convert selected roles string to array
-		$selected = !empty($selected_roles) ? explode(',', $selected_roles) : [];
+		$selected = $this->params[$paramName] ?? []; //$selected_roles
 
 		// Start building the select element
-		$output = '<select id="' . $paramName . '" name="' . $paramName . '[]" multiple class="regular-text">';
+		$output = '<select id="' . $paramName . '" name="' . $paramName . '[]" multiple class="regular-text" style="min-height: 130px;">';
 
 		if ($allowGuests) {
 			$is_selected = in_array('guest', $selected) ? 'selected' : '';
 			$output .= sprintf(
 				'<option value="%s"%s>%s</option>',
-				'',
+				'guest',
 				$is_selected,
 				esc_html__("Guest", "customtables")
 			);
