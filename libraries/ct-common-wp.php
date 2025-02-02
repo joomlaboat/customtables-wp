@@ -527,6 +527,14 @@ class common
 
 	public static function makeReturnToURL(string $currentURL = null): ?string
 	{
+		if ($currentURL === null)
+			$currentURL = self::curPageURL();
+
+		return base64_encode($currentURL);
+	}
+	/*
+	public static function makeReturnToURL(string $currentURL = null): ?string
+	{
 		if ($currentURL === null) {
 			// Get the current URL
 			$currentURL = self::curPageURL();
@@ -547,6 +555,7 @@ class common
 
 		return $returnto_id;
 	}
+	*/
 
 	public static function curPageURL(): string
 	{
