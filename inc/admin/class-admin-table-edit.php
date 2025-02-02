@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use CustomTables\common;
 use CustomTables\CT;
+use CustomTables\database;
 use CustomTables\ListOfTables;
 use Exception;
 use WP_Error;
@@ -62,6 +63,34 @@ class Admin_Table_Edit
 			ob_end_clean(); // Discard the output buffer
 			wp_redirect(admin_url($url));
 			exit;
+		}
+	}
+
+	public function getTableSchema(): string
+	{
+		$tableCreateQuery = database::showCreateTable($this->ct->Table->realtablename);
+
+		if (count($tableCreateQuery) == 0) {
+			return '<p>Table not found</p>';
+		} else {
+			$createTableSql = $tableCreateQuery[0];
+
+			// Remove redundant COLLATE specifications
+			$createStatement = $createTableSql['Create Table'];
+			$createStatement = preg_replace(
+				"/CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci|COLLATE utf8mb4_unicode_ci/",
+				"",
+				$createStatement
+			);
+
+			// Add IF NOT EXISTS
+			$createStatement = str_replace(
+				'CREATE TABLE',
+				'CREATE TABLE IF NOT EXISTS',
+				$createStatement
+			);
+
+			return '<pre>' . $createStatement . '</pre>';
 		}
 	}
 }
