@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 				data-tabs=".gtabs.layouteditorTabs" data-tab=".layoutjs-tab" class="nav-tab">JavaScript
 		</button>
 		<button type="button" data-toggle="tab"
-				data-tabs=".gtabs.layouteditorTabs" data-tab=".params-tab" class="nav-tab">Params
+				data-tabs=".gtabs.layouteditorTabs" data-tab=".params-tab" class="nav-tab">Parameters
 		</button>
 	<?php endif; ?>
 </h2>

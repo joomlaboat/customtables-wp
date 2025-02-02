@@ -170,23 +170,12 @@ class Admin_Layout_Edit
 	 * // Generate a status selector with 'Unpublished' selected
 	 * $html = $this->get_publish_status_selector('publish_status', 0);
 	 */
-	function get_publish_status_selector(string $elementId, ?int $status)
+	function get_publish_status_selector(string $elementId, int $status = 0)
 	{
-
-		$statuses = ['1' => 'Published', '0' => 'Unpublished'];
+		$statuses = [1 => 'Published', 0 => 'Unpublished'];
 
 		// Start building the select element
 		$output = '<select id="' . $elementId . '" name="' . $elementId . '">';
-
-		// Optional default option
-		$is_selected = ($status === null) ? ' selected' : '';
-
-		$output .= sprintf(
-			'<option value="%s"%s>%s</option>',
-			'',
-			$is_selected,
-			' - ' . esc_html__("Select", "customtables")
-		);
 
 		// Add each role as an option
 		foreach ($statuses as $status_id => $status_label) {
@@ -195,7 +184,7 @@ class Admin_Layout_Edit
 
 			// Add the option element
 			$output .= sprintf(
-				'<option value="%s" %s>%s</option>',
+				'<option value="%d" %s>%s</option>',
 				esc_attr($status_id),
 				$is_selected,
 				esc_html($status_label)

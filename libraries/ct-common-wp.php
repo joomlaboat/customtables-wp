@@ -459,6 +459,7 @@ class common
 		return wp_strip_all_tags($argument);
 	}
 
+	/*
 	public static function getReturnToURL(bool $decode = true): ?string
 	{
 		$returnto_id = self::inputGetCmd('returnto');
@@ -479,6 +480,28 @@ class common
 			return sanitize_text_field($_SESSION[$returnto_key] ?? '');
 		} else
 			return $returnto_id;
+	}*/
+
+	public static function getReturnToURL(bool $decode = true): ?string
+	{
+		$returnto = self::inputGetBase64('returnto');
+
+		if ($returnto === null)
+			return null;
+
+		if ($decode) {
+			return base64_decode($returnto);
+
+			/* TODO: future optional method
+			// Construct the session variable key from the received returnto ID
+			$returnto_key = 'returnto_' . $returnto_id;
+
+			// Retrieve the value associated with the returnto key from the session
+			$session = JFactory::getSession();
+			return $session->get($returnto_key, '');
+			*/
+		} else
+			return $returnto;
 	}
 
 	public static function inputGetInt(string $parameter, ?int $default = null): ?int

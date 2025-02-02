@@ -62,14 +62,10 @@ class Twig_HTML_Tags
 		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
 			return '';
 
-		$userGroups = $this->ct->Env->user->groups;
-
 		if ($Alias_or_ItemId !== '')
 			$this->ct->Params->loadParameterUsingMenuAlias($Alias_or_ItemId);
 
-		$add_userGroup = (int)$this->ct->Params->addUserGroups;
-
-		if (!$this->ct->Env->isUserAdministrator and !in_array($add_userGroup, $userGroups))
+		if (!$this->ct->CheckAuthorization(CUSTOMTABLES_ACTION_ADD))
 			return ''; //Not permitted
 
 		if (defined('_JEXEC')) {
@@ -138,8 +134,7 @@ class Twig_HTML_Tags
 		if ($this->ct->Env->isPlugin or !empty($this->ct->Params->ModuleId))
 			return '';
 
-		$usergroups = $this->ct->Env->user->groups;
-		if (!$this->ct->Env->isUserAdministrator and !in_array($this->ct->Params->addUserGroups, $usergroups))
+		if (!$this->ct->CheckAuthorization(CUSTOMTABLES_ACTION_ADD))
 			return ''; //Not permitted
 
 		$max_file_size = CTMiscHelper::file_upload_max_size();
@@ -150,7 +145,7 @@ class Twig_HTML_Tags
 
 		HTMLHelper::_('behavior.formvalidator');
 
-		$urlstr = Route::_('index.php?option=com_customtables&amp;view=fileuploader&amp;tmpl=component'
+		$url_string = Route::_('index.php?option=com_customtables&amp;view=fileuploader&amp;tmpl=component'
 			. '&amp;tableid=' . $this->ct->Table->tableid
 			. '&amp;task=importcsv'
 			. '&amp;' . $objectName . '_fileid=' . $fileid
@@ -164,7 +159,7 @@ class Twig_HTML_Tags
                     <form action="" name="ctUploadCSVForm" id="ctUploadCSVForm">
                 	<script>
                         //UploadFileCount=1;
-                    	ct_getUploader(' . $fieldid . ',"' . $urlstr . '",' . $max_file_size . ',"csv","ctUploadCSVForm",true,"ct_fileuploader_' . $objectName . '","ct_eventsmessage_' . $objectName . '","' . $fileid . '","'
+                    	ct_getUploader(' . $fieldid . ',"' . $url_string . '",' . $max_file_size . ',"csv","ctUploadCSVForm",true,"ct_fileuploader_' . $objectName . '","ct_eventsmessage_' . $objectName . '","' . $fileid . '","'
 			. $this->ct->Table->fieldInputPrefix . $objectName . '","ct_uploadedfile_box_' . $objectName . '")
                     </script>
                     <input type="hidden" name="' . $this->ct->Table->fieldInputPrefix . $objectName . '" id="' . $this->ct->Table->fieldInputPrefix . $objectName . '" value="" />
@@ -348,22 +343,24 @@ class Twig_HTML_Tags
 	protected function getAvailableModes(): array
 	{
 		$available_modes = array();
-		if ($this->ct->Env->user->id != 0) {
-			$publish_userGroup = (int)$this->ct->Params->publishUserGroups;
+		$publish_userGroups = $this->ct->Params->publishUserGroups;
 
-			if ($this->ct->Env->user->checkUserGroupAccess($publish_userGroup)) {
-				$available_modes[] = 'publish';
-				$available_modes[] = 'unpublish';
-			}
-
-			$edit_userGroup = (int)$this->ct->Params->editUserGroups;
-			if ($this->ct->Env->user->checkUserGroupAccess($edit_userGroup))
-				$available_modes[] = 'refresh';
-
-			$delete_userGroup = (int)$this->ct->Params->deleteUserGroups;
-			if ($this->ct->Env->user->checkUserGroupAccess($delete_userGroup))
-				$available_modes[] = 'delete';
+		if ($this->ct->Env->user->checkUserGroupAccess($publish_userGroups)) {
+			$available_modes[] = 'publish';
+			$available_modes[] = 'unpublish';
 		}
+
+		$edit_userGroups = $this->ct->Params->editUserGroups;
+
+		if ($this->ct->Env->user->checkUserGroupAccess($edit_userGroups)) {
+			$available_modes[] = 'edit';
+			$available_modes[] = 'refresh';
+		}
+
+		$delete_userGroups = $this->ct->Params->deleteUserGroups;
+		if ($this->ct->Env->user->checkUserGroupAccess($delete_userGroups))
+			$available_modes[] = 'delete';
+
 		return $available_modes;
 	}
 
@@ -1032,21 +1029,10 @@ class Twig_HTML_Tags
 
 		$modes = func_get_args();
 
-		$add_userGroup = (int)$this->ct->Params->addUserGroups;
-		$edit_userGroup = (int)$this->ct->Params->editUserGroups;
-		$publish_userGroup = (int)$this->ct->Params->publishUserGroups;
-
-		if ($publish_userGroup == 0)
-			$publish_userGroup = $edit_userGroup;
-
-		$delete_userGroup = (int)$this->ct->Params->deleteUserGroups;
-		if ($delete_userGroup == 0)
-			$delete_userGroup = $edit_userGroup;
-
-		$isAddable = CTUser::checkIfRecordBelongsToUser($this->ct, $add_userGroup);
-		$isEditable = CTUser::checkIfRecordBelongsToUser($this->ct, $edit_userGroup);
-		$isPublishable = CTUser::checkIfRecordBelongsToUser($this->ct, $publish_userGroup);
-		$isDeletable = CTUser::checkIfRecordBelongsToUser($this->ct, $delete_userGroup);
+		$isAddable = $this->ct->CheckAuthorization(CUSTOMTABLES_ACTION_ADD);
+		$isEditable = $this->ct->CheckAuthorization(CUSTOMTABLES_ACTION_EDIT);
+		$isPublishable = $this->ct->CheckAuthorization(CUSTOMTABLES_ACTION_PUBLISH);
+		$isDeletable = $this->ct->CheckAuthorization(CUSTOMTABLES_ACTION_DELETE);
 
 		$RecordToolbar = new RecordToolbar($this->ct, $isAddable, $isEditable, $isPublishable, $isDeletable);
 

@@ -569,7 +569,7 @@ class CT
 		}
 
 		//End of Apply default values
-		common::inputSet("listing_id", $listing_id);
+		//common::inputSet("listing_id", $listing_id);
 
 		if ($this->Env->advancedTagProcessor)
 			CustomPHP::doPHPonChange($this, $row);
@@ -645,67 +645,75 @@ class CT
 		{
 			$action = CUSTOMTABLES_ACTION_EDIT;
 		} else {
-			if ($action == CUSTOMTABLES_ACTION_EDIT and empty($this->Params->listing_id))
+			if ($action == CUSTOMTABLES_ACTION_EDIT and $this->Table->record === null)
 				$action = CUSTOMTABLES_ACTION_ADD; //add new
 		}
 
 		//check is authorized or not
 		if ($action == CUSTOMTABLES_ACTION_EDIT)
-			$userGroup = $this->Params->editUserGroups;
+			$userGroups = $this->Params->editUserGroups;
 		elseif ($action == CUSTOMTABLES_ACTION_PUBLISH)
-			$userGroup = $this->Params->publishUserGroups;
+			$userGroups = $this->Params->publishUserGroups;
 		elseif ($action == CUSTOMTABLES_ACTION_DELETE)
-			$userGroup = $this->Params->deleteUserGroups;
+			$userGroups = $this->Params->deleteUserGroups;
 		elseif ($action == CUSTOMTABLES_ACTION_ADD)
-			$userGroup = $this->Params->addUserGroups;
+			$userGroups = $this->Params->addUserGroups;
+		elseif ($action == CUSTOMTABLES_ACTION_COPY)
+			$userGroups = array_merge($this->Params->addUserGroups, $this->Params->editUserGroups);
 		else
-			$userGroup = null;
-
-		if ($this->Env->user->id === null)
-			return false;
+			$userGroups = [];
 
 		if ($this->Env->user->isUserAdministrator) {
 			//Super Users have access to everything
 			return true;
 		}
 
-		if (empty($this->Params->listing_id))
-			return $this->Env->user->checkUserGroupAccess($userGroup);
+		if ($this->Env->user->checkUserGroupAccess($userGroups)) {
 
-		$authorized = false;
+			$authorUserGroupName = (defined('_JEXEC') ? '3' : (defined('WPINC') ? 'author' : null));
 
-		if ($this->Params->userIdField !== null)
-			$authorized = $this->checkIfItemBelongsToUser($this->Params->listing_id, $this->Params->userIdField);
-
-		if ($authorized)
-			return true;
-
-		if ($action == CUSTOMTABLES_ACTION_COPY) {
-			//Copy action requires both access levels
-			if ($this->Env->user->checkUserGroupAccess($this->Params->editUserGroups))
-				return $this->Env->user->checkUserGroupAccess($this->Params->addUserGroups);
-
-			return false;
-		} else {
-			return $this->Env->user->checkUserGroupAccess($userGroup);
+			if (in_array($authorUserGroupName, $userGroups))//3 is Author in Joomla
+			{
+				if ($this->Table !== null and $this->Table->useridrealfieldname !== null and $this->Table->record !== null) {
+					if (in_array($authorUserGroupName, $userGroups))//3 is Author in Joomla
+					{
+						if ($this->checkIfItemBelongsToUser())
+							return true;
+					}
+				}
+			} else
+				return true;
 		}
+
+		return false;
 	}
 
 	/**
 	 * @throws Exception
 	 * @since 3.2.2
 	 */
-	public function checkIfItemBelongsToUser(string $listing_id, string $userIdField): bool
+	private function checkIfItemBelongsToUser(): bool
 	{
-		//TODO: The record is already loaded, just check if it belongs to a user
-		$whereClause = $this->UserIDField_BuildWheres($userIdField, $listing_id);
-		$rows = database::loadObjectList($this->Table->realtablename, ['COUNT_ROWS'], $whereClause, null, null, 1);
-
-		if (count($rows) !== 1)
+		if ($this->Table === null)
 			return false;
 
-		if ($rows->record_count == 1)
+		if ($this->Table->record === null)
+			return false;
+
+		$uid = $this->Table->record[$this->Table->useridrealfieldname];
+
+		if ($uid == $this->Env->user->id and $this->Env->user->id != 0)
 			return true;
+
+		//TODO: The record is already loaded, just check if it belongs to a user
+		//$whereClause = $this->UserIDField_BuildWheres($this->Table->useridrealfieldname, $this->Table->record[$this->Table->realidfieldname]);
+		//$rows = database::loadObjectList($this->Table->realtablename, ['COUNT_ROWS'], $whereClause, null, null, 1);
+
+//		if (count($rows) !== 1)
+//			return false;
+
+//		if ($rows->record_count == 1)
+//			return true;
 
 		return false;
 	}
@@ -807,6 +815,7 @@ class CT
 		return $whereClause;
 	}
 
+	/*
 	function CheckAuthorizationACL($access): bool
 	{
 		$this->isAuthorized = false;
@@ -833,4 +842,5 @@ class CT
 		}
 		return false;
 	}
+	*/
 }

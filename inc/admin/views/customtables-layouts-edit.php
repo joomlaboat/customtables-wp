@@ -97,16 +97,12 @@ foreach ($this->admin_layout_edit->allTables as $table) {
 
 			<?php
 			if (current_user_can('install_plugins')) {
-			?>
-            <!--<p><?php
 
 			if ($this->admin_layout_edit->layoutId === null)
 				esc_html_e('Create a new layout.');
 			else
 				esc_html_e('Edit layout.');
 			?>
-            </p>-->
-
 
 			<?php include('customtables-layouts-edit-details.php'); ?>
 
@@ -114,8 +110,7 @@ foreach ($this->admin_layout_edit->allTables as $table) {
 
             <!-- Submit Button -->
 			<?php
-			$buttonText = ($this->admin_layout_edit->layoutId == 0) ? esc_html__('Add New Layout', 'customtables') : esc_html__('Save Layout', 'customtables');
-			submit_button($buttonText, 'primary', 'ct-savelayout', true, array('id' => 'ct-savelayout'));
+			submit_button(esc_html__('Save Layout', 'customtables'), 'primary', 'ct-savelayout', true, array('id' => 'ct-savelayout'));
 			?>
 
             <div id="allLayoutRaw"

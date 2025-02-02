@@ -13,6 +13,7 @@ namespace CustomTables;
 // no direct access
 if (!defined('ABSPATH')) exit;
 
+use CustomTables\common;
 use Exception;
 use CustomTables\CustomPHP;
 use CustomTables\ctProHelpers;
@@ -60,6 +61,7 @@ class record
 			throw new Exception(common::translate('Records ID cannot be empty'));
 
 		$this->ct->Params->listing_id = $listing_id;
+		$this->ct->Params->showPublished = CUSTOMTABLES_SHOWPUBLISHED_ANY;
 		$this->ct->getRecord();
 
 		if ($this->ct->Table->record === null)
@@ -87,14 +89,23 @@ class record
 		if (empty($listing_id))
 			$listing_id = common::inputGetCmd('listing_id');
 
-		if (empty($listing_id))
-			throw new Exception(common::translate('Records ID cannot be empty'));
+		if (empty($listing_id)) {
+			if ($status == 1)
+				throw new Exception(esc_html__("Record cannot be published", "customtables"));
+			else
+				throw new Exception(esc_html__("Record cannot be unpublished", "customtables"));
+		}
 
 		$this->ct->Params->listing_id = $listing_id;
+		$this->ct->Params->showPublished = CUSTOMTABLES_SHOWPUBLISHED_ANY;
 		$this->ct->getRecord();
 
-		if ($this->ct->Table->record === null)
-			throw new Exception(common::translate('Records not found'));
+		if ($this->ct->Table->record === null) {
+			if ($status == 1)
+				throw new Exception(esc_html__("Record cannot be published", "customtables"));
+			else
+				throw new Exception(esc_html__("Record cannot be unpublished", "customtables"));
+		}
 
 		if (!$this->ct->CheckAuthorization(CUSTOMTABLES_ACTION_PUBLISH)) {
 			$this->unauthorized = true;
@@ -118,6 +129,7 @@ class record
 			throw new Exception(common::translate('Records ID cannot be empty'));
 
 		$this->ct->Params->listing_id = $listing_id;
+		$this->ct->Params->showPublished = CUSTOMTABLES_SHOWPUBLISHED_ANY;
 		$this->ct->getRecord();
 
 		if ($this->ct->Table->record === null)
@@ -177,6 +189,7 @@ class record
 			throw new Exception(common::translate('Records ID cannot be empty'));
 
 		$this->ct->Params->listing_id = $listing_id;
+		$this->ct->Params->showPublished = CUSTOMTABLES_SHOWPUBLISHED_ANY;
 		$this->ct->getRecord();
 
 		if ($this->ct->Table->record === null)
@@ -216,6 +229,7 @@ class record
 		if (!empty($listing_id)) {
 			$this->listing_id = $listing_id;
 			$this->ct->Params->listing_id = $listing_id;
+			$this->ct->Params->showPublished = CUSTOMTABLES_SHOWPUBLISHED_ANY;
 			$this->ct->getRecord();
 			$this->row_old = $this->ct->Table->record;
 		} else

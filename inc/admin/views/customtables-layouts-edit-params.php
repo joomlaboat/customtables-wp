@@ -11,10 +11,36 @@
 				   value="<?php echo esc_attr($this->admin_layout_edit->params['filter'] ?? ''); ?>"
 				   aria-required="false"
 				   autocapitalize="none" autocorrect="off" autocomplete="off" maxlength="1024"/>
-			<br/><span class="description">Field to search in = (or &#60; or &#60;= or &#62; or &#62;= or != and == 'exact match') value (or Twig tag as {{ user.id }} for example ) to have more then one condition use 'and', 'or' to get a value from the URL query parameter use {{ url.getint('param_name') }} tag or equivalent. Example 'color={{ url.getstring('string') }}' this will read value 'color' from the url query. To get the current date use {{ 'now'|date('m/d/Y') }} or {{ 'now'|date('Y') }} for the year or {{ 'now'|date('m') }} for the month. Also you can format the date using MySql date_format() format specifiers, example 1: {now:%m}. Example 2: 'birthdate:%m%d' to get the month and the day of the field value.</span>
+			<br/>
+
+			<span class="description">
+  <strong>Basic Format:</strong><br>
+  Field=value<br><br>
+
+  <strong>Comparison Operators:</strong><br>
+  =, &#60;, &#60;=, &#62;, &#62;=, !=, == (exact match)<br><br>
+
+  <strong>Dynamic Values:</strong><br>
+  • User data: {{ user.id }}<br>
+  • URL parameters: {{ url.getint('param_name') }}<br>
+  • Current date: {{ 'now'|date('m/d/Y') }}<br><br>
+
+  <strong>Multiple Conditions:</strong><br>
+  Combine with 'and' or 'or'<br><br>
+
+  <strong>Examples:</strong><br>
+  • URL parameter: color={{ url.getstring('string') }}<br>
+  • Date formats:<br>
+    - Full date: {{ 'now'|date('m/d/Y') }}<br>
+    - Year only: {{ 'now'|date('Y') }}<br>
+    - Month only: {{ 'now'|date('m') }}
+</span>
 		</td>
 	</tr>
 
+	<hr/>
+
+	<?php /*
 	<tr class="form-field form-required">
 		<th scope="row">
 			<label for="viewusergroups">
@@ -27,6 +53,7 @@
 			<span class="description">Select user groups that may view records. If none selected, inherits from parent layout or defaults to Administrator.</span>
 		</td>
 	</tr>
+	*/ ?>
 
 	<tr class="form-field form-required">
 		<th scope="row">
@@ -80,7 +107,6 @@
 		</td>
 	</tr>
 
-	<?php /*
 	<tr class="form-field form-required">
 		<th scope="row">
 			<label for="publishstatus">
@@ -91,10 +117,10 @@
 			<?php echo $this->admin_layout_edit->get_publish_status_selector('publishstatus',
 				isset($this->admin_layout_edit->params['publishstatus']) ?
 					(int)$this->admin_layout_edit->params['publishstatus'] :
-					null
+					0
 			); ?>
 			<br/>
-			<span class="description">Sets the default publish status for newly created records. If none selected, inherits from parent layout or defaults to Published.</span>
+			<span class="description">Sets the default publish status for newly created records. If none selected, inherits from parent layout or defaults to Unpublished.</span>
 		</td>
-	</tr> */ ?>
+	</tr>
 </table>

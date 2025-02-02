@@ -13,6 +13,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use CustomTables\common;
 use CustomTables\CT;
+use CustomTables\CTMiscHelper;
 use CustomTables\Layouts;
 use Exception;
 
@@ -107,9 +108,9 @@ class template
 		//$ct->Params->filter = $attributes['filter'] ?? null;
 
 		$menu_params = [];
-		$menu_params['listingid'] = $attributes['listingid'];
-		$menu_params['filter'] = $attributes['filter'];
-		$menu_params['sortby'] = $attributes['orderby'];
+		$menu_params['listingid'] = $attributes['listingid'] ?? null;
+		$menu_params['filter'] = $attributes['filter'] ?? null;
+		$menu_params['sortby'] = $attributes['orderby'] ?? null;
 		$menu_params['limit'] = $attributes['limit'];
 
 		$ct->Params->setParams($menu_params);
@@ -163,16 +164,19 @@ class template
 				else
 					die($mixedLayout_array ['short'] ?? 'done');
 			}
-		}else{
+		} else {
 			if ($ct->Env->clean) {
 				if ($ct->Env->frmt == 'json')
 					CTMiscHelper::fireError(500, $mixedLayout_array['message'] ?? 'Error');
-				else
+				else {
+					echo 'message: ' . $mixedLayout_array['message'] . '<br/>';
 					die($mixedLayout_array['short'] ?? 'error');
+				}
+
 			}
 		}
 
-		$mixedLayout_safe = $mixedLayout_array['html'];
+		$mixedLayout_safe = $mixedLayout_array['html'] ?? null;
 		$this->enqueueList['FieldInputPrefix'] = $ct->Table->fieldInputPrefix;
 
 		$message = get_transient('customtables_error_message');
