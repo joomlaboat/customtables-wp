@@ -17,7 +17,6 @@ if (!defined('ABSPATH')) exit;
 
 use Exception;
 
-//use LayoutProcessor;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -236,6 +235,9 @@ class Layouts
 	 */
 	function renderMixedLayout($layoutId, ?int $layoutType = null, ?string $task = null): array
 	{
+		if ($layoutType === null and ($task == 'saveandcontinue' or $task == 'save' or $task == 'saveascopy'))
+			$layoutType = CUSTOMTABLES_ACTION_EDIT;
+
 		if (!empty($layoutId)) {
 			$this->getLayout($layoutId);
 			if ($this->layoutType === null)
@@ -289,8 +291,6 @@ class Layouts
 			}
 		}
 
-		//	echo '$task=' . $task . '<br/>';
-		//	die;
 		if (in_array($this->layoutType, [
 			CUSTOMTABLES_LAYOUT_TYPE_SIMPLE_CATALOG,
 			CUSTOMTABLES_LAYOUT_TYPE_CATALOG_PAGE,
@@ -302,7 +302,7 @@ class Layouts
 		} elseif ($this->layoutType == CUSTOMTABLES_LAYOUT_TYPE_EDIT_FORM) {
 
 			if ($task == 'new') {
-				$task = null;
+
 				$this->ct->Table->record = null;
 			} else {
 				if ($this->ct->Table->record === null) {
@@ -310,7 +310,7 @@ class Layouts
 					if (empty($this->ct->Params->listing_id))
 						$this->ct->Params->listing_id = common::inputGetCmd('listing_id');
 
-					if (!empty($listing_id) or !empty($this->ct->Params->filter))
+					if (!empty($this->ct->Params->listing_id) or !empty($this->ct->Params->filter))
 						$this->ct->getRecord();
 				}
 			}
@@ -1254,16 +1254,6 @@ class Layouts
 		}
 
 		// -------------------- Parse Layouts
-		if ($this->ct->Env->frmt == 'json') {
-
-			$pathViews = CUSTOMTABLES_LIBRARIES_PATH
-				. DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR;
-
-			require_once($pathViews . 'json.php');
-			$jsonOutput = new ViewJSON($this->ct);
-			die($jsonOutput->render($this->layoutCode));
-		}
-
 		$twig = new TwigProcessor($this->ct, $this->layoutCode, false, false, true, $this->pageLayoutNameString, $this->pageLayoutLink);
 		$pageLayout = $twig->process();
 

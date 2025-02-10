@@ -12,7 +12,7 @@ namespace CustomTables;
 
 // no direct access
 if (!defined('ABSPATH')) exit;
-
+/*
 class CatalogExportCSV
 {
 	var CT $ct;
@@ -51,3 +51,4 @@ class CatalogExportCSV
 		return $pageLayoutContent;
 	}
 }
+*/

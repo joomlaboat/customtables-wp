@@ -22,7 +22,8 @@ class ImportTables
 	 * @throws Exception
 	 * @since 3.2.2
 	 */
-	public static function processFile($filename, $menuType, &$msg, $category = '', $importFields = true, $importLayouts = true, $importMenu = true): bool
+	public static function processFile($filename, $menuType, &$msg, $category = '',
+									   $importFields = true, $importLayouts = true, $importMenu = true, string $fieldPrefix = null): bool
 	{
 		$ct = new CT([], true);
 
@@ -34,7 +35,10 @@ class ImportTables
 			}
 			$ct->Env->folderToSaveLayouts = null;
 
-			return ImportTables::processContent($ct, $data, $menuType, $msg, $category, $importFields, $importLayouts, $importMenu);
+			if ($fieldPrefix === null)
+				$fieldPrefix = $ct->Env->field_prefix;
+
+			return ImportTables::processContent($ct, $data, $menuType, $msg, $category, $importFields, $importLayouts, $importMenu, $fieldPrefix);
 		} else {
 			$msg = 'Uploaded file "' . $filename . '" not found.';
 			return false;
@@ -45,7 +49,8 @@ class ImportTables
 	 * @throws Exception
 	 * @since 3.2.2
 	 */
-	public static function processContent(CT &$ct, string $data, string $menuType, string &$msg, string $category = '', bool $importFields = true, bool $importLayouts = true, bool $importMenu = true): bool
+	public static function processContent(CT   &$ct, string $data, string $menuType, string &$msg, string $category = '',
+										  bool $importFields = true, bool $importLayouts = true, bool $importMenu = true, string $fieldPrefix = 'ct_'): bool
 	{
 		$keyword = '<customtablestableexport>';
 		if (!str_contains($data, $keyword)) {
@@ -57,16 +62,19 @@ class ImportTables
 		}
 
 		$JSON_data = json_decode(str_replace($keyword, '', $data), true);
-		return ImportTables::processData($ct, $JSON_data, $menuType, $msg, $category, $importFields, $importLayouts, $importMenu);
+		return ImportTables::processData($ct, $JSON_data, $menuType, $msg, $category, $importFields, $importLayouts, $importMenu, $fieldPrefix);
 	}
 
 	/**
 	 * @throws Exception
 	 * @since 3.2.2
 	 */
-	protected static function processData(CT &$ct, array $JSON_data, string $menuType, string &$msg, string $category = '', bool $importfields = true, bool $importlayouts = true, bool $importmenu = true): bool
+	protected static function processData(CT   &$ct, array $JSON_data, string $menuType, string &$msg, string $category = '',
+										  bool $importfields = true, bool $importlayouts = true, bool $importmenu = true, string $fieldPrefix = 'ct_'): bool
 	{
 		foreach ($JSON_data as $table) {
+
+			$table['table']['customfieldprefix'] = $fieldPrefix;
 			$tableid = ImportTables::processTable($table['table'], $category);
 
 			if ($tableid != 0) {
@@ -74,7 +82,7 @@ class ImportTables
 				//Next: Add/Update Fields
 
 				if ($importfields)
-					ImportTables::processFields($table['table']['tablename'], $table['fields'], $msg);
+					ImportTables::processFields($table['table']['tablename'], $table['fields'], $msg, $fieldPrefix);
 
 				if ($importlayouts)
 					ImportTables::processLayouts($ct, $tableid, $table['layouts'], $msg);
@@ -385,13 +393,13 @@ class ImportTables
 	 * @throws Exception
 	 * @since 3.2.2
 	 */
-	protected static function processFields(string $tableName, array $fields, &$msg): bool
+	protected static function processFields(string $tableName, array $fields, &$msg, string $fieldPrefix = 'ct_'): bool
 	{
 		$ct = new CT([], true);
 		$ct->getTable($tableName);
 
 		foreach ($fields as $field) {
-			$fieldid = ImportTables::processField($ct, $field);
+			$fieldid = ImportTables::processField($ct, $field, $fieldPrefix);
 			if ($fieldid == 0) {
 				$msg = 'Could not Add or Update field "' . $field['fieldname'] . '"';
 				return false;
@@ -404,7 +412,7 @@ class ImportTables
 	 * @throws Exception
 	 * @since 3.2.2
 	 */
-	protected static function processField(CT $ct, array &$field_new)
+	protected static function processField(CT $ct, array &$field_new, string $fieldPrefix = 'ct_')
 	{
 		//This function creates the table field and returns field's id.
 		//If field with same name already exists then existing field will be updated, and it's ID will be returned.
@@ -424,7 +432,7 @@ class ImportTables
 				//Lets create mysql field
 				$PureFieldType = Fields::getPureFieldType($field_new['type'], $field_new['typeparams']);
 
-				Fields::addField($ct, $ct->Table->realtablename, $ct->Table->fieldPrefix . $fieldName,
+				Fields::addField($ct, $ct->Table->realtablename, $fieldPrefix . $fieldName,
 					$PureFieldType, $field_new['fieldtitle'], $field_new);
 			}
 		}

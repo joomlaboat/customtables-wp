@@ -11,7 +11,7 @@
 namespace CustomTables;
 
 if (!defined('ABSPATH')) exit;
-
+/*
 class ViewJSON
 {
 	var CT $ct;
@@ -52,3 +52,4 @@ class ViewJSON
 		return $pageLayoutContent;
 	}
 }
+*/
