@@ -12,23 +12,41 @@ namespace CustomTables;
 
 class OrderingHTML
 {
-	public static function getOrderBox(Ordering &$ordering): string
+	public static function getOrderBox(Ordering $ordering, string $listOfFields = null): string
 	{
+		$listOfFields_Array = !empty($listOfFields) ? explode(",", $listOfFields) : [];
 		$lists = $ordering->getSortByFields();
-		$order_values = $lists->values;
-		$order_list = $lists->titles;
 
-		$moduleIDString = $ordering->Params->ModuleId === null ? 'null' : $ordering->Params->ModuleId;
+		// Initialize the sorting options with a default "Order By" placeholder
+		$fieldsToSort = [
+			['value' => '', 'label' => ' - ' . esc_html__("Order by", "customtables")]
+		];
 
-		$result = '<select name="esordering" id="esordering" onChange="ctOrderChanged(this.value, ' . $moduleIDString . ');" class="inputbox">' . PHP_EOL;
+		// Filter sorting fields if a list is provided
+		if (!empty($listOfFields_Array)) {
+			foreach ($lists as $list) {
 
-		for ($i = 0; $i < count($order_values); $i++) {
-			$result .= '<option value="' . $order_values[$i] . '" ' . ($ordering->ordering_processed_string == $order_values[$i] ? ' selected ' : '') . '>'
-				. htmlspecialchars($order_list[$i] ?? '')
-				. '</option>' . PHP_EOL;
+				$fieldName = trim(strtok($list['value'], " ")); // Extract first part before space
+
+				if (in_array($fieldName, $listOfFields_Array, true))
+					$fieldsToSort[] = ['value' => $list['value'], 'label' => $list['label']];
+			}
+		} else {
+			$fieldsToSort = array_merge($fieldsToSort, $lists);
 		}
 
-		$result .= '</select>' . PHP_EOL;
-		return $result;
+		$moduleIDString = $ordering->Params->ModuleId ?? 'null';
+		$defaultClass = CUSTOMTABLES_JOOMLA_MIN_4 ? 'form-control' : 'inputbox';
+
+		$options = [];
+
+		foreach ($fieldsToSort as $sortField) {
+			$isSelected = ($ordering->ordering_processed_string === $sortField['value']) ? ' selected' : '';
+			$options[] = '<option value="' . htmlspecialchars($sortField['value'], ENT_QUOTES) . '"' . $isSelected . '>'
+				. htmlspecialchars($sortField['label'] ?? '', ENT_QUOTES) . '</option>';
+		}
+
+		return '<select name="esordering" id="esordering" onChange="ctOrderChanged(this.value, ' . $moduleIDString . ');" class="' . $defaultClass . '">'
+			. PHP_EOL . implode(PHP_EOL, $options) . PHP_EOL . '</select>';
 	}
 }

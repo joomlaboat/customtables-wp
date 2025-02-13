@@ -220,10 +220,14 @@ class Twig_HTML_Tags
 			return '';
 
 		$pagination = new JESPagination($this->ct->Table->recordcount, $this->ct->LimitStart, $this->ct->Limit, '');
-		return esc_html__("Show", "customtables") . ': ' . $pagination->getLimitBox($the_step);
+		return $pagination->getLimitBox($the_step);
 	}
 
-	function orderby(): string
+	/**
+	 * @throws Exception
+	 * @since 3.0.0
+	 */
+	function orderby($listOfFields = null): string
 	{
 		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
 			return '';
@@ -232,9 +236,9 @@ class Twig_HTML_Tags
 			return '';
 
 		if ($this->ct->Params->forceSortBy !== null and $this->ct->Params->forceSortBy != '')
-			$this->ct->errors[] = esc_html__("Order by field is locked because 'Forced sort by field' parameter is set. Administrator - Check menu item settings.", "customtables");
+			throw new Exception(esc_html__("Order by field is locked because 'Forced sort by field' parameter is set. Administrator - Check menu item settings.", "customtables"));
 
-		return esc_html__("Order by", "customtables") . ': ' . OrderingHTML::getOrderBox($this->ct->Ordering);
+		return OrderingHTML::getOrderBox($this->ct->Ordering, $listOfFields);
 	}
 
 	/**

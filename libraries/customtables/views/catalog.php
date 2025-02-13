@@ -106,7 +106,7 @@ class Catalog
 			$this->ct->applyLimits($limit);
 
 		// --------------------- Layouts
-		
+
 		if ($layoutName === null) {
 			if ($this->ct->Env->frmt == 'csv') {
 				$pageLayout = $Layouts->createDefaultLayout_CSV($this->ct->Table->fields);
@@ -116,10 +116,8 @@ class Catalog
 
 				if (!is_null($this->ct->Params->pageLayout) and $this->ct->Params->pageLayout != '') {
 
-					if (empty($this->ct->Params->pageLayout)) {
-						$this->ct->errors[] = 'Catalog Layout not selected.';
-						return '';
-					}
+					if (empty($this->ct->Params->pageLayout))
+						throw new Exception('Catalog Layout not selected.');
 
 					$pageLayout = $Layouts->getLayout($this->ct->Params->pageLayout);//Get Layout by name
 					if (isset($Layouts->layoutId)) {
@@ -134,8 +132,7 @@ class Catalog
 						$pageLayoutNameString = $this->ct->Params->pageLayout;
 						$pageLayoutLink = common::UriRoot(true, true) . 'administrator/index.php?option=com_customtables&view=listoflayouts&task=layouts.edit&id=' . $Layouts->layoutId;
 					} else {
-						$this->ct->errors[] = 'Layout "' . $this->ct->Params->pageLayout . '" not found.';
-						return '';
+						throw new Exception('Layout "' . $this->ct->Params->pageLayout . '" not found.');
 					}
 
 				} elseif (!is_null($this->ct->Params->itemLayout) and $this->ct->Params->itemLayout != '') {
@@ -172,29 +169,21 @@ class Catalog
 			return $e->getMessage();
 		}
 
-		if (!$recordsLoaded) {
-			if (defined('_JEXEC'))
-				$this->ct->errors[] = esc_html__("Table not found.", "customtables");
-
-			return 'CustomTables: Records not loaded.';
-		}
-
-		$twig = null;
+		if (!$recordsLoaded)
+			throw new Exception(esc_html__("Table not found.", "customtables"));
 
 		try {
 			$twig = new TwigProcessor($this->ct, $pageLayout, false, false, true, $pageLayoutNameString, $pageLayoutLink);
 			if (count($this->ct->errors) > 0)
-				return 'There is an error in rendering the catalog page:' . implode(', ', $this->ct->errors);
+				throw new Exception('TwigProcessor: ' . implode(', ', $this->ct->errors));
 
 			$pageLayout = $twig->process();
 		} catch (Exception $e) {
-			$this->ct->errors[] = $e->getMessage();
+			throw new Exception($e->getMessage());
 		}
 
-		if ($twig->errorMessage !== null) {
-			$this->ct->errors[] = $twig->errorMessage;
-			return 'There is an error in rendering the catalog page :' . implode(', ', $this->ct->errors);
-		}
+		if ($twig->errorMessage !== null)
+			throw new Exception('errorMessage: ' . implode(', ', $this->ct->errors));
 
 		if ($this->ct->Env->clean == 0) {
 

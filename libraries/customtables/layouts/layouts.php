@@ -217,10 +217,12 @@ class Layouts
 		*/
 
 		$twig = new TwigProcessor($this->ct, $content);
-		$content = $twig->process($this->ct->Table->record);
 
-		if ($twig->errorMessage !== null)
-			$this->ct->errors[] = $twig->errorMessage;
+		try {
+			$content = $twig->process($this->ct->Table->record);
+		} catch (Exception $e) {
+			throw new Exception($e->getMessage());
+		}
 
 		if ($applyContentPlugins and $this->ct->Params->allowContentPlugins)
 			$content = CTMiscHelper::applyContentPlugins($content);
@@ -683,14 +685,12 @@ class Layouts
 
 			$result .= '<th>';
 
-			if ($field['allowordering'] && in_array($field['type'], $fieldtypes_allowed_to_orderby))
-
+			if (in_array($field['type'], $fieldtypes_allowed_to_orderby)) {
 				if (Fields::isVirtualField($field))
 					$result .= '{{ ' . $field['fieldname'] . '.title }}';
 				else
 					$result .= '{{ ' . $field['fieldname'] . '.label(true) }}';
-
-			else
+			} else
 				$result .= '{{ ' . $field['fieldname'] . '.title }}';
 
 			if ($addToolbar and in_array($field['type'], $fieldtypesWithSearch)) {
@@ -953,6 +953,16 @@ class Layouts
 						$listing_ids = [$listing_id];
 				}
 			}
+
+			if (count($listing_ids) == 0) {
+				if (common::inputGetCmd('listing_id', null) !== null) {
+					$listing_id_ = common::inputGetCmd('listing_id', null);
+					$listing_id = trim(preg_replace("/[^a-zA-Z_\d-]/", "", $listing_id_));
+
+					if ($listing_id !== '')
+						$listing_ids = [$listing_id];
+				}
+			}
 		}
 		return $listing_ids;
 	}
@@ -1152,6 +1162,7 @@ class Layouts
 		if (count($listing_ids) > 0) {
 
 			$count = 0;
+			$record = new record($this->ct);
 
 			foreach ($listing_ids as $listing_id) {
 				try {
@@ -1166,8 +1177,14 @@ class Layouts
 					$saveField = new SaveFieldQuerySet($this->ct, $this->ct->Table->record, false);
 					$field = new Field($this->ct, $fieldRow);
 
-					if (!$saveField->Try2CreateUserAccount($field))
-						return ['success' => false, 'message' => esc_html__("This User cannot be created:", "customtables"), 'short' => 'error'];
+					try {
+						$saveField->Try2CreateUserAccount($field);
+					} catch (Exception $e) {
+						return ['success' => false, 'message' => esc_html__("This User cannot be created:", "customtables")
+							. ' ' . $e->getMessage(), 'short' => 'error'];
+					}
+
+					$record->refresh($this->ct->Params->listing_id);
 
 					$count += 1;
 				} catch (Exception $e) {
@@ -1193,10 +1210,8 @@ class Layouts
 		if ($this->ct->Table === null) {
 			$this->ct->getTable($this->ct->Params->tableName);
 
-			if ($this->ct->Table === null) {
-				$this->ct->errors[] = 'Catalog View: Table not selected.';
-				return 'Catalog View: Table not selected.';
-			}
+			if ($this->ct->Table === null)
+				throw new Exception('Catalog View: Table not selected.');
 		}
 
 		//if ($this->ct->Env->frmt == 'html' and !$this->ct->Env->clean)
@@ -1245,22 +1260,19 @@ class Layouts
 		$this->ct->LayoutVariables['layout_type'] = $this->layoutType;
 
 		// -------------------- Load Records
-		if (!$this->ct->getRecords()) {
-
-			if (defined('_JEXEC'))
-				$this->ct->errors[] = esc_html__("Table not found.", "customtables");
-
-			return 'CustomTables: Records not loaded.';
-		}
+		if (!$this->ct->getRecords())
+			throw new Exception(esc_html__("Table not found.", "customtables"));
 
 		// -------------------- Parse Layouts
 		$twig = new TwigProcessor($this->ct, $this->layoutCode, false, false, true, $this->pageLayoutNameString, $this->pageLayoutLink);
-		$pageLayout = $twig->process();
+
+		try {
+			$pageLayout = $twig->process();
+		} catch (Exception $e) {
+			throw new Exception($e->getMessage());
+		}
 
 		if (defined('_JEXEC')) {
-			if ($twig->errorMessage !== null)
-				$this->ct->errors[] = $twig->errorMessage;
-
 			if ($this->ct->Params->allowContentPlugins)
 				$pageLayout = CTMiscHelper::applyContentPlugins($pageLayout);
 		}

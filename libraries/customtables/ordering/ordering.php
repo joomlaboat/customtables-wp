@@ -218,77 +218,53 @@ class Ordering
 		}
 	}
 
-	function getSortByFields(): ?object
+	function getSortByFields(): array
 	{
 		//default sort by fields
-		$order_list = [];
-		$order_values = [];
+		$fieldsToSort = [];
 
-		$order_list[] = 'ID ' . esc_html__("A-Z", "customtables");
-		$order_list[] = 'ID ' . esc_html__("Z-A", "customtables");
-
-		$order_values[] = '_id';
-		$order_values[] = '_id desc';
+		$fieldsToSort[] = ['value' => '_id', 'label' => 'ID ' . esc_html__("A-Z", "customtables")];
+		$fieldsToSort[] = ['value' => '_id desc', 'label' => 'ID ' . esc_html__("Z-A", "customtables")];
 
 		$label = esc_html__("Published", "customtables") . ' ';
-		$order_list[] = $label . esc_html__("A-Z", "customtables");
-		$order_list[] = $label . esc_html__("Z-A", "customtables");
-
-		$order_values[] = '_published';
-		$order_values[] = '_published desc';
+		$fieldsToSort[] = ['value' => '_published', 'label' => $label . esc_html__("A-Z", "customtables")];
+		$fieldsToSort[] = ['value' => '_published desc', 'label' => $label . esc_html__("Z-A", "customtables")];
 
 		foreach ($this->Table->fields as $row) {
-			if ($row['allowordering'] == 1) {
+			$fieldType = $row['type'];
+			$fieldname = $row['fieldname'];
 
-				$fieldType = $row['type'];
-				$fieldname = $row['fieldname'];
+			if ($row['fieldtitle' . $this->Table->Languages->Postfix] != '')
+				$fieldtitle = $row['fieldtitle' . $this->Table->Languages->Postfix];
+			else
+				$fieldtitle = $row['fieldtitle'];
 
-				if ($row['fieldtitle' . $this->Table->Languages->Postfix] != '')
-					$fieldtitle = $row['fieldtitle' . $this->Table->Languages->Postfix];
-				else
-					$fieldtitle = $row['fieldtitle'];
+			$typeParams = $row['typeparams'];
 
-				$typeParams = $row['typeparams'];
-
-				if ($fieldType == 'string' or $fieldType == 'email' or $fieldType == 'url') {
-					$order_list[] = $fieldtitle . ' ' . esc_html__("A-Z", "customtables");
-					$order_values[] = $fieldname;
-					$order_list[] = $fieldtitle . ' ' . esc_html__("Z-A", "customtables");
-					$order_values[] = $fieldname . ' desc';
-				} elseif ($fieldType == 'sqljoin') {
-					$order_list[] = $fieldtitle . ' ' . esc_html__("A-Z", "customtables");
-					$order_values[] = $fieldname . '.sqljoin.' . $typeParams;
-					$order_list[] = $fieldtitle . ' ' . esc_html__("Z-A", "customtables");
-					$order_values[] = $fieldname . '.sqljoin.' . $typeParams . ' desc';
-				} elseif ($fieldType == 'phponadd' or $fieldType == 'phponchange') {
-					$order_list[] = $fieldtitle . ' ' . esc_html__("A-Z", "customtables");
-					$order_values[] = $fieldname;
-					$order_list[] = $fieldtitle . ' ' . esc_html__("Z-A", "customtables");
-					$order_values[] = $fieldname . ' desc';
-				} elseif ($fieldType == 'int' or $fieldType == 'float' or $fieldType == 'ordering') {
-					$order_list[] = $fieldtitle . ' ' . esc_html__("Min-Max", "customtables");
-					$order_values[] = $fieldname;
-					$order_list[] = $fieldtitle . ' ' . esc_html__("Max-Min", "customtables");
-					$order_values[] = $fieldname . " desc";
-				} elseif ($fieldType == 'changetime' or $fieldType == 'creationtime' or $fieldType == 'date') {
-					$order_list[] = $fieldtitle . ' ' . esc_html__("New - Old", "customtables");
-					$order_values[] = $fieldname . " desc";
-					$order_list[] = $fieldtitle . ' ' . esc_html__("Old - New", "customtables");
-					$order_values[] = $fieldname;
-				} elseif ($fieldType == 'multilangstring') {
-					$order_list[] = $fieldtitle . ' ' . esc_html__("A-Z", "customtables");
-					$order_values[] = $fieldname . $this->Table->Languages->Postfix;
-					$order_list[] = $fieldtitle . ' ' . esc_html__("Z-A", "customtables");
-					$order_values[] = $fieldname . $this->Table->Languages->Postfix . " desc";
-				} elseif ($fieldType == 'userid' or $fieldType == 'user') {
-					$order_list[] = $fieldtitle . ' ' . esc_html__("A-Z", "customtables");
-					$order_values[] = $fieldname . '.user';
-					$order_list[] = $fieldtitle . ' ' . esc_html__("Z-A", "customtables");
-					$order_values[] = $fieldname . '.user desc';
-				}
+			if ($fieldType == 'string' or $fieldType == 'email' or $fieldType == 'url') {
+				$fieldsToSort[] = ['value' => $fieldname, 'label' => $fieldtitle . ' ' . esc_html__("A-Z", "customtables")];
+				$fieldsToSort[] = ['value' => $fieldname . ' desc', 'label' => $fieldtitle . ' ' . esc_html__("Z-A", "customtables")];
+			} elseif ($fieldType == 'sqljoin') {
+				$fieldsToSort[] = ['value' => $fieldname . '.sqljoin.' . $typeParams, 'label' => $fieldtitle . ' ' . esc_html__("A-Z", "customtables")];
+				$fieldsToSort[] = ['value' => $fieldname . '.sqljoin.' . $typeParams . ' desc', 'label' => $fieldtitle . ' ' . esc_html__("Z-A", "customtables")];
+			} elseif ($fieldType == 'phponadd' or $fieldType == 'phponchange') {
+				$fieldsToSort[] = ['value' => $fieldname, 'label' => $fieldtitle . ' ' . esc_html__("A-Z", "customtables")];
+				$fieldsToSort[] = ['value' => $fieldname . ' desc', 'label' => $fieldtitle . ' ' . esc_html__("Z-A", "customtables")];
+			} elseif ($fieldType == 'int' or $fieldType == 'float' or $fieldType == 'ordering') {
+				$fieldsToSort[] = ['value' => $fieldname, 'label' => $fieldtitle . ' ' . esc_html__("Min-Max", "customtables")];
+				$fieldsToSort[] = ['value' => $fieldname . " desc", 'label' => $fieldtitle . ' ' . esc_html__("Max-Min", "customtables")];
+			} elseif ($fieldType == 'changetime' or $fieldType == 'creationtime' or $fieldType == 'date') {
+				$fieldsToSort[] = ['value' => $fieldname . " desc", 'label' => $fieldtitle . ' ' . esc_html__("New - Old", "customtables")];
+				$fieldsToSort[] = ['value' => $fieldname, 'label' => $fieldtitle . ' ' . esc_html__("Old - New", "customtables")];
+			} elseif ($fieldType == 'multilangstring') {
+				$fieldsToSort[] = ['value' => $fieldname . $this->Table->Languages->Postfix, 'label' => $fieldtitle . ' ' . esc_html__("A-Z", "customtables")];
+				$fieldsToSort[] = ['value' => $fieldname . $this->Table->Languages->Postfix . " desc", 'label' => $fieldtitle . ' ' . esc_html__("Z-A", "customtables")];
+			} elseif ($fieldType == 'userid' or $fieldType == 'user') {
+				$fieldsToSort[] = ['value' => $fieldname . '.user', 'label' => $fieldtitle . ' ' . esc_html__("A-Z", "customtables")];
+				$fieldsToSort[] = ['value' => $fieldname . '.user desc', 'label' => $fieldtitle . ' ' . esc_html__("Z-A", "customtables")];
 			}
 		}
-		return (object)['titles' => $order_list, 'values' => $order_values];
+		return $fieldsToSort;
 	}
 
 	/**

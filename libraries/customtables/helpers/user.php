@@ -261,25 +261,19 @@ class CTUser
 	 */
 	public static function CreateUser(string $realtablename, string $realidfieldname, string $email, string $name, string $usergroups, string $listing_id, string $useridfieldname): bool
 	{
-		if ($name == '') {
-			common::enqueueMessage(esc_html__("User name field not set.", "customtables"));
-			return false;
-		}
+		if ($name == '')
+			throw new Exception(esc_html__("User name field not set.", "customtables"));
 
 		$msg = '';
 		$password = strtolower(JUserHelper::genRandomPassword());
 
-		if (!@CTMiscHelper::checkEmail($email)) {
-			common::enqueueMessage(esc_html__("Incorrect Email", "customtables") . ' "' . $email . '"');
-			return false;
-		}
+		if (!@CTMiscHelper::checkEmail($email))
+			throw new Exception(esc_html__("Incorrect Email", "customtables") . ' "' . $email . '"');
 
 		$realUserId = CTUser::CreateUserAccount($name, $email, $password, $email, $usergroups, $msg);
 
-		if ($msg != '') {
-			common::enqueueMessage($msg);
-			return false;
-		}
+		if ($msg != '')
+			throw new Exception($msg);
 
 		if ($realUserId !== null) {
 			CTUser::UpdateUserField($realtablename, $realidfieldname, $useridfieldname, $realUserId, $listing_id);
@@ -349,11 +343,10 @@ class CTUser
 
 		// Store the data.
 		if (!$user->save()) {
-
 			if (!CUSTOMTABLES_JOOMLA_MIN_4)
-				$msg = esc_html__("User registration not saved.", "customtables") . ': ' . $user->getError() ?? '';
+				$msg = $user->getError() ?? '';
 			else
-				$msg = esc_html__("User registration not saved.", "customtables") . ': ' . implode(',', $user->getErrors());
+				$msg = implode(',', $user->getErrors());
 
 			return null;
 		}

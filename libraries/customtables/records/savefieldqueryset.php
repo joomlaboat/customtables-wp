@@ -720,16 +720,12 @@ class SaveFieldQuerySet
 		if ($uid != 0) {
 
 			$email = $this->ct->Env->user->email . '';
-			if ($email != '') {
-				$this->ct->messages[] = esc_html__("already exists.", "customtables");
-				return false; //all good, user already assigned.
-			}
+			if ($email != '')
+				throw new Exception(esc_html__("already exists.", "customtables"));
 		}
 
-		if (count($field->params) < 3) {
-			$this->ct->errors[] = esc_html__("User field name parameters count is less than 3.", "customtables");
-			return false;
-		}
+		if (count($field->params) < 3)
+			throw new Exception(esc_html__("User field name parameters count is less than 3.", "customtables"));
 
 		//Try to create user
 		$new_parts = array();
@@ -760,16 +756,12 @@ class SaveFieldQuerySet
 		$user_name = $new_parts[1];
 		$user_email = $new_parts[2];
 
-		if ($user_groups == '') {
-			$this->ct->errors[] = esc_html__("User group field not set.", "customtables");
-			return false;
-		} elseif ($user_name == '') {
-			$this->ct->errors[] = esc_html__("User name field not set.", "customtables");
-			return false;
-		} elseif ($user_email == '') {
-			$this->ct->errors[] = esc_html__("User email field not set.", "customtables");
-			return false;
-		}
+		if ($user_groups == '')
+			throw new Exception(esc_html__("User group field not set.", "customtables"));
+		elseif ($user_name == '')
+			throw new Exception(esc_html__("User name field not set.", "customtables"));
+		elseif ($user_email == '')
+			throw new Exception(esc_html__("User email field not set.", "customtables"));
 
 		$unique_users = false;
 		if (isset($new_parts[4]) and $new_parts[4] == 'unique')
@@ -785,14 +777,20 @@ class SaveFieldQuerySet
 
 				$this->ct->messages[] = esc_html__("Record user updated.", "customtables");
 			} else {
-				$this->ct->errors[] =
+				$msg =
 					esc_html__("User with email", "customtables")
 					. ' "' . $user_email . '" '
 					. esc_html__("already exists.", "customtables");
+
+				throw new Exception($msg);
 			}
 		} else {
-			CTUser::CreateUser($this->ct->Table->realtablename, $this->ct->Table->realidfieldname, $user_email, $user_name,
-				$user_groups, $this->ct->Table->record[$this->ct->Table->realidfieldname], $field->realfieldname);
+			try {
+				CTUser::CreateUser($this->ct->Table->realtablename, $this->ct->Table->realidfieldname, $user_email, $user_name,
+					$user_groups, $this->ct->Table->record[$this->ct->Table->realidfieldname], $field->realfieldname);
+			} catch (Exception $e) {
+				throw new Exception($e->getMessage());
+			}
 		}
 		return true;
 	}
