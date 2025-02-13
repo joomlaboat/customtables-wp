@@ -211,7 +211,7 @@ class Twig_HTML_Tags
 			return '<div class="pagination">' . $pagination->getPagesLinks() . '</div>';
 	}
 
-	function limit($the_step = 5): string
+	function limit($the_step = 5, $showLabel = false): string
 	{
 		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
 			return '';
@@ -219,15 +219,73 @@ class Twig_HTML_Tags
 		if ($this->ct->Env->isPlugin or !empty($this->ct->Params->ModuleId))
 			return '';
 
-		$pagination = new JESPagination($this->ct->Table->recordcount, $this->ct->LimitStart, $this->ct->Limit, '');
-		return $pagination->getLimitBox($the_step);
+		$result = '';
+		if ($showLabel)
+			$result .= esc_html__("Show", "customtables") . ': ';
+
+		$result .= $this->getLimitBox($the_step);
+		return $result;
+	}
+
+	/**
+	 * Creates a dropdown box for selecting how many records to show per page.
+	 *
+	 * @return  string   The HTML for the limit # input box.
+	 * @since   3.5.4
+	 */
+	protected function getLimitBox($the_step = 5)
+	{
+		$all = false;
+		$the_step = (int)$the_step;
+
+		if ($the_step < 1)
+			$the_step = 1;
+
+		if ($the_step > 1000)
+			$the_step = 1000;
+
+		$limit = (int)max($this->ct->Limit, 0);
+
+		// If we are viewing all records set the view all flag to true.
+		if ($limit == 0)
+			$all = true;
+
+		// Initialise variables.
+		$limitOptions = [];
+
+		// Make the option list.
+		for ($i = $the_step; $i <= $the_step * 6; $i += $the_step)
+			$limitOptions [] = ['value' => $i, 'label' => $i];
+
+		$limitOptions [] = ['value' => $the_step * 10, 'label' => $the_step * 10];
+		$limitOptions [] = ['value' => $the_step * 20, 'label' => $the_step * 20];
+		$selected = $all ? 0 : $limit;
+
+		$moduleIDString = $this->ct->Params->ModuleId === null ? 'null' : $this->ct->Params->ModuleId;
+		// Build the select list.
+
+		if (CUSTOMTABLES_JOOMLA_MIN_4)
+			$defaultClass = 'form-control';
+		else
+			$defaultClass = 'inputbox';
+
+		$options = [];
+
+		foreach ($limitOptions as $limitOption) {
+			$isSelected = ($selected === $limitOption['value']) ? ' selected' : '';
+			$options[] = '<option value="' . htmlspecialchars($limitOption['value'], ENT_QUOTES) . '"' . $isSelected . '>'
+				. htmlspecialchars($limitOption['label'] ?? '', ENT_QUOTES) . '</option>';
+		}
+
+		return '<select name="limit" id="limit" onChange="ctLimitChanged(this.value, ' . $moduleIDString . ')" class="' . $defaultClass . '">'
+			. PHP_EOL . implode(PHP_EOL, $options) . PHP_EOL . '</select>';
 	}
 
 	/**
 	 * @throws Exception
 	 * @since 3.0.0
 	 */
-	function orderby($listOfFields = null): string
+	function orderby($listOfFields = null, $showLabel = false): string
 	{
 		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
 			return '';
@@ -238,7 +296,12 @@ class Twig_HTML_Tags
 		if ($this->ct->Params->forceSortBy !== null and $this->ct->Params->forceSortBy != '')
 			throw new Exception(esc_html__("Order by field is locked because 'Forced sort by field' parameter is set. Administrator - Check menu item settings.", "customtables"));
 
-		return OrderingHTML::getOrderBox($this->ct->Ordering, $listOfFields);
+		$result = '';
+		if ($showLabel)
+			$result .= esc_html__("Order by", "customtables") . ': ';
+
+		$result .= OrderingHTML::getOrderBox($this->ct->Ordering, $listOfFields);
+		return $result;
 	}
 
 	/**

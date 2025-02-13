@@ -4,7 +4,7 @@ Author URI: https://ct4.us
 Donate link: https://www.patreon.com/joomlaboat
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
-Tested up to: 6.7.1
+Tested up to: 6.7.2
 Stable tag: 1.4.6
 Requires PHP: 7.4
 License: GPLv2
