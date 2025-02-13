@@ -5,7 +5,7 @@ Donate link: https://www.patreon.com/joomlaboat
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
 Tested up to: 6.7.1
-Stable tag: 1.4.5
+Stable tag: 1.4.6
 Requires PHP: 7.4
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -50,6 +50,11 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 
 == Changelog ==
 
+= 1.4.6 =
+- {{ html.orderby }} Tag improved.
+- List of Tables bug fixed.
+- JS Toolbar bugs fixed.
+
 = 1.4.5 =
 - CT library updated. Classes renamed.
 
@@ -59,7 +64,7 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 = 1.4.3 =
 - Layout Editor: Default Publish status parameter added.
 - Edit form redirects fixed.
-- In catalog unpublish an refresh icons added.
+- In catalog unpublish a refresh icons added.
 
 = 1.4.2 =
 - Permission parameters added to Layout Editor.
