@@ -138,7 +138,7 @@ class Admin_Table_List extends WP_List_Table
         }
 
         try {
-            $data = $this->helperListOfTables->getListQuery($published, $search, null, $orderby, $order);
+            $data = $this->helperListOfTables->getListQuery($published, $search, 0, $orderby, $order);
         } catch (Exception $exception) {
             return [];
         }
