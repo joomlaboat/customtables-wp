@@ -230,15 +230,9 @@ if ($this->admin_table_edit->ct->Env->advancedTagProcessor) {
 					</div>
 
 					<div class="gtab schema-tab" style="margin-left:-20px;">
-						<?php if ($this->admin_table_edit->ct->Env->advancedTagProcessor): ?>
-							<div class="CustomTablesDocumentationTips">
+						<div class="CustomTablesDocumentationTips">
 							<?php echo $this->admin_table_edit->getTableSchema(); ?>
-							</div>
-						<?php else: ?>
-							<a href="https://ct4.us/product/custom-tables-pro-for-wordpress/" target="_blank">
-								<?php echo esc_html__("Available in PRO Version", "customtables"); ?>
-							</a>
-						<?php endif; ?>
+						</div>
 					</div>
 
 				</div>

@@ -74,12 +74,6 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 	</div>
 
 	<div class="gtab params-tab" style="margin-left:-20px;">
-		<?php if ($this->admin_layout_edit->ct->Env->advancedTagProcessor): ?>
-			<?php include('customtables-layouts-edit-params.php'); ?>
-		<?php else: ?>
-			<a href="https://ct4.us/product/custom-tables-pro-for-wordpress/" target="_blank">
-				<?php echo esc_html__("Available in PRO Version", "customtables"); ?>
-			</a>
-		<?php endif; ?>
+		<?php include('customtables-layouts-edit-params.php'); ?>
 	</div>
 </div>
