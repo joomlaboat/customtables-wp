@@ -206,16 +206,6 @@ class Layouts
 	 */
 	function parseRawLayoutContent(string $content, bool $applyContentPlugins = true): string
 	{
-		/*
-		if ($this->ct->Env->legacySupport) {
-			require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'layout.php');
-
-			$LayoutProc = new LayoutProcessor($this->ct);
-			$LayoutProc->layout = $content;
-			$content = $LayoutProc->fillLayout($this->ct->Table->record);
-		}
-		*/
-
 		$twig = new TwigProcessor($this->ct, $content);
 
 		try {
@@ -886,8 +876,10 @@ class Layouts
 			return $this->doTask_save($task);
 		} elseif ($task == 'createuser') {
 			return $this->doTask_createuser();
+		} elseif ($task == 'setorderby') {
+			return $this->doTask_setorderby();
 		}
-		return ['success' => false, 'message' => 'Unknown task', 'short' => 'error'];
+		return ['success' => false, 'message' => 'Unknown task', 'short' => 'unknown'];
 	}
 
 	/**
@@ -1096,16 +1088,12 @@ class Layouts
 
 		if ($ok) {
 			//Success
-			//Prepare success message
-			$twig = new TwigProcessor($this->ct, $this->ct->Params->msgItemIsSaved);
 
 			try {
+				$twig = new TwigProcessor($this->ct, $this->ct->Params->msgItemIsSaved);
 				$output['message'] = $twig->process($this->ct->Table->record);
 			} catch (Exception $e) {
 				$output['message'] = $e->getMessage();
-			}
-			if ($twig->errorMessage !== null) {
-				$output['message'] = $twig->errorMessage;
 			}
 
 			$action = $record->isItNewRecord ? 'create' : 'update';
@@ -1198,6 +1186,30 @@ class Layouts
 			return ['success' => true, 'message' => $message, 'short' => 'user_created'];
 		}
 		return ['success' => false, 'message' => 'Records not selected', 'short' => 'error'];
+	}
+
+	/**
+	 * @throws Exception
+	 * @since 3.5.4
+	 */
+	private function doTask_setorderby()
+	{
+		$order_by = common::inputGetString('orderby', '');
+		$order_by = trim(preg_replace("/[^a-zA-Z-+%.: ,_]/", "", $order_by));
+
+		if (defined('_JEXEC'))
+			common::setUserState('com_customtables.orderby_' . $this->ct->Params->ItemId, $order_by);
+		elseif (defined('WPINC'))
+			common::setUserState('com_customtables.orderby_' . $this->tableId, $order_by);
+		else
+			throw new Exception('doTask_setorderby not supported in this version');
+
+		$link = common::curPageURL();
+
+		$link = CTMiscHelper::deleteURLQueryOption($link, 'task');
+		$link = CTMiscHelper::deleteURLQueryOption($link, 'orderby');
+
+		return ['success' => true, 'message' => null, 'short' => 'order_by set', 'redirect' => $link];
 	}
 
 	/**
@@ -1309,15 +1321,15 @@ class Layouts
 	 */
 	public function renderDetailedLayoutDO(): string
 	{
-		$twig = new TwigProcessor($this->ct, $this->layoutCode, false, false, true, $this->pageLayoutNameString, $this->pageLayoutLink);
-		$layoutDetailsContent = $twig->process($this->ct->Table->record);
-
-		if ($twig->errorMessage !== null)
-			$this->ct->errors[] = $twig->errorMessage;
+		try {
+			$twig = new TwigProcessor($this->ct, $this->layoutCode, false, false, true, $this->pageLayoutNameString, $this->pageLayoutLink);
+			$layoutDetailsContent = $twig->process($this->ct->Table->record);
+		} catch (Exception $e) {
+			throw new Exception($e->getMessage());
+		}
 
 		if ($this->ct->Params->allowContentPlugins)
 			$layoutDetailsContent = CTMiscHelper::applyContentPlugins($layoutDetailsContent);
-
 
 		if (!is_null($this->ct->Table->record)) {
 			//Save view log

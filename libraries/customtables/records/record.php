@@ -13,7 +13,6 @@ namespace CustomTables;
 // no direct access
 if (!defined('ABSPATH')) exit;
 
-use CustomTables\common;
 use Exception;
 use CustomTables\CustomPHP;
 use CustomTables\ctProHelpers;

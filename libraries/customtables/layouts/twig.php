@@ -30,7 +30,6 @@ class TwigProcessor
 	var string $recordBlockReplaceCode;
 	var bool $DoHTMLSpecialChars;
 	var bool $getEditFieldNamesOnly;
-	var ?string $errorMessage;
 	var string $pageLayoutName;
 	var ?string $pageLayoutLink;
 	var string $itemLayoutName;
@@ -47,7 +46,6 @@ class TwigProcessor
 		$this->debug = false;
 
 		$this->parseParams = $parseParams;
-		$this->errorMessage = null;
 		$this->DoHTMLSpecialChars = $DoHTMLSpecialChars;
 		$this->ct = $ct;
 		$this->getEditFieldNamesOnly = $getEditFieldNamesOnly;
