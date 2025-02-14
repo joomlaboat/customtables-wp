@@ -14,7 +14,6 @@ namespace CustomTables;
 if (!defined('ABSPATH')) exit;
 
 use Exception;
-use Joomla\CMS\Factory;
 use Joomla\Utilities\ArrayHelper;
 
 class Ordering

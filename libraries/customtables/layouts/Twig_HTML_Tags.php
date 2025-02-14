@@ -211,7 +211,7 @@ class Twig_HTML_Tags
 			return '<div class="pagination">' . $pagination->getPagesLinks() . '</div>';
 	}
 
-	function limit($the_step = 5, $showLabel = false): string
+	function limit($the_step = 5, $showLabel = false, $CSS_Class = null): string
 	{
 		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
 			return '';
@@ -223,7 +223,14 @@ class Twig_HTML_Tags
 		if ($showLabel)
 			$result .= esc_html__("Show", "customtables") . ': ';
 
-		$result .= $this->getLimitBox($the_step);
+		if ($CSS_Class === null) {
+			if (CUSTOMTABLES_JOOMLA_MIN_4)
+				$CSS_Class = 'form-select';
+			else
+				$CSS_Class = 'inputbox';
+		}
+
+		$result .= $this->getLimitBox((int)$the_step, $CSS_Class);
 		return $result;
 	}
 
@@ -233,10 +240,9 @@ class Twig_HTML_Tags
 	 * @return  string   The HTML for the limit # input box.
 	 * @since   3.5.4
 	 */
-	protected function getLimitBox($the_step = 5)
+	protected function getLimitBox(int $the_step, string $CSS_Class)
 	{
 		$all = false;
-		$the_step = (int)$the_step;
 
 		if ($the_step < 1)
 			$the_step = 1;
@@ -264,11 +270,6 @@ class Twig_HTML_Tags
 		$moduleIDString = $this->ct->Params->ModuleId === null ? 'null' : $this->ct->Params->ModuleId;
 		// Build the select list.
 
-		if (CUSTOMTABLES_JOOMLA_MIN_4)
-			$defaultClass = 'form-select';
-		else
-			$defaultClass = 'inputbox';
-
 		$options = [];
 
 		foreach ($limitOptions as $limitOption) {
@@ -277,7 +278,7 @@ class Twig_HTML_Tags
 				. htmlspecialchars($limitOption['label'] ?? '', ENT_QUOTES) . '</option>';
 		}
 
-		return '<select name="limit" id="limit" onChange="ctLimitChanged(this.value, ' . $moduleIDString . ')" class="' . $defaultClass . '">'
+		return '<select name="limit" id="limit" onChange="ctLimitChanged(this.value, ' . $moduleIDString . ')" class="' . $CSS_Class . '">'
 			. PHP_EOL . implode(PHP_EOL, $options) . PHP_EOL . '</select>';
 	}
 
@@ -285,7 +286,7 @@ class Twig_HTML_Tags
 	 * @throws Exception
 	 * @since 3.0.0
 	 */
-	function orderby($listOfFields = null, $showLabel = false): string
+	function orderby($listOfFields = null, $showLabel = false, $CSS_Class = null): string
 	{
 		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
 			return '';
@@ -300,9 +301,53 @@ class Twig_HTML_Tags
 		if ($showLabel)
 			$result .= esc_html__("Order by", "customtables") . ': ';
 
-		$result .= OrderingHTML::getOrderBox($this->ct->Ordering, $listOfFields);
+		if ($CSS_Class === null) {
+			if (CUSTOMTABLES_JOOMLA_MIN_4)
+				$CSS_Class = 'form-select';
+			else
+				$CSS_Class = 'inputbox';
+		}
+
+		$result .= $this->getOrderBox($this->ct->Ordering, $listOfFields, $CSS_Class);
 		return $result;
 	}
+
+	protected function getOrderBox(Ordering $ordering, ?string $listOfFields, string $CSS_Class): string
+	{
+		$listOfFields_Array = !empty($listOfFields) ? explode(",", $listOfFields) : [];
+		$lists = $ordering->getSortByFields();
+
+		// Initialize the sorting options with a default "Order By" placeholder
+		$fieldsToSort = [
+			['value' => '', 'label' => ' - ' . esc_html__("Order by", "customtables")]
+		];
+
+		// Filter sorting fields if a list is provided
+		if (!empty($listOfFields_Array)) {
+			foreach ($lists as $list) {
+
+				$fieldName = trim(strtok($list['value'], " ")); // Extract first part before space
+
+				if (in_array($fieldName, $listOfFields_Array, true))
+					$fieldsToSort[] = ['value' => $list['value'], 'label' => $list['label']];
+			}
+		} else {
+			$fieldsToSort = array_merge($fieldsToSort, $lists);
+		}
+
+		$moduleIDString = $ordering->Params->ModuleId ?? 'null';
+		$options = [];
+
+		foreach ($fieldsToSort as $sortField) {
+			$isSelected = ($ordering->ordering_processed_string === $sortField['value']) ? ' selected' : '';
+			$options[] = '<option value="' . htmlspecialchars($sortField['value'], ENT_QUOTES) . '"' . $isSelected . '>'
+				. htmlspecialchars($sortField['label'] ?? '', ENT_QUOTES) . '</option>';
+		}
+
+		return '<select name="esordering" id="esordering" onChange="ctOrderChanged(this.value, ' . $moduleIDString . ')" class="' . $CSS_Class . '">'
+			. PHP_EOL . implode(PHP_EOL, $options) . PHP_EOL . '</select>';
+	}
+
 
 	/**
 	 * $returnto must be provided already decoded
