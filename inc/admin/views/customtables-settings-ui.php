@@ -21,8 +21,8 @@ $iconPath = CUSTOMTABLES_MEDIA_WEBPATH . 'images/icons/';
 
 			$types = [
 				'' => esc_html__('Legacy Image Icons', 'customtables'),
+				'ultimate-member' => esc_html__('Ultimate Member (Font Awesome)', 'customtables'), // Added UM icon set
 				'font-awesome-4' => esc_html__('Font Awesome 4', 'customtables'),
-				'font-awesome-5' => esc_html__('Font Awesome 5', 'customtables'),
 				'font-awesome-6' => esc_html__('Font Awesome 6', 'customtables'),
 				'bootstrap' => esc_html__('Bootstrap', 'customtables')
 			];
@@ -52,6 +52,7 @@ $iconPath = CUSTOMTABLES_MEDIA_WEBPATH . 'images/icons/';
 </table>
 
 <?php Icons::renderIconSet(''); ?>
+<?php Icons::renderIconSet('ultimate-member'); ?>
 <?php Icons::renderIconSet('font-awesome-4'); ?>
 <?php Icons::renderIconSet('font-awesome-5'); ?>
 <?php Icons::renderIconSet('font-awesome-6'); ?>
@@ -131,6 +132,15 @@ $iconPath = CUSTOMTABLES_MEDIA_WEBPATH . 'images/icons/';
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css?v=1.0">
     </head>
     <body>${document.getElementById('ui-bootstrap').innerHTML}</body>
+    </html>`;
+			} else if (selected === "ultimate-member") {
+				content = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        ${style}
+    </head>
+    <body>${document.getElementById('ui-ultimate-member').innerHTML}</body>
     </html>`;
 			} else {
 				content = `
