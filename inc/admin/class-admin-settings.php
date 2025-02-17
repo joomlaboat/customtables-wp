@@ -11,9 +11,6 @@ class Admin_Settings
     {
         $action = common::inputPostCmd('action','','settings');
 
-        echo 'action:'.$action.'<br>';
-        //die;
-
         if('save-settings'=== $action) {
 
             //Google Maps
@@ -45,6 +42,14 @@ class Admin_Settings
                 add_option('customtables-fieldprefix', sanitize_text_field($fieldPrefix));
             else
                 update_option('customtables-fieldprefix', sanitize_text_field($fieldPrefix));
+
+			//Toolbar Icons
+			$toolbarIcons = common::inputPostString('toolbaricons','','settings');
+			if(get_option('customtables-toolbaricons')===false)
+				add_option('customtables-toolbaricons', sanitize_text_field($toolbarIcons));
+			else
+				update_option('customtables-toolbaricons', sanitize_text_field($toolbarIcons));
+
 
             $url = 'admin.php?page=customtables-settings';
 
