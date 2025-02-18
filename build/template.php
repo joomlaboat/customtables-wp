@@ -282,6 +282,38 @@ class template
 		if (isset($this->enqueueList['style']))
 			wp_add_inline_style('ct-catalog-style', implode('', $this->enqueueList['style']));
 
+		wp_add_inline_style('ct-catalog-style', '
+
+	:root {--ctToolBarIconSize: 16px;--ctToolBarIconFontSize: 16px;}
+	
+	.toolbarIcons{
+		text-decoration: none;
+	}
+	
+	.toolbarIcons a{
+		text-decoration: none;
+	}
+	
+	.ctToolBarIcon{
+		width: var(--ctToolBarIconSize);
+		height: var(--ctToolBarIconSize);
+	}
+	
+	.ctToolBarIcon + span {
+		margin-left:10px;
+	}
+	
+	.ctToolBarIcon2x{
+		width: calc(var(--ctToolBarIconSize) * 2);
+		height: calc(var(--ctToolBarIconSize) * 2);
+		font-size: 1.5em;
+	}
+	
+	.ctToolBarIcon2x + span {
+		margin-left:15px;
+	}
+
+		');
 		// Add inline script after enqueuing the main script
 		if (isset($this->enqueueList['script']))
 			wp_add_inline_script('ct-edit-form-script', $this->enqueueList['script']);
