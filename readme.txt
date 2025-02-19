@@ -50,6 +50,9 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 
 == Changelog ==
 
+= 1.4.8 =
+- Rich Text Editor feature added.
+
 = 1.4.7 =
 - Toolbar Icon type can be set in the settings.
 
