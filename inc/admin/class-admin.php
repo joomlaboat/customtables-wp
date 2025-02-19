@@ -17,6 +17,7 @@ use CustomTables\Fields;
 use CustomTables\Layouts;
 use CustomTables\MySQLWhereClause;
 use Exception;
+use Throwable;
 
 class Admin
 {
@@ -396,7 +397,11 @@ class Admin
                 else
                     $layoutId = 0;
 
-                $output = $layouts->renderMixedLayout($layoutId, (int)$attributes->type);
+				try {
+					$output = $layouts->renderMixedLayout($layoutId, (int)$attributes->type);
+				}catch (Throwable $e){
+					common::enqueueMessage($e->getMessage());
+				}
 
                 $image_url = plugins_url('assets/block-glass.png', __FILE__);
                 $preview_html = '<div style="position: relative;">' . $output['html']

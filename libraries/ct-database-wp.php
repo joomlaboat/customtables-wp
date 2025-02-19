@@ -409,7 +409,7 @@ class database
         $realTableName = str_replace('#__', $wpdb->prefix, $table);
 
         if ($realTableName != 'information_schema.columns' and $realTableName != 'information_schema.tables')
-            $realTableName = preg_replace('/[^a-zA-Z.\d_ ]/', '', $realTableName);
+            $realTableName = preg_replace('/[^a-zA-Z.\d_= ]/', '', $realTableName);
 
         //Select columns sanitation
         $selects_sanitized = self::sanitizeSelects($selectsRaw, $realTableName);
@@ -428,10 +428,18 @@ class database
         //$realTableName is internal and cannot be manipulated
         //Where values sanitized properly in MySQLWhereClause class
 
+		$groupBy_sanitized = null;
+		if(!empty($groupBy))
+			$groupBy_sanitized = str_replace('#__', $wpdb->prefix, $groupBy);
+
+		$order_sanitized = null;
+		if(!empty($order))
+			$order_sanitized = str_replace('#__', $wpdb->prefix, $order);
+
         $query_safe = "SELECT $selects_sanitized FROM " . $realTableName
             . ($whereString != '' ? ' WHERE ' . $whereString : '')
-            . (!empty($groupBy) != '' ? ' GROUP BY ' . $groupBy : '')
-            . (!empty($order) ? ' ORDER BY ' . $order . (($orderBy !== null and strtolower($orderBy) == 'desc') ? ' DESC' : '') : '')
+            . (!empty($groupBy_sanitized) != '' ? ' GROUP BY ' . $groupBy_sanitized : '')
+            . (!empty($order) ? ' ORDER BY ' . $order_sanitized . (($orderBy !== null and strtolower($orderBy) == 'desc') ? ' DESC' : '') : '')
             . (!empty($limit) ? ' LIMIT %d' : '')//Use of single explicit placeholder is needed for WPCS verification because it thinks that $placeholders is a single variable, but it's an array
             . (!empty($limitStart) ? ' OFFSET ' . (int)$limitStart : '');
 

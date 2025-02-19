@@ -15,7 +15,7 @@ use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\CTMiscHelper;
 use CustomTables\Layouts;
-use Exception;
+use Throwable;
 
 class template
 {
@@ -127,7 +127,12 @@ class template
 			else
 				$layoutType = CUSTOMTABLES_LAYOUT_TYPE_SIMPLE_CATALOG;
 
-			$mixedLayout_array = $layouts->renderMixedLayout(0, $layoutType);
+			try {
+				$mixedLayout_array = $layouts->renderMixedLayout(0, $layoutType);
+			} catch (Throwable $e) {
+				common::enqueueMessage($e->getMessage());
+			}
+
 		} else {
 			if ($ct->Table !== null) {
 				$view = common::inputGetCmd('view' . $ct->Table->tableid);
@@ -149,9 +154,21 @@ class template
 					else
 						$layoutId = 0;
 				}
-				$mixedLayout_array = $layouts->renderMixedLayout($layoutId, $layoutType);
-			} else
-				$mixedLayout_array = $layouts->renderMixedLayout($layoutId);
+
+				try {
+					$mixedLayout_array = $layouts->renderMixedLayout($layoutId, $layoutType);
+				} catch (Throwable $e) {
+					common::enqueueMessage($e->getMessage());
+				}
+
+			} else {
+
+				try {
+					$mixedLayout_array = $layouts->renderMixedLayout($layoutId);
+				} catch (Throwable $e) {
+					common::enqueueMessage($e->getMessage());
+				}
+			}
 		}
 
 		if (!empty($mixedLayout_array['redirect']))
