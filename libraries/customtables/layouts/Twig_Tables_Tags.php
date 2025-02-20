@@ -15,8 +15,6 @@ if (!defined('ABSPATH')) exit;
 
 use Exception;
 
-//use LayoutProcessor;
-
 class Twig_Tables_Tags
 {
 	var CT $ct;

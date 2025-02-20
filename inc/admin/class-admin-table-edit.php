@@ -2,12 +2,13 @@
 
 namespace CustomTablesWP\Inc\Admin;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\database;
 use CustomTables\ListOfTables;
+use CustomTables\TableHelper;
 use Exception;
 use WP_Error;
 
@@ -17,6 +18,7 @@ class Admin_Table_Edit
 	public ListOfTables $helperListOfTables;
 	public ?int $tableId;
 	public WP_Error $errors;
+	public $allTables;
 
 	/**
 	 * @throws Exception
@@ -25,7 +27,7 @@ class Admin_Table_Edit
 	public function __construct()
 	{
 		require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoftables.php');
-		$this->ct = new CT([],true);
+		$this->ct = new CT([], true);
 		$this->helperListOfTables = new ListOfTables($this->ct);
 		$this->tableId = common::inputGetInt('table');
 
@@ -34,6 +36,8 @@ class Admin_Table_Edit
 
 		if ($this->tableId !== null)
 			$this->ct->getTable($this->tableId);
+
+		$this->allTables = $this->getAllTablesOptions(true);
 	}
 
 	/**
@@ -45,15 +49,12 @@ class Admin_Table_Edit
 		$action = common::inputPostCmd('action', '', 'create-edit-table');
 
 		if ('createtable' === $action || 'savetable' === $action) {
-			$errors = $this->helperListOfTables->save($this->tableId);
 
-			if ($errors !== null and count($errors) > 0) {
-
+			try {
+				$this->helperListOfTables->save($this->tableId);
+			} catch (Exception $e) {
 				$this->errors = new WP_Error();
-
-				foreach ($errors as $error)
-					$this->errors->add('error_code', $error);
-
+				$this->errors->add('error_code', $e->getMessage());
 				return;
 			}
 
@@ -64,6 +65,20 @@ class Admin_Table_Edit
 			wp_redirect(admin_url($url));
 			exit;
 		}
+	}
+
+	protected function getAllTablesOptions($add_empty_option = true): array
+	{
+		$tables = TableHelper::getListOfExistingTables();
+
+		$options = array();
+		if ($add_empty_option)
+			$options['']= ' - ' . esc_html__("Select", "customtables");
+
+		foreach ($tables as $table)
+			$options[$table] = $table;
+
+		return $options;
 	}
 
 	public function getTableSchema(): string

@@ -17,9 +17,20 @@ if ($this->admin_table_edit->ct->Env->advancedTagProcessor) {
 	else
 		$customphp = $this->admin_table_edit->ct->Table->tablerow['customphp'];
 
+	$customTableName = $this->admin_table_edit->ct->Table->tablerow['customtablename'] ?? '';
+
 	$customIdField = $this->admin_table_edit->ct->Table->tablerow['customidfield'] ?? '';
+
+	if (empty($customIdField))
+		$customIdField = 'id';
+
 	$customIdFieldType = $this->admin_table_edit->ct->Table->tablerow['customidfieldtype'] ?? '';
+
+	if (empty($customIdFieldType))
+		$customIdFieldType = 'int UNSIGNED NOT NULL AUTO_INCREMENT';
+
 	$primaryKeyPattern = $this->admin_table_edit->ct->Table->tablerow['primarykeypattern'] ?? '';
+
 	if (empty($primaryKeyPattern))
 		$primaryKeyPattern = 'AUTO_INCREMENT';
 
@@ -143,85 +154,7 @@ if ($this->admin_table_edit->ct->Env->advancedTagProcessor) {
 
 					<div class="gtab advanced-tab" style="margin-left:-20px;">
 						<?php if ($this->admin_table_edit->ct->Env->advancedTagProcessor): ?>
-							<table class="form-table" role="presentation">
-								<tr class="form-field form">
-									<th scope="row">
-										<label for="customphp">
-											<?php echo esc_html__('Custom PHP', 'customtables'); ?>
-										</label>
-									</th>
-									<td>
-										<input name="customphp" type="text" id="customphp"
-											   value="<?php echo esc_attr($customphp); ?>" aria-required="false"
-											   autocapitalize="none" autocorrect="off" autocomplete="off"
-											   maxlength="255"/>
-									</td>
-								</tr>
-
-								<tr class="form-field form">
-									<th scope="row">
-										<label for="customidfield">
-											<?php echo esc_html__('Primary Key Field', 'customtables'); ?>
-										</label>
-									</th>
-									<td>
-										<input name="customidfield" type="text" id="customidfield"
-											   value="<?php echo esc_attr($customIdField); ?>" aria-required="false"
-											   autocapitalize="none" autocorrect="off" autocomplete="off"
-											   maxlength="255"/>
-									</td>
-								</tr>
-
-								<tr class="form-field form">
-									<th scope="row">
-										<label for="customidfieldtype">
-											<?php echo esc_html__('Primary Key Field Type', 'customtables'); ?>
-										</label>
-									</th>
-									<td>
-										<input name="customidfieldtype" type="text" id="customidfieldtype"
-											   value="<?php echo esc_attr($customIdFieldType); ?>" aria-required="false"
-											   autocapitalize="none" autocorrect="off" autocomplete="off"
-											   maxlength="255"/>
-									</td>
-								</tr>
-
-								<tr class="form-field form">
-									<th scope="row">
-										<label for="primarykeypattern">
-											<?php echo esc_html__('Primary Key Generation Pattern', 'customtables'); ?>
-										</label>
-									</th>
-									<td>
-										<input name="primarykeypattern" type="text" id="primarykeypattern"
-											   value="<?php echo esc_attr($primaryKeyPattern); ?>" aria-required="false"
-											   autocapitalize="none" autocorrect="off" autocomplete="off"
-											   maxlength="255"/>
-										<br/>
-										<span class="description">
-											Define how primary keys are generated for new records. Use AUTO_INCREMENT for automatic numbering, or create custom patterns using Twig syntax. Examples: AUTO_INCREMENT, PROJECT-{{ random(1000,9999) }}, {{ 'prefix-' ~ now|date('Y-m-d H:i:s.u')|md5 }}, PRJ-{{ (now|date('Y-m-d H:i:s.u')|md5)|slice(0,10) }}-{{ random(1000,9999) }}
-										</span>
-									</td>
-								</tr>
-
-								<tr class="form-field form">
-									<th scope="row">
-										<label for="customfieldprefix">
-											<?php echo esc_html__('Field Name Prefix', 'customtables'); ?>
-										</label>
-									</th>
-									<td>
-										<input name="customfieldprefix" type="text" id="customfieldprefix"
-											   value="<?php echo esc_attr($customFieldPrefix); ?>" aria-required="false"
-											   autocapitalize="none" autocorrect="off" autocomplete="off"
-											   maxlength="255"/>
-										<br/>
-										<span class="description">
-											Field name prefix. Example by default: es_phone. Type '-' to save fields without prefix, be careful because MySQL has many registered names like, 'group', 'select', 'where' etc. If you change the filed prefix then you will have to manually change all the field prefixes.
-										</span>
-									</td>
-								</tr>
-							</table>
+							<?php include('customtables-tables-edit-advanced.php'); ?>
 						<?php else: ?>
 							<a href="https://ct4.us/product/custom-tables-pro-for-wordpress/" target="_blank">
 								<?php echo esc_html__("Available in PRO Version", "customtables"); ?>

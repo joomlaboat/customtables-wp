@@ -344,7 +344,7 @@ class TableHelper
 		//get ID of new table
 		$new_table_id = self::getTableID($new_table);
 
-		if ($customTableName === null) {
+		if (empty($customTableName)) {
 			//Do not copy real third-party tables
 			database::copyCTTable($new_table, $old_table);
 		}
@@ -464,5 +464,43 @@ class TableHelper
 			$whereClause->addCondition('tablecategory', $categoryId);
 
 		return database::loadAssocList('#__customtables_tables', ['id', 'tablename', 'tabletitle'], $whereClause, 'tablename');
+	}
+
+	/**
+	 * @throws Exception
+	 * @since 3.5.6
+	 */
+	public static function getListOfExistingTables(): array
+	{
+		$prefix = database::getDBPrefix();
+		$serverType = database::getServerType();
+
+		$whereClause = new MySQLWhereClause();
+
+		if ($serverType == 'postgresql') {
+			$whereClause->addCondition('table_type', 'BASE TABLE');
+			$whereClause->addCondition('table_schema NOT IN (\'pg_catalog\', \'information_schema\')', null);
+			$whereClause->addCondition('POSITION(\'' . $prefix . 'customtables_\' IN table_name)', 1, '!=');
+			$whereClause->addCondition('table_name', $prefix . 'user_keys', '!=');
+			$whereClause->addCondition('table_name', $prefix . 'user_usergroup_map', '!=');
+			$whereClause->addCondition('table_name', $prefix . 'usergroups', '!=');
+			$whereClause->addCondition('table_name', $prefix . 'users', '!=');
+			$rows = database::loadAssocList('information_schema.tables', ['table_name'], $whereClause);
+		} else {
+			$database = database::getDataBaseName();
+			$whereClause->addCondition('table_schema', $database);
+			$whereClause->addCondition('INSTR(TABLE_NAME,\'' . $prefix . 'customtables_\')', 'false', '=', true);
+			$whereClause->addCondition('TABLE_NAME', $prefix . 'user_keys', '!=');
+			$whereClause->addCondition('TABLE_NAME', $prefix . 'user_usergroup_map', '!=');
+			$whereClause->addCondition('TABLE_NAME', $prefix . 'usergroups', '!=');
+			$whereClause->addCondition('TABLE_NAME', $prefix . 'users', '!=');
+			$rows = database::loadAssocList('information_schema.tables', ['TABLE_NAME AS table_name'], $whereClause);
+		}
+		$list = array();
+
+		foreach ($rows as $row)
+			$list[] = $row['table_name'];
+
+		return $list;
 	}
 }

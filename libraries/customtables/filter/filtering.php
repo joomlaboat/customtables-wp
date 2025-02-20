@@ -15,8 +15,6 @@ if (!defined('ABSPATH')) exit;
 use DateTime;
 use Exception;
 
-//use LayoutProcessor;
-
 class Filtering
 {
 	var CT $ct;
