@@ -61,7 +61,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 				   autocapitalize="none" autocorrect="off" autocomplete="off"
 				   maxlength="255"/>
 			<br/>
-			<span class="description">Primary key field name</span>
+			<span class="description">Defaults to id, but this can be customized for tables with different key naming conventions.</span>
 		</td>
 	</tr>
 
@@ -77,7 +77,8 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 				   autocapitalize="none" autocorrect="off" autocomplete="off"
 				   maxlength="255"/>
 			<br/>
-			<span class="description">Primary key field type</span>
+			<span class="description">Determines how the primary key field is created in the database.<br>
+Defaults to AUTO_INCREMENT for MySQL, but supports any valid SQL type and constraints.</span>
 		</td>
 	</tr>
 
