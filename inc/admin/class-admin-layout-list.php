@@ -112,7 +112,7 @@ class Admin_Layout_List extends WP_List_Table {
 
 	function get_data(): array {
 		// Fetch and return your data here
-		$search  = common::inputGetString( 's' );
+		$search = common::inputPostString('s',null,'bulk-' . $this->_args['plural'] );
 		$orderby = common::inputGetCmd( 'orderby' );
 		$order   = common::inputGetCmd( 'order' );
 
