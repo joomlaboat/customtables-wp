@@ -532,6 +532,7 @@ class common
 
 		return base64_encode($currentURL);
 	}
+
 	/*
 	public static function makeReturnToURL(string $currentURL = null): ?string
 	{

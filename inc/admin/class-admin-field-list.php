@@ -130,7 +130,7 @@ class Admin_Field_List extends WP_List_Table
 		if ($this->tableId === null or $this->ct->Table == null or $this->ct->Table->tablename === null)
 			return [];
 
-		$search = common::inputGetString('s');
+		$search = common::inputPostString('s',null,'bulk-' . $this->_args['plural'] );
 		$orderby = common::inputGetCmd('orderby');
 		$order = common::inputGetCmd('order');
 
