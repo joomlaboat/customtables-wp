@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 	<tr class="form-field form">
 		<th scope="row">
 			<label for="customphp">
-				<?php echo esc_html__('Custom PHP', 'customtables'); ?>
+				<?php echo esc_html__('Custom PHP file', 'customtables'); ?>
 			</label>
 		</th>
 		<td>
@@ -16,13 +16,19 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 				   value="<?php echo esc_attr($customphp); ?>" aria-required="false"
 				   autocapitalize="none" autocorrect="off" autocomplete="off"
 				   maxlength="255"/>
+			<br/>
+			<span class="description">
+			Custom Tables allows you to execute custom PHP code when users perform specific actions on records (save, refresh, publish, or unpublish). This is accomplished through a custom PHP file with a process() function.
+				<br/>
+				More <a href="https://ct4.us/docs/custom-php-event-handler-for-custom-tables-in-joomla/" target="_blank">here</a>.
+			</span>
 		</td>
 	</tr>
 
 	<tr class="form-field form">
 		<th scope="row">
 			<label for="customtablename">
-			a	<?php echo esc_html__('Third-Party Table', 'customtables'); ?>
+				<?php echo esc_html__('Third-Party Table', 'customtables'); ?>
 			</label>
 		</th>
 		<td>
@@ -89,7 +95,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 			<br/>
 			<div class="description">
 				<p>Define how primary keys are generated for new records.<br/>
-					 Use AUTO_INCREMENT for automatic numbering, or create custom patterns using Twig syntax.</p>
+					Use AUTO_INCREMENT for automatic numbering, or create custom patterns using Twig syntax.</p>
 				<b>Examples:</b>
 				<ul>
 					<li>AUTO_INCREMENT</li>
