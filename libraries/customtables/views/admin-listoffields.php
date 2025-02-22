@@ -54,10 +54,8 @@ class ListOfFields
 			return null;
 
 		$this->ct->getTable($tableId);
-		if ($this->ct->Table === null) {
-			common::enqueueMessage('Table not found');
-			return null;
-		}
+		if ($this->ct->Table === null)
+			throw new Exception(esc_html__("Table not found.", "customtables"));
 
 		$selects = [
 			'a.*',
@@ -280,6 +278,10 @@ class ListOfFields
 		return true;
 	}
 
+	/**
+	 * @throws Exception
+	 * @since 3.2.2
+	 */
 	function getFieldTypesFromXML(bool $onlyWordpress = false): ?array
 	{
 		/* file example:

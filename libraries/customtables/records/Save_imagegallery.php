@@ -90,9 +90,8 @@ class Save_imagegallery
 
 		//Check file
 		if (!CustomTablesImageMethods::CheckImage($uploadedFile)) {
-			common::enqueueMessage(esc_html__("Broken Image or too large", "customtables"));
 			unlink($uploadedFile);
-			return false;
+			throw new Exception(esc_html__("Broken Image or too large", "customtables"));
 		}
 
 		//Save to DB

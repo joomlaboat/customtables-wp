@@ -97,22 +97,16 @@ class Search_tablejoin extends BaseSearch
 	{
 		$typeParams = $this->field->params;
 
-		if (count($typeParams) < 1) {
-			common::enqueueMessage(esc_html__("Table not specified.", "customtables"));
-			return esc_html__("Table not specified.", "customtables");
-		}
+		if (count($typeParams) < 1)
+			throw new Exception(esc_html__("Table not specified.", "customtables"));
 
-		if (count($typeParams) < 2) {
-			common::enqueueMessage(esc_html__("Unknown field/layout parameter.", "customtables"));
-			return esc_html__("Unknown field/layout parameter.", "customtables");
-		}
+		if (count($typeParams) < 2)
+			throw new Exception(esc_html__("Unknown field/layout parameter.", "customtables"));
 
 		$tableName = $typeParams[0];
 
-		if (empty($tableName)) {
-			common::enqueueMessage('Table not set.');
-			return 'Table not set.';
-		}
+		if (empty($tableName))
+			throw new Exception(esc_html__("Table not specified.", "customtables"));
 
 		$value_field = $typeParams[1] ?? '';
 		$filter = $typeParams[2] ?? '';
@@ -124,10 +118,8 @@ class Search_tablejoin extends BaseSearch
 		else
 			$allowUnpublished = false;
 
-		if (TableHelper::getTableID($tableName) == '') {
-			common::enqueueMessage(esc_html__("Table not found.", "customtables"));
-			return esc_html__("Table not found.", "customtables");
-		}
+		if (TableHelper::getTableID($tableName) == '')
+			throw new Exception(esc_html__("Table not found.", "customtables"));
 
 		if ($order_by_field == '')
 			$order_by_field = $value_field;
@@ -208,18 +200,14 @@ class Search_tablejoin extends BaseSearch
 		$pair = explode(':', $field);
 		if (count($pair) == 2) {
 			$layout_mode = true;
-			if ($pair[0] != 'layout' and $pair[0] != 'tablelesslayout') {
-				common::enqueueMessage(esc_html__("Unknown field/layout parameter.", "customtables") . ' search_tablejoin.php' . $field . '"');
-				return array();
-			}
+			if ($pair[0] != 'layout' and $pair[0] != 'tablelesslayout')
+				throw new Exception(esc_html__("Unknown field/layout parameter.", "customtables") . ' search_tablejoin.php' . $field . '"');
 
 			$Layouts = new Layouts($ct);
 			$layoutcode = $Layouts->getLayout($pair[1]);
 
-			if (!isset($layoutcode) or $layoutcode == '') {
-				common::enqueueMessage(esc_html__("Layout not found or is empty.", "customtables") . ' search_tablejoin.php' . $pair[1] . '"');
-				return array();
-			}
+			if (!isset($layoutcode) or $layoutcode == '')
+				throw new Exception(esc_html__("Layout not found or is empty.", "customtables") . ' search_tablejoin.php' . $pair[1] . '"');
 		}
 
 		$list_values = [];
@@ -294,7 +282,7 @@ class Search_tablejoin extends BaseSearch
 		}
 
 		HTMLHelper::_('formbehavior.chosen', '.ct_improved_selectbox');
-		return $this->renderDropdownSelector_Box_simple($list_values, (string)$current_value, $control_name, $dynamic_filter, $addNoValue);
+		return $this->renderDropdownSelector_Box_simple($list_values, $current_value, $control_name, $dynamic_filter, $addNoValue);
 	}
 
 	protected function renderDropdownSelector_Box_simple($list_values, string $current_value, $control_name, $dynamic_filter, $addNoValue = false): string

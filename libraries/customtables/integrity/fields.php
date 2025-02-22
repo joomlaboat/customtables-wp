@@ -204,7 +204,7 @@ class IntegrityFields extends IntegrityChecks
 							$result .= '<p>' . esc_html__("Field", "customtables") . ' <span style="color:green;">'
 								. $nice_field_name . '</span> ' . esc_html__("fixed", "customtables") . '.</p>';
 						} else {
-							common::enqueueMessage($msg);
+							throw new Exception($msg);
 						}
 
 						if ($msg != '')

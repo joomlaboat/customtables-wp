@@ -24,14 +24,17 @@ class ListOfTables
 		$this->ct = $ct;
 	}
 
+	/**
+	 * @throws Exception
+	 * @since 3.2.2
+	 */
 	public static function getNumberOfRecords($realtablename): int
 	{
 		try {
 			$whereClause = new MySQLWhereClause();
 			$rows = database::loadObjectList($realtablename, ['COUNT_ROWS'], $whereClause, null, null, 1);
 		} catch (Exception $e) {
-			common::enqueueMessage('Table "' . $realtablename . '" - ' . $e->getMessage());
-			return 0;
+			throw new Exception('Get Number of Record: Table "' . $realtablename . '" - ' . $e->getMessage());
 		}
 		return $rows[0]->record_count;
 	}
@@ -131,7 +134,7 @@ class ListOfTables
 
 		$newTableName = strtolower(trim(preg_replace("/\W/", "", $newTableName)));
 
-		$data ['customphp'] = common::inputPostString('customphp', null, 'create-edit-table');;
+		$data ['customphp'] = common::inputPostString('customphp', null, 'create-edit-table');
 		$customTableName = common::inputPostString('customtablename', null, 'create-edit-table');
 		$data ['customtablename'] = $customTableName;
 		$data ['customidfield'] = common::inputPostString('customidfield', null, 'create-edit-table');
