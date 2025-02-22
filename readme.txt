@@ -5,7 +5,7 @@ Donate link: https://www.patreon.com/joomlaboat
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
 Tested up to: 6.7.2
-Stable tag: 1.4.8
+Stable tag: 1.4.9
 Requires PHP: 7.4
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -49,6 +49,13 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 [Please contact us here with your query.](https://ct4.us/contact-us/)
 
 == Changelog ==
+
+= 1.4.9 =
+- List of Layouts and Tables: Search fixed.
+- List of Fields: Search fixed.
+- CT Lib updated.
+- Table / Edit - Advanced Tab description improved.
+- Save / add fields from Third-part table fixed (WP).
 
 = 1.4.8 =
 - Rich Text Editor feature added.
