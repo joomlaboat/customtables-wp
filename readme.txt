@@ -51,8 +51,8 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 == Changelog ==
 
 = 1.4.9 =
-- List of Layouts and Tables: Search fixed.
 - List of Fields: Search fixed.
+- List of Layouts and Tables: Search fixed.
 - CT Lib updated.
 - Table / Edit - Advanced Tab description improved.
 - Save / add fields from Third-part table fixed (WP).
