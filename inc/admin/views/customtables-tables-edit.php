@@ -172,7 +172,7 @@ if ($this->admin_table_edit->ct->Env->advancedTagProcessor) {
 
 				<div style="display:inline-block;">
 					<?php
-					$buttonText = ($this->admin_table_edit->tableId == 0) ? esc_html__('Save New Table', 'customtables') : esc_html__('Save Table', 'customtables');
+					$buttonText = ($this->admin_table_edit->tableId == 0) ? esc_html__('Save Table', 'customtables') : esc_html__('Save Table', 'customtables');
 					submit_button($buttonText, 'primary', 'createtable', true, array('id' => 'createtable-submit'));
 					?></div>
 

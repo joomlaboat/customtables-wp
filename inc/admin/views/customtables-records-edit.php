@@ -77,7 +77,7 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
 
 
                     <?php
-                    $buttonText = (empty($this->admin_record_edit->listing_id)) ? __('Save New Record') : __('Save Record');
+                    $buttonText = (empty($this->admin_record_edit->listing_id)) ? __('Save Record') : __('Save Record');
 
                     $editForm = new Edit($this->admin_record_edit->ct);
                     $editForm->layoutContent = $this->admin_record_edit->pageLayout;
