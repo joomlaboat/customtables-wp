@@ -754,12 +754,9 @@ class SaveFieldQuerySet
 
 				$this->ct->messages[] = esc_html__("Record user updated.", "customtables");
 			} else {
-				$msg =
-					esc_html__("User with email", "customtables")
+				throw new Exception(esc_html__("User with email", "customtables")
 					. ' "' . $user_email . '" '
-					. esc_html__("already exists.", "customtables");
-
-				throw new Exception($msg);
+					. esc_html__("already exists.", "customtables"));
 			}
 		} else {
 			try {
