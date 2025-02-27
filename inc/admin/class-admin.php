@@ -385,7 +385,7 @@ class Admin
 
                 $ct->Params->limit = $attributes->limit;
                 $ct->Params->filter = $attributes->filter;
-
+				$ct->Params->blockExternalVars = true;
                 $layouts = new Layouts($ct);
 
                 if ((int)$attributes->type == CUSTOMTABLES_LAYOUT_TYPE_SIMPLE_CATALOG)

@@ -114,7 +114,7 @@ class template
 		$menu_params['limit'] = $attributes['limit'];
 
 		$ct->Params->setParams($menu_params);
-
+		$ct->Params->blockExternalVars = false;
 		$layouts = new Layouts($ct);
 
 		if (!empty($attributes['view'])) {
