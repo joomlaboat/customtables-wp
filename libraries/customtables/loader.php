@@ -276,5 +276,4 @@ function CustomTablesLoader($include_utilities = false, $include_html = false, $
 
 	require_once($pathViews . 'edit.php');
 	require_once($pathViews . 'catalog.php');
-	require_once($pathViews . 'details.php');
 }
