@@ -616,7 +616,11 @@ class common
 		return $randomString;
 	}
 
-	public static function saveString2File(string $filePath, string $content): ?string
+	/**
+	 * @throws Exception
+	 * @since 3.2.2
+	 */
+	public static function saveString2File(string $filePath, string $content)
 	{
 		global $wp_filesystem;
 
@@ -626,9 +630,8 @@ class common
 
 		WP_Filesystem();
 
-		if (!$wp_filesystem) {
-			return 'Unable to initialize WP_Filesystem.';
-		}
+		if (!$wp_filesystem)
+			throw new Exception('Unable to initialize WP_Filesystem.');
 
 		try {
 			$result = $wp_filesystem->put_contents($filePath, $content);
@@ -638,10 +641,8 @@ class common
 			}
 
 		} catch (Exception $e) {
-			return $e->getMessage();
+			throw new Exception($e->getMessage());
 		}
-
-		return null;
 	}
 
 	public static function getStringFromFile(string $filePath): ?string
