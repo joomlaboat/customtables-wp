@@ -21,24 +21,28 @@ class ImportCSV
 	 * @throws Exception
 	 * @since 3.2.2
 	 */
-	public static function importCSVFile($filename, $ct_tableid): ?string
+	public static function importCSVFile($filename, $ct_tableid): void
 	{
-		if (file_exists($filename))
-			return self::importCSVdata($filename, $ct_tableid);
-		else
-			return esc_html__("File not found", "customtables");
+		if (file_exists($filename)) {
+			try {
+				self::importCSVdata($filename, $ct_tableid);
+			} catch (Exception $e) {
+				throw new Exception($e->getMessage());
+			}
+		} else
+			throw new Exception(esc_html__("File not found", "customtables"));
 	}
 
 	/**
 	 * @throws Exception
 	 * @since 3.2.2
 	 */
-	private static function importCSVData(string $filename, int $ct_tableid): ?string
+	private static function importCSVData(string $filename, int $ct_tableid): void
 	{
 		$arrayOfLines = self::getLines($filename);
 
 		if ($arrayOfLines === null)
-			return esc_html__("CSV file is empty.", "customtables");
+			throw new Exception(esc_html__("CSV file is empty.", "customtables"));
 
 		$ct = new CT([], true);
 		$ct->getTable($ct_tableid);
@@ -66,7 +70,6 @@ class ImportCSV
 				}
 			}
 		}
-		return null;
 	}
 
 	//https://stackoverflow.com/questions/26717462/php-best-approach-to-detect-csv-delimiter/59581170
