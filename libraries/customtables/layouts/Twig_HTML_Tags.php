@@ -14,9 +14,9 @@ namespace CustomTables;
 if (!defined('ABSPATH')) exit;
 
 use Exception;
+use JESPagination;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
-use JESPagination;
 use Joomla\CMS\Router\Route;
 
 class Twig_HTML_Tags
@@ -176,7 +176,7 @@ class Twig_HTML_Tags
 ';
 	}
 
-	function pagination($show_arrow_icons = false): string
+	function pagination(bool $show_arrow_icons = false): string
 	{
 		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
 			return '';
@@ -192,16 +192,17 @@ class Twig_HTML_Tags
 
 		if (defined('_JEXEC')) {
 			$pagination = new JESPagination($this->ct->Table->recordcount, $this->ct->LimitStart, $this->ct->Limit, '', $show_arrow_icons);
+			if (CUSTOMTABLES_JOOMLA_MIN_4)
+				return '<div style="display:inline-block;">' . $pagination->getPagesLinks() . '</div>';
+			else
+				return '<div class="pagination">' . $pagination->getPagesLinks() . '</div>';
+
 		} elseif (defined('WPINC')) {
-			return '{{ html.pagination }} not supported in WordPress version';
+			$pagination = new Pagination($this->ct->Table->recordcount, $this->ct->LimitStart, $this->ct->Params->limit, '', $show_arrow_icons, $this->ct->Env->toolbarIcons);
+			return '<div class="pagination" style="display: inline-block;">' . $pagination->render() . '</div>';
 		} else {
 			return '{{ html.pagination }} not supported in this type of CMS';
 		}
-
-		if (CUSTOMTABLES_JOOMLA_MIN_4)
-			return '<div style="display:inline-block;">' . $pagination->getPagesLinks() . '</div>';
-		else
-			return '<div class="pagination">' . $pagination->getPagesLinks() . '</div>';
 	}
 
 	function limit($the_step = 5, $showLabel = false, $CSS_Class = null): string

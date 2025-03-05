@@ -330,6 +330,9 @@ class template
 		margin-left:15px;
 	}
 
+	.nav-links a, .nav-links span {
+		margin: 0 10px 0 10px;
+	}
 		');
 		// Add inline script after enqueuing the main script
 		if (isset($this->enqueueList['script']))
