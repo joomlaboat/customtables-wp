@@ -120,6 +120,9 @@ function enqueue_codemirror()
 
     wp_enqueue_script('customtables-js-layoutwizard', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/layoutwizard.js', array(), $version, false);
     wp_enqueue_script('customtables-js-layouteditor', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/layouteditor.js', array(), $version, false);
+	wp_enqueue_script('customtables-js-edit', home_url() . '/wp-content/plugins/customtables/libraries/customtables/media/js/edit.js', array(), $version, false);
+
+	wp_add_inline_script('customtables-js-edit', 'if (typeof window.CTEditHelper === "undefined") {window.CTEditHelper = new CustomTablesEdit("Joomla",' . (explode('.', CUSTOMTABLES_JOOMLA_VERSION)[0]) . ',null);}');
 }
 
 if ($page == 'customtables-layouts-edit')
