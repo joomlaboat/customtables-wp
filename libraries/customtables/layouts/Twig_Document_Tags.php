@@ -162,7 +162,7 @@ class Twig_Document_Tags
 
 				$this->ct->LayoutVariables['styles'][] = $linkOrStyle;
 
-//				print_r($this->ct->LayoutVariables['styles']);
+				//print_r($this->ct->LayoutVariables['styles']);
 
 				return '';
 			}
