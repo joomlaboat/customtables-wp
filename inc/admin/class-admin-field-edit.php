@@ -6,10 +6,10 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use CustomTables\common;
 use CustomTables\CT;
-use CustomTables\Fields;
 use CustomTables\ListOfFields;
 use CustomTables\TableHelper;
 use Exception;
+use WP_Error;
 
 class Admin_Field_Edit
 {
@@ -61,7 +61,15 @@ class Admin_Field_Edit
     {
 	    $action = common::inputPostCmd('action','','create-edit-field');
         if('createfield' === $action || 'savefield' === $action) {
-            $this->helperListOfFields->save($this->tableId,$this->fieldId);
+
+			try {
+				$this->helperListOfFields->save($this->tableId,$this->fieldId);
+			}catch (Exception $e) {
+				$this->errors = new WP_Error();
+				$this->errors->add('error_code', $e->getMessage());
+				return;
+			}
+
             $url = 'admin.php?page=customtables-fields&table='.$this->tableId;
 
             ob_start(); // Start output buffering

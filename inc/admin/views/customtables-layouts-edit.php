@@ -64,35 +64,26 @@ foreach ($this->admin_layout_edit->allTables as $table) {
                 </div>
             </h1>
 
-			<?php if (isset($errors) && is_wp_error($errors)) : ?>
-                <div class="error">
-                    <ul>
+			<?php if (isset($this->admin_layout_edit->errors) && is_wp_error($this->admin_layout_edit->errors)) : ?>
+				<div class="error">
+					<ul>
 						<?php
-						foreach ($errors->get_error_messages() as $err) {
+						foreach ($this->admin_layout_edit->errors->get_error_messages() as $err) {
 							echo '<li>' . esc_html($err) . '</li>';
 						}
 						?>
-                    </ul>
-                </div>
-			<?php
-			endif;
+					</ul>
+				</div>
+			<?php endif; ?>
 
-			if (!empty($messages)) {
+			<?php if (!empty($messages)) : ?>
+				<?php
 				foreach ($messages as $msg) {
 					echo '<div id="message" class="updated notice is-dismissible"><p>' . esc_html($msg) . '</p></div>';
 				}
-			}
-			?>
-
-			<?php if (isset($add_user_errors) && is_wp_error($add_user_errors)) : ?>
-                <div class="error">
-					<?php
-					foreach ($add_user_errors->get_error_messages() as $message) {
-						echo '<p>' . esc_html($message) . '</p>';
-					}
-					?>
-                </div>
+				?>
 			<?php endif; ?>
+
             <div id="ajax-response"></div>
 
 			<?php

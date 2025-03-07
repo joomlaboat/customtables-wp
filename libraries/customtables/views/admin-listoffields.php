@@ -15,6 +15,7 @@ if (!defined('ABSPATH')) exit;
 
 use Exception;
 use Joomla\CMS\HTML\HTMLHelper;
+use WP_Error;
 
 class ListOfFields
 {

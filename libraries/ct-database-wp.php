@@ -508,6 +508,8 @@ class database
 
                 if ($select[0] == 'COUNT')
                     $selects[] = 'COUNT(`' . $selectTable_safe . '`.`' . $selectField . '`) AS ' . $asValue;
+				elseif ($select[0] == 'DISTINCT')
+					$selects[] = 'DISTINCT `' . $selectTable_safe . '`.`' . $selectField . '` AS ' . $asValue;
                 elseif ($select[0] == 'SUM')
                     $selects[] = 'SUM(`' . $selectTable_safe . '`.`' . $selectField . '`) AS ' . $asValue;
                 elseif ($select[0] == 'AVG')
@@ -815,8 +817,22 @@ class database
     {
         global $wpdb;
 
-        $tableName_safe = str_replace('#__', $wpdb->prefix, $tableName);//Joomla way
-        $tableName_safe = preg_replace('/[^a-zA-Z0-9_]/', '', $tableName_safe);
+		$tableName_safe = str_replace('#__', $wpdb->prefix, $tableName);//Joomla way
+		$tableName_safe = preg_replace('/[^a-zA-Z0-9_]/', '', $tableName_safe);
+
+		$results = $wpdb->get_col($wpdb->prepare('SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s', $tableName_safe));
+
+		if ($wpdb->last_error !== '')
+			throw new Exception($wpdb->last_error);
+
+		if(count($results) === 0)
+			throw new Exception('Table `'.$tableName_safe.'` not found');
+
+		$engine = $results[0];
+
+		if (strtoupper($engine) !== 'INNODB') {
+			throw new Exception("Foreign Keys require InnoDB, but table '{$tableName_safe}' is using {$engine}.");
+		}
 
         $fieldName_safe = preg_replace('/[^a-zA-Z0-9_]/', '', $fieldName);
 

@@ -8,10 +8,6 @@ use CustomTables\Fields;
 
 require_once ABSPATH . 'wp-admin/admin-header.php';
 
-?>
-
-<?php
-
 foreach ($this->admin_field_edit->allTables as $table) {
     $tableID = $table['id'];
 
@@ -44,18 +40,18 @@ foreach ($this->admin_field_edit->allTables as $table) {
             ?>
         </h1>
 
-        <?php if (isset($errors) && is_wp_error($errors)) : ?>
-            <div class="error">
-                <ul>
-                    <?php
-                    foreach ($errors->get_error_messages() as $err) {
-                        echo "<li>" . esc_html($err) . "</li>";
-                    }
-                    ?>
-                </ul>
-            </div>
-        <?php
-        endif;
+		<?php if (isset($this->admin_field_edit->errors) && is_wp_error($this->admin_field_edit->errors)) : ?>
+			<div class="error">
+				<ul>
+					<?php
+					foreach ($this->admin_field_edit->errors->get_error_messages() as $err) {
+						echo '<li>' . esc_html($err) . '</li>';
+					}
+					?>
+				</ul>
+			</div>
+		<?php
+		endif;
 
         if (!empty($messages)) {
             foreach ($messages as $msg) {
