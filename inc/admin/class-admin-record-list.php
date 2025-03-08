@@ -175,14 +175,10 @@ class Admin_Record_List extends WP_List_Table
 			$this->ct->Ordering->orderby = $orderBy . ($order !== null ? ' ' . $order : '');
 		}
 
-		//$this->ct->Ordering->parseOrderByParam();
-		//$this->ct->applyLimits($limit);
-
 		if (!$this->ct->getRecords()) {
-			//$this->ct->app->enqueueMessage(CTMiscHelper::JTextExtended('Table not found.'), 'error');
-			die('Table not found');
+			common::enqueueMessage('Table not found.');
+			return [];
 		}
-
 
 		$newData = [];
 		foreach ($this->ct->Records as $item) {
