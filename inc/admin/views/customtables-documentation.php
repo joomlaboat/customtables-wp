@@ -2,14 +2,27 @@
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use CustomTables\common;
 use CustomTables\Documentation;
+
+$errors = common::getTransientMessages('customtables_error_message');
+$messages = common::getTransientMessages('customtables_success_message');
 
 include_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-documentation.php');
 $documentation = new Documentation(true, true);
 
+try {
+	$documentation_safe = str_replace('ct_readmoreClosed', '', $documentation->getFieldTypes());
+} catch (Exception $e) {
+	$errors[] = $e->getMessage();
+	$documentation_safe = '';
+}
+
 ?>
 <div class="wrap ct_doc">
     <h2><?php esc_html_e('Custom Tables - Documentation', 'customtables'); ?></h2>
+
+	<?php common::showTransient($errors, $messages); ?>
 
     <p><a href="https://ct4.us/contact-us/"
           target="_blank"><?php echo esc_html__('Have questions? Get in touch with our support team.', 'customtables'); ?></a>
@@ -51,13 +64,7 @@ A field\'s data type is the most important property because it determines what k
             <?php echo wp_kses(__('<p>Below is the list of parameters every field type accepts and how to use it : </p><br/>'), $allowed_html); ?>
             <br/>
 
-
-
-
-            <?php
-            $documentation_safe = str_replace('ct_readmoreClosed', '', $documentation->getFieldTypes());
-            echo wp_kses_post($documentation_safe);
-            ?>
+            <?php echo wp_kses_post($documentation_safe);            ?>
         </div>
 
         <div class="gtab tab-2">

@@ -5,6 +5,13 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use CustomTables\common;
 use CustomTables\Integrity\IntegrityFields;
 
+$errors = common::getTransientMessages('customtables_error_message');
+if (isset($this->admin_field_list->errors) && is_wp_error($this->admin_field_list->errors)) {
+	foreach ($this->admin_field_list->errors->get_error_messages() as $error)
+		$errors []= $error;
+}
+$messages = common::getTransientMessages('customtables_success_message');
+
 $page = common::inputGetCmd('page');
 
 ?>
@@ -21,7 +28,7 @@ $page = common::inputGetCmd('page');
 			esc_html_e('Fields', 'customtables');
 		} else {
 			esc_html_e('Custom Tables - Fields', 'customtables');
-			echo '<div class="error"><p>' . esc_html__('Table not selected or not found.', 'customtables') . '</p></div>';
+			$errors [] = 'Table not selected or not found.';
 		}
 		?></h1>
 
@@ -39,15 +46,16 @@ $page = common::inputGetCmd('page');
 		$link = 'admin.php?page=customtables-fields&table=' . $this->admin_field_list->tableId;
 		try {
 			$result_clean = IntegrityFields::checkFields($this->admin_field_list->ct, $link);
-		} catch (Exception $e) {
-			echo '<div class="error">Error in integrity check.</div>';
-			$result_clean = '';
-		}
 
-		if ($result_clean !== '')
-			echo '<div id="message" class="updated notice is-dismissible">' . wp_kses_post($result_clean) . '</div>';
+			if ($result_clean !== '')
+				$messages [] = $result_clean;
+		} catch (Exception $e) {
+			$errors [] = 'Error in integrity check.';
+		}
 	}
 	?>
+
+	<?php common::showTransient($errors, $messages); ?>
 
 	<div id="customtables">
 		<div id="customtables-post-body">

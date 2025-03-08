@@ -4,6 +4,13 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use CustomTables\common;
 
+$errors = common::getTransientMessages('customtables_error_message');
+if (isset($this->admin_record_list->errors) && is_wp_error($this->admin_record_list->errors)) {
+	foreach ($this->admin_record_list->errors->get_error_messages() as $error)
+		$errors []= $error;
+}
+$messages = common::getTransientMessages('customtables_success_message');
+
 $page = common::inputGetCmd('page');
 
 ?>
@@ -20,7 +27,7 @@ $page = common::inputGetCmd('page');
             esc_html_e('Records', 'customtables');
         } else {
             esc_html_e('Custom Tables - Records', 'customtables');
-            echo '<div class="error"><p>' . esc_html__('Table not selected or not found.', 'customtables') . '</p></div>';
+            echo esc_html__('Table not selected or not found.', 'customtables');
         }
         ?>
     </h1>
@@ -41,20 +48,7 @@ $page = common::inputGetCmd('page');
     }
     ?>
 
-    <?php
-
-    $message = get_transient('customtables_error_message', 30); // timeout in seconds
-    if ($message) {
-        echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($message) . '</p></div>';
-        delete_transient('customtables_error_message');
-    }
-
-    $success_message = get_transient('customtables_success_message', 30); // timeout in seconds
-    if (!empty($success_message)) {
-        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($success_message) . '</p></div>';
-        delete_transient('customtables_success_message');
-    }
-    ?>
+	<?php common::showTransient($errors, $messages); ?>
 
     <hr class="wp-header-end"/>
 

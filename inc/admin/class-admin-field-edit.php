@@ -2,80 +2,77 @@
 
 namespace CustomTablesWP\Inc\Admin;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\ListOfFields;
 use CustomTables\TableHelper;
 use Exception;
-use WP_Error;
 
 class Admin_Field_Edit
 {
-    /**
-     * @since    1.0.0
-     * @access   private
-     */
-    public CT $ct;
-    public ListOfFields $helperListOfFields;
+	/**
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	public CT $ct;
+	public ListOfFields $helperListOfFields;
 	public ?int $tableId;
-    public ?int $fieldId;
-    public array $fieldRow;
-    public array $fieldTypes;
-    public array $allTables;
+	public ?int $fieldId;
+	public array $fieldRow;
+	public array $fieldTypes;
+	public array $allTables;
 
 	/**
 	 * @throws Exception
 	 * @since 1.1.4
 	 */
-    public function __construct()
-    {
-        require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoffields.php');
-        $this->ct = new CT([],true);
-        $this->helperListOfFields = new ListOfFields($this->ct);
-	    $this->tableId = common::inputGetInt('table');
-        $this->fieldId = null;
-        $this->fieldRow=['tableid' => null,'fieldname' => null , 'fieldtitle' => null, 'type' => null, 'typeparams' => null, 'isrequired' => null,
-            'defaultvalue' => null, 'allowordering' => null, 'valuerule' =>null, 'valuerulecaption' => null];
+	public function __construct()
+	{
+		require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'admin-listoffields.php');
+		$this->ct = new CT([], true);
+		$this->helperListOfFields = new ListOfFields($this->ct);
+		$this->tableId = common::inputGetInt('table');
+		$this->fieldId = null;
+		$this->fieldRow = ['tableid' => null, 'fieldname' => null, 'fieldtitle' => null, 'type' => null, 'typeparams' => null, 'isrequired' => null,
+			'defaultvalue' => null, 'valuerule' => null, 'valuerulecaption' => null];
 
-        if ($this->tableId)
-        {
-            $this->ct->getTable($this->tableId);
-            if($this->ct->Table->tablename !== null) {
-                $this->fieldId = common::inputGetInt('field');
+		if ($this->tableId) {
+			$this->ct->getTable($this->tableId);
+			if ($this->ct->Table->tablename !== null) {
+				$this->fieldId = common::inputGetInt('field');
 
-                if ($this->fieldId === 0)
-                    $this->fieldId = null;
+				if ($this->fieldId === 0)
+					$this->fieldId = null;
 
-                if ($this->fieldId !== null)
-                    $this->fieldRow = $this->ct->Table->getFieldById($this->fieldId);
-            }
-        }
+				if ($this->fieldId !== null)
+					$this->fieldRow = $this->ct->Table->getFieldById($this->fieldId);
+			}
+		}
 
-        $this->fieldTypes = $this->helperListOfFields->getFieldTypesFromXML(true);
-        $this->allTables = TableHelper::getAllTables();
-    }
+		$this->fieldTypes = $this->helperListOfFields->getFieldTypesFromXML(true);
+		$this->allTables = TableHelper::getAllTables();
+	}
 
-    function handle_field_actions(): void
-    {
-	    $action = common::inputPostCmd('action','','create-edit-field');
-        if('createfield' === $action || 'savefield' === $action) {
+	function handle_field_actions(): void
+	{
+		$action = common::inputPostCmd('action', '', 'create-edit-field');
+		if ('createfield' === $action || 'savefield' === $action) {
 
 			try {
-				$this->helperListOfFields->save($this->tableId,$this->fieldId);
-			}catch (Exception $e) {
-				$this->errors = new WP_Error();
-				$this->errors->add('error_code', $e->getMessage());
+				$this->helperListOfFields->save($this->tableId, $this->fieldId);
+			} catch (Exception $e) {
+				set_transient('customtables_error_message', 'a' . $e->getMessage(), 60);
 				return;
 			}
 
-            $url = 'admin.php?page=customtables-fields&table='.$this->tableId;
+			$url = 'admin.php?page=customtables-fields&table=' . $this->tableId;
 
-            ob_start(); // Start output buffering
-            ob_end_clean(); // Discard the output buffer
-            wp_redirect(admin_url($url));
-            exit;
-        }
-    }
+			ob_start(); // Start output buffering
+			ob_end_clean(); // Discard the output buffer
+			wp_redirect(admin_url($url));
+			exit;
+		}
+	}
 }

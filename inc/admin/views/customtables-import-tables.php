@@ -1,9 +1,12 @@
 <?php
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use CustomTables\common;
 use CustomTables\CTMiscHelper;
 
-if (!defined('ABSPATH')) exit; // Exit if accessed directly
+$errors = common::getTransientMessages('customtables_error_message');
+$messages = common::getTransientMessages('customtables_success_message');
 
 $max_file_size = CTMiscHelper::file_upload_max_size();
 
@@ -12,23 +15,7 @@ $max_file_size = CTMiscHelper::file_upload_max_size();
 <div class="wrap">
     <h1 class="wp-heading-inline">Import Tables</h1>
 
-<?php
-
-$message = get_transient('customtables_error_message');
-if ($message) {
-	echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($message) . '</p></div>';
-	// Once displayed, clear the transient
-	delete_transient('customtables_error_message');
-}
-
-$success_message = get_transient('customtables_success_message');
-if (!empty($success_message)) {
-	echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($success_message) . '</p></div>';
-	// Optionally, you can delete the transient after displaying it
-	delete_transient('customtables_success_message');
-}
-
-?>
+	<?php common::showTransient($errors, $messages); ?>
 
     <p class="install-help">This function allows for the importation of table structures from .txt files encoded in JSON
         format.</p>
@@ -36,8 +23,8 @@ if (!empty($success_message)) {
 		<?php wp_nonce_field('import-table'); ?>
 
         <ul style="list-style: none;">
-            <li><input type="checkbox" name="importfields" value="1" checked="checked"/> Import Table Fields</li>
-            <li><input type="checkbox" name="importlayouts" value="1" checked="checked"/> Import Layouts</li>
+			<li><input type="checkbox" id="importfields" name="importfields" value="1" checked="checked"/> <label for="importfields">Import Table Fields</label></li>
+            <li><input type="checkbox" id="importlayouts" name="importlayouts" value="1" checked="checked"/> <label for="importlayouts">Import Layouts</label></li>
             <!--<li><input type="checkbox" name="importmenu" value="1" checked="checked" /> Import Menu</li>-->
         </ul>
         <p>

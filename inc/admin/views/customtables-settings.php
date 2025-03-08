@@ -1,39 +1,32 @@
 <?php
 
+
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use CustomTables\common;
+
+$errors = common::getTransientMessages('customtables_error_message');
+if (isset($this->admin_settings->errors) && is_wp_error($this->admin_settings->errors)) {
+	foreach ($this->admin_settings->errors->get_error_messages() as $error)
+		$errors []= $error;
+}
+$messages = common::getTransientMessages('customtables_success_message');
+
+$allowed_html = array(
+	'a' => array(
+		'href' => array(),
+		'title' => array(),
+		'download' => array(),
+		'target' => array()
+	)
+);
 
 ?>
 
 <div class="wrap ct_doc">
-	<?php if (isset($errors) && is_wp_error($errors)) : ?>
-		<div class="error">
-			<ul>
-				<?php
-				foreach ($errors->get_error_messages() as $err) {
-					echo "<li>" . esc_html($err) . "</li>";
-				}
-				?>
-			</ul>
-		</div>
-	<?php
-	endif;
 
-	if (!empty($messages)) {
-		foreach ($messages as $msg) {
-			echo '<div id="message" class="updated notice is-dismissible"><p>' . esc_html($msg) . '</p></div>';
-		}
-	}
-	?>
+	<?php common::showTransient($errors, $messages); ?>
 
-	<?php if (isset($add_user_errors) && is_wp_error($add_user_errors)) : ?>
-		<div class="error">
-			<?php
-			foreach ($add_user_errors->get_error_messages() as $message) {
-				echo "<p>" . esc_html($message) . "</p>";
-			}
-			?>
-		</div>
-	<?php endif; ?>
 	<div id="ajax-response"></div>
 
 

@@ -3,7 +3,16 @@
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use CustomTables\common;
-use CustomTables\IntegrityChecks;
+
+$errors = common::getTransientMessages('customtables_error_message');
+if (isset($this->admin_layout_list->errors) && is_wp_error($this->admin_layout_list->errors)) {
+	foreach ($this->admin_layout_list->errors->get_error_messages() as $error)
+		$errors []= $error;
+}
+
+$messages = common::getTransientMessages('customtables_success_message');
+if (count($this->admin_layout_list->IntegrityChecksResult) > 0)
+	$messages = array_merge($messages, $this->admin_layout_list->IntegrityChecksResult);
 
 $page = absint(common::inputGetInt('page', 0));
 
@@ -19,12 +28,7 @@ $allowed_html = array(
 
     <hr class="wp-header-end">
 
-	<?php if (count($this->admin_layout_list->IntegrityChecksResult) > 0): ?>
-        <ol>
-            <li><?php echo wp_kses(implode('</li><li>', $this->admin_layout_list->IntegrityChecksResult), $allowed_html); ?></li>
-        </ol>
-        <hr/>
-	<?php endif; ?>
+	<?php common::showTransient($errors, $messages); ?>
 
     <div id="customtables">
         <div id="customtables-post-body">

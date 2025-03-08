@@ -2,6 +2,11 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+use CustomTables\common;
+
+$errors = common::getTransientMessages('customtables_error_message');
+$messages = common::getTransientMessages('customtables_success_message');
+
 ?>
 
 
@@ -12,6 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
         <button data-toggle="tab" data-tabs=".gtabs.demo" data-tab=".tab-1" class="nav-tab nav-tab-active">Diagram</button>
         <button data-toggle="tab" data-tabs=".gtabs.demo" data-tab=".tab-2" class="nav-tab">Checks</button>
     </h2>
+
+	<?php common::showTransient($errors, $messages); ?>
 
     <div class="gtabs demo">
         <div class="gtab active tab-1">

@@ -1,8 +1,12 @@
 <?php
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use CustomTables\common;
 use CustomTables\CTMiscHelper;
 
-if (!defined('ABSPATH')) exit; // Exit if accessed directly
+$errors = common::getTransientMessages('customtables_error_message');
+$messages = common::getTransientMessages('customtables_success_message');
 
 $max_file_size = CTMiscHelper::file_upload_max_size();
 
@@ -11,20 +15,7 @@ $max_file_size = CTMiscHelper::file_upload_max_size();
 <div class="wrap">
     <h1 class="wp-heading-inline"><?php esc_html_e('Import Records', 'customtables'); ?></h1>
 
-    <?php
-    $message = get_transient('customtables_error_message');
-    if (!empty($message)) {
-        echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($message) . '</p></div>';
-        delete_transient('customtables_error_message'); // Once displayed, clear the transient
-    }
-
-    $success_message = get_transient('customtables_success_message');
-    if (!empty($success_message)) {
-        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($success_message) . '</p></div>';
-        // Optionally, you can delete the transient after displaying it
-        delete_transient('customtables_success_message');
-    }
-    ?>
+	<?php common::showTransient($errors, $messages); ?>
 
     <p class="install-help"><?php esc_html_e('This function allows for the importation of records from CSV file.', 'customtables'); ?></p>
     <form method="post" action="" id="esFileUploaderForm_Tables" enctype="multipart/form-data">

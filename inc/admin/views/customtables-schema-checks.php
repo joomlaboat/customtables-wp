@@ -13,8 +13,12 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use CustomTables\CT;
 use CustomTables\IntegrityChecks;
 
-$ct = new CT([],true);
-$result = IntegrityChecks::check($ct);
+try {
+	$ct = new CT([],true);
+	$result = IntegrityChecks::check($ct);
+}catch (Exception $e) {
+	$result []= $e->getMessage();
+}
 
 $allowed_html = array(
 	'li' => array()

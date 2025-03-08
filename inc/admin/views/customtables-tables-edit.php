@@ -1,10 +1,27 @@
 <?php
 
-use CustomTables\database;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use CustomTables\common;
+
+$errors = common::getTransientMessages('customtables_error_message');
+if (isset($this->admin_table_edit->errors) && is_wp_error($this->admin_table_edit->errors)) {
+	foreach ($this->admin_table_edit->errors->get_error_messages() as $error)
+		$errors [] = $error;
+}
+$messages = common::getTransientMessages('customtables_success_message');
+
 require_once ABSPATH . 'wp-admin/admin-header.php';
+
+$allowed_html = array(
+	'a' => array(
+		'href' => array(),
+		'title' => array(),
+		'download' => array(),
+		'target' => array()
+	)
+);
 
 if ($this->admin_table_edit->tableId === null)
 	$new_tablename = '';
@@ -48,35 +65,8 @@ if ($this->admin_table_edit->ct->Env->advancedTagProcessor) {
 			?>
 		</h1>
 
-		<?php if (isset($this->admin_table_edit->errors) && is_wp_error($this->admin_table_edit->errors)) : ?>
-			<div class="error">
-				<ul>
-					<?php
-					foreach ($this->admin_table_edit->errors->get_error_messages() as $err) {
-						echo '<li>' . esc_html($err) . '</li>';
-					}
-					?>
-				</ul>
-			</div>
-		<?php
-		endif;
+		<?php common::showTransient($errors, $messages); ?>
 
-		if (!empty($messages)) {
-			foreach ($messages as $msg) {
-				echo '<div id="message" class="updated notice is-dismissible"><p>' . esc_html($msg) . '</p></div>';
-			}
-		}
-		?>
-
-		<?php if (isset($add_user_errors) && is_wp_error($add_user_errors)) : ?>
-			<div class="error">
-				<?php
-				foreach ($add_user_errors->get_error_messages() as $message) {
-					echo '<p>' . esc_html($message) . '</p>';
-				}
-				?>
-			</div>
-		<?php endif; ?>
 		<div id="ajax-response"></div>
 
 		<?php if (current_user_can('install_plugins')): ?>
@@ -171,10 +161,8 @@ if ($this->admin_table_edit->ct->Env->advancedTagProcessor) {
 				</div>
 
 				<div style="display:inline-block;">
-					<?php
-					$buttonText = ($this->admin_table_edit->tableId == 0) ? esc_html__('Save Table', 'customtables') : esc_html__('Save Table', 'customtables');
-					submit_button($buttonText, 'primary', 'createtable', true, array('id' => 'createtable-submit'));
-					?></div>
+					<?php submit_button(esc_html__('Save Table', 'customtables'), 'primary', 'createtable', true, array('id' => 'createtable-submit')); ?>
+				</div>
 
 				<div style="display:inline-block;margin-left:20px;">
 					<!-- Cancel Button -->

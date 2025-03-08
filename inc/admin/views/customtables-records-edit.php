@@ -1,12 +1,40 @@
 <?php
 
-use CustomTables\Edit;
+
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+use CustomTables\common;
+use CustomTables\Edit;
+
+$errors = common::getTransientMessages('customtables_error_message');
+if (isset($this->admin_record_edit->errors) && is_wp_error($this->admin_record_edit->errors)) {
+	foreach ($this->admin_record_edit->errors->get_error_messages() as $error)
+		$errors []= $error;
+}
+$messages = common::getTransientMessages('customtables_success_message');
+
+try {
+	$editForm = new Edit($this->admin_record_edit->ct);
+	$editForm->layoutContent = $this->admin_record_edit->pageLayout;
+	$editForm_render_safe = $editForm->render($this->admin_record_edit->recordRow, $this->admin_record_edit->formLink, 'adminForm', false);
+} catch (Exception $e) {
+	$errors []= $e->getMessage();
+	$editForm_render_safe = '';
+}
 
 //include ('customtables-records-edit-help.php');
 
 require_once ABSPATH . 'wp-admin/admin-header.php';
+
+$allowed_html = array(
+	'a' => array(
+		'href' => array(),
+		'title' => array(),
+		'download' => array(),
+		'target' => array()
+	)
+);
 
 ?>
     <div class="wrap">
@@ -21,40 +49,13 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                     esc_html_e('Edit Record');
             } else {
                 esc_html_e('Custom Tables - Records', 'customtables');
-                echo '<div class="error"><p>' . esc_html__('Table not selected or not found.', 'customtables') . '</p></div>';
+                $errors []= esc_html__('Table not selected or not found.', 'customtables');
             }
             ?>
         </h1>
 
-        <?php if (isset($errors) && is_wp_error($errors)) : ?>
-            <div class="error">
-                <ul>
-                    <?php
-                    foreach ($errors->get_error_messages() as $err) {
-                        echo "<li>" . esc_html($err) ."</li>\n";
-                    }
-                    ?>
-                </ul>
-            </div>
-        <?php
-        endif;
+		<?php common::showTransient($errors, $messages); ?>
 
-        if (!empty($messages)) {
-            foreach ($messages as $msg) {
-                echo '<div id="message" class="updated notice is-dismissible"><p>' . esc_html($msg) . '</p></div>';
-            }
-        }
-        ?>
-
-        <?php if (isset($add_user_errors) && is_wp_error($add_user_errors)) : ?>
-            <div class="error">
-                <?php
-                foreach ($add_user_errors->get_error_messages() as $message) {
-                    echo "<p>".esc_html($message)."</p>";
-                }
-                ?>
-            </div>
-        <?php endif; ?>
         <div id="ajax-response"></div>
 
         <?php
@@ -75,18 +76,10 @@ require_once ABSPATH . 'wp-admin/admin-header.php';
                     <input name="table" type="hidden" value="<?php echo esc_html($this->admin_record_edit->tableId); ?>"/>
                     <?php echo wp_nonce_field('create-edit-record' ); ?>
 
+                    <?php echo $editForm_render_safe;//Rendered by the CT library ?>
 
-                    <?php
-                    $buttonText = (empty($this->admin_record_edit->listing_id)) ? __('Save Record') : __('Save Record');
-
-                    $editForm = new Edit($this->admin_record_edit->ct);
-                    $editForm->layoutContent = $this->admin_record_edit->pageLayout;
-                    $editForm_render_safe = $editForm->render($this->admin_record_edit->recordRow, $this->admin_record_edit->formLink, 'adminForm',false);
-                    echo $editForm_render_safe;//Rendered by the CT library
-                    ?>
-                    
                     <div style="display:inline-block;">
-                    <?php submit_button($buttonText, 'primary', 'createrecord', true, array('id' => 'createrecord-submit')); ?>
+                    <?php submit_button(__('Save Record'), 'primary', 'createrecord', true, array('id' => 'createrecord-submit')); ?>
                     </div>
                     <div style="display:inline-block;margin-left:20px;">
                         <!-- Cancel Button -->

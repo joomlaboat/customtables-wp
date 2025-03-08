@@ -949,4 +949,43 @@ class common
 
 		return true;
 	}
+
+	public static function getTransientMessages(string $transient): array
+	{
+		$messages = [];
+		$messages_transient = get_transient($transient);
+		delete_transient($transient);
+
+		if (is_array($messages_transient))
+			$messages = $messages_transient;
+		else
+			$messages [] = $messages_transient;
+
+		return $messages;
+	}
+
+	public static function showTransient(array $errors, array $messages): void
+	{
+		if (count($errors) > 0) {
+			echo '<div class="error"><ul>';
+			foreach ($errors as $error)
+				'<li>' . esc_html($error) . '</li>';
+
+			echo '</ul></div>';
+		}
+
+		if($messages > 0) {
+			$allowed_html = array(
+				'a' => array(
+					'href' => array(),
+					'title' => array(),
+					'download' => array(),
+					'target' => array()
+				)
+			);
+
+			foreach ($messages as $msg)
+				echo '<div id="message" class="updated notice is-dismissible"><p>' . wp_kses($msg, $allowed_html) . '</p></div>';
+		}
+	}
 }

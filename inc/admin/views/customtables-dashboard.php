@@ -4,12 +4,17 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use CustomTables\common;
 
+$errors = common::getTransientMessages('customtables_error_message');
+$messages = common::getTransientMessages('customtables_success_message');
+
 ?>
 
 <div class="wrap">
     <h1 class="wp-heading-inline"><?php esc_html_e('Custom Tables - Dashboard', 'customtables'); ?></h1>
 
     <hr style="margin-bottom: 30px; "/>
+
+	<?php common::showTransient($errors, $messages); ?>
 
     <a href="admin.php?page=customtables-tables" style="margin-right:30px;" class="button">
         <img alt="<?php echo esc_html__('Tables', 'customtables'); ?>"
