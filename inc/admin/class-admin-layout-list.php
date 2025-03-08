@@ -412,7 +412,12 @@ class Admin_Layout_List extends WP_List_Table
 				$whereClauseUpdate = new MySQLWhereClause();
 				$whereClauseUpdate->addCondition('id', $layoutId);
 
-				database::update('#__customtables_layouts', ['published' => 0], $whereClauseUpdate);
+				try {
+					database::update('#__customtables_layouts', ['published' => 0], $whereClauseUpdate);
+				} catch (Exception $e) {
+					common::enqueueMessage($e->getMessage());
+				}
+
 				$this->graceful_redirect();
 			}
 		}
@@ -427,7 +432,11 @@ class Admin_Layout_List extends WP_List_Table
 				$whereClauseUpdate = new MySQLWhereClause();
 				$whereClauseUpdate->addCondition('id', $layoutId);
 
-				database::update('#__customtables_layouts', ['published' => -2], $whereClauseUpdate);
+				try {
+					database::update('#__customtables_layouts', ['published' => -2], $whereClauseUpdate);
+				} catch (Exception $e) {
+					common::enqueueMessage($e->getMessage());
+				}
 				$this->graceful_redirect();
 			}
 		}
@@ -438,31 +447,38 @@ class Admin_Layout_List extends WP_List_Table
 				$this->invalid_nonce_redirect();
 			} else {
 				$layoutId = common::inputGetInt('layout');
-				database::deleteRecord('#__customtables_layouts', 'id', $layoutId);
+				try {
+					database::deleteRecord('#__customtables_layouts', 'id', $layoutId);
+				} catch (Exception $e) {
+					common::enqueueMessage($e->getMessage());
+				}
 				$this->graceful_redirect();
 			}
 		}
 
 		// check for layout bulk actions
+		try {
+			if ($this->is_layout_action('customtables-layouts-edit')) {
+				$this->handle_layout_actions_edit();
+			}
 
-		if ($this->is_layout_action('customtables-layouts-edit')) {
-			$this->handle_layout_actions_edit();
-		}
+			if ($this->is_layout_action('customtables-layouts-publish')) {
+				$this->handle_layout_actions_publish(1);
+			}
 
-		if ($this->is_layout_action('customtables-layouts-publish')) {
-			$this->handle_layout_actions_publish(1);
-		}
+			if ($this->is_layout_action('customtables-layouts-unpublish') or $this->is_layout_action('customtables-layouts-restore')) {
+				$this->handle_layout_actions_publish(0);
+			}
 
-		if ($this->is_layout_action('customtables-layouts-unpublish') or $this->is_layout_action('customtables-layouts-restore')) {
-			$this->handle_layout_actions_publish(0);
-		}
+			if ($this->is_layout_action('customtables-layouts-trash')) {
+				$this->handle_layout_actions_publish(-2);
+			}
 
-		if ($this->is_layout_action('customtables-layouts-trash')) {
-			$this->handle_layout_actions_publish(-2);
-		}
-
-		if ($this->is_layout_action('customtables-layouts-delete')) {
-			$this->handle_layout_actions_delete();
+			if ($this->is_layout_action('customtables-layouts-delete')) {
+				$this->handle_layout_actions_delete();
+			}
+		} catch (Exception $e) {
+			common::enqueueMessage($e->getMessage());
 		}
 	}
 
@@ -552,11 +568,10 @@ class Admin_Layout_List extends WP_List_Table
 				database::update('#__customtables_layouts', ['published' => $state], $whereClauseUpdate);
 			}
 
-			if (count($layouts) > 0) {
+			if (count($layouts) > 0)
 				$this->graceful_redirect();
-			}
 
-			echo '<div id="message" class="updated error is-dismissible"><p>Layouts not selected.</p></div>';
+			common::enqueueMessage(__("Layouts not selected.", 'customtables'));
 		}
 	}
 
@@ -586,7 +601,8 @@ class Admin_Layout_List extends WP_List_Table
 
 				$this->graceful_redirect();
 			}
-			echo '<div id="message" class="updated error is-dismissible"><p>Layouts not selected.</p></div>';
+
+			common::enqueueMessage(__("Layouts not selected.", 'customtables'));
 		}
 	}
 }

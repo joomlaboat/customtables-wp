@@ -441,8 +441,12 @@ class Admin_Table_List extends WP_List_Table
 				$whereClauseUpdate = new MySQLWhereClause();
 				$whereClauseUpdate->addCondition('id', $tableId);
 
-				database::update('#__customtables_tables', ['published' => 0], $whereClauseUpdate);
-				//echo '<div id="message" class="updated notice is-dismissible"><p>1 table restored from the Trash.</p></div>';
+				try {
+					database::update('#__customtables_tables', ['published' => 0], $whereClauseUpdate);
+				} catch (Exception $e) {
+					common::enqueueMessage($e->getMessage());
+				}
+
 				$this->graceful_redirect();
 			}
 		}
@@ -457,8 +461,12 @@ class Admin_Table_List extends WP_List_Table
 				$whereClauseUpdate = new MySQLWhereClause();
 				$whereClauseUpdate->addCondition('id', $tableId);
 
-				database::update('#__customtables_tables', ['published' => -2], $whereClauseUpdate);
-				//echo '<div id="message" class="updated notice is-dismissible"><p>1 table moved to the Trash.</p></div>';
+				try {
+					database::update('#__customtables_tables', ['published' => -2], $whereClauseUpdate);
+				} catch (Exception $e) {
+					common::enqueueMessage($e->getMessage());
+				}
+
 				$this->graceful_redirect();
 			}
 		}
@@ -469,36 +477,41 @@ class Admin_Table_List extends WP_List_Table
 				$this->invalid_nonce_redirect();
 			} else {
 				$tableId = common::inputGetInt('table');
-				TableHelper::deleteTable($tableId);
-				//echo '<div id="message" class="updated notice is-dismissible"><p>1 table permanently deleted.</p></div>';
+				try {
+					TableHelper::deleteTable($tableId);
+				} catch (Exception $e) {
+					common::enqueueMessage($e->getMessage());
+				}
+
+				common::enqueueMessage('Table permanently deleted.','notice');
 				$this->graceful_redirect();
 			}
 		}
 
 		// check for table bulk actions
 
-		if ($this->is_table_action('customtables-tables-edit'))
-			$this->handle_table_actions_edit();
+		try {
+			if ($this->is_table_action('customtables-tables-edit'))
+				$this->handle_table_actions_edit();
 
-		if ($this->is_table_action('customtables-tables-publish'))
-			$this->handle_table_actions_publish(1);
+			if ($this->is_table_action('customtables-tables-publish'))
+				$this->handle_table_actions_publish(1);
 
-		if ($this->is_table_action('customtables-tables-unpublish') or $this->is_table_action('customtables-tables-restore'))
-			$this->handle_table_actions_publish(0);
+			if ($this->is_table_action('customtables-tables-unpublish') or $this->is_table_action('customtables-tables-restore'))
+				$this->handle_table_actions_publish(0);
 
-		if ($this->is_table_action('customtables-tables-trash'))
-			$this->handle_table_actions_publish(-2);
+			if ($this->is_table_action('customtables-tables-trash'))
+				$this->handle_table_actions_publish(-2);
 
-		if ($this->is_table_action('customtables-tables-delete'))
-			$this->handle_table_actions_delete();
+			if ($this->is_table_action('customtables-tables-delete'))
+				$this->handle_table_actions_delete();
 
-		if ($this->is_table_action('customtables-tables-export')) {
-
-			try {
+			if ($this->is_table_action('customtables-tables-export')) {
 				$this->handle_table_actions_export();
-			}catch (Exception $e) {
-				common::enqueueMessage($e->getMessage());
+
 			}
+		} catch (Exception $e) {
+			common::enqueueMessage($e->getMessage());
 		}
 	}
 
@@ -588,7 +601,7 @@ class Admin_Table_List extends WP_List_Table
 			if (count($tables) > 0)
 				$this->graceful_redirect();
 
-			echo '<div id="message" class="updated error is-dismissible"><p>Tables not selected.</p></div>';
+			common::enqueueMessage(__("Tables not selected.", 'customtables'));
 		}
 	}
 
@@ -610,7 +623,7 @@ class Admin_Table_List extends WP_List_Table
 
 				$this->graceful_redirect();
 			}
-			echo '<div id="message" class="updated error is-dismissible"><p>Tables not selected.</p></div>';
+			common::enqueueMessage(__("Tables not selected.", 'customtables'));
 		}
 	}
 
@@ -655,7 +668,7 @@ class Admin_Table_List extends WP_List_Table
 
 				$this->graceful_redirect();
 			}
-			echo '<div id="message" class="updated error is-dismissible"><p>' . __("Tables not selected.") . '</p></div>';
+			common::enqueueMessage(__("Tables not selected.", 'customtables'));
 		}
 	}
 }

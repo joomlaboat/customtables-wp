@@ -508,8 +508,13 @@ class Admin_Record_List extends WP_List_Table
 					$whereClauseUpdate = new MySQLWhereClause();
 					$whereClauseUpdate->addCondition($this->ct->Table->realidfieldname, $recordId);
 
-					database::update($this->ct->Table->realtablename, ['published' => 0], $whereClauseUpdate);
-					//echo '<div id="message" class="updated notice is-dismissible"><p>1 record restored from the Trash.</p></div>';
+					try {
+						database::update($this->ct->Table->realtablename, ['published' => 0], $whereClauseUpdate);
+					} catch (Exception $e) {
+						common::enqueueMessage($e->getMessage());
+					}
+
+					common::enqueueMessage('Record restored from the Trash.','notice');
 					$this->graceful_redirect();
 				}
 			}
@@ -524,8 +529,13 @@ class Admin_Record_List extends WP_List_Table
 					$whereClauseUpdate = new MySQLWhereClause();
 					$whereClauseUpdate->addCondition($this->ct->Table->realidfieldname, $recordId);
 
-					database::update($this->ct->Table->realtablename, ['published' => -2], $whereClauseUpdate);
-					//echo '<div id="message" class="updated notice is-dismissible"><p>1 record moved to the Trash.</p></div>';
+					try {
+						database::update($this->ct->Table->realtablename, ['published' => -2], $whereClauseUpdate);
+					} catch (Exception $e) {
+						common::enqueueMessage($e->getMessage());
+					}
+
+					common::enqueueMessage('Record moved to the Trash.','notice');
 					$this->graceful_redirect();
 				}
 			}
@@ -538,37 +548,45 @@ class Admin_Record_List extends WP_List_Table
 			} else {
 				$recordId = common::inputGetCmd('id');
 				if ($recordId !== null) {
-					database::deleteRecord($this->ct->Table->realtablename, $this->ct->Table->realidfieldname, $recordId);
-					//echo '<div id="message" class="updated notice is-dismissible"><p>1 record permanently deleted.</p></div>';
+					try {
+						database::deleteRecord($this->ct->Table->realtablename, $this->ct->Table->realidfieldname, $recordId);
+					} catch (Exception $e) {
+						common::enqueueMessage($e->getMessage());
+					}
+
+					common::enqueueMessage('Record permanently deleted.','notice');
 					$this->graceful_redirect();
 				} else {
-					echo '<div id="message" class="updated error is-dismissible"><p>Field not selected.</p></div>';
+					common::enqueueMessage(__("Field not selected.", 'customtables'));
 				}
 			}
 		}
 
 		// check for record bulk actions
-
-		if ($this->is_table_action('customtables-records-edit')) {
-			$this->handle_record_actions_edit();
-		}
-
-		if ($this->ct->Table->published_field_found) {
-			if ($this->is_table_action('customtables-records-publish')) {
-				$this->handle_record_actions_publish(1);
+		try {
+			if ($this->is_table_action('customtables-records-edit')) {
+				$this->handle_record_actions_edit();
 			}
 
-			if ($this->is_table_action('customtables-records-unpublish') or $this->is_table_action('customtables-records-restore')) {
-				$this->handle_record_actions_publish(0);
+			if ($this->ct->Table->published_field_found) {
+				if ($this->is_table_action('customtables-records-publish')) {
+					$this->handle_record_actions_publish(1);
+				}
+
+				if ($this->is_table_action('customtables-records-unpublish') or $this->is_table_action('customtables-records-restore')) {
+					$this->handle_record_actions_publish(0);
+				}
+
+				if ($this->is_table_action('customtables-records-trash')) {
+					$this->handle_record_actions_publish(-2);
+				}
 			}
 
-			if ($this->is_table_action('customtables-records-trash')) {
-				$this->handle_record_actions_publish(-2);
+			if ($this->is_table_action('customtables-records-delete')) {
+				$this->handle_record_actions_delete();
 			}
-		}
-
-		if ($this->is_table_action('customtables-records-delete')) {
-			$this->handle_record_actions_delete();
+		} catch (Exception $e) {
+			common::enqueueMessage($e->getMessage());
 		}
 	}
 
@@ -664,7 +682,7 @@ class Admin_Record_List extends WP_List_Table
 				$this->graceful_redirect();
 			}
 
-			echo '<div id="message" class="updated error is-dismissible"><p>Records not selected.</p></div>';
+			common::enqueueMessage(__("Records not selected.", 'customtables'));
 		}
 	}
 
@@ -687,7 +705,8 @@ class Admin_Record_List extends WP_List_Table
 
 				$this->graceful_redirect();
 			}
-			echo '<div id="message" class="updated error is-dismissible"><p>Records not selected.</p></div>';
+
+			common::enqueueMessage(__("Records not selected.", 'customtables'));
 		}
 	}
 }

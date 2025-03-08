@@ -130,7 +130,7 @@ class Admin_Field_List extends WP_List_Table
 		if ($this->tableId === null or $this->ct->Table == null or $this->ct->Table->tablename === null)
 			return [];
 
-		$search = common::inputPostString('s',null,'bulk-' . $this->_args['plural'] );
+		$search = common::inputPostString('s', null, 'bulk-' . $this->_args['plural']);
 		$orderby = common::inputGetCmd('orderby');
 		$order = common::inputGetCmd('order');
 
@@ -451,8 +451,13 @@ class Admin_Field_List extends WP_List_Table
 				$whereClauseUpdate = new MySQLWhereClause();
 				$whereClauseUpdate->addCondition('id', $fieldId);
 
-				database::update('#__customtables_fields', ['published' => 0], $whereClauseUpdate);
-				//echo '<div id="message" class="updated notice is-dismissible"><p>1 field restored from the Trash.</p></div>';
+				try {
+					database::update('#__customtables_fields', ['published' => 0], $whereClauseUpdate);
+				} catch (Exception $e) {
+					common::enqueueMessage($e->getMessage());
+				}
+
+				common::enqueueMessage('Field restored from the Trash.','notice');
 				$this->graceful_redirect();
 			}
 		}
@@ -468,8 +473,13 @@ class Admin_Field_List extends WP_List_Table
 				$whereClauseUpdate = new MySQLWhereClause();
 				$whereClauseUpdate->addCondition('id', $fieldId);
 
-				database::update('#__customtables_fields', ['published' => -2], $whereClauseUpdate);
-				//echo '<div id="message" class="updated notice is-dismissible"><p>1 field moved to the Trash.</p></div>';
+				try {
+					database::update('#__customtables_fields', ['published' => -2], $whereClauseUpdate);
+				} catch (Exception $e) {
+					common::enqueueMessage($e->getMessage());
+				}
+
+				common::enqueueMessage('Field moved to the Trash.','notice');
 				$this->graceful_redirect();
 			}
 		}
@@ -483,31 +493,40 @@ class Admin_Field_List extends WP_List_Table
 				$fieldId = common::inputGetInt('field');
 
 				if ($fieldId !== null) {
-					Fields::deleteField_byID($this->ct, $fieldId);
-					//echo '<div id="message" class="updated notice is-dismissible"><p>1 field permanently deleted.</p></div>';
+
+					try {
+						Fields::deleteField_byID($this->ct, $fieldId);
+					} catch (Exception $e) {
+						common::enqueueMessage($e->getMessage());
+					}
+
+					common::enqueueMessage('Field permanently deleted.','notice');
 					$this->graceful_redirect();
 				} else {
-					echo '<div id="message" class="updated error is-dismissible"><p>Field not selected.</p></div>';
+					common::enqueueMessage(__("Field not selected.", 'customtables'));
 				}
 			}
 		}
 
 		// check for field bulk actions
+		try {
+			if ($this->is_table_action('customtables-fields-edit'))
+				$this->handle_field_actions_edit();
 
-		if ($this->is_table_action('customtables-fields-edit'))
-			$this->handle_field_actions_edit();
+			if ($this->is_table_action('customtables-fields-publish'))
+				$this->handle_field_actions_publish(1);
 
-		if ($this->is_table_action('customtables-fields-publish'))
-			$this->handle_field_actions_publish(1);
+			if ($this->is_table_action('customtables-fields-unpublish') or $this->is_table_action('customtables-fields-restore'))
+				$this->handle_field_actions_publish(0);
 
-		if ($this->is_table_action('customtables-fields-unpublish') or $this->is_table_action('customtables-fields-restore'))
-			$this->handle_field_actions_publish(0);
+			if ($this->is_table_action('customtables-fields-trash'))
+				$this->handle_field_actions_publish(-2);
 
-		if ($this->is_table_action('customtables-fields-trash'))
-			$this->handle_field_actions_publish(-2);
-
-		if ($this->is_table_action('customtables-fields-delete'))
-			$this->handle_field_actions_delete();
+			if ($this->is_table_action('customtables-fields-delete'))
+				$this->handle_field_actions_delete();
+		} catch (Exception $e) {
+			common::enqueueMessage($e->getMessage());
+		}
 	}
 
 	/**
@@ -598,7 +617,7 @@ class Admin_Field_List extends WP_List_Table
 			if (count($fields) > 0)
 				$this->graceful_redirect();
 
-			echo '<div id="message" class="updated error is-dismissible"><p>Fields not selected.</p></div>';
+			common::enqueueMessage(__("Field not selected.", 'customtables'));
 		}
 	}
 
@@ -619,7 +638,7 @@ class Admin_Field_List extends WP_List_Table
 
 				$this->graceful_redirect();
 			}
-			echo '<div id="message" class="updated error is-dismissible"><p>Fields not selected.</p></div>';
+			common::enqueueMessage(__("Field not selected.", 'customtables'));
 		}
 	}
 
