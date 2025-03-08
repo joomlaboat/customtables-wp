@@ -120,7 +120,7 @@ class Admin_Layout_Edit
 		if ($allowGuests) {
 			$is_selected = in_array('guest', $selected) ? 'selected' : '';
 			$output .= sprintf(
-				'<option value="%s"%s>%s</option>',
+				'<option value="%s" %s>%s</option>',
 				'guest',
 				$is_selected,
 				esc_html__("Guest", "customtables")
@@ -170,7 +170,7 @@ class Admin_Layout_Edit
 	 * // Generate a status selector with 'Unpublished' selected
 	 * $html = $this->get_publish_status_selector('publish_status', 0);
 	 */
-	function get_publish_status_selector(string $elementId, int $status = 0)
+	function get_publish_status_selector(string $elementId, int $status = 0): string
 	{
 		$statuses = [1 => 'Published', 0 => 'Unpublished'];
 

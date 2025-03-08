@@ -793,11 +793,9 @@ class common
 	 */
 	public static function redirect(string $link, ?string $message = null, bool $success = true): void
 	{
-		if ($message !== null) {
-			$prefix = 'customtables_';
-			$key = $success ? $prefix . 'success_message' : $prefix . 'error_message';
-			set_transient($key, $message, 30);
-		}
+		if ($message !== null)
+			common::enqueueMessage($message, $success ? 'notice' : 'error');
+
 		wp_safe_redirect(esc_url_raw($link));
 		exit;
 	}
@@ -958,7 +956,7 @@ class common
 
 		if (is_array($messages_transient))
 			$messages = $messages_transient;
-		else
+		elseif (!empty($messages_transient))
 			$messages [] = $messages_transient;
 
 		return $messages;
@@ -967,14 +965,14 @@ class common
 	public static function showTransient(array $errors, array $messages): void
 	{
 		if (count($errors) > 0) {
-			echo '<div class="error"><ul>';
+			echo '<div class="notice notice-error is-dismissible"><ul>';
 			foreach ($errors as $error)
-				'<li>' . esc_html($error) . '</li>';
+				echo '<li>' . esc_html($error) . '</li>';
 
 			echo '</ul></div>';
 		}
 
-		if($messages > 0) {
+		if ($messages > 0) {
 			$allowed_html = array(
 				'a' => array(
 					'href' => array(),

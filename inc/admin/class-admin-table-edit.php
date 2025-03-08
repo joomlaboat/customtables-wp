@@ -10,15 +10,13 @@ use CustomTables\database;
 use CustomTables\ListOfTables;
 use CustomTables\TableHelper;
 use Exception;
-use WP_Error;
 
 class Admin_Table_Edit
 {
 	public CT $ct;
 	public ListOfTables $helperListOfTables;
 	public ?int $tableId;
-	public WP_Error $errors;
-	public $allTables;
+	public array $allTables;
 
 	/**
 	 * @throws Exception
@@ -37,7 +35,7 @@ class Admin_Table_Edit
 		if ($this->tableId !== null)
 			$this->ct->getTable($this->tableId);
 
-		$this->allTables = $this->getAllTablesOptions(true);
+		$this->allTables = $this->getAllTablesOptions();
 	}
 
 	/**
@@ -53,8 +51,7 @@ class Admin_Table_Edit
 			try {
 				$this->helperListOfTables->save($this->tableId);
 			} catch (Exception $e) {
-				$this->errors = new WP_Error();
-				$this->errors->add('error_code', $e->getMessage());
+				common::enqueueMessage($e->getMessage());
 				return;
 			}
 
@@ -69,7 +66,12 @@ class Admin_Table_Edit
 
 	protected function getAllTablesOptions($add_empty_option = true): array
 	{
-		$tables = TableHelper::getListOfExistingTables();
+		try {
+			$tables = TableHelper::getListOfExistingTables();
+		}catch (Exception $e) {
+			common::enqueueMessage($e->getMessage());
+			$tables = [];
+		}
 
 		$options = array();
 		if ($add_empty_option)

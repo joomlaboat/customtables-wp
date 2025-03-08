@@ -22,11 +22,8 @@ $allowed_html = array(
 	)
 );
 
-$messages = get_transient('customtables_success_message');
-delete_transient('customtables_success_message');
-
-$errors = get_transient('customtables_error_message');
-delete_transient('customtables_error_message');
+$messages = common::getTransientMessages('customtables_success_message');
+$errors = common::getTransientMessages('customtables_error_message');
 
 ?>
 <div class="wrap">

@@ -63,7 +63,7 @@ class Admin_Field_Edit
 			try {
 				$this->helperListOfFields->save($this->tableId, $this->fieldId);
 			} catch (Exception $e) {
-				set_transient('customtables_error_message', 'a' . $e->getMessage(), 60);
+				common::enqueueMessage(  $e->getMessage());
 				return;
 			}
 

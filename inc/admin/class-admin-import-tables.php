@@ -67,15 +67,15 @@ class Admin_Import_Tables
 					$ok = ImportTables::processFile($move_file['file'],'', $msg, '', $importFields, $importLayouts, $importMenu);
 
 					if($ok)
-						set_transient('customtables_success_message', 'Custom Tables backup file has been processes successfully.', 60);
+						common::enqueueMessage('Custom Tables backup file has been processes successfully.', 'notice');
 					else
-						set_transient('customtables_error_message', 'Error processing file: ' . esc_html($msg), 60);
+						common::enqueueMessage('Error processing file: ' . esc_html($msg));
 				} else {
 					// Store message for 60 seconds
 					if(isset($move_file['error']))
-						set_transient('customtables_error_message', 'Error uploading file: ' . esc_html($move_file['error']), 60);
+						common::enqueueMessage('Error uploading file: ' . esc_html($move_file['error']));
 					else
-						set_transient('customtables_error_message', 'Unknown error while uploading file', 60);
+						common::enqueueMessage( 'Unknown error while uploading file');
 				}
 			}
 		}

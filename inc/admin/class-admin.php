@@ -28,7 +28,7 @@ class Admin
      * @access   private
      * @var      string $plugin_name The ID of this plugin.
      */
-    private $plugin_name;
+    private string $plugin_name;
 
     /**
      * The version of this plugin.
@@ -50,7 +50,7 @@ class Admin
     private $admin_table_edit;
     private $admin_field_list;
     private $admin_field_edit;
-    private $admin_record_list;
+    private object $admin_record_list;
     private $admin_record_edit;
     private $admin_layout_list;
     private $admin_layout_edit;
@@ -404,8 +404,10 @@ class Admin
 				}
 
                 $image_url = plugins_url('assets/block-glass.png', __FILE__);
+
+				$background = "background-image: url(\'' . $image_url . '\')";
                 $preview_html = '<div style="position: relative;">' . $output['html']
-                    . '<div style="position:absolute;top:0;left:0;width:100%;height:100%;background-image: url(\'' . $image_url . '\');background-repeat: repeat;"></div>'
+                    . '<div style="position:absolute;top:0;left:0;width:100%;height:100%;'.$background.';background-repeat: repeat;"></div>'
                     . '</div>';
 
                 die($preview_html);

@@ -2,6 +2,8 @@
 
 namespace CustomTablesWP\Inc\Core;
 
+use Exception;
+
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 class Activator {
@@ -102,7 +104,8 @@ class Activator {
 
 // PHP 8 polyfill for str_starts_with if needed
 if (!function_exists('str_starts_with')) {
-    function str_starts_with($haystack, $needle) {
+    function str_starts_with($haystack, $needle): bool
+	{
         return strpos($haystack, $needle) === 0;
     }
 }
