@@ -3,7 +3,6 @@
 namespace CustomTablesWP\Inc\Admin;
 
 use CustomTables\common;
-use CustomTables\CT;
 use CustomTables\ImportTables;
 use Exception;
 
@@ -60,16 +59,15 @@ class Admin_Import_Tables
 				if ($move_file && !isset($move_file['error'])) {
 					$importFields = common::inputPostInt('importfields', 0,'import-table');
 					$importLayouts = common::inputPostInt('importlayouts', 0,'import-table');
-					$importMenu = false;//common::inputPostInt('importmenu', 0,'import-table');
 
 					$msg = '';
 
-					$ok = ImportTables::processFile($move_file['file'],'', $msg, '', $importFields, $importLayouts, $importMenu);
-
-					if($ok)
+					try {
+						ImportTables::processFile($move_file['file'], '', $msg, '', $importFields, $importLayouts, false);
 						common::enqueueMessage('Custom Tables backup file has been processes successfully.', 'notice');
-					else
-						common::enqueueMessage('Error processing file: ' . esc_html($msg));
+					}catch (Exception $e) {
+						common::enqueueMessage('Error processing file: ' . esc_html($e->getMessage()));
+					}
 				} else {
 					// Store message for 60 seconds
 					if(isset($move_file['error']))

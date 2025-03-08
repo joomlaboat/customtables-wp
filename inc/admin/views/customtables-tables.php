@@ -9,6 +9,7 @@ if (isset($this->admin_table_list->errors) && is_wp_error($this->admin_table_lis
 	foreach ($this->admin_table_list->errors->get_error_messages() as $error)
 		$errors []= $error;
 }
+
 $messages = common::getTransientMessages('customtables_success_message');
 
 $page = common::inputGetCmd('page');
@@ -21,9 +22,6 @@ $allowed_html = array(
 		'target' => array()
 	)
 );
-
-$messages = common::getTransientMessages('customtables_success_message');
-$errors = common::getTransientMessages('customtables_error_message');
 
 ?>
 <div class="wrap">
