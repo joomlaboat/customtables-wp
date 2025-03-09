@@ -85,7 +85,15 @@ class Admin_Table_Edit
 
 	public function getTableSchema(): string
 	{
-		$tableCreateQuery = database::showCreateTable($this->ct->Table->realtablename);
+		if($this->ct->Table === null)
+			return 'Table not created yet.';
+		
+		try {
+			$tableCreateQuery = database::showCreateTable($this->ct->Table->realtablename);
+		}catch (Exception $e) {
+			common::enqueueMessage($e->getMessage());
+			return '';
+		}
 
 		if (count($tableCreateQuery) == 0) {
 			return '<p>Table not found</p>';

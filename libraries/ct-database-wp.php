@@ -666,8 +666,15 @@ class database
         return $wpdb->get_results($wpdb->prepare("SHOW INDEX FROM $tableName_safe WHERE Key_name = %s", $fieldName_safe));//Table name already sanitized.
     }
 
-    public static function showCreateTable($tableName): array
+	/**
+	 * @throws Exception
+	 * @since 3.2.2
+	 */
+	public static function showCreateTable(string $tableName): array
     {
+		if(empty($tableName))
+			throw new Exception('Show Create Table: Table Name is Empty.');
+
         global $wpdb;
         $tableName_safe = str_replace('#__', $wpdb->prefix, $tableName);//Joomla way
         $tableName_safe = preg_replace('/[^a-zA-Z0-9_]/', '', $tableName_safe);
