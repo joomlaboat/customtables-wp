@@ -410,7 +410,8 @@ class Admin
 					. '<div style="position:absolute;top:0;left:0;width:100%;height:100%;' . $background . ';background-repeat: repeat;"></div>'
 					. '</div>';
 
-				die($preview_html);
+				echo $preview_html;
+				exit;
 
 			case 'customtables-tables-edit':
 				$tableId = common::inputGetInt('table');
