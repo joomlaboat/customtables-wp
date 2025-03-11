@@ -649,6 +649,8 @@ class database
             $realTableName_safe = $wpdb->prefix . 'customtables_filebox_' . $tableName_safe;
         elseif ($type == 'native')
             $realTableName_safe = $tableName;
+		elseif ($type == 'table')
+			$realTableName_safe = $wpdb->prefix . 'customtables_table_' . $tableName_safe;
         else
             $realTableName_safe = $wpdb->prefix . 'customtables_' . $tableName_safe;
 

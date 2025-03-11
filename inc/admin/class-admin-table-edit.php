@@ -49,7 +49,7 @@ class Admin_Table_Edit
 		if ('createtable' === $action || 'savetable' === $action) {
 
 			try {
-				$this->helperListOfTables->save($this->tableId);
+				$this->helperListOfTables->save($this->tableId ?? 0);
 			} catch (Exception $e) {
 				common::enqueueMessage($e->getMessage());
 				return;
