@@ -93,6 +93,8 @@ class customtables
  * can interact with the plugin's hooks contained within.
  *
  */
+
+$page = common::inputGetCmd('page', '');
 function customtables_init()
 {
     if (is_admin()) {
@@ -110,8 +112,6 @@ if (version_compare(PHP_VERSION, $min_php, '>=')) {
     customtables_init();
 }
 
-$page = common::inputGetCmd('page', '');
-
 function enqueue_codemirror()
 {
     $version = '1.5.6';
@@ -128,22 +128,25 @@ function enqueue_codemirror()
 if ($page == 'customtables-layouts-edit')
     add_action('admin_enqueue_scripts', 'CustomTablesWP\enqueue_codemirror');
 
-if ($page == 'customtables-api-tablejoin'){
-    $key = common::inputGetCmd('key');
-    if ($key != '') {
-        $path = CUSTOMTABLES_PRO_PATH . 'inputbox' . DIRECTORY_SEPARATOR;
-        if (file_exists($path . 'tablejoin.php')) {
-            require_once($path . 'tablejoin.php');
-            $ct = new CT([],true);
-            ProInputBoxTableJoin::renderTableJoinSelectorJSON($ct, $key);//Inputbox
-        }
-    }
-}
-
 // Function to generate real content based on block attributes
 function customtables_dynamic_block_block_init()
 {
-    register_block_type(
+	$page = common::inputGetCmd('page', '');
+
+	if ($page == 'customtables-api-tablejoin'){
+		$key = common::inputGetCmd('key');
+		if ($key != '') {
+			$path = CUSTOMTABLES_PRO_PATH . 'inputbox' . DIRECTORY_SEPARATOR;
+			if (file_exists($path . 'tablejoin.php')) {
+				require_once($path . 'tablejoin.php');
+				$ct = new CT([],true);
+				ProInputBoxTableJoin::renderTableJoinSelectorJSON($ct, $key);//Inputbox
+			}
+		}
+	}
+
+
+	register_block_type(
         plugin_dir_path(__FILE__) . 'build',
         array(
             'render_callback' => 'CustomTablesWP\customtables_dynamic_block_render_callback',
