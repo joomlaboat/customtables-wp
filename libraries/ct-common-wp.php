@@ -459,35 +459,16 @@ class common
 		return wp_strip_all_tags($argument);
 	}
 
-	/*
-	public static function getReturnToURL(bool $decode = true): ?string
-	{
-		$returnto_id = self::inputGetCmd('returnto');
-
-		if (empty($returnto_id))
-			return null;
-
-		if ($decode) {
-			// Construct the session variable key from the received returnto ID
-			$returnto_key = 'returnto_' . $returnto_id;
-
-			// Start the session (if not started already)
-			if (!headers_sent() and !session_id()) {
-				session_start();
-			}
-
-			// Retrieve the value associated with the returnto key from the $_SESSION
-			return sanitize_text_field($_SESSION[$returnto_key] ?? '');
-		} else
-			return $returnto_id;
-	}*/
-
-	public static function getReturnToURL(bool $decode = true): ?string
+	public static function getReturnToURL(bool $decode, $default, string $action): ?string
 	{
 		$returnto = self::inputGetBase64('returnto');
 
 		if ($returnto === null)
-			return null;
+		{
+			$returnto = self::inputPostBase64('returnto',$default, $action);
+			if ($returnto === null)
+				return null;
+		}
 
 		if ($decode) {
 			return base64_decode($returnto);

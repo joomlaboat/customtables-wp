@@ -145,7 +145,6 @@ function customtables_dynamic_block_block_init()
 		}
 	}
 
-
 	register_block_type(
         plugin_dir_path(__FILE__) . 'build',
         array(
