@@ -646,7 +646,7 @@ class Admin_Table_List extends WP_List_Table
 				foreach ($tables as $tableId)
 					$cIds[] = $tableId;
 
-				$download_file = ExportTables::export($cIds, 'wp-content' . DIRECTORY_SEPARATOR . 'uploads');
+				$download_file = ExportTables::export($cIds, ABSPATH .'wp-content' . DIRECTORY_SEPARATOR . 'uploads');
 
 				if (is_array($download_file)) {
 					if (count($cIds) == 1)
