@@ -22,6 +22,7 @@ use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\ProInputBoxTableJoin;
 use CustomTables\Value_file;
+use Exception;
 
 /**
  * Define Constants
@@ -197,7 +198,14 @@ function customtables_dynamic_block_render_callback($attributes, $content, $bloc
             $CUSTOM_TABLES_TEMPLATE = new template();
         }
 
-        echo $CUSTOM_TABLES_TEMPLATE->renderBlock($attributes);
+		try {
+			$result = $CUSTOM_TABLES_TEMPLATE->renderBlock($attributes);
+		}catch (Exception $e) {
+			$result = '<p style="background-color: #aa0000;color: #f1f1f1;padding: 5px;border-radius: 5px;">'
+				. 'CustomTables: '.$e->getMessage().'</p>';
+		}
+
+        echo $result;
     }
 
     return ob_get_clean();
@@ -214,14 +222,16 @@ if (common::inputGetInt('customtables') == 1) {
         $fileOutput = new Value_file();
         try {
             $fileOutput->process_file_link($file);
-        } catch (\Exception $e) {
-            common::enqueueMessage('CustomTables - File content parameters error:' . $e->getMessage());
+        } catch (Exception $e) {
+			echo '<p style="background-color: #aa0000;color: #f1f1f1;padding: 5px;border-radius: 5px;">'
+				. 'CustomTables: File content parameters error:' . $e->getMessage().'</p>';
         }
 
         try {
             $fileOutput->display();
-        } catch (\Exception $e) {
-            common::enqueueMessage('CustomTables - File content display error:' . $e->getMessage());
+        } catch (Exception $e) {
+			echo '<p style="background-color: #aa0000;color: #f1f1f1;padding: 5px;border-radius: 5px;">'
+				. 'CustomTables: File content display error:' . $e->getMessage().'</p>';
         }
     }
 }
@@ -260,11 +270,18 @@ add_action('wp', 'CustomTablesWP\your_function_to_access_post');
 
 function customtables__form_generation_function($attributes): string
 {
-
     require_once plugin_dir_path(__FILE__) . 'build/template.php';
 
     $temp =  new template();
-    return $temp->renderBlock($attributes);
+
+	try {
+		$result = $temp->renderBlock($attributes);
+	}catch (Exception $e) {
+		$result = '<p style="background-color: #aa0000;color: #f1f1f1;padding: 5px;border-radius: 5px;">'
+			. 'CustomTables: '.$e->getMessage().'</p>';
+	}
+
+    return $result;
 }
 
 add_shortcode('customtables', function($form_attributes) {
@@ -313,6 +330,13 @@ add_shortcode('customtables', function($form_attributes) {
         'limit' => !empty($attributes['limit']) ? absint($attributes['limit']) : null
     );
 
-    return customtables__form_generation_function($params);
+	try {
+		$result = customtables__form_generation_function($params);
+	}catch (Exception $e) {
+		return '<p style="background-color: #aa0000;color: #f1f1f1;padding: 5px;border-radius: 5px;">'
+			. 'CustomTables: '.$e->getMessage().'</p>';
+	}
+
+    return $result;
 });
 

@@ -15,6 +15,7 @@ use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\CTMiscHelper;
 use CustomTables\Layouts;
+use Exception;
 use Throwable;
 
 class template
@@ -61,7 +62,13 @@ class template
 
 			if ($block['blockName'] === $block_name) {
 
-				$html = $this->renderBlock($block['attrs']);
+				try {
+					$html = $this->renderBlock($block['attrs']);
+				}catch (Exception $e) {
+					$html = '<p style="background-color: #aa0000;color: #f1f1f1;padding: 5px;border-radius: 5px;">'
+						. $e->getMessage().'</p>';
+				}
+
 				$preparedAttributes = self::prepareAttributes($block['attrs']);
 				$attributes[] = ['hash' => md5(json_encode($preparedAttributes)), 'attributes' => $preparedAttributes, 'html' => $html];
 			}
@@ -76,6 +83,9 @@ class template
 		return $attributes;
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	function renderBlock($attributes): string
 	{
 		$result = '';
@@ -85,12 +95,12 @@ class template
 		if (!empty($attributes['table'])) {
 			$ct->getTable($attributes['table']);
 			if ($ct->Table->tablename === null) {
-				return 'CustomTables: Table "' . $attributes['table'] . '" not found.';
+				throw new Exception('Table "' . $attributes['table'] . '" not found.');
 			}
 		} elseif (!empty($attributes['layout'])) {
 			$layoutId = $attributes['layout'];
 		} else {
-			return 'CustomTables: Table or Layout are required.';
+			throw new Exception('Table or Layout are required.');
 		}
 
 
@@ -130,7 +140,7 @@ class template
 			try {
 				$mixedLayout_array = $layouts->renderMixedLayout(0, $layoutType);
 			} catch (Throwable $e) {
-				common::enqueueMessage($e->getMessage());
+				throw new Exception($e->getMessage());
 			}
 
 		} else {
@@ -158,7 +168,7 @@ class template
 				try {
 					$mixedLayout_array = $layouts->renderMixedLayout($layoutId, $layoutType);
 				} catch (Throwable $e) {
-					common::enqueueMessage($e->getMessage());
+					throw new Exception($e->getMessage());
 				}
 
 			} else {
@@ -166,7 +176,7 @@ class template
 				try {
 					$mixedLayout_array = $layouts->renderMixedLayout($layoutId);
 				} catch (Throwable $e) {
-					common::enqueueMessage($e->getMessage());
+					throw new Exception($e->getMessage());
 				}
 			}
 		}
@@ -190,6 +200,8 @@ class template
 					die($mixedLayout_array['short'] ?? 'error');
 				}
 
+			}else{
+				throw new Exception($mixedLayout_array ['message'] ?? 'Error');
 			}
 		}
 
