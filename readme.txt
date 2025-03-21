@@ -5,7 +5,7 @@ Donate link: https://www.patreon.com/joomlaboat
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
 Tested up to: 6.7.2
-Stable tag: 1.5.6
+Stable tag: 1.5.7
 Requires PHP: 7.4
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -49,6 +49,14 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 [Please contact us here with your query.](https://ct4.us/contact-us/)
 
 == Changelog ==
+
+= 1.5.7 =
+- Short Code: Error reporting improved.
+- Virtual Field Type: Stored Decimal option added.
+- Lookup Table self parent value selection bug fixed.
+- Save Single value in the catalog bug fixed.
+- URL Field type: Domain validation bug fixed.
+- Get Return To URL fixed.
 
 = 1.5.6 =
 - Import tables from tables with different field prefix issue has been fixed.
