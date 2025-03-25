@@ -7,8 +7,6 @@
  * @license GNU/GPL Version 2 or later - http://www.gnu.org/licenses/gpl-2.0.html
  **/
 
-let ctLinkLoading = false;
-
 function ctCreateUser(msg, listing_id, toolbarBoxId, ModuleId) {
 	if (confirm(msg)) {
 		document.getElementById(toolbarBoxId).innerHTML = '';
@@ -71,13 +69,13 @@ function esPrepareLink(deleteParams, addParams) {
 }
 
 function esEditObject(objId, toolbarBoxId, Itemid, tmpl, returnto) {
-	if (ctLinkLoading) return;
+	if (CTEditHelper.ctLinkLoading) return;
 
-	ctLinkLoading = true;
+	CTEditHelper.ctLinkLoading = true;
 	document.getElementById(toolbarBoxId).innerHTML = '';
 
 	let return_to = btoa(window.location.href);
-	let link = ctWebsiteRoot + 'index.php?option=com_customtables&view=edititem&listing_id=' + objId + '&Itemid=' + Itemid + '&returnto=' + return_to;
+	let link = CTEditHelper.websiteRoot + 'index.php?option=com_customtables&view=edititem&listing_id=' + objId + '&Itemid=' + Itemid + '&returnto=' + return_to;
 
 	if (tmpl !== '') link += '&tmpl=' + tmpl;
 
@@ -98,11 +96,8 @@ function runTheTask(task, tableid, recordId, responses, last, reload, ModuleId) 
 	}
 
 	let http = CreateHTTPRequestObject();   // defined in ajax.js
-
 	let addParams = ['clean=1'];
 	let url = esPrepareLink(['task', "listing_id", 'returnto', 'ids'], addParams);
-
-	console.warn(url);
 
 	if (http) {
 		http.open("POST", url, true);
@@ -110,24 +105,37 @@ function runTheTask(task, tableid, recordId, responses, last, reload, ModuleId) 
 		http.onreadystatechange = function () {
 
 			if (http.readyState === 4) {
+
 				let res = http.response.replace(/(\r\n|\n|\r)/gm, "");
 
 				if (responses.indexOf(res) !== -1) {
 
-					let element_tableid_tr = "ctTable_" + tableid + '_' + recordId;
-
-					let table_object = document.getElementById("ctTable_" + tableid);
+					let table_object = findTableByRowId(tableid + '_' + recordId);
 					if (!reload && table_object && CTEditHelper.cmsName === 'Joomla') {
-						let index = findRowIndexById("ctTable_" + tableid, element_tableid_tr);
-						if (task === 'delete')
+
+						if (task === 'delete') {
+							let index = findRowIndexById(table_object, tableid, recordId, "ctDeleteIcon");
 							table_object.deleteRow(index);
-						else
+						} else {
+
+							let icon = 'ctEditIcon';
+
+							if (task === 'copy') {
+								window.location.reload();
+								return;
+							} else if (task === 'refresh')
+								icon = 'ctRefreshIcon';
+							else if (task === 'publish' || task === 'unpublish')
+								icon = 'ctPublishIcon';
+
+							let index = findRowIndexById(table_object, tableid, recordId, icon);
 							ctCatalogUpdate(tableid, recordId, index, ModuleId);
+						}
 					} else {
 						window.location.reload();
 					}
 
-					ctLinkLoading = false;
+					CTEditHelper.ctLinkLoading = false;
 
 					if (last) {
 						let toolbarBoxId = 'esToolBar_' + task + '_box_' + tableid;
@@ -143,15 +151,15 @@ function runTheTask(task, tableid, recordId, responses, last, reload, ModuleId) 
 }
 
 function ctRefreshRecord(tableid, recordId, toolbarBoxId, ModuleId) {
-	if (ctLinkLoading) return;
-	ctLinkLoading = true;
+	if (CTEditHelper.ctLinkLoading) return;
+	CTEditHelper.ctLinkLoading = true;
 	runTheTask('refresh', tableid, recordId, ['refreshed'], false, false, ModuleId);
 }
 
 function ctCopyRecord(tableid, listing_id, toolbarBoxId, ModuleId) {
-	if (ctLinkLoading) return;
+	if (CTEditHelper.ctLinkLoading) return;
 
-	ctLinkLoading = true;
+	CTEditHelper.ctLinkLoading = true;
 
 	if (document.getElementById(toolbarBoxId))
 		document.getElementById(toolbarBoxId).innerHTML = '';
@@ -206,35 +214,52 @@ function ctLimitChanged(objectValue, ModuleId) {
 }
 
 function ctPublishRecord(tableid, recordId, toolbarBoxId, publish, ModuleId) {
-	if (ctLinkLoading) return;
+	if (CTEditHelper.ctLinkLoading) return;
 
-	ctLinkLoading = true;
+	CTEditHelper.ctLinkLoading = true;
 	document.getElementById(toolbarBoxId).innerHTML = '';
 	runTheTask((publish === 0 ? 'unpublish' : 'publish'), tableid, recordId, ['published', 'unpublished'], false, false, ModuleId);
 }
 
-function findRowIndexById(tableid, rowId) {
+function findTableByRowId(rowId) {
+	let row = document.getElementById(`ctTable_${rowId}`);
+	return row ? row.closest("table") : null;
+}
 
-	let table_object = document.getElementById(tableid);
+function findRowIndexById(table, tableid, id, icon) {
 
-	if (table_object) {
-		let rows = table_object.rows;
-		for (let i = 0; i < rows.length; i++) {
-			if (rows.item(i).id === rowId) return i;
+	//icon = "ctDeleteIcon"
+	if (!table) return -2;
+	let lookingFor = '#' + icon + tableid + "x" + id;
+	console.warn("lookingFor", lookingFor)
+	let rows = table.rows;
+	console.log("count:", rows.length)
+	for (let i = 0; i < rows.length; i++) {
+
+		let deleteIcon = rows[i].querySelector(lookingFor);
+		if (deleteIcon) {
+			return i;
 		}
 	}
+
 	return -1;
 }
 
-function ctDeleteRecord(msg, tableid, recordId, toolbarBoxId, ModuleId) {
-	if (ctLinkLoading) return;
+function ctDeleteRecord(tableid, recordId, ModuleId) {
+	if (CTEditHelper.ctLinkLoading) return;
 
-	ctLinkLoading = true;
+	CTEditHelper.ctLinkLoading = true;
 
-	if (confirm(msg)) {
-		runTheTask('delete', tableid, recordId, ['deleted'], false, false, ModuleId);
-	} else {
-		ctLinkLoading = false;
+	let msgObj = document.getElementById('ctDeleteMessage' + tableid + 'x' + recordId);
+	if (msgObj) {
+		// Strip HTML tags and sanitize the message
+		let msg = msgObj.textContent || msgObj.innerText || "";
+
+		if (confirm(msg)) {
+			runTheTask('delete', tableid, recordId, ['deleted'], false, false, ModuleId);
+		} else {
+			CTEditHelper.ctLinkLoading = false;
+		}
 	}
 }
 
@@ -244,9 +269,9 @@ function es_SearchBoxKeyPress(e) {
 }
 
 function ctSearchBoxDo() {
-	if (ctLinkLoading) return;
+	if (CTEditHelper.ctLinkLoading) return;
 
-	ctLinkLoading = true;
+	CTEditHelper.ctLinkLoading = true;
 	let w = [];
 	let allSearchElements = document.querySelectorAll('[ctSearchBoxField]');
 
@@ -264,7 +289,7 @@ function ctSearchBoxDo() {
 				if (l > 0) {
 					if (objValue.length < l) {
 						alert(obj.dataset.label + ": " + TranslateText('COM_CUSTOMTABLES_SEARCH_ALERT_MINLENGTH', l));
-						ctLinkLoading = false;
+						CTEditHelper.ctLinkLoading = false;
 						return;
 					}
 				}
@@ -303,9 +328,9 @@ function ctSearchBoxDo() {
 }
 
 function ctSearchReset() {
-	if (ctLinkLoading) return;
+	if (CTEditHelper.ctLinkLoading) return;
 
-	ctLinkLoading = true;
+	CTEditHelper.ctLinkLoading = true;
 
 	window.location.href = esPrepareLink(['where', 'task', "listing_id", 'returnto'], []);
 }
@@ -346,14 +371,14 @@ function getListOfSelectedRecords(tableid) {
 
 function ctToolBarDO(task, tableid, ModuleId) {
 
-	if (ctLinkLoading) return;
+	if (CTEditHelper.ctLinkLoading) return;
 
-	ctLinkLoading = true;
+	CTEditHelper.ctLinkLoading = true;
 	const elements = getListOfSelectedRecords(tableid);
 
 	if (elements.length === 0) {
 		alert(TranslateText('COM_CUSTOMTABLES_JS_SELECT_RECORDS'));
-		ctLinkLoading = false;
+		CTEditHelper.ctLinkLoading = false;
 		return;
 	}
 
@@ -363,7 +388,7 @@ function ctToolBarDO(task, tableid, ModuleId) {
 		if (elements.length === 1) msg = TranslateText('COM_CUSTOMTABLES_JS_SELECT_DO_U_WANT_TO_DELETE1'); else msg = TranslateText('COM_CUSTOMTABLES_JS_SELECT_DO_U_WANT_TO_DELETE').replace('%s', elements.length);
 
 		if (!confirm(msg)) {
-			ctLinkLoading = false;
+			CTEditHelper.ctLinkLoading = false;
 			return;
 		}
 	}
@@ -405,7 +430,7 @@ function removeURLParameter(url, parameter) {
 	}
 }
 
-function ct_UpdateAllRecordsValues(WebsiteRoot, Itemid, fieldname_, record_ids, postfix, ModuleId) {
+function ct_UpdateAllRecordsValues(Itemid, fieldname_, record_ids, postfix, ModuleId) {
 	let ids = record_ids.split(',');
 	const obj_checkbox_off = document.getElementById(ctFieldInputPrefix + "_" + fieldname_ + "_off");
 	if (obj_checkbox_off) {
@@ -417,7 +442,7 @@ function ct_UpdateAllRecordsValues(WebsiteRoot, Itemid, fieldname_, record_ids, 
 			let objectName = ctFieldInputPrefix + ids[i] + "_" + fieldname_;
 			document.getElementById(objectName).checked = parseInt(obj_checkbox_off.value) === 1;
 
-			ct_UpdateSingleValue(WebsiteRoot, Itemid, fieldname_, ids[i], postfix, ModuleId);
+			ct_UpdateSingleValue(Itemid, fieldname_, ids[i], postfix, ModuleId);
 		}
 
 	} else {
@@ -428,15 +453,15 @@ function ct_UpdateAllRecordsValues(WebsiteRoot, Itemid, fieldname_, record_ids, 
 			let objectName = ctFieldInputPrefix + "_" + ids[i] + "_" + fieldname_;
 			let obj = document.getElementById(objectName);
 			obj.value = value;
-			ct_UpdateSingleValue(WebsiteRoot, Itemid, fieldname_, ids[i], postfix, ModuleId);
+			ct_UpdateSingleValue(Itemid, fieldname_, ids[i], postfix, ModuleId);
 			if (obj.dataset.type === "sqljoin") {
 
 				let tableid = obj.dataset.tableid;
-				let table_object = document.getElementById("ctTable_" + tableid);
+				//let table_object = document.getElementById("ctTable_" + tableid);
+				let table_object = findTableByRowId(tableid + '_' + ids[i]);
 
 				if (table_object) {
-					let element_tableid_tr = "ctTable_" + tableid + '_' + ids[i];
-					let index = findRowIndexById("ctTable_" + tableid, element_tableid_tr);
+					let index = findRowIndexById(table_object, tableid, ids[i], 'ctEditIcon');
 					ctCatalogUpdate(tableid, ids[i], index, ModuleId);
 				}
 			}
@@ -444,7 +469,7 @@ function ct_UpdateAllRecordsValues(WebsiteRoot, Itemid, fieldname_, record_ids, 
 	}
 }
 
-function ct_UpdateSingleValue(WebsiteRoot, Itemid, fieldname_, record_id, postfix, ModuleId) {
+function ct_UpdateSingleValue(Itemid, fieldname_, record_id, postfix, ModuleId) {
 
 	let params = "";
 
@@ -463,10 +488,10 @@ function ct_UpdateSingleValue(WebsiteRoot, Itemid, fieldname_, record_id, postfi
 		let objectName = ctFieldInputPrefix + record_id + "_" + fieldname_;
 		params += "&" + ctFieldInputPrefix + fieldname_ + "=" + document.getElementById(objectName).value;
 	}
-	ct_UpdateSingleValueSet(WebsiteRoot, Itemid, fieldname_, record_id, postfix, ModuleId, params);
+	ct_UpdateSingleValueSet(Itemid, fieldname_, record_id, postfix, ModuleId, params);
 }
 
-function ct_UpdateSingleValueSet(WebsiteRoot, Itemid, fieldname_, record_id, postfix, ModuleId, valueParam) {
+function ct_UpdateSingleValueSet(Itemid, fieldname_, record_id, postfix, ModuleId, valueParam) {
 
 	const fieldname = fieldname_.split('_')[0];
 
@@ -536,12 +561,12 @@ function ct_UpdateSingleValueSet(WebsiteRoot, Itemid, fieldname_, record_id, pos
 	}
 }
 
-function ctCatalogUpdate(tableid, recordsId, row_index, ModuleId) {
+function ctCatalogUpdate(tableid, listing_id, row_index, ModuleId) {
 
-	let element_tableid = "ctTable_" + tableid;
+	//let element_tableid = "ctTable_" + tableid;
 
 	let deleteParams = ['task', "listing_id", 'returnto', 'ids', 'option', 'view', 'clean', 'component', 'frmt'];
-	let addParams = ['listing_id=' + recordsId, 'number=' + row_index, 'clean=1'];
+	let addParams = ['listing_id=' + listing_id, 'number=' + row_index, 'clean=1'];
 
 	if (CTEditHelper.cmsName === 'Joomla') {
 		if (typeof ModuleId !== 'undefined' && ModuleId !== null && ModuleId !== 0) {
@@ -565,7 +590,10 @@ function ctCatalogUpdate(tableid, recordsId, row_index, ModuleId) {
 
 			if (http.readyState === 4) {
 				let res = http.response;
-				let tableObj = document.getElementById(element_tableid);
+
+				//let tableObj = document.getElementById(element_tableid);
+				let tableObj = findTableByRowId(tableid + '_' + listing_id);
+
 				if (tableObj) {
 					let rows = tableObj.rows;
 					if (rows) {
@@ -613,10 +641,11 @@ function ctCatalogOnDrop(event, ModuleId) {
 		let to = to_parts[2] + '_' + to_parts[3];
 		let element_tableid_tr = "ctTable_" + to_parts[1] + '_' + to_parts[2];
 
-		let table_object = document.getElementById("ctTable_" + to_parts[1]);
+		//let table_object = document.getElementById("ctTable_" + to_parts[1]);
+		let table_object = findTableByRowId(to_parts[1] + '_' + to_parts[2]);
 
 		let index;
-		if (table_object) index = findRowIndexById("ctTable_" + to_parts[1], element_tableid_tr);
+		if (table_object) index = findRowIndexById(table_object, to_parts[1], to_parts[2], 'ctEditIcon');
 
 		let deleteParams = ['task', "listing_id", 'returnto', 'ids', 'option', 'view', 'clean', 'component', 'frmt'];
 		let addParams = ['task=copycontent', 'from=' + from, 'to=' + to, 'clean=1', 'tmpl=component', 'frmt=json'];
@@ -677,7 +706,13 @@ function ctEditModal(url, parentFieldToUpdate = null) {
 			if (http.readyState === 4) {
 				let res = http.response;
 
-				ctShowPopUp(res, true);
+				if (res.indexOf('view-login') !== -1) {
+					alert('Session expired. Please login again.');
+					location.reload();
+					return;
+				} else {
+					ctShowPopUp(res, true);
+				}
 
 				//Activate Calendars if found
 				let elements = document.querySelectorAll(".field-calendar");
@@ -733,4 +768,23 @@ function ctSearchBarDateRangeUpdate(fieldName) {
 		let date_end = document.getElementById(ctFieldInputPrefix + "search_box_" + fieldName + "_end").value;
 		obj.value = date_start + "-to-" + date_end;
 	}, 300)
+}
+
+function ctSearchBarDateUpdate(fieldName, callback) {
+	setTimeout(function () {
+		let obj = document.getElementById(ctFieldInputPrefix + "search_box_" + fieldName);
+
+		// Store the previous value in dataset
+		let v = document.getElementById(ctFieldInputPrefix + "search_box_" + fieldName + "_exact").value;
+
+		if (obj.value !== v) {
+
+			obj.value = v;
+
+			// Execute callback if provided
+			if (typeof callback === "function") {
+				callback();
+			}
+		}
+	}, 300);
 }

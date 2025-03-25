@@ -6,552 +6,722 @@
  * @copyright Copyright (C) 2018-2025. All Rights Reserved
  * @license GNU/GPL Version 2 or later - http://www.gnu.org/licenses/gpl-2.0.html
  **/
-class CustomTablesEdit {
 
-	constructor(cmsName = 'Joomla', cmsVersion = 5, itemId = 0) {
-		this.GoogleDriveTokenClient = [];
-		this.GoogleDriveAccessToken = null;
-		this.cmsName = cmsName;
-		this.cmsVersion = cmsVersion;
-		this.itemId = itemId;
-	}
+if (typeof globalThis.CustomTablesEdit === 'undefined') {
+	class CustomTablesEdit {
 
-	GoogleDriveInitClient(fieldName, GoogleDriveAPIKey, GoogleDriveClientId) {
-		this.GoogleDriveTokenClient[fieldName] = google.accounts.oauth2.initTokenClient({
-			client_id: GoogleDriveClientId,
-			scope: "https://www.googleapis.com/auth/drive.readonly",
-			callback: (tokenResponse) => {
-				if (tokenResponse && tokenResponse.access_token) {
-					this.GoogleDriveAccessToken = tokenResponse.access_token;
-					CTEditHelper.GoogleDriveLoadPicker(fieldName, GoogleDriveAPIKey, tokenResponse.access_token);
-				}
-			},
-		});
-	}
+		//Always used as "CTEditHelper"
+		constructor(cmsName = 'Joomla', cmsVersion = 5, itemId = null, websiteRoot = null) {
+			this.GoogleDriveTokenClient = [];
+			this.GoogleDriveAccessToken = null;
+			this.cmsName = cmsName;
+			this.cmsVersion = cmsVersion;
+			this.itemId = itemId;
 
-	GoogleDriveLoadPicker(fieldName, GoogleDriveAPIKey, access_token) {
-		gapi.load("picker", {
-			callback: function () {
-				CTEditHelper.GoogleDriveCreatePicker(fieldName, GoogleDriveAPIKey, access_token);
-			}
-		});
-	}
+			this.ct_signaturePad_fields = [];
+			this.ct_signaturePad = [];
+			this.ct_signaturePad_formats = [];
 
-	GoogleDriveCreatePicker(fieldName, GoogleDriveAPIKey, access_token) {
-		if (access_token) {
-			const pickerBuilder = new google.picker.PickerBuilder()
-				.addView(google.picker.ViewId.DOCS)
-				.addView(google.picker.ViewId.FOLDERS)
-				.addView(new google.picker.DocsView(google.picker.ViewId.DOCS)
-					.setIncludeFolders(true)
-					.setOwnedByMe(false)
-					.setLabel("Shared with me"))
-				.setOAuthToken(access_token)
-				.setDeveloperKey(GoogleDriveAPIKey)
-				.setCallback(function (data) {
-					CTEditHelper.GoogleDrivePickerCallback(fieldName, data, access_token)
-				});
+			this.ctInputBoxRecords_dynamic_filter = [];
 
-			if (google.picker.ViewId.SHARED_DRIVES) {
-				pickerBuilder.addView(google.picker.ViewId.SHARED_DRIVES);
-			}
+			this.ctLinkLoading = false;
 
-			const picker = pickerBuilder.build();
-			picker.setVisible(true);
+			this.websiteRoot = websiteRoot;//With trailing front slash /
 		}
-	}
 
-	GoogleDrivePickerCallback(fieldName, data, access_token) {
-
-		if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
-			if (data[google.picker.Response.DOCUMENTS] && data[google.picker.Response.DOCUMENTS].length > 0) {
-				const file = data[google.picker.Response.DOCUMENTS][0];
-				CTEditHelper.GoogleDriveGetFileMetadata(fieldName, file.id, access_token);
-			} else {
-				console.log("No file was selected or the response format has changed.");
-				document.getElementById("ct_eventsmessage_" + fieldName).innerHTML = "No file was selected.";
-			}
-		} else if (data[google.picker.Response.ACTION] === google.picker.Action.CANCEL) {
-			console.log("User closed the Picker or canceled selection.");
-			document.getElementById("ct_eventsmessage_" + fieldName).innerHTML = "File selection was canceled.";
-		}
-	}
-
-
-	formatFileSize(bytes) {
-		if (bytes === 0) return '0 Bytes';
-		const k = 1024;
-		const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-		const i = Math.floor(Math.log(bytes) / Math.log(k));
-		return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-	}
-
-	emptyContainers(boxId, className) {
-		const parentElement = document.getElementById(boxId);
-
-		if (parentElement) {
-			const containers = parentElement.getElementsByClassName(className);
-
-			Array.from(containers).forEach(container => {
-				container.innerHTML = '';
+		GoogleDriveInitClient(fieldName, GoogleDriveAPIKey, GoogleDriveClientId) {
+			this.GoogleDriveTokenClient[fieldName] = google.accounts.oauth2.initTokenClient({
+				client_id: GoogleDriveClientId,
+				scope: "https://www.googleapis.com/auth/drive.readonly",
+				callback: (tokenResponse) => {
+					if (tokenResponse && tokenResponse.access_token) {
+						this.GoogleDriveAccessToken = tokenResponse.access_token;
+						CTEditHelper.GoogleDriveLoadPicker(fieldName, GoogleDriveAPIKey, tokenResponse.access_token);
+					}
+				},
 			});
 		}
-	}
 
-	GoogleDriveGetFileMetadata(fieldName, fileId, access_token) {
+		GoogleDriveLoadPicker(fieldName, GoogleDriveAPIKey, access_token) {
+			gapi.load("picker", {
+				callback: function () {
+					CTEditHelper.GoogleDriveCreatePicker(fieldName, GoogleDriveAPIKey, access_token);
+				}
+			});
+		}
 
-		gapi.client.load("drive", "v3", () => {
-			gapi.client.drive.files.get({
-				fileId: fileId,
-				fields: "id, name, mimeType, webContentLink, size"
-			}).then(function (response) {
+		GoogleDriveCreatePicker(fieldName, GoogleDriveAPIKey, access_token) {
+			if (access_token) {
+				const pickerBuilder = new google.picker.PickerBuilder()
+					.addView(google.picker.ViewId.DOCS)
+					.addView(google.picker.ViewId.FOLDERS)
+					.addView(new google.picker.DocsView(google.picker.ViewId.DOCS)
+						.setIncludeFolders(true)
+						.setOwnedByMe(false)
+						.setLabel("Shared with me"))
+					.setOAuthToken(access_token)
+					.setDeveloperKey(GoogleDriveAPIKey)
+					.setCallback(function (data) {
+						CTEditHelper.GoogleDrivePickerCallback(fieldName, data, access_token)
+					});
 
-				CTEditHelper.emptyContainers("ct_uploadfile_box_" + fieldName, "ajax-file-upload-error");
-				CTEditHelper.emptyContainers("ct_uploadfile_box_" + fieldName, "ajax-file-upload-container");
+				if (google.picker.ViewId.SHARED_DRIVES) {
+					pickerBuilder.addView(google.picker.ViewId.SHARED_DRIVES);
+				}
 
-				let buttonId = "CustomTablesGoogleDrivePick_" + fieldName;
-				const file = response.result;
-				let prefix;
-				const button = document.getElementById(buttonId);
-				if (button) {
-					const acceptValue = button.dataset.accept;
-					if (acceptValue) {
-						let parts = file.name.toLowerCase().split(".");
-						let fileExtension = parts[parts.length - 1];
-						let acceptTypes = acceptValue.split(' ');
-						if (acceptTypes.indexOf(fileExtension) === -1) {
-							let content = '<div class="ajax-file-upload-error"><b>' + file.name + '</b> is not allowed. Allowed extensions: ' + acceptValue + '</div>';
-							document.getElementById("ct_eventsmessage_" + fieldName).innerHTML = content;
+				const picker = pickerBuilder.build();
+				picker.setVisible(true);
+			}
+		}
+
+		GoogleDrivePickerCallback(fieldName, data, access_token) {
+
+			if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
+				if (data[google.picker.Response.DOCUMENTS] && data[google.picker.Response.DOCUMENTS].length > 0) {
+					const file = data[google.picker.Response.DOCUMENTS][0];
+					CTEditHelper.GoogleDriveGetFileMetadata(fieldName, file.id, access_token);
+				} else {
+					console.log("No file was selected or the response format has changed.");
+					document.getElementById("ct_eventsmessage_" + fieldName).innerHTML = "No file was selected.";
+				}
+			} else if (data[google.picker.Response.ACTION] === google.picker.Action.CANCEL) {
+				console.log("User closed the Picker or canceled selection.");
+				document.getElementById("ct_eventsmessage_" + fieldName).innerHTML = "File selection was canceled.";
+			}
+		}
+
+		formatFileSize(bytes) {
+			if (bytes === 0) return '0 Bytes';
+			const k = 1024;
+			const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+			const i = Math.floor(Math.log(bytes) / Math.log(k));
+			return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+		}
+
+		emptyContainers(boxId, className) {
+			const parentElement = document.getElementById(boxId);
+
+			if (parentElement) {
+				const containers = parentElement.getElementsByClassName(className);
+
+				Array.from(containers).forEach(container => {
+					container.innerHTML = '';
+				});
+			}
+		}
+
+		GoogleDriveGetFileMetadata(fieldName, fileId, access_token) {
+
+			gapi.client.load("drive", "v3", () => {
+				gapi.client.drive.files.get({
+					fileId: fileId,
+					fields: "id, name, mimeType, webContentLink, size"
+				}).then(function (response) {
+
+					CTEditHelper.emptyContainers("ct_uploadfile_box_" + fieldName, "ajax-file-upload-error");
+					CTEditHelper.emptyContainers("ct_uploadfile_box_" + fieldName, "ajax-file-upload-container");
+
+					let buttonId = "CustomTablesGoogleDrivePick_" + fieldName;
+					const file = response.result;
+					let prefix;
+					const button = document.getElementById(buttonId);
+					if (button) {
+						const acceptValue = button.dataset.accept;
+						if (acceptValue) {
+							let parts = file.name.toLowerCase().split(".");
+							let fileExtension = parts[parts.length - 1];
+							let acceptTypes = acceptValue.split(' ');
+							if (acceptTypes.indexOf(fileExtension) === -1) {
+								let content = '<div class="ajax-file-upload-error"><b>' + file.name + '</b> is not allowed. Allowed extensions: ' + acceptValue + '</div>';
+								document.getElementById("ct_eventsmessage_" + fieldName).innerHTML = content;
+								return;
+							}
+						} else {
+							console.error('Accept file extensions not found.', error);
+							return;
+						}
+
+						prefix = button.dataset.prefix;
+						if (!prefix) {
+							console.error('Prefix not found.', error);
 							return;
 						}
 					} else {
-						console.error('Accept file extensions not found.', error);
+						console.error('Button "' + buttonId + '" not found.', error);
 						return;
 					}
 
-					prefix = button.dataset.prefix;
-					if (!prefix) {
-						console.error('Prefix not found.', error);
-						return;
-					}
-				} else {
-					console.error('Button "' + buttonId + '" not found.', error);
-					return;
+					let fileSize = CTEditHelper.formatFileSize(file.size);
+					let content = '<div class="ajax-file-upload-statusbar"><div class="ajax-file-upload-filename">1). ' + file.name + ' (' + fileSize + ')</div></div>';
+					document.getElementById("ct_eventsmessage_" + fieldName).innerHTML = content;
+					document.getElementById(prefix + fieldName + '_filename').value = file.name;
+
+					let data = JSON.stringify({
+						fileId: file.id,
+						fileName: file.name,
+						//mimeType: file.mimeType,
+						//size: file.size,
+						//downloadUrl: file.webContentLink,
+						accessToken: access_token
+					})
+					document.getElementById(prefix + fieldName + '_data').value = data;
+				}, function (error) {
+					console.error("Error getting file metadata:", error);
+					document.getElementById("ct_eventsmessage_" + fieldName).innerHTML = "Error getting file metadata.";
+				});
+			});
+		}
+
+		//A method to create or update table records using JavaScript. CustomTables handles data sanitization and validation.
+		saveRecord(url, fieldsAndValues, listing_id, successCallback, errorCallback) {
+
+			let completeURL = url + '?view=edititem&task=save&tmpl=component&clean=1';
+			if (listing_id !== undefined && listing_id !== null)
+				completeURL += '&listing_id=' + listing_id;
+
+			let postData = new URLSearchParams();
+
+			// Iterate over keysObject and append each key-value pair
+			for (const key in fieldsAndValues) {
+				if (fieldsAndValues.hasOwnProperty(key)) {
+					postData.append(ctFieldInputPrefix + key, fieldsAndValues[key]);
 				}
+			}
 
-				let fileSize = CTEditHelper.formatFileSize(file.size);
-				let content = '<div class="ajax-file-upload-statusbar"><div class="ajax-file-upload-filename">1). ' + file.name + ' (' + fileSize + ')</div></div>';
-				document.getElementById("ct_eventsmessage_" + fieldName).innerHTML = content;
-				document.getElementById(prefix + fieldName + '_filename').value = file.name;
+			fetch(completeURL, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: postData,
+			})
+				.then(response => {
+					if (response.redirected) {
+						if (errorCallback && typeof errorCallback === 'function') {
+							errorCallback('Login required or not authorized.');
+						} else {
+							console.error('Login required or not authorized. Error status code 200: Redirect.');
+						}
+						return null;
+					}
 
-				let data = JSON.stringify({
-					fileId: file.id,
-					fileName: file.name,
-					//mimeType: file.mimeType,
-					//size: file.size,
-					//downloadUrl: file.webContentLink,
-					accessToken: access_token
+					if (!response.ok) {
+						// If the HTTP status code is not successful, throw an error object that includes the response
+						throw {status: 'error', message: 'HTTP status code: ' + response.status, response: response};
+					}
+					return response.json();
 				})
-				document.getElementById(prefix + fieldName + '_data').value = data;
-			}, function (error) {
-				console.error("Error getting file metadata:", error);
-				document.getElementById("ct_eventsmessage_" + fieldName).innerHTML = "Error getting file metadata.";
-			});
-		});
-	}
+				.then(data => {
+					if (data === null)
+						return;
 
-	//A method to create or update table records using JavaScript. CustomTables handles data sanitization and validation.
-	saveRecord(url, fieldsAndValues, listing_id, successCallback, errorCallback) {
+					if (data.status === 'saved') {
+						if (successCallback && typeof successCallback === 'function') {
+							successCallback(data);
+						} else {
 
-		let completeURL = url + '?view=edititem&task=save&tmpl=component&clean=1';
-		if (listing_id !== undefined && listing_id !== null)
-			completeURL += '&listing_id=' + listing_id;
-
-		let postData = new URLSearchParams();
-
-		// Iterate over keysObject and append each key-value pair
-		for (const key in fieldsAndValues) {
-			if (fieldsAndValues.hasOwnProperty(key)) {
-				postData.append(ctFieldInputPrefix + key, fieldsAndValues[key]);
-			}
+						}
+					} else if (data.status === 'error') {
+						if (errorCallback && typeof errorCallback === 'function') {
+							errorCallback(data);
+						} else {
+							console.error(data.message);
+						}
+					}
+				})
+				.catch(error => {
+					if (errorCallback && typeof errorCallback === 'function') {
+						errorCallback({
+							status: 'error',
+							message: 'An error occurred during the request.',
+						});
+					} else {
+						console.error('Error', error);
+						console.log(completeURL);
+					}
+				});
 		}
 
-		fetch(completeURL, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded',
-			},
-			body: postData,
-		})
-			.then(response => {
-				if (response.redirected) {
-					if (errorCallback && typeof errorCallback === 'function') {
-						errorCallback('Login required or not authorized.');
-					} else {
-						console.error('Login required or not authorized. Error status code 200: Redirect.');
-					}
-					return null;
-				}
+		//TODO: no usages found
+		async refreshRecord(url, listing_id, successCallback, errorCallback, ModuleId) {
+			let completeURL = url + '?tmpl=component&clean=1&task=refresh';
+			if (listing_id !== undefined && listing_id !== null)
+				completeURL += '&ids=' + listing_id;
 
+			try {
+				const response = await fetch(completeURL);
 				if (!response.ok) {
-					// If the HTTP status code is not successful, throw an error object that includes the response
-					throw {status: 'error', message: 'HTTP status code: ' + response.status, response: response};
+					throw new Error('Network response was not ok');
 				}
-				return response.json();
-			})
-			.then(data => {
-				if (data === null)
-					return;
-
-				if (data.status === 'saved') {
-					if (successCallback && typeof successCallback === 'function') {
-						successCallback(data);
-					} else {
-
-					}
-				} else if (data.status === 'error') {
-					if (errorCallback && typeof errorCallback === 'function') {
-						errorCallback(data);
-					} else {
-						console.error(data.message);
-					}
-				}
-			})
-			.catch(error => {
-				if (errorCallback && typeof errorCallback === 'function') {
-					errorCallback({
-						status: 'error',
-						message: 'An error occurred during the request.',
-					});
-				} else {
-					console.error('Error', error);
-					console.log(completeURL);
-				}
-			});
-	}
-
-	//TODO: no usages found
-	async refreshRecord(url, listing_id, successCallback, errorCallback, ModuleId) {
-		let completeURL = url + '?tmpl=component&clean=1&task=refresh';
-		if (listing_id !== undefined && listing_id !== null)
-			completeURL += '&ids=' + listing_id;
-
-		try {
-			const response = await fetch(completeURL);
-			if (!response.ok) {
-				throw new Error('Network response was not ok');
+				const data = await response.json();
+				console.log(data);
+			} catch (error) {
+				console.error('There was a problem with the fetch operation:', error);
 			}
-			const data = await response.json();
-			console.log(data);
-		} catch (error) {
-			console.error('There was a problem with the fetch operation:', error);
+
+			//let postData = new URLSearchParams();
+			//postData.append('task', 'refresh');
+
+			fetch(completeURL, {
+				method: 'GET'
+			})
+				.then(response => {
+
+					if (response.redirected) {
+						if (errorCallback && typeof errorCallback === 'function') {
+							errorCallback('Login required or not authorized.');
+						} else {
+							console.error('Login required or not authorized. Error status code 200: Redirect.');
+						}
+						return null;
+					}
+
+					if (!response.ok) {
+						// If the HTTP status code is not successful, throw an error object that includes the response
+						throw {status: 'error', message: 'HTTP status code: ' + response.status, response: response};
+					}
+					return response.json();
+				})
+				.then(data => {
+					if (data === null)
+						return;
+
+					if (data.status === 'saved') {
+						if (successCallback && typeof successCallback === 'function') {
+							successCallback(data);
+						} else {
+
+						}
+					} else if (data.status === 'error') {
+						if (errorCallback && typeof errorCallback === 'function') {
+							errorCallback(data);
+						} else {
+							console.error(data.message);
+						}
+					}
+				})
+				.catch(error => {
+					if (errorCallback && typeof errorCallback === 'function') {
+						errorCallback({
+							status: 'error',
+							message: 'An error occurred during the request.',
+						});
+					} else {
+						console.error('Error 145:', error);
+						console.log(completeURL);
+					}
+				});
 		}
 
-		//let postData = new URLSearchParams();
-		//postData.append('task', 'refresh');
+		//Reloads a particular table row (record) after changes have been made. It identifies the table and the specific row based on the provided listing_id and then triggers a refresh to update the displayed data.
+		reloadRecord(listing_id) {
 
-		fetch(completeURL, {
-			method: 'GET'
-		})
-			.then(response => {
-
-				if (response.redirected) {
-					if (errorCallback && typeof errorCallback === 'function') {
-						errorCallback('Login required or not authorized.');
-					} else {
-						console.error('Login required or not authorized. Error status code 200: Redirect.');
+			// Select all table elements whose id attribute starts with 'ctTable_'
+			const tables = document.querySelectorAll('table[id^="ctTable_"]');
+			tables.forEach(table => {
+				let parts = table.id.split("_");
+				if (parts.length === 2) {
+					let tableId = parts[1];
+					let trId = 'ctTable_' + tableId + '_' + listing_id;
+					const records = table.querySelectorAll('tr[id^="' + trId + '"]');
+					if (records.length == 1) {
+						let table_object = findTableByRowId(tableid + '_' + listing_id);
+						let index = findRowIndexById(table_object, tableId, listing_id, 'ctEditIcon');
+						ctCatalogUpdate(tableId, listing_id, index, ModuleId);
 					}
-					return null;
-				}
-
-				if (!response.ok) {
-					// If the HTTP status code is not successful, throw an error object that includes the response
-					throw {status: 'error', message: 'HTTP status code: ' + response.status, response: response};
-				}
-				return response.json();
-			})
-			.then(data => {
-				if (data === null)
-					return;
-
-				if (data.status === 'saved') {
-					if (successCallback && typeof successCallback === 'function') {
-						successCallback(data);
-					} else {
-
-					}
-				} else if (data.status === 'error') {
-					if (errorCallback && typeof errorCallback === 'function') {
-						errorCallback(data);
-					} else {
-						console.error(data.message);
-					}
-				}
-			})
-			.catch(error => {
-				if (errorCallback && typeof errorCallback === 'function') {
-					errorCallback({
-						status: 'error',
-						message: 'An error occurred during the request.',
-					});
-				} else {
-					console.error('Error 145:', error);
-					console.log(completeURL);
 				}
 			});
-	}
+		}
 
-	//Reloads a particular table row (record) after changes have been made. It identifies the table and the specific row based on the provided listing_id and then triggers a refresh to update the displayed data.
-	reloadRecord(listing_id) {
+		ImageGalleryInitImagePreviews(inputId) {
+			const input = document.getElementById(inputId);
 
-		// Select all table elements whose id attribute starts with 'ctTable_'
-		const tables = document.querySelectorAll('table[id^="ctTable_"]');
-		tables.forEach(table => {
-			let parts = table.id.split("_");
-			if (parts.length === 2) {
-				let tableId = parts[1];
-				let trId = 'ctTable_' + tableId + '_' + listing_id;
-				const records = table.querySelectorAll('tr[id^="' + trId + '"]');
-				if (records.length == 1) {
-					let index = findRowIndexById(table.id, trId);
-					ctCatalogUpdate(tableId, listing_id, index, ModuleId);
-				}
-			}
-		});
-	}
+			input.onchange = function (event) {
+				const previewContainer = document.getElementById(inputId + '_previewNew');
+				previewContainer.innerHTML = '';
 
-	ImageGalleryInitImagePreviews(inputId) {
-		const input = document.getElementById(inputId);
+				Array.from(event.target.files).forEach((file, index) => {
+					if (file.type.startsWith('image/')) {
+						const reader = new FileReader();
+						const div = document.createElement('div');
+						div.className = 'preview-item';
+						div.dataset.fileIndex = index;
 
-		input.onchange = function (event) {
-			const previewContainer = document.getElementById(inputId + '_previewNew');
-			previewContainer.innerHTML = '';
-
-			Array.from(event.target.files).forEach((file, index) => {
-				if (file.type.startsWith('image/')) {
-					const reader = new FileReader();
-					const div = document.createElement('div');
-					div.className = 'preview-item';
-					div.dataset.fileIndex = index;
-
-					reader.onload = function (e) {
-						div.innerHTML = `
+						reader.onload = function (e) {
+							div.innerHTML = `
                         <img src="${e.target.result}" class="preview-image" />
                         <button type="button" class="remove-btn" 
                                 onclick="CTEditHelper.ImageGalleryRemoveFile(this, '${inputId}', ${index})">×</button>
                     `;
-					};
+						};
 
-					previewContainer.appendChild(div);
-					reader.readAsDataURL(file);
+						previewContainer.appendChild(div);
+						reader.readAsDataURL(file);
+					}
+				});
+			};
+		}
+
+		ImageGalleryRemoveFile(button, inputId, fileIndex) {
+
+			if (fileIndex < 0) {
+				//mark to delete existing file
+				const input = document.getElementById(inputId + '_uploaded');
+				if (input) {
+					let files = input.value.split(',');
+					let newFiles = [];
+
+					for (let i = 0; i < files.length; i++) {
+						if (parseInt(files[i]) != -fileIndex)
+							newFiles.push(files[i]);
+						else
+							newFiles.push(fileIndex);
+					}
+
+					input.value = newFiles.join(',');
+					const container = button.closest('.preview-item');
+					container.remove();
 				}
-			});
-		};
-	}
+			} else {
+				const input = document.getElementById(inputId);
+				const container = button.closest('.preview-item');
 
-	ImageGalleryRemoveFile(button, inputId, fileIndex) {
-
-		if (fileIndex < 0) {
-			//mark to delete existing file
-			const input = document.getElementById(inputId + '_uploaded');
-			if (input) {
-				let files = input.value.split(',');
-				let newFiles = [];
+				const dt = new DataTransfer();
+				const files = input.files;
 
 				for (let i = 0; i < files.length; i++) {
-					if (parseInt(files[i]) != -fileIndex)
-						newFiles.push(files[i]);
-					else
-						newFiles.push(fileIndex);
+					if (i !== fileIndex) {
+						dt.items.add(files[i]);
+					}
 				}
 
-				input.value = newFiles.join(',');
-				const container = button.closest('.preview-item');
+				input.files = dt.files;
 				container.remove();
+
+				// Reindex remaining previews
+				const previews = document.querySelectorAll('.preview-item');
+				previews.forEach((preview, index) => {
+					preview.dataset.fileIndex = index;
+					const removeBtn = preview.querySelector('.remove-btn');
+					removeBtn.setAttribute('onclick', `CTEditHelper.ImageGalleryRemoveFile(this, '${inputId}', ${index})`);
+				});
 			}
-		} else {
-			const input = document.getElementById(inputId);
-			const container = button.closest('.preview-item');
-
-			const dt = new DataTransfer();
-			const files = input.files;
-
-			for (let i = 0; i < files.length; i++) {
-				if (i !== fileIndex) {
-					dt.items.add(files[i]);
-				}
-			}
-
-			input.files = dt.files;
-			container.remove();
-
-			// Reindex remaining previews
-			const previews = document.querySelectorAll('.preview-item');
-			previews.forEach((preview, index) => {
-				preview.dataset.fileIndex = index;
-				const removeBtn = preview.querySelector('.remove-btn');
-				removeBtn.setAttribute('onclick', `CTEditHelper.ImageGalleryRemoveFile(this, '${inputId}', ${index})`);
-			});
 		}
-	}
 
-	checkRequiredFields(formObject) {
-		if (!checkFilters())
-			return false;
-
-		if (ct_signaturePad_fields.length > 0) {
-			if (!ctInputbox_signature_apply()) {
-				event.preventDefault();
+		checkRequiredFields(formObject) {
+			if (!checkFilters())
 				return false;
-			}
-		}
 
-		let requiredFields = formObject.getElementsByClassName("required");
-		let label = "One field";
-
-		for (let i = 0; i < requiredFields.length; i++) {
-			if (typeof requiredFields[i].id != "undefined") {
-				if (requiredFields[i].id.indexOf("sqljoin_table_" + ctFieldInputPrefix) !== -1) {
-					if (!CheckSQLJoinRadioSelections(requiredFields[i].id))
-						return false;
+			if (this.ct_signaturePad_fields.length > 0) {
+				if (!CTEditHelper.ctInputbox_signature_apply()) {
+					event.preventDefault();
+					return false;
 				}
-				if (requiredFields[i].id.indexOf("ct_uploadfile_box_") !== -1) {
-					if (!CheckImageUploader(requiredFields[i].id)) {
+			}
+
+			let requiredFields = formObject.getElementsByClassName("required");
+			let label = "One field";
+
+			for (let i = 0; i < requiredFields.length; i++) {
+				if (typeof requiredFields[i].id != "undefined") {
+					if (requiredFields[i].id.indexOf("sqljoin_table_" + ctFieldInputPrefix) !== -1) {
+						if (!CheckSQLJoinRadioSelections(requiredFields[i].id))
+							return false;
+					}
+					if (requiredFields[i].id.indexOf("ct_uploadfile_box_") !== -1) {
+						if (!CheckImageUploader(requiredFields[i].id)) {
+							let d = requiredFields[i].dataset;
+							if (d.label)
+								label = d.label;
+							else
+								label = "Unlabeled field";
+
+							let imageObjectName = requiredFields[i].id + '_image';
+							let imageObject = document.getElementById(imageObjectName);
+
+							if (imageObject)
+								return true;
+
+							alert(TranslateText('COM_CUSTOMTABLES_REQUIRED', label));
+							return false;
+						}
+					}
+				}
+
+				if (typeof requiredFields[i].name != "undefined") {
+					let n = requiredFields[i].name.toString();
+
+					if (n.indexOf(ctFieldInputPrefix) !== -1) {
+
+						let objName = n.replace('_selector', '');
+
 						let d = requiredFields[i].dataset;
 						if (d.label)
-							label = d.label;
+							label = d.label
 						else
 							label = "Unlabeled field";
 
-						let imageObjectName = requiredFields[i].id + '_image';
-						let imageObject = document.getElementById(imageObjectName);
+						if (d.type === 'sqljoin') {
+							if (requiredFields[i].type === "hidden") {
+								let obj = document.getElementById(objName);
 
-						if (imageObject)
-							return true;
+								if (obj.value === '') {
+									alert(TranslateText('COM_CUSTOMTABLES_REQUIRED', label));
+									return false;
+								}
+							}
 
-						alert(TranslateText('COM_CUSTOMTABLES_REQUIRED', label));
-						return false;
-					}
-				}
-			}
-
-			if (typeof requiredFields[i].name != "undefined") {
-				let n = requiredFields[i].name.toString();
-
-				if (n.indexOf(ctFieldInputPrefix) !== -1) {
-
-					let objName = n.replace('_selector', '');
-
-					let d = requiredFields[i].dataset;
-					if (d.label)
-						label = d.label
-					else
-						label = "Unlabeled field";
-
-					if (d.type === 'sqljoin') {
-						if (requiredFields[i].type === "hidden") {
+						} else if (requiredFields[i].type === "text") {
 							let obj = document.getElementById(objName);
-
 							if (obj.value === '') {
 								alert(TranslateText('COM_CUSTOMTABLES_REQUIRED', label));
 								return false;
 							}
-						}
+						} else if (requiredFields[i].type === "select-one") {
+							let obj = document.getElementById(objName);
 
-					} else if (requiredFields[i].type === "text") {
-						let obj = document.getElementById(objName);
-						if (obj.value === '') {
-							alert(TranslateText('COM_CUSTOMTABLES_REQUIRED', label));
-							return false;
-						}
-					} else if (requiredFields[i].type === "select-one") {
-						let obj = document.getElementById(objName);
+							if (obj.value === null || obj.value === '') {
+								alert(TranslateText('COM_CUSTOMTABLES_NOT_SELECTED', label));
+								return false;
+							}
+						} else if (requiredFields[i].type === "select-multiple") {
+							let count_multiple_obj = document.getElementById(lbln);
+							let options = count_multiple_obj.options;
+							let count_multiple = 0;
 
-						if (obj.value === null || obj.value === '') {
-							alert(TranslateText('COM_CUSTOMTABLES_NOT_SELECTED', label));
-							return false;
-						}
-					} else if (requiredFields[i].type === "select-multiple") {
-						let count_multiple_obj = document.getElementById(lbln);
-						let options = count_multiple_obj.options;
-						let count_multiple = 0;
+							for (let i2 = 0; i2 < options.length; i2++) {
+								if (options[i2].selected)
+									count_multiple++;
+							}
 
-						for (let i2 = 0; i2 < options.length; i2++) {
-							if (options[i2].selected)
-								count_multiple++;
-						}
-
-						if (count_multiple === 0) {
-							alert(TranslateText('COM_CUSTOMTABLES_NOT_SELECTED', label));
-							return false;
-						}
-					} else if (d.selector == 'switcher') {
-						//Checkbox element with Yes/No visual effect
-						if (d.label)
-							label = d.label;
-						else
-							label = "Unlabeled field";
-
-						if (requiredFields[i].value === "1") {
-
-							if (d.valuerulecaption && d.valuerulecaption !== "")
-								alert(d.valuerulecaption);
+							if (count_multiple === 0) {
+								alert(TranslateText('COM_CUSTOMTABLES_NOT_SELECTED', label));
+								return false;
+							}
+						} else if (d.selector == 'switcher') {
+							//Checkbox element with Yes/No visual effect
+							if (d.label)
+								label = d.label;
 							else
-								alert(TranslateText('COM_CUSTOMTABLES_REQUIRED', label));
-							return false;
-						}
-					} else if (d.type == 'checkbox') {
-						//Simple HTML Checkbox element
-						if (d.label)
-							label = d.label;
-						else
-							label = "Unlabeled field";
+								label = "Unlabeled field";
 
-						if (!requiredFields[i].checked) {
-							if (d.valuerulecaption && d.valuerulecaption !== "")
-								alert(d.valuerulecaption);
+							if (requiredFields[i].value === "1") {
+
+								if (d.valuerulecaption && d.valuerulecaption !== "")
+									alert(d.valuerulecaption);
+								else
+									alert(TranslateText('COM_CUSTOMTABLES_REQUIRED', label));
+								return false;
+							}
+						} else if (d.type == 'checkbox') {
+							//Simple HTML Checkbox element
+							if (d.label)
+								label = d.label;
 							else
-								alert(TranslateText('COM_CUSTOMTABLES_REQUIRED', label));
-							return false;
+								label = "Unlabeled field";
+
+							if (!requiredFields[i].checked) {
+								if (d.valuerulecaption && d.valuerulecaption !== "")
+									alert(d.valuerulecaption);
+								else
+									alert(TranslateText('COM_CUSTOMTABLES_REQUIRED', label));
+								return false;
+							}
+						}
+					}
+				}
+			}
+			return true;
+		}
+
+		convertDateTypeValues(elements) {
+			for (let i = 0; i < elements.length; i++) {
+				if (elements[i].name && elements[i].name !== '' && elements[i].name !== 'returnto') {
+					if (elements[i].dataset.type === "date") {
+						if (elements[i].dataset.format !== "%Y-%m-%d") {
+							//convert date to %Y-%m-%d
+							let dateValue = elements[i].value;
+							if (dateValue) {
+								// Parse the format string
+								let format = elements[i].dataset.format;
+								let day, month, year;
+
+								// Convert Joomla's format to parts
+								let parts = dateValue.split(/[-/.]/);
+								let formatParts = format.split(/[-/.]/);
+
+								// Map the parts to corresponding values
+								formatParts.forEach((part, index) => {
+									if (part === '%d') day = parts[index];
+									else if (part === '%m') month = parts[index];
+									else if (part === '%Y') year = parts[index];
+								});
+
+								// Create standardized date string
+								elements[i].value = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+							}
 						}
 					}
 				}
 			}
 		}
-		return true;
-	}
 
-	convertDateTypeValues(elements) {
-		for (let i = 0; i < elements.length; i++) {
-			if (elements[i].name && elements[i].name !== '' && elements[i].name !== 'returnto') {
-				if (elements[i].dataset.type === "date") {
-					if (elements[i].dataset.format !== "%Y-%m-%d") {
-						//convert date to %Y-%m-%d
-						let dateValue = elements[i].value;
-						if (dateValue) {
-							// Parse the format string
-							let format = elements[i].dataset.format;
-							let day, month, year;
+		ctInputbox_signature(inputbox_id, width, height, format) {
 
-							// Convert Joomla's format to parts
-							let parts = dateValue.split(/[-/.]/);
-							let formatParts = format.split(/[-/.]/);
+			let canvas = document.getElementById(inputbox_id + '_canvas');
 
-							// Map the parts to corresponding values
-							formatParts.forEach((part, index) => {
-								if (part === '%d') day = parts[index];
-								else if (part === '%m') month = parts[index];
-								else if (part === '%Y') year = parts[index];
-							});
+			this.ct_signaturePad_fields.push(inputbox_id);
+			this.ct_signaturePad[inputbox_id] = new SignaturePad(canvas, {
+				backgroundColor: "rgb(255, 255, 255)"
+			});
 
-							// Create standardized date string
-							elements[i].value = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+			this.ct_signaturePad_formats[inputbox_id] = format;
+
+			canvas.width = width;
+			canvas.height = height;
+			canvas.getContext("2d").scale(1, 1);
+
+			document.getElementById(inputbox_id + '_clear').addEventListener('click', function () {
+				this.ct_signaturePad[inputbox_id].clear();
+			});
+		}
+
+		ctInputbox_signature_apply() {
+
+			if (this.ct_signaturePad_fields.length === 0)
+				return true;
+
+			let inputbox_id = this.ct_signaturePad_fields[0];
+
+			if (this.ct_signaturePad[inputbox_id].isEmpty()) {
+				alert(TranslateText('COM_CUSTOMTABLES_JS_SIGNATURE_REQUIRED'));
+				return false;
+			} else {
+
+				let format = this.ct_signaturePad_formats[inputbox_id];
+
+				let dataURL = this.ct_signaturePad[inputbox_id].toDataURL('image/' + format);
+				document.getElementById(inputbox_id).setAttribute("value", dataURL);
+				return true;
+			}
+		}
+
+		ctInputbox_UpdateSQLJoinLink(control_name, control_name_postfix) {
+			//Old calls replaced
+			setTimeout(this.ctInputbox_UpdateSQLJoinLink_do(control_name, control_name_postfix), 100);
+		}
+
+		ctInputbox_UpdateSQLJoinLink_do(control_name, control_name_postfix) {
+			//Old calls replaced
+			let controlElement = document.getElementById(control_name);
+			let selectedControlElements = Array.from(controlElement.options)
+				.filter(option => option.selected)
+				.map(option => option.value);
+
+			let l = document.getElementById(control_name + control_name_postfix);
+			let o = document.getElementById(control_name + 'SQLJoinLink');
+			let v = '';
+
+			if (o) {
+				if (o.selectedIndex === -1)
+					return false;
+
+				v = o.options[o.selectedIndex].value;
+			}
+
+			let selectedValue = null
+			let ctInputBoxRecords_current_value = document.getElementById(control_name + '_ctInputBoxRecords_current_value');
+
+			if (ctInputBoxRecords_current_value)
+				selectedValue = String(ctInputBoxRecords_current_value.innerHTML);
+
+			ctInputBoxRecords_removeOptions(l);
+
+			if (control_name_postfix !== '_selector') {
+				let opt = document.createElement("option");
+				opt.value = '0';
+				opt.innerHTML = TranslateText('COM_CUSTOMTABLES_SELECT');
+				l.appendChild(opt);
+			}
+
+			let elements = JSON.parse(document.getElementById(control_name + control_name_postfix + '_elements').textContent);
+			let elementsID = document.getElementById(control_name + control_name_postfix + '_elementsID').innerHTML.split(",");
+			let elementsPublished = document.getElementById(control_name + control_name_postfix + '_elementsPublished').innerHTML.split(",");
+
+			let filterElement = document.getElementById(control_name + control_name_postfix + '_elementsFilter');
+			let elementsFilter = []
+			if (filterElement)
+				elementsFilter = filterElement.innerHTML.split(";");
+
+			for (let i = 0; i < elements.length; i++) {
+				let f = elementsFilter[i];
+
+				if (elements[i] !== "") {
+
+					let eid = String(elementsID[i]);
+					if (selectedControlElements.indexOf(eid) === -1) {
+
+						let published = parseInt(elementsPublished[i]);
+
+						if (typeof f != "undefined") {
+							let f_list = f.split(",");
+
+							if (f_list.indexOf(v) !== -1) {
+								let opt = document.createElement("option");
+								opt.value = eid;
+								if (eid === selectedValue)
+									opt.selected = true;
+
+								if (published === 0)
+									opt.style.cssText = "color:red;";
+
+								opt.innerHTML = elements[i];
+								l.appendChild(opt);
+							}
+						} else {
+
+							let opt = document.createElement("option");
+							opt.value = eid;
+							if (eid === selectedValue)
+								opt.selected = true;
+
+							if (published === 0)
+								opt.style.cssText = "color:red;";
+
+							opt.innerHTML = elements[i];
+							l.appendChild(opt);
 						}
 					}
 				}
 			}
+
+			return true;
+		}
+
+		ctInputBoxRecords_addItem(control_name, control_name_postfix) {
+
+			let o = document.getElementById(control_name + control_name_postfix);
+			o.selectedIndex = 0;
+
+			if (this.ctInputBoxRecords_dynamic_filter[control_name] !== '') {
+
+				let ctInputBoxRecords_current_value = document.getElementById(control_name + '_ctInputBoxRecords_current_value');
+				if (ctInputBoxRecords_current_value)
+					ctInputBoxRecords_current_value.innerHTML = '';
+
+				let SQLJoinLink = document.getElementById(control_name + control_name_postfix + 'SQLJoinLink');
+				if (SQLJoinLink)// {
+					SQLJoinLink.selectedIndex = 0;
+
+				this.ctInputbox_UpdateSQLJoinLink(control_name, control_name_postfix);
+			}
+
+			document.getElementById(control_name + '_addButton').style.visibility = "hidden";
+			document.getElementById(control_name + '_addBox').style.visibility = "visible";
 		}
 	}
+
+	globalThis.CustomTablesEdit = CustomTablesEdit; // Store globally
 }
 
 function setTask(event, task, returnLink, submitForm, formName, isModal, modalFormParentField, ModuleId) {
@@ -615,7 +785,8 @@ function stripInvalidCharacters(str) {
 function submitModalForm(url, elements, tableid, recordId, hideModelOnSave, modalFormParentField, returnLinkEncoded, ModuleId) {
 
 	let fieldsProcessed = [];
-	let params = "";
+	let params = new URLSearchParams();
+
 	let opt;
 	for (let i = 0; i < elements.length; i++) {
 		if (elements[i].name && elements[i].name !== '' && elements[i].name !== 'returnto' && fieldsProcessed.indexOf(elements[i].name) === -1) {
@@ -627,12 +798,12 @@ function submitModalForm(url, elements, tableid, recordId, hideModelOnSave, moda
 				for (let x = 0; x < options.length; x++) {
 					opt = options[x];
 					if (opt.selected)
-						params += "&" + elements[i].name + "=" + opt.value;
+						params.append(elements[i].name, opt.value);
 				}
 
 			} else if (elements[i].type === "checkbox") {
 				// Handle checkboxes: add "true" if checked, "false" if unchecked
-				params += "&" + elements[i].name + "=" + (elements[i].checked ? "true" : "false");
+				params.append(elements[i].name, (elements[i].checked ? "true" : "false"));
 			} else if (elements[i].type === "radio") {
 				// Handle radio buttons: Check if any radio button with the same name is selected
 				const radios = document.getElementsByName(elements[i].name);
@@ -640,7 +811,7 @@ function submitModalForm(url, elements, tableid, recordId, hideModelOnSave, moda
 
 				for (let r = 0; r < radios.length; r++) {
 					if (radios[r].checked) {
-						params += "&" + radios[r].name + "=" + radios[r].value;
+						params.append(radios[r].name, radios[r].value);
 						radioChecked = true;
 						break;  // No need to check further once one is selected
 					}
@@ -648,10 +819,10 @@ function submitModalForm(url, elements, tableid, recordId, hideModelOnSave, moda
 
 				// If no radio button is selected, set a default value (if desired)
 				if (!radioChecked) {
-					params += "&" + elements[i].name + "=none";  // You can set "none" or another default value
+					params.append(elements[i].name, "none");
 				}
 			} else {
-				params += "&" + elements[i].name + "=" + elements[i].value;
+				params.append(elements[i].name, elements[i].value);
 			}
 			fieldsProcessed.push(elements[i].name);
 		}
@@ -660,27 +831,48 @@ function submitModalForm(url, elements, tableid, recordId, hideModelOnSave, moda
 	let http = CreateHTTPRequestObject();   // defined in ajax.js
 
 	if (http) {
+		params.append('task', "save");
+		params.append('clean', "1");
+		params.append('frmt', "json");
+		params.append('ctmodalform', "1");
+		params.append('load', "1");
 
-		http.open("POST", url + "&clean=1&ctmodalform=1&load=1", true);
+		let clean_url = url.replace('%addRecord%', '');
+		console.log("clean_url:", clean_url)
+		console.log("params:", params.toString())
+
+		http.open("POST", clean_url, true);
 		http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		http.setRequestHeader("X-Requested-With", "XMLHttpRequest"); // Prevent full-page redirects
+
 		http.onreadystatechange = function () {
 			if (http.readyState === 4) {
 				let response;
 
 				try {
+					let responseString = http.response.toString();
+					console.log('responseString:', responseString);
 					response = JSON.parse(http.response.toString());
 				} catch (e) {
-					console.log(url + "&clean=1&ctmodalform=1&load=1");
-					console.log(http.response.toString());
-					return console.error(e);
+
+					let r = http.response.toString();
+					if (r.indexOf('view-login') !== -1) {
+						alert('Session expired. Please login again.');
+						location.reload();
+						return;
+					} else {
+						console.log(clean_url);
+						console.log(http.response.toString());
+						return console.error(e);
+					}
 				}
 
-				if (response.status === "saved") {
-					let element_tableid_tr = "ctTable_" + tableid + '_' + recordId;
+				if (response.success) {
+					//let element_tableid_tr = "ctTable_" + tableid + '_' + recordId;
 					let table_object = document.getElementById("ctTable_" + tableid);
 
 					if (table_object) {
-						let index = findRowIndexById("ctTable_" + tableid, element_tableid_tr);
+						let index = findRowIndexById(table_object, tableid, recordId, 'ctEditIcon');
 						ctCatalogUpdate(tableid, recordId, index, ModuleId);
 					}
 
@@ -690,23 +882,27 @@ function submitModalForm(url, elements, tableid, recordId, hideModelOnSave, moda
 						refreshTableJoinField(parentField, response);
 					}
 
-					if (hideModelOnSave)
+					if (hideModelOnSave) {
 						ctHidePopUp();
+						return;
+					}
 
 					if (returnLinkEncoded !== "")
 						location.href = stripInvalidCharacters(Base64.decode(returnLinkEncoded));
 
 				} else {
+					/*
 					if (http.response.indexOf('<div class="alert-message">Nothing to save</div>') !== -1)
 						alert('Nothing to save. Check Edit From layout.');
 					else if (http.response.indexOf('view-login') !== -1)
 						alert(TranslateText('COM_CUSTOMTABLES_JS_SESSION_EXPIRED'));
 					else
-						alert(http.response);
+						*/
+					alert(response.message);
 				}
 			}
 		};
-		http.send(params);
+		http.send(params.toString());
 	}
 }
 
@@ -1070,7 +1266,7 @@ function ctRenderTableJoinSelectBox(control_name, r, index, execute_all, sub_ind
 			if (typeof wrapper.dataset.addrecordmenualias !== 'undefined' && wrapper.dataset.addrecordmenualias !== '') {
 				let js = 'ctTableJoinAddRecordModalForm(\'' + control_name + '\',' + sub_index + ');';
 				let addText = TranslateText('COM_CUSTOMTABLES_ADD');
-				NoItemsText = addText + '<a href="javascript:' + js + '" className="toolbarIcons"><img src="' + ctWebsiteRoot + 'components/com_customtables/libraries/customtables/media/images/icons/new.png" alt="' + addText + '" title="' + addText + '"></a>';
+				NoItemsText = addText + '<a href="javascript:' + js + '" className="toolbarIcons"><img src="' + CTEditHelper.websiteRoot + 'components/com_customtables/libraries/customtables/media/images/icons/new.png" alt="' + addText + '" title="' + addText + '"></a>';
 			} else
 				NoItemsText = TranslateText('COM_CUSTOMTABLES_SELECT_NOTHING')
 
@@ -1132,7 +1328,7 @@ function ctTableJoinAddRecordModalForm(control_name, sub_index) {
 
 	let wrapper = document.getElementById(control_name + "Wrapper");
 
-	let query = ctWebsiteRoot + 'index.php/' + wrapper.dataset.addrecordmenualias;
+	let query = CTEditHelper.websiteRoot + 'index.php' + (wrapper.dataset.addrecordmenualias.indexOf('/') === -1 ? '/' : '') + wrapper.dataset.addrecordmenualias;
 	if (wrapper.dataset.addrecordmenualias.indexOf('?') === -1)
 		query += '?';
 	else
@@ -1158,12 +1354,12 @@ function ctUpdateTableJoinLink(control_name, index, execute_all, sub_index, obje
 		let link = location.href.split('administrator/index.php?option=com_customtables');
 
 		if (link.length === 2)//to make sure that it will work in the back-end
-			url = ctWebsiteRoot + 'administrator/index.php?option=com_customtables&view=records&frmt=json&key=' + wrapper.dataset.key + '&index=' + index;
+			url = CTEditHelper.websiteRoot + 'administrator/index.php?option=com_customtables&view=records&frmt=json&key=' + wrapper.dataset.key + '&index=' + index;
 		else
-			url = ctWebsiteRoot + 'index.php?option=com_customtables&view=catalog&tmpl=component&frmt=json&key=' + wrapper.dataset.key + '&index=' + index;
+			url = CTEditHelper.websiteRoot + 'index.php?option=com_customtables&view=catalog&tmpl=component&frmt=json&key=' + wrapper.dataset.key + '&index=' + index;
 
 	} else if (CTEditHelper.cmsName === "WordPress") {
-		url = ctWebsiteRoot + 'index.php?page=customtables-api-tablejoin&key=' + wrapper.dataset.key + '&index=' + index;
+		url = CTEditHelper.websiteRoot + 'index.php?page=customtables-api-tablejoin&key=' + wrapper.dataset.key + '&index=' + index;
 	}
 
 	let filters = [];
@@ -1248,8 +1444,6 @@ function ctRenderTableJoinSelectBoxLoadRecords(url, control_name, index, execute
 				try {
 					response = JSON.parse(http.response.toString());
 				} catch (e) {
-					console.log(http.response.toString());
-					console.log(url);
 					return console.error(e);
 				}
 				ctRenderTableJoinSelectBox(control_name, response, index, execute_all, sub_index, object_id, formId, forceValue);
@@ -1260,7 +1454,7 @@ function ctRenderTableJoinSelectBoxLoadRecords(url, control_name, index, execute
 }
 
 // --------------------- Inputbox: Records
-let ctInputBoxRecords_dynamic_filter = [];
+
 
 function ctInputBoxRecords_removeOptions(selectobj) {
 	//Old calls replaced
@@ -1269,26 +1463,6 @@ function ctInputBoxRecords_removeOptions(selectobj) {
 	}
 }
 
-function ctInputBoxRecords_addItem(control_name, control_name_postfix) {
-
-	let o = document.getElementById(control_name + control_name_postfix);
-	o.selectedIndex = 0;
-
-	if (ctInputBoxRecords_dynamic_filter[control_name] !== '') {
-
-		let ctInputBoxRecords_current_value = document.getElementById(control_name + '_ctInputBoxRecords_current_value');
-		if (ctInputBoxRecords_current_value)
-			ctInputBoxRecords_current_value.innerHTML = '';
-
-		let SQLJoinLink = document.getElementById(control_name + control_name_postfix + 'SQLJoinLink');
-		if (SQLJoinLink)// {
-			SQLJoinLink.selectedIndex = 0;
-		ctInputbox_UpdateSQLJoinLink(control_name, control_name_postfix);
-	}
-
-	document.getElementById(control_name + '_addButton').style.visibility = "hidden";
-	document.getElementById(control_name + '_addBox').style.visibility = "visible";
-}
 
 function ctInputBoxRecords_DoAddItem(control_name, control_name_postfix) {
 	//Old calls replaced
@@ -1344,7 +1518,7 @@ function ctInputBoxRecords_deleteItem(control_name, control_name_postfix, index)
 
 	if (isHidden) {
 		ctInputBoxRecords_cancel(control_name, '_selector');
-		ctInputBoxRecords_addItem(control_name, '_selector')
+		CTEditHelper.ctInputBoxRecords_addItem(control_name, '_selector')
 	}
 }
 
@@ -1373,9 +1547,9 @@ function ctInputBoxRecords_showMultibox(control_name, control_name_postfix) {
 		let deleteImage;
 
 		if (CTEditHelper.cmsName === "Joomla")
-			deleteImage = ctWebsiteRoot + 'components/com_customtables/libraries/customtables/media/images/icons/cancel.png';
+			deleteImage = CTEditHelper.websiteRoot + 'components/com_customtables/libraries/customtables/media/images/icons/cancel.png';
 		else if (CTEditHelper.cmsName === "WordPress")
-			deleteImage = ctWebsiteRoot + 'wp-content/plugins/customtables/libraries/customtables/media/images/icons/cancel.png';
+			deleteImage = CTEditHelper.websiteRoot + 'wp-content/plugins/customtables/libraries/customtables/media/images/icons/cancel.png';
 
 		v += '<td style="border-bottom:1px dotted grey;min-width:16px;">';
 		let onClick = "ctInputBoxRecords_deleteItem('" + control_name + "','" + control_name_postfix + "'," + i + ")";
@@ -1420,97 +1594,6 @@ function ctInputbox_removeEmptyParents(control_name, control_name_postfix) {
 	}
 }
 
-function ctInputbox_UpdateSQLJoinLink(control_name, control_name_postfix) {
-	//Old calls replaced
-	setTimeout(ctInputbox_UpdateSQLJoinLink_do(control_name, control_name_postfix), 100);
-}
-
-function ctInputbox_UpdateSQLJoinLink_do(control_name, control_name_postfix) {
-	//Old calls replaced
-	let controlElement = document.getElementById(control_name);
-	let selectedControlElements = Array.from(controlElement.options)
-		.filter(option => option.selected)
-		.map(option => option.value);
-
-	let l = document.getElementById(control_name + control_name_postfix);
-	let o = document.getElementById(control_name + 'SQLJoinLink');
-	let v = '';
-
-	if (o) {
-		if (o.selectedIndex === -1)
-			return false;
-
-		v = o.options[o.selectedIndex].value;
-	}
-
-	let selectedValue = null
-	let ctInputBoxRecords_current_value = document.getElementById(control_name + '_ctInputBoxRecords_current_value');
-
-	if (ctInputBoxRecords_current_value)
-		selectedValue = String(ctInputBoxRecords_current_value.innerHTML);
-
-	ctInputBoxRecords_removeOptions(l);
-
-	if (control_name_postfix !== '_selector') {
-		let opt = document.createElement("option");
-		opt.value = '0';
-		opt.innerHTML = TranslateText('COM_CUSTOMTABLES_SELECT');
-		l.appendChild(opt);
-	}
-
-	let elements = JSON.parse(document.getElementById(control_name + control_name_postfix + '_elements').textContent);
-	let elementsID = document.getElementById(control_name + control_name_postfix + '_elementsID').innerHTML.split(",");
-	let elementsPublished = document.getElementById(control_name + control_name_postfix + '_elementsPublished').innerHTML.split(",");
-
-	let filterElement = document.getElementById(control_name + control_name_postfix + '_elementsFilter');
-	let elementsFilter = []
-	if (filterElement)
-		elementsFilter = filterElement.innerHTML.split(";");
-
-	for (let i = 0; i < elements.length; i++) {
-		let f = elementsFilter[i];
-
-		if (elements[i] !== "") {
-
-			let eid = String(elementsID[i]);
-			if (selectedControlElements.indexOf(eid) === -1) {
-
-				let published = parseInt(elementsPublished[i]);
-
-				if (typeof f != "undefined") {
-					let f_list = f.split(",");
-
-					if (f_list.indexOf(v) !== -1) {
-						let opt = document.createElement("option");
-						opt.value = eid;
-						if (eid === selectedValue)
-							opt.selected = true;
-
-						if (published === 0)
-							opt.style.cssText = "color:red;";
-
-						opt.innerHTML = elements[i];
-						l.appendChild(opt);
-					}
-				} else {
-
-					let opt = document.createElement("option");
-					opt.value = eid;
-					if (eid === selectedValue)
-						opt.selected = true;
-
-					if (published === 0)
-						opt.style.cssText = "color:red;";
-
-					opt.innerHTML = elements[i];
-					l.appendChild(opt);
-				}
-			}
-		}
-	}
-
-	return true;
-}
 
 // ------------------------ Google Map coordinates
 
@@ -1570,50 +1653,6 @@ function ctInputbox_googlemapcoordinates(inputbox_id) {
 	return false;
 }
 
-let ct_signaturePad_fields = [];
-let ct_signaturePad = [];
-let ct_signaturePad_formats = [];
-
-function ctInputbox_signature(inputbox_id, width, height, format) {
-
-	let canvas = document.getElementById(inputbox_id + '_canvas');
-
-	ct_signaturePad_fields.push(inputbox_id);
-	ct_signaturePad[inputbox_id] = new SignaturePad(canvas, {
-		backgroundColor: "rgb(255, 255, 255)"
-	});
-
-	ct_signaturePad_formats[inputbox_id] = format;
-
-	canvas.width = width;
-	canvas.height = height;
-	canvas.getContext("2d").scale(1, 1);
-
-	document.getElementById(inputbox_id + '_clear').addEventListener('click', function () {
-		ct_signaturePad[inputbox_id].clear();
-	});
-}
-
-function ctInputbox_signature_apply() {
-
-	if (ct_signaturePad_fields.length === 0)
-		return true;
-
-	let inputbox_id = ct_signaturePad_fields[0];
-
-	if (ct_signaturePad[inputbox_id].isEmpty()) {
-		alert(TranslateText('COM_CUSTOMTABLES_JS_SIGNATURE_REQUIRED'));
-		return false;
-	} else {
-
-		let format = ct_signaturePad_formats[inputbox_id];
-
-		//let dataURL = ct_signaturePad[inputbox_id].toDataURL('image/'+format+'+xml');
-		let dataURL = ct_signaturePad[inputbox_id].toDataURL('image/' + format);
-		document.getElementById(inputbox_id).setAttribute("value", dataURL);
-		return true;
-	}
-}
 
 /*
 function download(dataURL, filename) {
@@ -1804,12 +1843,12 @@ function updateChildTableJoinField(childFieldName, parentFieldName, childFilterF
 		let link = location.href.split('administrator/index.php?option=com_customtables');
 
 		if (link.length === 2)//to make sure that it will work in the back-end
-			url = ctWebsiteRoot + 'administrator/index.php?option=com_customtables&view=catalog&tmpl=component&from=json&key=' + key + '&index=0&where=' + encodeURIComponent(where);
+			url = CTEditHelper.websiteRoot + 'administrator/index.php?option=com_customtables&view=catalog&tmpl=component&from=json&key=' + key + '&index=0&where=' + encodeURIComponent(where);
 		else
-			url = ctWebsiteRoot + 'index.php?option=com_customtables&view=catalog&tmpl=component&from=json&key=' + key + '&index=0&where=' + encodeURIComponent(where);
+			url = CTEditHelper.websiteRoot + 'index.php?option=com_customtables&view=catalog&tmpl=component&from=json&key=' + key + '&index=0&where=' + encodeURIComponent(where);
 
 	} else if (CTEditHelper.cmsName === "WordPress") {
-		url = ctWebsiteRoot + 'index.php?page=customtables-api-tablejoin&key=' + key + '&index=0&where=' + encodeURIComponent(where);
+		url = CTEditHelper.websiteRoot + 'index.php?page=customtables-api-tablejoin&key=' + key + '&index=0&where=' + encodeURIComponent(where);
 		console.error(url);
 		console.error("updateChildTableJoinField is going to be supported by WP yet.");
 		alert("updateChildTableJoinField is going to be supported by WP yet.")
@@ -1843,8 +1882,14 @@ function refreshTableJoinField(fieldName, response) {
 
 	for (let i = 0; i < valueFiltersNames.length; i++) {
 		if (valueFiltersNames[i] !== null) {
-			let value = response['record']['es_' + valueFiltersNames[i]];
-			NewValueFilters.push(value);
+			console.warn("response", response['record']);
+			console.warn("valueFiltersNames[i]", valueFiltersNames[i]);
+
+			let value = "";
+			if (response['record']) {
+				value = response['record']['es_' + valueFiltersNames[i]];
+				NewValueFilters.push(value);
+			}
 
 			let index = i - 1;
 			let selectorID = ctFieldInputPrefix + fieldName + index;
@@ -1873,9 +1918,9 @@ async function onCTVirtualSelectServerSearch(searchValue, virtualSelect) {
 		let link = location.href.split('administrator/index.php?option=com_customtables');
 
 		if (link.length === 2)//to make sure that it will work in the back-end
-			url = ctWebsiteRoot + 'administrator/index.php?option=com_customtables&view=catalog&tmpl=component&from=json&key=' + key + '&index=0&limit=20&';
+			url = CTEditHelper.websiteRoot + 'administrator/index.php?option=com_customtables&view=catalog&tmpl=component&from=json&key=' + key + '&index=0&limit=20&';
 		else
-			url = ctWebsiteRoot + 'index.php?option=com_customtables&view=catalog&tmpl=component&from=json&key=' + key + '&index=0&limit=20&';
+			url = CTEditHelper.websiteRoot + 'index.php?option=com_customtables&view=catalog&tmpl=component&from=json&key=' + key + '&index=0&limit=20&';
 
 	} else if (CTEditHelper.cmsName === "WordPress") {
 		console.error("onCTVirtualSelectServerSearch is not supported by WP yet.");
