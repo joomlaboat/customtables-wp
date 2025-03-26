@@ -5,7 +5,7 @@ Donate link: https://www.patreon.com/joomlaboat
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
 Tested up to: 6.7.2
-Stable tag: 1.5.7
+Stable tag: 1.5.8
 Requires PHP: 7.4
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -49,6 +49,23 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 [Please contact us here with your query.](https://ct4.us/contact-us/)
 
 == Changelog ==
+
+= 1.5.8 =
+
+- Fixed import issue when tables have different field prefixes.
+- Fixed addForeignKey for user fields.
+- Fixed removeForeignKey.
+- {{ html.pagination }} added to Auto Layout Creator (WP) & default simple catalog layout.
+- Search by exact date in datetime fields added.
+- Date field search now applies global search filter.
+- Fixed ordering by User Field in WP.
+- Fixed current language detection in WP.
+- Error message text improved for better clarity.
+- Fixed domain validation bug in URL Field type.
+- Fixed Lookup Table self-parent value selection issue.
+- Fixed delete confirmation message (now correctly shows item name instead of ID).
+- Prevented duplicate JS function declarations.
+- Added new virtual field option: Stored Decimal.
 
 = 1.5.7 =
 - Short Code: Error reporting improved.
