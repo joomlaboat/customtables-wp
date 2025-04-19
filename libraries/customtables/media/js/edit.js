@@ -173,22 +173,10 @@ if (typeof globalThis.CustomTablesEdit === 'undefined') {
 		}
 
 		//A method to create or update table records using JavaScript. CustomTables handles data sanitization and validation.
-		saveRecord(url, fieldsAndValues, listing_id, successCallback, errorCallback) {
 
-			let completeURL = url + '?view=edititem&task=save&tmpl=component&clean=1';
-			if (listing_id !== undefined && listing_id !== null)
-				completeURL += '&listing_id=' + listing_id;
+		postRequest(url, postData, successCallback, errorCallback) {
 
-			let postData = new URLSearchParams();
-
-			// Iterate over keysObject and append each key-value pair
-			for (const key in fieldsAndValues) {
-				if (fieldsAndValues.hasOwnProperty(key)) {
-					postData.append(ctFieldInputPrefix + key, fieldsAndValues[key]);
-				}
-			}
-
-			fetch(completeURL, {
+			fetch(url, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
@@ -205,47 +193,144 @@ if (typeof globalThis.CustomTablesEdit === 'undefined') {
 						return null;
 					}
 
-					if (!response.ok) {
-						// If the HTTP status code is not successful, throw an error object that includes the response
-						throw {status: 'error', message: 'HTTP status code: ' + response.status, response: response};
-					}
-					return response.json();
+					// Read the response as text for debugging
+					return response.text().then(text => {
+						let data;
+						try {
+							data = JSON.parse(text);
+						} catch (e) {
+							console.warn(text);
+							if (errorCallback && typeof errorCallback === 'function')
+								errorCallback({'success': false, 'message': 'Response is not valid JSON'});
+							else
+								console.error({'success': false, 'message': 'Response is not valid JSON'});
+
+							return;
+						}
+
+						if (response.ok) {
+							if (data.success) {
+								if (successCallback && typeof successCallback === 'function')
+									successCallback(data);
+								else
+									console.log(data);
+							} else {
+								if (errorCallback && typeof errorCallback === 'function')
+									errorCallback(data);
+								else
+									console.error(data);
+							}
+						} else {
+							if (errorCallback && typeof errorCallback === 'function')
+								errorCallback(data);
+							else
+								console.error(data);
+						}
+					});
+
+
 				})
 				.then(data => {
-					if (data === null)
-						return;
 
-					if (data.status === 'saved') {
-						if (successCallback && typeof successCallback === 'function') {
-							successCallback(data);
-						} else {
+					//console.log('Step 3');
 
-						}
-					} else if (data.status === 'error') {
-						if (errorCallback && typeof errorCallback === 'function') {
-							errorCallback(data);
-						} else {
-							console.error(data.message);
-						}
-					}
 				})
 				.catch(error => {
 					if (errorCallback && typeof errorCallback === 'function') {
 						errorCallback({
-							status: 'error',
-							message: 'An error occurred during the request.',
-							error: error,
-							url: completeURL
+							success: false,
+							message: error,
+							url: url
 						});
 					} else {
+						console.log('Step 10');
 						console.error('Error', error);
-						console.log(completeURL);
+						console.log(url);
 					}
 				});
 		}
 
+		addRecord(fieldsAndValues, successCallback, errorCallback, url = null, fieldPrefix = null) {
+
+			let deleteParams = ['view', 'task', 'tmpl', 'clean'];
+			let addParams = ['view=edit', 'task=save'];
+			url = esPrepareLink(deleteParams, addParams, url);
+
+			let postData = new URLSearchParams();
+
+			let fieldInputPrefix = ctFieldInputPrefix;
+
+			if (fieldPrefix !== null)
+				fieldInputPrefix = 'com' + fieldPrefix;
+
+			// Iterate over keysObject and append each key-value pair
+			for (const key in fieldsAndValues) {
+				if (fieldsAndValues.hasOwnProperty(key)) {
+					postData.append(fieldInputPrefix + key, fieldsAndValues[key]);
+				}
+			}
+
+			console.log('postData:', postData);
+
+			this.postRequest(url, postData, successCallback, errorCallback);
+		}
+
+		//A method to create or update table records using JavaScript. CustomTables handles data sanitization and validation.
+		saveRecord(fieldsAndValues, listing_id, successCallback, errorCallback, url = null) {
+
+			let deleteParams = ['view', 'task', 'tmpl', 'clean'];
+			let addParams = ['view=edit', 'task=save', 'listing_id=' + listing_id];
+			url = esPrepareLink(deleteParams, addParams, url);
+
+			let postData = new URLSearchParams();
+
+			// Iterate over keysObject and append each key-value pair
+			for (const key in fieldsAndValues) {
+				if (fieldsAndValues.hasOwnProperty(key)) {
+					postData.append(ctFieldInputPrefix + key, fieldsAndValues[key]);
+				}
+			}
+
+			this.postRequest(url, postData, successCallback, errorCallback);
+		}
+
+		publishRecord(listing_id, successCallback, errorCallback, url) {
+			this.setTaskRecord(listing_id, 'publish', successCallback, errorCallback, url);
+		}
+
+		unpublishRecord(listing_id, successCallback, errorCallback, url) {
+			this.setTaskRecord(listing_id, 'unpublish', successCallback, errorCallback, url);
+		}
+
+		setTaskRecord(listing_id, task, successCallback, errorCallback, url = null) {
+
+			let deleteParams = ['view', 'task', 'tmpl', 'clean'];
+			let addParams = ['view=edit', 'task=' + task];
+			if (Array.isArray(listing_id))
+				addParams.push('ids=' + listing_id.join(","));
+			else
+				addParams.push('listing_id=' + listing_id);
+
+			url = esPrepareLink(deleteParams, addParams, url);
+			let postData = new URLSearchParams();
+
+			this.postRequest(url, postData, successCallback, errorCallback);
+		}
+
+		refreshRecord(listing_id, status, successCallback, errorCallback, url = null) {
+			this.setTaskRecord(listing_id, 'refresh', successCallback, errorCallback, url);
+		}
+
+		copyRecord(listing_id, status, successCallback, errorCallback, url = null) {
+			this.setTaskRecord(listing_id, 'copy', successCallback, errorCallback, url);
+		}
+
+		deleteRecord(listing_id, successCallback, errorCallback, url = null) {
+			this.setTaskRecord(listing_id, 'delete', successCallback, errorCallback, url);
+		}
+
 		//TODO: no usages found
-		async refreshRecord(url, listing_id, successCallback, errorCallback, ModuleId) {
+		async refreshRecordOld(url, listing_id, successCallback, errorCallback, ModuleId) {
 			let completeURL = url + '?tmpl=component&clean=1&task=refresh';
 			if (listing_id !== undefined && listing_id !== null)
 				completeURL += '&ids=' + listing_id;
@@ -1923,9 +2008,9 @@ async function onCTVirtualSelectServerSearch(searchValue, virtualSelect) {
 		let link = location.href.split('administrator/index.php?option=com_customtables');
 
 		if (link.length === 2)//to make sure that it will work in the back-end
-			url = CTEditHelper.websiteRoot + 'administrator/index.php?option=com_customtables&view=catalog&tmpl=component&from=json&key=' + key + '&index=0&limit=20&';
+			url = CTEditHelper.websiteRoot + 'administrator/index.php?option=com_customtables&view=catalog&tmpl=component&clean=1&from=json&key=' + key + '&index=0&limit=20&';
 		else
-			url = CTEditHelper.websiteRoot + 'index.php?option=com_customtables&view=catalog&tmpl=component&from=json&key=' + key + '&index=0&limit=20&';
+			url = CTEditHelper.websiteRoot + 'index.php?option=com_customtables&view=catalog&tmpl=component&clean=1&from=json&key=' + key + '&index=0&limit=20&';
 
 	} else if (CTEditHelper.cmsName === "WordPress") {
 		console.error("onCTVirtualSelectServerSearch is not supported by WP yet.");
@@ -1938,26 +2023,42 @@ async function onCTVirtualSelectServerSearch(searchValue, virtualSelect) {
 
 	let newList = [];
 
-	try {
-		const response = await fetch(url);
-		const contentType = response.headers.get("content-type");
-		if (!contentType || !contentType.includes("application/json")) {
-			throw new TypeError("Oops, we haven't got JSON!");
-		}
-		const jsonData = await response.json();
-
-		for (let i = 0; i < jsonData.length; i++) {
-
-			let doc = new DOMParser().parseFromString(jsonData[i].label, 'text/html');
-			let label = doc.documentElement.textContent;
-
-			newList.push({value: jsonData[i].value, label: decodeURI(label)});
-		}
-		virtualSelect.setServerOptions(newList);
-	} catch (error) {
-		alert(error);
-		console.error("Error:", error);
+	const response = await fetch(url);
+	const contentType = response.headers.get("content-type");
+	if (!contentType || !contentType.includes("application/json")) {
+		console.warn(url);
+		console.warn(contentType);
+		console.warn(response);
+		console.warn(response.toString());
+		throw new TypeError("Oops, we haven't got JSON!");
 	}
+
+	let jsonData;
+
+	try {
+		jsonData = await response.json();
+	} catch (error) {
+		console.warn("Error:  SyntaxError: JSON.parse");
+		console.warn(response);
+		return;
+	}
+
+	if (jsonData.success) {
+		for (let i = 0; i < jsonData.data.length; i++) {
+			let item = jsonData.data[i];
+
+			//let doc = new DOMParser().parseFromString(item.label, 'text/html');
+			//let label = doc.documentElement.textContent;
+			//newList.push({value: item.value, label: decodeURI(label)});
+
+			newList.push({value: item.value, label: item.label});
+		}
+
+		virtualSelect.setServerOptions(newList);
+	} else {
+		console.warn("Error:", jsonData.errors);
+	}
+
 }
 
 

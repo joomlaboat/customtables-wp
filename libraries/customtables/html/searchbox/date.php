@@ -80,8 +80,8 @@ jQuery(document).ready(function($) {
 
 			$start = '<input onblur="' . $jsOnChange . '" onchange="' . $jsOnChange . '" value="' . $valueStart . '" type="text"'
 				. ' class="' . ($this->attributes['class'] ?? '') . '" id="' . $this->objectName . '_exact"'
-				. ' placeholder="' . $this->field->title . ' - ' . esc_html__("Date", "customtables") . '"'
-				. ' style="display:inline-block;width:49%;margin-left:0;margin-right:0;float:left;">';
+				. ' placeholder="' . $this->field->title . ' - ' . esc_html__("Date", "customtables") . '"';
+			//. ' style="display:inline-block;width:49%;margin-left:0;margin-right:0;float:left;">';
 
 			return $hidden . '<div style="position: relative;">' . $start . '</div>';
 		} else {

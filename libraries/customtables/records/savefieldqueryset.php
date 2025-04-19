@@ -431,7 +431,9 @@ class SaveFieldQuerySet
 
 			case 'creationtime':
 
-				if ($this->row_old[$this->ct->Table->realidfieldname] == 0 or $this->row_old[$this->ct->Table->realidfieldname] == '' or $this->isCopy) {
+				$value = common::inputPostString($this->field->comesfieldname, null, 'create-edit-record');
+
+				if (($this->ct->isRecordNull($this->row_old) or $this->isCopy) and $value === null) {
 					$this->setNewValue(common::currentDate());
 				} else {
 					$value = common::inputPostString($this->field->comesfieldname, null, 'create-edit-record');
