@@ -462,7 +462,7 @@ class Admin_Record_List extends WP_List_Table
 	public function get_bulk_actions(): array
 	{
 		/*
-		 * on hitting apply in bulk actions the url params are set as
+		 * on hitting apply in bulk actions, the url params are set as
 		 * ?action=action&id=1
 		 *
 		 * action and action2 are set based on the triggers above or below the table
@@ -474,6 +474,8 @@ class Admin_Record_List extends WP_List_Table
 		if ($this->current_status != 'trash') {
 			$actions['customtables-records-edit'] = __('Edit');
 		}
+
+		$actions['customtables-records-refresh'] = __('Refresh');
 
 		if ($this->current_status == '' or $this->current_status == 'all') {
 			$actions['customtables-records-publish'] = __('Publish', 'customtables');
@@ -580,6 +582,15 @@ class Admin_Record_List extends WP_List_Table
 			}
 		}
 
+		if ('refresh' === $the_table_action) {
+			if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'delete_nonce')) {
+				$this->invalid_nonce_redirect();
+			} else {
+				echo 'Do refresh';
+				die;
+			}
+		}
+
 		// check for record bulk actions
 		try {
 			if ($this->is_table_action('customtables-records-edit')) {
@@ -598,6 +609,10 @@ class Admin_Record_List extends WP_List_Table
 				if ($this->is_table_action('customtables-records-trash')) {
 					$this->handle_record_actions_publish(-2);
 				}
+			}
+
+			if ($this->is_table_action('customtables-records-refresh')) {
+				$this->handle_record_actions_refresh();
 			}
 
 			if ($this->is_table_action('customtables-records-delete')) {
@@ -641,6 +656,11 @@ class Admin_Record_List extends WP_List_Table
 	{
 		if ($url === null) {
 			$url = 'admin.php?page=customtables-records&table=' . $this->tableId;
+		}
+
+		$paged = common::inputGetInt('paged');
+		if ($paged !== null) {
+			$url .= '&paged=' . $paged;
 		}
 
 		if ($this->current_status != null) {
@@ -694,6 +714,30 @@ class Admin_Record_List extends WP_List_Table
 				$whereClauseUpdate->addCondition('id', $recordId);
 
 				database::update($this->ct->Table->realtablename, ['published' => $state], $whereClauseUpdate);
+			}
+
+			if (count($records) > 0) {
+				$this->graceful_redirect();
+			}
+
+			common::enqueueMessage(__("Records not selected.", 'customtables'));
+		}
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	function handle_record_actions_refresh(): void
+	{
+		// verify the nonce.
+		if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'bulk-' . $this->_args['plural'])) {
+			$this->invalid_nonce_redirect();
+		} else {
+
+			$records = (isset($_POST['ids']) && is_array($_POST['ids'])) ? common::sanitize_post_field_array($_POST['ids']) : [];
+
+			foreach ($records as $recordId) {
+				$this->ct->RefreshSingleRecord($recordId, true);
 			}
 
 			if (count($records) > 0) {
