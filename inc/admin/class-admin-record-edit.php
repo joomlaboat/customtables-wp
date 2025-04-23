@@ -91,6 +91,9 @@ class Admin_Record_Edit
 			}
 
 			$url = 'admin.php?page=customtables-records&table=' . $this->tableId;
+			$paged = common::inputGetInt('paged');
+			if($paged !== null)
+				$url .= '&paged=' . $paged;
 
 			ob_start(); // Start output buffering
 			ob_end_clean(); // Discard the output buffer

@@ -196,7 +196,13 @@ class Admin_Record_List extends WP_List_Table
 						$label = '<span>' . $shortLabelText . '</span>';
 					} else {
 
-						$label = '<a class="row-title" href="?page=customtables-records-edit&action=edit&table=' . $this->tableId . '&id=' . $item[$this->ct->Table->realidfieldname] . '">'
+						$link = '?page=customtables-records-edit&action=edit&table=' . $this->tableId . '&id=' . $item[$this->ct->Table->realidfieldname];
+						$paged = common::inputGetInt('paged');
+						if ($paged !== null) {
+							$link .= '&paged=' . $paged;
+						}
+
+						$label = '<a class="row-title" href="' . $link . '">'
 							. $shortLabelText . '</a>';
 
 						if ($this->ct->Table->published_field_found) {
@@ -205,7 +211,7 @@ class Admin_Record_List extends WP_List_Table
 					}
 
 					$item[$field['realfieldname']] = '<strong>' . $label . '</strong>';
-				}else{
+				} else {
 					if ($field['type'] == 'url') {
 						$label = '<a class="row-title" href="' . $labelText . '" target="_blank">'
 							. $shortLabelText . '</a>';
@@ -331,7 +337,14 @@ class Admin_Record_List extends WP_List_Table
 				urlencode(wp_create_nonce('delete_nonce'))
 			);
 		} else {
-			$actions['edit'] = sprintf('<a href="?page=customtables-records-edit&action=edit&table=%s&id=%s">' . __('Edit') . '</a>',
+
+			$link = '?page=customtables-records-edit&action=edit&table=%s&id=%s';
+			$paged = common::inputGetInt('paged');
+			if ($paged !== null) {
+				$link .= '&paged=' . $paged;
+			}
+
+			$actions['edit'] = sprintf('<a href="' . $link . '">' . __('Edit') . '</a>',
 				$this->tableId,
 				$item['id']
 			);
