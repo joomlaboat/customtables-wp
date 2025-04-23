@@ -6,6 +6,7 @@ use CustomTables\common;
 use CustomTables\ImportCSV;
 use CustomTables\ImportTables;
 use Exception;
+use Throwable;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
@@ -71,24 +72,23 @@ class Admin_Import_Records
 					require_once(CUSTOMTABLES_LIBRARIES_PATH . DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR
 						. 'helpers' . DIRECTORY_SEPARATOR . 'ImportCSV.php');
 
-					$msg = ImportCSV::importCSVFile($move_file['file'], $tableId);
-
-					unlink($move_file['file']);
-
-					if ($msg == "") {
+					try {
+						ImportCSV::importCSVFile($move_file['file'], $tableId);
 						common::enqueueMessage( 'The records have been added from the CSV file successfully.', 'notice');
 
 						$url = 'admin.php?page=customtables-records&table=' . $tableId;
-
+						unlink($move_file['file']);
 						ob_start(); // Start output buffering
 						ob_end_clean(); // Discard the output buffer
 						wp_redirect(admin_url($url));
 						exit;
+					} catch (Throwable $e) {
+						unlink($move_file['file']);
+						common::enqueueMessage( 'Error processing file: ' . esc_html($e->getMessage()), 'error');
+					}
 
-					} else
-						common::enqueueMessage( 'Error processing file: ' . esc_html($msg));
 				} else {
-					// Store message for 60 seconds
+					// Store a message for 60 seconds
 					if (isset($move_file['error']))
 						common::enqueueMessage('Error uploading file: ' . esc_html($move_file['error']));
 					else

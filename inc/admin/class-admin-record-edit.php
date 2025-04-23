@@ -78,13 +78,12 @@ class Admin_Record_Edit
 			$listing_id = common::inputGetCmd('id');
 			$saved = $record->save($listing_id, false);
 
-
 			if ($saved) {
 				if ($this->ct->Env->advancedTagProcessor and !empty($this->ct->Table->tablerow['customphp'])) {
 					try {
 						$action = $record->isItNewRecord ? 'create' : 'update';
 						$customPHP = new CustomPHP($this->ct, $action);
-						$customPHP->executeCustomPHPFile($this->ct->Table->tablerow['customphp'], $record->row_new, $record->row_old);
+						$customPHP->executeCustomPHPFile( $this->ct->Table->tablerow['customphp'], $record->row_new, $record->row_old);
 					} catch (Exception $e) {
 						common::enqueueMessage( 'Custom PHP file: ' . $this->ct->Table->tablerow['customphp'] . ' (' . $e->getMessage() . ')');
 					}
