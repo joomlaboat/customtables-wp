@@ -189,25 +189,32 @@ class Admin_Record_List extends WP_List_Table
 				$fieldName = $field['fieldname'];
 				$twig = new TwigProcessor($this->ct, '{{ ' . $fieldName . ' }}');
 				$labelText = $twig->process($item);
-				$labelText = CTMiscHelper::charsTrimText($labelText,30);
+				$shortLabelText = CTMiscHelper::charsTrimText($labelText, 30);
 
 				if ($this->firstFieldRealName === $field['realfieldname']) {
 					if ($item['listing_published'] == -2) {
-						$label = '<span>' . $labelText . '</span>';
+						$label = '<span>' . $shortLabelText . '</span>';
 					} else {
 
 						$label = '<a class="row-title" href="?page=customtables-records-edit&action=edit&table=' . $this->tableId . '&id=' . $item[$this->ct->Table->realidfieldname] . '">'
-							. $labelText . '</a>';
+							. $shortLabelText . '</a>';
 
 						if ($this->ct->Table->published_field_found) {
 							$label .= (($this->current_status != 'unpublished' and $item['listing_published'] == 0) ? ' — <span class="post-state">Draft</span>' : '');
 						}
 					}
 
-					$labelText = '<strong>' . $label . '</strong>';
-				}
+					$item[$field['realfieldname']] = '<strong>' . $label . '</strong>';
+				}else{
+					if ($field['type'] == 'url') {
+						$label = '<a class="row-title" href="' . $labelText . '" target="_blank">'
+							. $shortLabelText . '</a>';
 
-				$item[$field['realfieldname']] = $labelText;
+					} else {
+						$label = '<span>' . $shortLabelText . '</span>';
+					}
+					$item[$field['realfieldname']] = $label;
+				}
 			}
 
 			$newData[] = $item;
@@ -512,7 +519,7 @@ class Admin_Record_List extends WP_List_Table
 						common::enqueueMessage($e->getMessage());
 					}
 
-					common::enqueueMessage('Record restored from the Trash.','notice');
+					common::enqueueMessage('Record restored from the Trash.', 'notice');
 					$this->graceful_redirect();
 				}
 			}
@@ -533,7 +540,7 @@ class Admin_Record_List extends WP_List_Table
 						common::enqueueMessage($e->getMessage());
 					}
 
-					common::enqueueMessage('Record moved to the Trash.','notice');
+					common::enqueueMessage('Record moved to the Trash.', 'notice');
 					$this->graceful_redirect();
 				}
 			}
@@ -552,7 +559,7 @@ class Admin_Record_List extends WP_List_Table
 						common::enqueueMessage($e->getMessage());
 					}
 
-					common::enqueueMessage('Record permanently deleted.','notice');
+					common::enqueueMessage('Record permanently deleted.', 'notice');
 					$this->graceful_redirect();
 				} else {
 					common::enqueueMessage(__("Field not selected.", 'customtables'));
