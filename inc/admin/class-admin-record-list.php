@@ -323,6 +323,11 @@ class Admin_Record_List extends WP_List_Table
 			$url .= '&status=' . $this->current_status;
 		}
 
+		$paged = common::inputGetInt('paged');
+		if ($paged !== null) {
+			$url .= '&paged=' . $paged;
+		}
+
 		$actions = [];
 		if ($this->current_status === 'trash') {
 			$actions['restore'] = sprintf('<a href="' . $url . '&action=restore&table=%s&id=%s&_wpnonce=%s">' . __('Restore') . '</a>',
@@ -348,6 +353,13 @@ class Admin_Record_List extends WP_List_Table
 				$this->tableId,
 				$item['id']
 			);
+
+			$actions['refresh'] = sprintf('<a href="' . $url . '&action=refresh&table=%s&id=%s&_wpnonce=%s">' . __('Refresh') . '</a>',
+				$this->tableId,
+				$item['id'],
+				urlencode(wp_create_nonce('refresh_nonce'))
+			);
+
 
 			$actions['trash'] = sprintf('<a href="' . $url . '&action=trash&table=%s&id=%s&_wpnonce=%s">' . __('Trash') . '</a>',
 				$this->tableId,
@@ -583,11 +595,13 @@ class Admin_Record_List extends WP_List_Table
 		}
 
 		if ('refresh' === $the_table_action) {
-			if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'delete_nonce')) {
+			if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'refresh_nonce')) {
 				$this->invalid_nonce_redirect();
 			} else {
-				echo 'Do refresh';
-				die;
+				$recordId = common::inputGetCmd('id');
+				if ($recordId !== null) {
+					$this->ct->RefreshSingleRecord($recordId, true);
+				}
 			}
 		}
 
