@@ -14,6 +14,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use CustomTables\common;
 use CustomTables\CT;
+use CustomTables\CTMiscHelper;
 use CustomTables\database;
 use CustomTables\MySQLWhereClause;
 use CustomTables\TwigProcessor;
@@ -188,6 +189,7 @@ class Admin_Record_List extends WP_List_Table
 				$fieldName = $field['fieldname'];
 				$twig = new TwigProcessor($this->ct, '{{ ' . $fieldName . ' }}');
 				$labelText = $twig->process($item);
+				$labelText = CTMiscHelper::charsTrimText($labelText,30);
 
 				if ($this->firstFieldRealName === $field['realfieldname']) {
 					if ($item['listing_published'] == -2) {
