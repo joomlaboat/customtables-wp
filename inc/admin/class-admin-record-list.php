@@ -542,6 +542,7 @@ class Admin_Record_List extends WP_List_Table
 
 					try {
 						database::update($this->ct->Table->realtablename, ['published' => 0], $whereClauseUpdate);
+						$this->ct->RefreshSingleRecord($recordId, true);
 					} catch (Exception $e) {
 						common::enqueueMessage($e->getMessage());
 					}
@@ -728,6 +729,8 @@ class Admin_Record_List extends WP_List_Table
 				$whereClauseUpdate->addCondition('id', $recordId);
 
 				database::update($this->ct->Table->realtablename, ['published' => $state], $whereClauseUpdate);
+
+				$this->ct->RefreshSingleRecord($recordId, true);
 			}
 
 			if (count($records) > 0) {
