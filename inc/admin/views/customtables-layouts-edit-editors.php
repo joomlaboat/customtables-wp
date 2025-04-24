@@ -13,12 +13,19 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 			data-toggle="tab" data-tabs=".gtabs.layouteditorTabs" data-tab=".layoutmobile-tab" class="nav-tab">HTML
 		(Mobile)
 	</button>
+
 	<button type="button" onclick="CustomTablesAdminLayoutsTabClicked(2,'layoutcss');return false;"
 			data-toggle="tab" data-tabs=".gtabs.layouteditorTabs" data-tab=".layoutcss-tab" class="nav-tab">CSS
 	</button>
+
 	<button type="button" onclick="CustomTablesAdminLayoutsTabClicked(3,'layoutjs');return false;" data-toggle="tab"
 			data-tabs=".gtabs.layouteditorTabs" data-tab=".layoutjs-tab" class="nav-tab">JavaScript
 	</button>
+
+	<button type="button" data-toggle="tab"
+			data-tabs=".gtabs.layouteditorTabs" data-tab=".filters-tab" class="nav-tab">Filters
+	</button>
+
 	<button type="button" data-toggle="tab"
 			data-tabs=".gtabs.layouteditorTabs" data-tab=".params-tab" class="nav-tab">Parameters
 	</button>
@@ -71,6 +78,10 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 				<?php echo esc_html__("Available in PRO Version", "customtables"); ?>
 			</a>
 		<?php endif; ?>
+	</div>
+
+	<div class="gtab filters-tab" style="margin-left:-20px;">
+		<?php include('customtables-layouts-edit-filters.php'); ?>
 	</div>
 
 	<div class="gtab params-tab" style="margin-left:-20px;">

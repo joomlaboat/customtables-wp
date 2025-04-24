@@ -1,44 +1,4 @@
 <table class="form-table" role="presentation">
-	<tr class="form-field form-required">
-		<!-- Layout Name Field -->
-		<th scope="row">
-			<label for="filter">
-				<?php echo esc_html__('Filter', 'customtables'); ?>
-			</label>
-		</th>
-		<td>
-			<input name="filter" type="text" id="filter" style="min-width: 150px;"
-				   value="<?php echo esc_attr($this->admin_layout_edit->params['filter'] ?? ''); ?>"
-				   aria-required="false"
-				   autocapitalize="none" autocorrect="off" autocomplete="off" maxlength="1024"/>
-			<br/>
-
-			<span class="description">
-  <strong>Basic Format:</strong><br>
-  Field=value<br><br>
-
-  <strong>Comparison Operators:</strong><br>
-  =, &#60;, &#60;=, &#62;, &#62;=, !=, == (exact match)<br><br>
-
-  <strong>Dynamic Values:</strong><br>
-  • User data: {{ user.id }}<br>
-  • URL parameters: {{ url.getint('param_name') }}<br>
-  • Current date: {{ 'now'|date('m/d/Y') }}<br><br>
-
-  <strong>Multiple Conditions:</strong><br>
-  Combine with 'and' or 'or'<br><br>
-
-  <strong>Examples:</strong><br>
-  • URL parameter: color={{ url.getstring('string') }}<br>
-  • Date formats:<br>
-    - Full date: {{ 'now'|date('m/d/Y') }}<br>
-    - Year only: {{ 'now'|date('Y') }}<br>
-    - Month only: {{ 'now'|date('m') }}
-</span>
-		</td>
-	</tr>
-
-	<hr/>
 
 	<?php /*
 	<tr class="form-field form-required">
