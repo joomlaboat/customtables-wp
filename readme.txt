@@ -1,11 +1,11 @@
-=== CustomTables - Create, Read, Update and Delete ===
+=== CustomTables - Create, Read, Update, and Delete ===
 Contributors: ivankomlev
 Author URI: https://ct4.us
 Donate link: https://www.patreon.com/joomlaboat
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
 Tested up to: 6.7.2
-Stable tag: 1.5.8
+Stable tag: 1.5.9
 Requires PHP: 7.4
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -50,8 +50,22 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 
 == Changelog ==
 
-= 1.5.8 =
+= 1.5.9 =
+- Added "Show Published" filter in Layout Editor
+- Improved hint text in Virtual Select boxes
+- Required field (*) mark now works in all forms, including popups
+- Date picker format check added
+- Removed inline style from date search bar
+- Creation Time field can now be set and edited
+- CSV import skips empty records
+- Fixed required field check in popup windows
+- Added new JS API methods: add/save/publish/unpublish/refresh/copy/delete record
+- Fixed double HTML encoding issue
+- Fixed rare Table Join bug in catalog value edit
+- Virtual Select for Table Join improved
+- Tags {{ record.sum }}, {{ record.min }}, {{ record.max }} now return decimal values
 
+= 1.5.8 =
 - Fixed import issue when tables have different field prefixes.
 - Fixed addForeignKey for user fields.
 - Fixed removeForeignKey.
@@ -65,7 +79,7 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 - Fixed Lookup Table self-parent value selection issue.
 - Fixed delete confirmation message (now correctly shows item name instead of ID).
 - Prevented duplicate JS function declarations.
-- Added new virtual field option: Stored Decimal.
+- Added a new virtual field option: Stored Decimal.
 
 = 1.5.7 =
 - Short Code: Error reporting improved.
