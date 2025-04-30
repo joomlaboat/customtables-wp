@@ -79,6 +79,11 @@ class Admin_Layout_Edit
 		if ('createlayout' === $action || 'savelayout' === $action) {
 			$this->helperListOfLayouts->save($this->layoutId);
 			$url = 'admin.php?page=customtables-layouts';
+
+			$paged = common::inputGetInt('paged');
+			if($paged !== null)
+				$url .= '&paged=' . $paged;
+
 			ob_start(); // Start output buffering
 			ob_end_clean(); // Discard the output buffer
 			wp_redirect(admin_url($url));

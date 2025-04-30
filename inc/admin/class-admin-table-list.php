@@ -149,11 +149,21 @@ class Admin_Table_List extends WP_List_Table
 			if ($item['realtablename'] !== null) {
 				$table_exists = TableHelper::checkIfTableExists($item['realtablename']);
 
-				if ($item['published'] == -2)
+				if ($item['published'] == -2) {
 					$label = '<span>' . $item['tablename'] . '</span>';
-				else
-					$label = '<a class="row-title" href="?page=customtables-tables-edit&action=edit&table=' . $item['id'] . '">' . $item['tablename'] . '</a>'
+				}
+				else {
+
+					$link = '?page=customtables-tables-edit&action=edit&table=' . $item['id'];
+
+					$paged = common::inputGetInt('paged');
+					if ($paged !== null) {
+						$link .= '&paged=' . $paged;
+					}
+
+					$label = '<a class="row-title" href="' . $link . '">' . $item['tablename'] . '</a>'
 						. (($this->current_status != 'unpublished' and $item['published'] == 0) ? ' — <span class="post-state">Draft</span>' : '');
+				}
 
 				$item['tablename'] = '<strong>' . $label . '</strong>';
 
@@ -547,6 +557,11 @@ class Admin_Table_List extends WP_List_Table
 	{
 		if ($url === null)
 			$url = 'admin.php?page=customtables-tables';
+
+		$paged = common::inputGetInt('paged');
+		if ($paged !== null) {
+			$url .= '&paged=' . $paged;
+		}
 
 		if ($this->current_status != null)
 			$url .= '&status=' . $this->current_status;

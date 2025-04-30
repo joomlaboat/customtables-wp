@@ -157,11 +157,21 @@ class Admin_Field_List extends WP_List_Table
 
 		$newData = [];
 		foreach ($data as $item) {
-			if ($item['published'] == -2)
+			if ($item['published'] == -2) {
 				$label = '<span>' . $item['fieldname'] . '</span>';
-			else
-				$label = '<a class="row-title" href="?page=customtables-fields-edit&action=edit&table=' . $this->tableId . '&field=' . $item['id'] . '">' . $item['fieldname'] . '</a>'
+			}
+			else {
+
+				$link = '?page=customtables-fields-edit&action=edit&table=' . $this->tableId . '&field=' . $item['id'];
+
+				$paged = common::inputGetInt('paged');
+				if ($paged !== null) {
+					$link .= '&paged=' . $paged;
+				}
+
+				$label = '<a class="row-title" href="' . $link . '">' . $item['fieldname'] . '</a>'
 					. (($this->current_status != 'unpublished' and $item['published'] == 0) ? ' — <span class="post-state">Draft</span>' : '');
+			}
 
 			$item['fieldname'] = '<strong>' . $label . '</strong>';
 
@@ -562,6 +572,11 @@ class Admin_Field_List extends WP_List_Table
 	{
 		if ($url === null)
 			$url = 'admin.php?page=customtables-fields&table=' . $this->tableId;
+
+		$paged = common::inputGetInt('paged');
+		if ($paged !== null) {
+			$url .= '&paged=' . $paged;
+		}
 
 		if ($this->current_status != null)
 			$url .= '&status=' . $this->current_status;

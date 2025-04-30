@@ -153,7 +153,15 @@ class Admin_Layout_List extends WP_List_Table
 			if ($item['published'] == -2) {
 				$label = '<span>' . $item['layoutname'] . '</span>';
 			} else {
-				$label = '<a class="row-title" href="?page=customtables-layouts-edit&action=edit&layout=' . $item['id'] . '">' . $item['layoutname'] . '</a>'
+
+				$link = '?page=customtables-layouts-edit&action=edit&layout=' . $item['id'];
+
+				$paged = common::inputGetInt('paged');
+				if ($paged !== null) {
+					$link .= '&paged=' . $paged;
+				}
+
+				$label = '<a class="row-title" href="' . $link . '">' . $item['layoutname'] . '</a>'
 					. (($this->current_status != 'unpublished' and $item['published'] == 0) ? ' — <span class="post-state">Draft</span>' : '');
 			}
 
@@ -515,6 +523,11 @@ class Admin_Layout_List extends WP_List_Table
 	{
 		if ($url === null) {
 			$url = 'admin.php?page=customtables-layouts';
+		}
+
+		$paged = common::inputGetInt('paged');
+		if ($paged !== null) {
+			$url .= '&paged=' . $paged;
 		}
 
 		if ($this->current_status != null) {

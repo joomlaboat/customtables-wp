@@ -69,6 +69,10 @@ class Admin_Field_Edit
 
 			$url = 'admin.php?page=customtables-fields&table=' . $this->tableId;
 
+			$paged = common::inputGetInt('paged');
+			if($paged !== null)
+				$url .= '&paged=' . $paged;
+
 			ob_start(); // Start output buffering
 			ob_end_clean(); // Discard the output buffer
 			wp_redirect(admin_url($url));
