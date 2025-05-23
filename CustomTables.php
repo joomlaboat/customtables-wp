@@ -3,7 +3,7 @@
 Plugin Name: CustomTables
 Plugin URI: https://ct4.us
 Description: Custom Tables solution for WordPress
-Version: 1.5.9
+Version: 1.6.1
 Requires at least: 6.0
 Requires PHP: 7.4.0
 Author: Ivan Komlev
@@ -31,7 +31,7 @@ use Exception;
 define(__NAMESPACE__ . '\CTWP', __NAMESPACE__ . '\\');
 
 define(CTWP . 'PLUGIN_NAME', 'customtables');
-define(CTWP . 'PLUGIN_VERSION', '1.5.9');
+define(CTWP . 'PLUGIN_VERSION', '1.6.1');
 define(CTWP . 'PLUGIN_NAME_DIR', plugin_dir_path(__FILE__));
 define(CTWP . 'PLUGIN_NAME_URL', plugin_dir_url(__FILE__));
 define(CTWP . 'PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -115,7 +115,7 @@ if (version_compare(PHP_VERSION, $min_php, '>=')) {
 
 function enqueue_codemirror()
 {
-    $version = '1.5.9';
+    $version = '1.6.1';
     wp_enqueue_style('customtables-js-modal', plugin_dir_url(__FILE__) . 'libraries/customtables/media/css/modal.css', false, $version);
     wp_enqueue_style('customtables-js-layouteditor', plugin_dir_url(__FILE__) . 'libraries/customtables/media/css/layouteditor.css', false, $version);
 
