@@ -1074,6 +1074,9 @@ class Layouts
 			$this->ct->getRecord();
 		}
 
+		if ($this->ct->Table->record === null)
+			throw new Exception(esc_html__("not found.", "customtables"));
+
 		return $this->renderDetailedLayoutDO();
 	}
 
