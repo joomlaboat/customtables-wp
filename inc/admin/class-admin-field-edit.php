@@ -39,7 +39,7 @@ class Admin_Field_Edit
 			'defaultvalue' => null, 'valuerule' => null, 'valuerulecaption' => null];
 
 		if ($this->tableId) {
-			$this->ct->getTable($this->tableId);
+			$this->ct->getTable($this->tableId, null, true);
 			if ($this->ct->Table->tablename !== null) {
 				$this->fieldId = common::inputGetInt('field');
 

@@ -463,9 +463,8 @@ class common
 	{
 		$returnto = self::inputGetBase64('returnto');
 
-		if ($returnto === null)
-		{
-			$returnto = self::inputPostBase64('returnto',$default, $action);
+		if ($returnto === null) {
+			$returnto = self::inputPostBase64('returnto', $default, $action);
 			if ($returnto === null)
 				return null;
 		}
@@ -542,7 +541,7 @@ class common
 	public static function curPageURL(): string
 	{
 		$WebsiteRoot = str_replace(site_url(), '', home_url());
-		$RequestURL = esc_url($_SERVER["REQUEST_URI"]);
+		$RequestURL = $_SERVER["REQUEST_URI"];//important not to escape the URL characters
 
 		if ($WebsiteRoot !== '' && str_ends_with($WebsiteRoot, '/')) {
 			if ($RequestURL !== '' && $RequestURL[0] === '/') {
