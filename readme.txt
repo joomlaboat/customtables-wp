@@ -5,7 +5,7 @@ Donate link: https://www.patreon.com/joomlaboat
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
 Tested up to: 6.8.1
-Stable tag: 1.6.1
+Stable tag: 1.6.2
 Requires PHP: 7.4
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -49,6 +49,13 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 [Please contact us here with your query.](https://ct4.us/contact-us/)
 
 == Changelog ==
+
+= 1.6.2 =
+- {{ url.base64 }} tag added.
+- Filebox Fixed
+- Return To link fixed.
+- Image field type: Image size variants fixed. Path to upload images - fixed.
+- Edit draft field - fixed.
 
 = 1.6.1 =
 - Detailed page record loaded check added.
