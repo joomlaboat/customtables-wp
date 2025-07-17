@@ -27,6 +27,10 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 	</button>
 
 	<button type="button" data-toggle="tab"
+			data-tabs=".gtabs.layouteditorTabs" data-tab=".permissions-tab" class="nav-tab">Permissions
+	</button>
+
+	<button type="button" data-toggle="tab"
 			data-tabs=".gtabs.layouteditorTabs" data-tab=".params-tab" class="nav-tab">Parameters
 	</button>
 </h2>
@@ -82,6 +86,10 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 	<div class="gtab filters-tab" style="margin-left:-20px;">
 		<?php include('customtables-layouts-edit-filters.php'); ?>
+	</div>
+
+	<div class="gtab permissions-tab" style="margin-left:-20px;">
+		<?php include('customtables-layouts-edit-permissions.php'); ?>
 	</div>
 
 	<div class="gtab params-tab" style="margin-left:-20px;">

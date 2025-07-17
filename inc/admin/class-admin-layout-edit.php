@@ -201,4 +201,31 @@ class Admin_Layout_Edit
 
 		return $output;
 	}
+
+	function get_mimetype_selector(string $elementId, string $type = 'html'): string
+	{
+		$types = ['html' => 'HTML (text/html)', 'csv' => 'CSV (text/csv)', 'xml' => 'XML (application/xml)', 'json' => 'JSON (application/json)', 'txt'=>'Plain Text (text/plain)'];
+
+		// Start building the select element
+		$output = '<select id="' . $elementId . '" name="' . $elementId . '">';
+
+		// Add each role as an option
+		foreach ($types as $type_key => $type_label) {
+
+			$is_selected = $type_key === $type ? ' selected' : '';
+
+			// Add the option element
+			$output .= sprintf(
+				'<option value="%s" %s>%s</option>',
+				esc_attr($type_key),
+				$is_selected,
+				esc_html($type_label)
+			);
+		}
+
+		// Close the select element
+		$output .= '</select>';
+
+		return $output;
+	}
 }
