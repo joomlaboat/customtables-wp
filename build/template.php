@@ -64,9 +64,9 @@ class template
 
 				try {
 					$html = $this->renderBlock($block['attrs']);
-				}catch (Exception $e) {
+				} catch (Exception $e) {
 					$html = '<p style="background-color: #aa0000;color: #f1f1f1;padding: 5px;border-radius: 5px;">'
-						. $e->getMessage().'</p>';
+						. $e->getMessage() . '</p>';
 				}
 
 				$preparedAttributes = self::prepareAttributes($block['attrs']);
@@ -186,8 +186,11 @@ class template
 
 		if ($mixedLayout_array ['success']) {
 			if ($ct->Env->clean) {
+
 				if ($ct->Env->frmt == 'json')
-					CTMiscHelper::fireSuccess($mixedLayout_array ['id'] ?? null, $mixedLayout_array ['data'] ?? null, $ct->Params->msgItemIsSaved);
+					CTMiscHelper::fireSuccess($mixedLayout_array ['id'] ?? null, $mixedLayout_array ['content'] ?? null, $ct->Params->msgItemIsSaved);
+				elseif ($ct->Env->frmt == 'xml' or $ct->Env->frmt == 'csv' or $ct->Env->frmt == 'txt')
+					CTMiscHelper::fireFormattedOutput($mixedLayout_array ['content'], $ct->Env->frmt, $ct->Table->tabletitle, 200);
 				else
 					die($mixedLayout_array ['short'] ?? 'done');
 			}
@@ -195,12 +198,14 @@ class template
 			if ($ct->Env->clean) {
 				if ($ct->Env->frmt == 'json')
 					CTMiscHelper::fireError(500, $mixedLayout_array['message'] ?? 'Error');
+				elseif ($ct->Env->frmt == 'xml' or $ct->Env->frmt == 'csv' or $ct->Env->frmt == 'txt')
+					CTMiscHelper::fireFormattedOutput($mixedLayout_array['message'], $ct->Env->frmt, $ct->Table->tabletitle, 500);
 				else {
 					echo 'message: ' . $mixedLayout_array['message'] . '<br/>';
 					die($mixedLayout_array['short'] ?? 'error');
 				}
 
-			}else{
+			} else {
 				throw new Exception($mixedLayout_array ['message'] ?? 'Error');
 			}
 		}

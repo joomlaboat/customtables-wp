@@ -4,8 +4,8 @@ Author URI: https://ct4.us
 Donate link: https://www.patreon.com/joomlaboat
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
-Tested up to: 6.8.1
-Stable tag: 1.6.2
+Tested up to: 6.8.2
+Stable tag: 1.6.3
 Requires PHP: 7.4
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -49,6 +49,12 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 [Please contact us here with your query.](https://ct4.us/contact-us/)
 
 == Changelog ==
+
+= 1.6.3 =
+- Fixed update server URL.
+- Added “Alias File Type” option to control output MIME type. If the alias ends with .json, .csv, etc., the appropriate Content-Type header will be sent.
+- Added MIME Type selection field to the Layout editor for customizing content output formatting.
+
 
 = 1.6.2 =
 - {{ url.base64 }} tag added.
