@@ -406,7 +406,7 @@ class Admin
 				$image_url = plugins_url('assets/block-glass.png', __FILE__);
 
 				$background = "background-image: url(\'' . $image_url . '\')";
-				$preview_html = '<div style="position: relative;">' . $output['html']
+				$preview_html = '<div style="position: relative;">' . $output['content']
 					. '<div style="position:absolute;top:0;left:0;width:100%;height:100%;' . $background . ';background-repeat: repeat;"></div>'
 					. '</div>';
 
