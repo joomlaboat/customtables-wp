@@ -210,7 +210,7 @@ class template
 			}
 		}
 
-		$mixedLayout_safe = $mixedLayout_array['html'] ?? null;
+		$mixedLayout_safe = $mixedLayout_array['content'] ?? null;
 		$this->enqueueList['FieldInputPrefix'] = $ct->Table->fieldInputPrefix;
 
 		$message = get_transient('customtables_error_message');

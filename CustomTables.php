@@ -316,7 +316,7 @@ add_shortcode('customtables', function($form_attributes) {
     }
 
     if (isset($attributes['view']) and !empty($attributes['view'])) {
-        if ($attributes['view'] != 'edit' and $attributes['view'] != 'details' and $attributes['view'] == 'catalog')
+        if ($attributes['view'] != 'edit' and $attributes['view'] != 'details' and $attributes['view'] != 'catalog')
             return 'Error: "view" parameter can be "edititem" or "details" or "catalog")';
     }
 
