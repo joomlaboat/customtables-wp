@@ -1017,13 +1017,13 @@ function submitModalForm(url, elements, tableid, recordId, hideModelOnSave, moda
 						//refreshTableJoinField(parentField, response, parentFieldInputPrefix);
 					}
 
-					if (hideModelOnSave) {
+					if (hideModelOnSave)
 						ctHidePopUp();
-						return;
-					}
 
 					if (returnLinkEncoded !== "")
 						location.href = stripInvalidCharacters(Base64.decode(returnLinkEncoded));
+
+					return;
 
 				} else {
 					/*
@@ -1034,6 +1034,7 @@ function submitModalForm(url, elements, tableid, recordId, hideModelOnSave, moda
 					else
 						*/
 					alert(response.message);
+					return;
 				}
 			}
 		};
@@ -1356,7 +1357,7 @@ function ctRenderTableJoinSelectBox(control_name, r, index, execute_all, sub_ind
 		return false;
 	}
 
-	if (r.length === 0) {
+	if (r.data.length === 0) {
 		if (Array.isArray(filters[next_index])) {
 
 			next_sub_index = 0;
@@ -1377,7 +1378,6 @@ function ctRenderTableJoinSelectBox(control_name, r, index, execute_all, sub_ind
 			}
 		} else {
 
-			/*
 			let NoItemsText;
 
 			if (typeof wrapper.dataset.addrecordmenualias !== 'undefined' && wrapper.dataset.addrecordmenualias !== '') {
@@ -1389,7 +1389,6 @@ function ctRenderTableJoinSelectBox(control_name, r, index, execute_all, sub_ind
 
 			document.getElementById(control_name + "Selector" + index + '_' + sub_index).innerHTML = NoItemsText;
 
-			*/
 			return false;
 		}
 	}
@@ -1402,7 +1401,7 @@ function ctRenderTableJoinSelectBox(control_name, r, index, execute_all, sub_ind
 	//Add select box
 	let current_object_id = control_name + index + (Array.isArray(filters[index]) ? '_' + sub_index : '');
 
-	if (r.length > 0) {
+	if (r.data.length > 0) {
 
 		let updateValueString = (index + 1 === filters.length ? 'true' : 'false');
 		let onChangeFunction = 'ctUpdateTableJoinLink(\'' + control_name + '\', ' + next_index + ', false, ' + next_sub_index + ',\'' + current_object_id + '\', \'' + formId + '\', ' + updateValueString + ',null);'
@@ -1414,9 +1413,9 @@ function ctRenderTableJoinSelectBox(control_name, r, index, execute_all, sub_ind
 		if (typeof wrapper.dataset.addrecordmenualias !== 'undefined' && wrapper.dataset.addrecordmenualias !== '')
 			result += '<option value="%addRecord%">- ' + TranslateText('COM_CUSTOMTABLES_ADD') + '</option>';
 
-		for (let i = 0; i < r.length; i++) {
-			let optionLabel = decodeHtml(r[i].label);
-			result += '<option value="' + r[i].value + '">' + optionLabel + '</option>';
+		for (let i = 0; i < r.data.length; i++) {
+			let optionLabel = decodeHtml(r.data[i].label);
+			result += '<option value="' + r.data[i].value + '">' + optionLabel + '</option>';
 		}
 
 		result += '</select>';
@@ -1436,7 +1435,7 @@ function ctRenderTableJoinSelectBox(control_name, r, index, execute_all, sub_ind
 		obj.value = forceValue;
 	}
 
-	if (r.length > 0) {
+	if (r.data.length > 0) {
 		if (execute_all && next_index + 1 < filters.length && val != null) {
 			ctUpdateTableJoinLink(control_name, next_index, true, next_sub_index, null, formId, false, null);
 		}

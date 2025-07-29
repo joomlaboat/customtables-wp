@@ -172,7 +172,13 @@ class Params
 			try {
 				if (Factory::getApplication()->getLanguage() !== null) {
 					$menu_params_registry = @Factory::getApplication()->getParams();//Joomla specific
-					$menu_paramsArray = self::menuParamsRegistry2Array($menu_params_registry);
+					$establename = $menu_params_registry->get('establename');
+					if (empty($establename)) {
+						$Itemid = common::inputGetInt('Itemid');
+						$menu_paramsArray = CTMiscHelper::getMenuParams($Itemid);
+					} else
+						$menu_paramsArray = self::menuParamsRegistry2Array($menu_params_registry);
+
 					$this->setParams($menu_paramsArray);
 				}
 			} catch (Throwable $e) {
@@ -360,7 +366,7 @@ class Params
 		//Permissions
 		$this->setPermissions($menu_params);
 
-		$this->publishStatus = $menu_params['publishstatus'] ?? 1;
+		$this->publishStatus = $menu_params['publishstatus'] ?? ($this->publishStatus ?? 1);// Update if the is a new value.
 
 		//Emails
 		$this->onRecordAddSendEmail = (int)($menu_params['onrecordaddsendemail'] ?? null);

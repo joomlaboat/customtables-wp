@@ -225,8 +225,13 @@ class Layouts
 			if ($this->ct->Table->fields === null)
 				return ['success' => false, 'message' => 'Table not selected or not found', 'short' => 'error'];
 		} elseif ($task !== 'cancel') {
-			if ($this->ct->Table === null)
-				return ['success' => false, 'message' => 'Table not selected', 'short' => 'error'];
+			if ($this->ct->Table === null) {
+				$Itemid = common::inputGetInt('Itemid');
+
+				return ['success' => false,
+					'message' => 'Table not selected. Layout ID: ' . $layoutId . ', task: ' . $task . ', $Itemid: ' . $Itemid,
+					'short' => 'error'];
+			}
 
 			if ($layoutType === null) {
 				if ($task == 'saveandcontinue' or $task == 'save' or $task == 'saveascopy')
@@ -431,6 +436,17 @@ class Layouts
 
 					if ($this->ct->Env->frmt != 'html' and $params['mimetype'] != '')
 						$this->ct->Env->clean = true;
+				}
+
+				if (!$this->ct->Env->advancedTagProcessor) {
+					//Do not apply Layout params in Free version as they are inaccessible.
+					$params['filter'] = null;
+					$params['addusergroups'] = null;
+					$params['editusergroups'] = null;
+					$params['publishusergroups'] = null;
+					$params['deleteusergroups'] = null;
+					$params['publishstatus'] = null;
+					$params['mimetype'] = null;
 				}
 
 				$this->ct->Params->setParams($params);
