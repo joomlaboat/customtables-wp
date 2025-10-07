@@ -109,7 +109,7 @@ foreach ($this->admin_field_edit->allTables as $table) {
 							</th>
 							<td>
 								<input name="fieldname" type="text" id="fieldname"
-									   value="<?php echo esc_html(esc_attr($this->admin_field_edit->fieldRow['fieldname'])); ?>"
+									   value="<?php echo esc_attr($this->admin_field_edit->fieldRow['fieldname']); ?>"
 									   aria-required="true"
 									   autocapitalize="none" autocorrect="off" autocomplete="off" maxlength="60"/>
 							</td>
