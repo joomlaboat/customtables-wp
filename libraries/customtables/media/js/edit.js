@@ -23,10 +23,21 @@ if (typeof globalThis.CustomTablesEdit === 'undefined') {
 			this.ct_signaturePad_formats = [];
 
 			this.ctInputBoxRecords_dynamic_filter = [];
-
 			this.ctLinkLoading = false;
-
 			this.websiteRoot = websiteRoot;//With trailing front slash /
+			this.dragDropStr = TranslateText('COM_CUSTOMTABLES_DRAG_DROP_FILES');
+			this.uploadStr = TranslateText('COM_CUSTOMTABLES_UPLOAD_FILE');
+			this.abortStr = TranslateText('COM_CUSTOMTABLES_ABORT');
+			this.cancelStr = TranslateText('COM_CUSTOMTABLES_CANCEL');
+			this.deleteStr = TranslateText('COM_CUSTOMTABLES_DELETE');
+			this.doneStr = TranslateText('COM_CUSTOMTABLES_DONE');
+			this.multiDragErrorStr = TranslateText('COM_CUSTOMTABLES_MULTIPLE_DRAG_DROP_FILES');
+			this.extErrorStr = TranslateText('COM_CUSTOMTABLES_ALLOWED_EXTENSIONS');
+			this.duplicateErrorStr = TranslateText('COM_CUSTOMTABLES_FILE_ALREADY_EXISTS');
+			this.sizeErrorStr = TranslateText('COM_CUSTOMTABLES_ALLOWED_MAX_SIZE');
+			this.uploadErrorStr = TranslateText('COM_CUSTOMTABLES_UPLOAD_NOT_ALLOWED');
+			this.maxFileCountErrorStr = TranslateText('COM_CUSTOMTABLES_MAX_ALLOWED_FILES');
+			this.downloadStr = TranslateText('COM_CUSTOMTABLES_DOWNLOAD');
 		}
 
 		GoogleDriveInitClient(fieldName, GoogleDriveAPIKey, GoogleDriveClientId) {
@@ -443,10 +454,13 @@ if (typeof globalThis.CustomTablesEdit === 'undefined') {
 					let tableId = parts[1];
 					let trId = 'ctTable_' + tableId + '_' + listing_id;
 					const records = table.querySelectorAll('tr[id^="' + trId + '"]');
-					if (records.length == 1) {
-						let table_object = findTableByRowId(tableid + '_' + listing_id);
-						let index = findRowIndexById(table_object, tableId, listing_id, 'ctEditIcon');
-						ctCatalogUpdate(tableId, listing_id, index, ModuleId);
+					if (records.length === 1) {
+						let table_row_object = findTableByRowId(tableId + '_' + listing_id);
+						if (table_row_object) {
+							let index = findRowIndexById(table_row_object, tableId, listing_id, 'ctEditIcon');
+							let ModuleId = null;
+							ctCatalogUpdate(tableId, listing_id, index, ModuleId);
+						}
 					}
 				}
 			});
@@ -1000,6 +1014,7 @@ function submitModalForm(url, elements, tableid, recordId, hideModelOnSave, moda
 				}
 
 				if (response.success) {
+
 					//let element_tableid_tr = "ctTable_" + tableid + '_' + recordId;
 					let table_object = document.getElementById("ctTable_" + tableid);
 
@@ -1212,10 +1227,14 @@ function TranslateText() {
 	if (arguments.length === 0)
 		return 'Nothing to translate';
 
-	let str;
 	const key = arguments[0];
+	let str;
 
-	str = ctTranslationScriptObject[key];
+	if (typeof ctTranslationScriptObject !== "undefined" && key in ctTranslationScriptObject) {
+		str = ctTranslationScriptObject[key];
+	} else {
+		str = key;
+	}
 
 	// Handle placeholders
 	if (arguments.length === 1)
@@ -2041,9 +2060,9 @@ async function onCTVirtualSelectServerSearch(searchValue, virtualSelect) {
 		let link = location.href.split('administrator/index.php?option=com_customtables');
 
 		if (link.length === 2)//to make sure that it will work in the back-end
-			url = CTEditHelper.websiteRoot + 'administrator/index.php?option=com_customtables&view=catalog&tmpl=component&clean=1&from=json&key=' + key + '&index=0&limit=20&';
+			url = CTEditHelper.websiteRoot + 'administrator/index.php?option=com_customtables&view=catalog&tmpl=component&clean=1&frmt=json&key=' + key + '&index=0&limit=20&';
 		else
-			url = CTEditHelper.websiteRoot + 'index.php?option=com_customtables&view=catalog&tmpl=component&clean=1&from=json&key=' + key + '&index=0&limit=20&';
+			url = CTEditHelper.websiteRoot + 'index.php?option=com_customtables&view=catalog&tmpl=component&clean=1&frmt=json&key=' + key + '&index=0&limit=20&';
 
 	} else if (CTEditHelper.cmsName === "WordPress") {
 		console.error("onCTVirtualSelectServerSearch is not supported by WP yet.");

@@ -169,6 +169,7 @@ class Catalog
 		if (!$recordsLoaded)
 			throw new Exception(esc_html__("Table not found.", "customtables"));
 
+
 		try {
 			$twig = new TwigProcessor($this->ct, $pageLayout, false, false, true, $pageLayoutNameString, $pageLayoutLink);
 			$pageLayout = $twig->process();

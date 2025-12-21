@@ -175,7 +175,10 @@ class Params
 					$establename = $menu_params_registry->get('establename');
 					if (empty($establename)) {
 						$Itemid = common::inputGetInt('Itemid');
-						$menu_paramsArray = CTMiscHelper::getMenuParams($Itemid);
+						if ($Itemid !== null)
+							$menu_paramsArray = CTMiscHelper::getMenuParams($Itemid);
+						else
+							$menu_paramsArray = self::menuParamsRegistry2Array($menu_params_registry);
 					} else
 						$menu_paramsArray = self::menuParamsRegistry2Array($menu_params_registry);
 
@@ -305,9 +308,9 @@ class Params
 		if (common::inputGetInt("ctmodalform", 0) == 1)
 			$this->tableName = common::inputGetInt("tableid");//Used in Save Modal form content.
 
-		if ($this->tableName === null) {
+		if (empty($this->tableName)) {
 			$this->tableName = $menu_params['establename'] ?? null; //Table name or id not sanitized
-			if ($this->tableName === null)
+			if (empty($this->tableName))
 				$this->tableName = $menu_params['tableid'] ?? null; //Used in the back-end
 		}
 

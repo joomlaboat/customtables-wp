@@ -1343,6 +1343,8 @@ class CTMiscHelper
 				$fileExtension = 'json';
 			elseif ($format == 'xml')
 				$fileExtension = 'xml';
+			elseif ($format == 'csv')
+				$fileExtension = 'csv';
 
 			$filename = CTMiscHelper::makeNewFileName($pageTitle, $fileExtension);
 			if (is_null($filename))
@@ -1438,4 +1440,19 @@ class CTMiscHelper
 		return $filename;
 	}
 
+	public static function getUserIP(): string
+	{
+		if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)) {
+			$forwardAddress = common::getServerParam('HTTP_X_FORWARDED_FOR');
+			if (!empty($forwardAddress)) {
+				if (str_contains($forwardAddress, ',')) {
+					$address = explode(",", $forwardAddress);
+					return trim($address[0]);
+				} else
+					return $forwardAddress;
+			} else
+				return common::getServerParam('REMOTE_ADDR');
+		} else
+			return common::getServerParam('REMOTE_ADDR');
+	}
 }
