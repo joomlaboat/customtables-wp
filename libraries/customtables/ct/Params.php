@@ -1,6 +1,6 @@
 <?php
 /**
- * CustomTables Joomla! 3.x/4.x/5.x Component and WordPress 6.x Plugin
+ * CustomTables Joomla! 3.x/4.x/5.x/6.x Component and WordPress 6.x Plugin
  * @package Custom Tables
  * @author Ivan Komlev <support@joomlaboat.com>
  * @link https://joomlaboat.com
@@ -379,21 +379,29 @@ class Params
 		$this->emailSentStatusField = $menu_params['emailsentstatusfield'] ?? null;
 
 		//Form Saved
-		if (!$this->blockExternalVars and common::inputGetCmd('returnto'))
+		if (!$this->blockExternalVars and common::inputGetCmd('returnto')) {
 			$this->returnTo = common::getReturnToURL(true, null, 'create-edit-record');//base 64 decode "returnto" value
-		else {
+		} else {
 
 			if (empty($this->ModuleId)) {
+
 				if (CUSTOMTABLES_JOOMLA_MIN_4 and !empty($this->ItemId)) {
-					//Check if current ItemId is not the same as set $this->ItemId
-					if ($this->ItemId != common::inputGetInt('Itemid'))
-						$this->returnTo = $menu_params['returnto'] ?? Route::_(sprintf('index.php/?option=com_customtables&Itemid=%d', $this->ItemId));
+
+					if (!empty($menu_params['returnto'])) {
+						$this->returnTo = $menu_params['returnto'];
+					} else {
+						//Check if current ItemId is not the same as set $this->ItemId
+						if ($this->ItemId != common::inputGetInt('Itemid'))
+							$this->returnTo = Route::_(sprintf('index.php/?option=com_customtables&Itemid=%d', $this->ItemId));
+					}
+
 				} else
 					$this->returnTo = $menu_params['returnto'] ?? null;
 			} else {
 				$this->returnTo = common::curPageURL();
 			}
 		}
+
 		$this->requiredLabel = $menu_params['requiredlabel'] ?? null;
 
 		$this->msgItemIsSaved = (empty($menu_params['msgitemissaved']) ? esc_html__("Record saved.", "customtables") : $menu_params['msgitemissaved']);
