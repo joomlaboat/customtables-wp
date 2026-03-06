@@ -11,10 +11,10 @@
 namespace CustomTables;
 
 // no direct access
+if (!defined('ABSPATH')) exit;
+
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
-
-if (!defined('ABSPATH')) exit;
 
 class InputBox_file extends BaseInputBox
 {

@@ -41,18 +41,22 @@ class Environment
 	var ?string $folderToSaveLayouts;
 	var bool $isPlugin; //this can be set by calling the class from the plugin
 	var bool $CustomPHPEnabled;
+	var bool $SQLSelectEnabled;
 	var bool $debug;
 
 	function __construct()
 	{
 		$this->CustomPHPEnabled = false;
+		$this->SQLSelectEnabled = false;
 
+		// Follow the white rabbit
 		if (defined('_JEXEC')) {
 			$plugin = PluginHelper::getPlugin('content', 'customtables');
 
 			if (!is_null($plugin) and is_object($plugin) > 0) {
 				$pluginParamsArray = json_decode($plugin->params);
 				$this->CustomPHPEnabled = (int)($pluginParamsArray->phpPlugin ?? 0) == 1;
+				$this->SQLSelectEnabled = (int)($pluginParamsArray->sqlSelectTag ?? 0) == 1;
 			}
 		}
 
@@ -123,8 +127,6 @@ class Environment
 			if (file_exists($path . 'helpers.php'))
 				require_once($path . 'helpers.php');
 
-			if (file_exists($path . 'servertags.php'))
-				require_once($path . 'servertags.php');
 		} elseif (defined('WPINC') and defined('CustomTablesWPPro\CTWPPRO')) {
 			$path = CUSTOMTABLES_PRO_PATH;
 			$path = str_replace('/', DIRECTORY_SEPARATOR, $path);
