@@ -58,7 +58,7 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 - Import tables duplicate field records bug fixed.
 
 = 1.6.9 =
-- {{ tables.sqlselect() }} tag added (disabled).
+- {{ tables.sqlselect() }} tag added.
 
 = 1.6.8 =
 - PHP 8.4 Warnings fixed.

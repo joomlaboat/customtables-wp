@@ -573,6 +573,11 @@ class common
 		return sanitize_text_field($_SERVER[$param]);
 	}
 
+	public static function getCookie(string $param)
+	{
+		return $_COOKIE[$param] ?? null;
+	}
+
 	public static function inputGet(string $parameter, $default, string $filter)
 	{
 		echo 'common::inputGet not supported in WordPress';

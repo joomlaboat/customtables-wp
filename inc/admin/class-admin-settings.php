@@ -50,6 +50,11 @@ class Admin_Settings
 			else
 				update_option('customtables-toolbaricons', sanitize_text_field($toolbarIcons));
 
+			$sqlselecttag = common::inputPostString('sqlselecttag','','settings');
+			if(get_option('customtables-sqlselecttag')===false)
+				add_option('customtables-sqlselecttag', sanitize_text_field($sqlselecttag));
+			else
+				update_option('customtables-sqlselecttag', sanitize_text_field($sqlselecttag));
 
             $url = 'admin.php?page=customtables-settings';
 
