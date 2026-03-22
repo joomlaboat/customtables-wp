@@ -14,6 +14,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use CustomTables\common;
 use CustomTables\CT;
 use CustomTables\CTMiscHelper;
+use CustomTables\Environment;
 use CustomTables\Layouts;
 use Exception;
 use Throwable;
@@ -243,6 +244,9 @@ class template
 			if (isset($mixedLayout_array['captcha']))
 				$this->enqueueList['recaptcha'] = $mixedLayout_array['captcha'];
 
+			if (isset(Environment::$librariesToLoad['nouislider']))
+				$this->enqueueList['nouislider'] = true;
+
 			if (isset($mixedLayout_array['scripts']))
 				$this->enqueueList['scripts'] = $mixedLayout_array['scripts'];
 
@@ -357,6 +361,12 @@ class template
 
 		if (isset($this->enqueueList['recaptcha']))
 			wp_enqueue_script('google-recaptcha', 'https://www.google.com/recaptcha/api.js');
+
+
+		if (isset($this->enqueueList['nouislider'])) {
+			wp_enqueue_script('nouislider-js', CUSTOMTABLES_MEDIA_WEBPATH .'js/nouislider.min.js');
+			wp_enqueue_style('nouislider-css', CUSTOMTABLES_MEDIA_WEBPATH . 'css/nouislider.min.css', array(), PLUGIN_VERSION, false);
+		}
 
 		// Add JS script files
 		if (isset($this->enqueueList['scripts']) and is_array($this->enqueueList['scripts'])) {
