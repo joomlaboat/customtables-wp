@@ -360,12 +360,19 @@ class Admin_Record_List extends WP_List_Table
 				urlencode(wp_create_nonce('refresh_nonce'))
 			);
 
-
-			$actions['trash'] = sprintf('<a href="' . $url . '&action=trash&table=%s&id=%s&_wpnonce=%s">' . __('Trash') . '</a>',
-				$this->tableId,
-				$item['id'],
-				urlencode(wp_create_nonce('trash_nonce'))
-			);
+			if ($this->ct->Table->published_field_found) {
+				$actions['trash'] = sprintf('<a href="' . $url . '&action=trash&table=%s&id=%s&_wpnonce=%s">' . __('Trash') . '</a>',
+					$this->tableId,
+					$item['id'],
+					urlencode(wp_create_nonce('trash_nonce'))
+				);
+			}else{
+				$actions['delete'] = sprintf('<a href="' . $url . '&action=delete&table=%s&id=%s&_wpnonce=%s">' . __('Delete') . '</a>',
+					$this->tableId,
+					$item['id'],
+					urlencode(wp_create_nonce('delete_nonce'))
+				);
+			}
 		}
 
 		return sprintf('%1$s %2$s', $item[$this->firstFieldRealName], $this->row_actions($actions));
@@ -535,7 +542,7 @@ class Admin_Record_List extends WP_List_Table
 				if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'restore_nonce')) {
 					$this->invalid_nonce_redirect();
 				} else {
-					$recordId = common::inputGetInt('id');
+					$recordId = common::inputGetCmd('id');
 
 					$whereClauseUpdate = new MySQLWhereClause();
 					$whereClauseUpdate->addCondition($this->ct->Table->realidfieldname, $recordId);
@@ -557,7 +564,7 @@ class Admin_Record_List extends WP_List_Table
 				if (!wp_verify_nonce(sanitize_text_field($_REQUEST['_wpnonce']), 'trash_nonce')) {
 					$this->invalid_nonce_redirect();
 				} else {
-					$recordId = common::inputGetInt('id');
+					$recordId = common::inputGetCmd('id');
 
 					$whereClauseUpdate = new MySQLWhereClause();
 					$whereClauseUpdate->addCondition($this->ct->Table->realidfieldname, $recordId);
@@ -721,8 +728,8 @@ class Admin_Record_List extends WP_List_Table
 			$this->invalid_nonce_redirect();
 		} else {
 
-			$records = (isset($_POST['ids']) && is_array($_POST['ids'])) ? common::sanitize_post_field_array($_POST['ids']) : [];
-
+			$records = (isset($_POST['ids']) && is_array($_POST['ids'])) ? common::sanitize_post_field_array($_POST['ids'],'string') : [];
+			
 			foreach ($records as $recordId) {
 
 				$whereClauseUpdate = new MySQLWhereClause();
@@ -751,7 +758,7 @@ class Admin_Record_List extends WP_List_Table
 			$this->invalid_nonce_redirect();
 		} else {
 
-			$records = (isset($_POST['ids']) && is_array($_POST['ids'])) ? common::sanitize_post_field_array($_POST['ids']) : [];
+			$records = (isset($_POST['ids']) && is_array($_POST['ids'])) ? common::sanitize_post_field_array($_POST['ids'],'string') : [];
 
 			foreach ($records as $recordId) {
 				$this->ct->RefreshSingleRecord($recordId, true);
@@ -775,7 +782,7 @@ class Admin_Record_List extends WP_List_Table
 			$this->invalid_nonce_redirect();
 		} else {
 
-			$records = (isset($_POST['ids']) && is_array($_POST['ids'])) ? common::sanitize_post_field_array($_POST['ids']) : [];
+			$records = (isset($_POST['ids']) && is_array($_POST['ids'])) ? common::sanitize_post_field_array($_POST['ids'],'string') : [];
 
 			if (count($records) > 0) {
 				foreach ($records as $recordId) {
