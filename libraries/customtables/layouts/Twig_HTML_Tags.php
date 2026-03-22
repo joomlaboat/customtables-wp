@@ -716,6 +716,121 @@ class Twig_HTML_Tags
 		}
 	}
 
+	/**
+	 * @throws Exception
+	 * @since 3.7.2
+	 */
+	function searchrange(?string $field = null, float $min = 0, float $max = 100, float $step = 1, string $color = "grey", string $handlers = "fit", string $class = ''): string
+	{
+		$fld = null;
+
+		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
+			return '';
+
+		if (empty($field))
+			throw new Exception('{{ html.searchrange() }}: Please specify a field name.');
+
+		$vlu = 'Search field name is wrong';
+
+		require_once(CUSTOMTABLES_LIBRARIES_PATH
+			. DIRECTORY_SEPARATOR . 'customtables' . DIRECTORY_SEPARATOR . 'html' . DIRECTORY_SEPARATOR . 'searchinputbox.php');
+
+		//Add control elements
+		$list_of_fields = [$field];
+		$fieldTitles = $this->getFieldTitles($list_of_fields);
+		if (count($fieldTitles) == 0)
+			throw new Exception('{{ html.searchrange("' . $field . '") }}: Field ' . $field . ' not found.');
+
+		//$field_title = $fieldTitles[0];
+
+		if ($max < $min)
+			throw new Exception('{{ html.searchrange("' . $field . '",' . $min . ',' . $max . ') }}: Max is less than Min.');
+
+		if ($max == $min)
+			throw new Exception('{{ html.searchrange("' . $field . '",' . $min . ',' . $max . ') }}: Min = Max.');
+
+		if ($step == 0)
+			throw new Exception('{{ html.searchrange("' . $field . '",' . $min . ',' . $max . ',' . $step . ') }}: Step = 0.');
+
+		$where_name = $field;
+		$f = str_replace($this->ct->Table->fieldPrefix, '', $where_name);//legacy support
+		$value = common::getWhereParameter($f);
+		if (!empty($value)) {
+			$valueParts = explode('-to-', $value);
+			$value_min = isset($valueParts[0]) ? floatval($valueParts[0]) : $min;
+			if (isset($valueParts[1]))
+				$value_max = isset($valueParts[1]) ? floatval($valueParts[1]) : $max;
+		} else {
+			$value_min = $min;
+			$value_max = $max;
+		}
+
+		Environment::$librariesToLoad['nouislider'] = true;
+
+		$objectName = 'comct_search_box_' . $field;
+
+		if ($handlers == 'no-overlap') {
+			$style = '#' . $objectName . '_slider .noUi-handle-lower {
+    right: 0;
+}
+#' . $objectName . '_slider .noUi-handle-upper {
+    right: -34px;
+}';
+		} elseif ($handlers == 'fit') {
+			$style = '#' . $objectName . '_slider{padding: 0 16px;}';
+		} elseif ($handlers == '' or $handlers == 'default') {
+			$style = '';
+		} else {
+			throw new Exception('{{ html.searchrange("' . $field . '",' . $min . ',' . $max . ',' . $step . ',"' . $handlers . '") }}: Unknown handler type: .');
+		}
+
+		$vlu = '
+<style>' . $style . '</style>
+<div class="' . $class . '" style="padding:10px;"><div id="' . $objectName . '_slider" style="margin-top:40px;"></div></div>
+<input type="hidden" name="' . $objectName . '" id="' . $objectName . '" value="-to-">
+<input type="hidden" ctsearchboxfield="' . $objectName . ':' . $field . ':">
+
+<script>
+const ' . $objectName . '_slider = document.getElementById("' . $objectName . '_slider");
+
+noUiSlider.create(' . $objectName . '_slider, {
+  start: [' . $value_min . ', ' . $value_max . '],
+  connect: true,
+  range: {
+    min: ' . $min . ',
+    max: ' . $max . '
+  },
+  behaviour: "tap-drag",
+    tooltips: true,
+  
+    orientation: "horizontal",
+  
+  step: ' . $step . ',
+  connect: true,
+ 
+
+});
+
+//const ' . $objectName . '_startInput = document.getElementById("' . $objectName . '_start");
+//const ' . $objectName . '_endInput = document.getElementById("' . $objectName . '_end");
+const ' . $objectName . ' = document.getElementById("' . $objectName . '");
+
+' . $objectName . '_slider.noUiSlider.on("update", (values) => {
+  ' . $objectName . '.value = Math.round(values[0]) + "-to-" + Math.round(values[1]);
+});
+
+mergeTooltips(' . $objectName . '_slider, 15, " - ");
+
+var ' . $objectName . '_connect = ' . $objectName . '_slider.querySelectorAll(".noUi-connect");
+
+for (var i = 0; i < ' . $objectName . '_connect.length; i++) {
+    ' . $objectName . '_connect[i].style.backgroundColor="' . $color . '";
+}
+</script>';
+
+		return $vlu;
+	}
+
 	function searchbutton($linkType = '', $defaultLabel = null, $class_ = ''): string
 	{
 		if ($this->ct->Env->print == 1 or ($this->ct->Env->frmt != 'html' and $this->ct->Env->frmt != ''))
