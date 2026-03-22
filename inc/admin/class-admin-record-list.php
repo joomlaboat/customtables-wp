@@ -496,21 +496,26 @@ class Admin_Record_List extends WP_List_Table
 
 		$actions['customtables-records-refresh'] = __('Refresh');
 
-		if ($this->current_status == '' or $this->current_status == 'all') {
-			$actions['customtables-records-publish'] = __('Publish', 'customtables');
-			$actions['customtables-records-unpublish'] = __('Draft', 'customtables');
-		} elseif ($this->current_status == 'unpublished') {
-			$actions['customtables-records-publish'] = __('Publish', 'customtables');
-		} elseif ($this->current_status == 'published') {
-			$actions['customtables-records-unpublish'] = __('Draft', 'customtables');
-		}
+		if ($this->ct->Table->published_field_found) {
 
-		if ($this->current_status != 'trash') {
-			$actions['customtables-records-trash'] = __('Move to Trash');
-		}
+			if ($this->current_status == '' or $this->current_status == 'all') {
+				$actions['customtables-records-publish'] = __('Publish', 'customtables');
+				$actions['customtables-records-unpublish'] = __('Draft', 'customtables');
+			} elseif ($this->current_status == 'unpublished') {
+				$actions['customtables-records-publish'] = __('Publish', 'customtables');
+			} elseif ($this->current_status == 'published') {
+				$actions['customtables-records-unpublish'] = __('Draft', 'customtables');
+			}
 
-		if ($this->current_status == 'trash') {
-			$actions['customtables-records-restore'] = __('Restore');
+			if ($this->current_status != 'trash') {
+				$actions['customtables-records-trash'] = __('Move to Trash');
+			}
+
+			if ($this->current_status == 'trash') {
+				$actions['customtables-records-restore'] = __('Restore');
+				$actions['customtables-records-delete'] = __('Delete Permanently');
+			}
+		}else{
 			$actions['customtables-records-delete'] = __('Delete Permanently');
 		}
 
