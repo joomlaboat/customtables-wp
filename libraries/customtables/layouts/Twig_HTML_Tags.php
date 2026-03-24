@@ -720,7 +720,7 @@ class Twig_HTML_Tags
 	 * @throws Exception
 	 * @since 3.7.2
 	 */
-	function searchrange(?string $field = null, float $min = 0, float $max = 100, float $step = 1, string $color = "grey", string $handlers = "fit", string $class = ''): string
+	function searchrange(?string $field = null, float $min = 0, float $max = 100, float $step = 1, string $color = "grey", string $handlers = "fit", bool $reload = false, string $class = ''): string
 	{
 		$fld = null;
 
@@ -760,6 +760,8 @@ class Twig_HTML_Tags
 			$value_min = isset($valueParts[0]) ? floatval($valueParts[0]) : $min;
 			if (isset($valueParts[1]))
 				$value_max = isset($valueParts[1]) ? floatval($valueParts[1]) : $max;
+			else
+				$value_max = $max;
 		} else {
 			$value_min = $min;
 			$value_max = $max;
@@ -817,6 +819,10 @@ const ' . $objectName . ' = document.getElementById("' . $objectName . '");
 
 ' . $objectName . '_slider.noUiSlider.on("update", (values) => {
   ' . $objectName . '.value = Math.round(values[0]) + "-to-" + Math.round(values[1]);
+});
+
+' . $objectName . '_slider.noUiSlider.on("change", (values) => {
+  ' . ($reload ? 'ctSearchBoxDo();' : '') . '
 });
 
 mergeTooltips(' . $objectName . '_slider, 15, " - ");
