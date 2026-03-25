@@ -5,7 +5,7 @@ Donate link: https://www.patreon.com/joomlaboat
 Tags: custom tables, custom database tables, database, catalog, forms
 Requires at least: 6.0
 Tested up to: 6.9.4
-Stable tag: 1.7.2
+Stable tag: 1.7.3
 Requires PHP: 7.4
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -49,6 +49,11 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 [Please contact us here with your query.](https://ct4.us/contact-us/)
 
 == Changelog ==
+
+= 1.7.3 =
+- {{ html.searchrange() }} tag added.
+- Table Field Add and Updated method fixed.
+- There was a bug in renaming fields.
 
 = 1.7.2 =
 - Added database query caching for frequently requested data (Languages, User Groups, User Details, Layout, Table Details, and Field Lists), significantly improving page load speed.
