@@ -31,6 +31,11 @@ $allowed_html = array(
 $onPageLoads = array();
 
 ?>
+	<style>
+	:root {
+		--body-bg: #FFFFFF;
+		}
+	</style>
 
 	<script>
 		<?php if ($this->admin_layout_edit->ct->Env->advancedTagProcessor): ?>
