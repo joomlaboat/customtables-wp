@@ -1,3 +1,12 @@
+.layouteditor_modal-content .control-label{
+    display: inline-block;
+    min-width:200px;
+}
+
+.layouteditor_modal-content .controls{
+    display: inline-block;
+ }
+
 /**
  * All of the CSS for your admin-specific functionality should be included in this file.
  *
