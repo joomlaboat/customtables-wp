@@ -287,9 +287,13 @@ class MySQLWhereClause
 		return ['value' => null];
 	}
 
-	public function getWhereClausePlaceholderValues(): array
+	protected function getWhereClauseMergeConditionValue($conditions, string $searchParam): array
 	{
-		return $this->placeholderValues ?? [];
+		foreach ($conditions as $condition) {
+			if ($condition['field'] == $searchParam)
+				return ['value' => $condition['value']];
+		}
+		return ['value' => null];
 	}
 
 }
@@ -623,7 +627,7 @@ class database
 			} elseif ($select == 'FIELD_NAME') {
 				$selects[] = '(SELECT fieldname FROM `' . $wpdb->prefix . 'customtables_fields` AS fields WHERE fields.published=1 AND fields.tableid=a.tableid LIMIT 1) AS FIELD_NAME';
 			} elseif ($select == 'USER_NAME') {
-				$selects[] = '(SELECT name FROM #__users AS users WHERE users.id=a.userid) AS USER_NAME';//TODO GET WP VERSION
+				$selects[] = '(SELECT user_nicename FROM ' . $wpdb->prefix . 'users AS u WHERE u.ID=a.userid) AS USER_NAME';//Used with #__customtables_log table only
 			} elseif ($select == 'CATEGORY_NAME') {
 				$selects[] = '(SELECT `categoryname` FROM `' . $wpdb->prefix . 'customtables_categories` AS categories WHERE categories.id=tablecategory LIMIT 1) AS categoryname';
 			} elseif ($select == 'FIELD_COUNT') {
@@ -633,15 +637,6 @@ class database
 					$selects [] = 'CASE WHEN modified IS NULL THEN extract(epoch FROM created) ELSE extract(epoch FROM modified) AS modified_timestamp';
 				else
 					$selects [] = 'IF(modified IS NULL,UNIX_TIMESTAMP(created),UNIX_TIMESTAMP(modified)) AS modified_timestamp';
-
-/*
-			} elseif ($select == 'REAL_FIELD_NAME') {
-				if ($serverType == 'postgresql')
-					$selects[] = 'CASE WHEN customfieldname!="" THEN customfieldname ELSE CONCAT("es_",fieldname) END AS realfieldname';
-				else
-					$selects[] = 'IF(customfieldname!="", customfieldname, CONCAT("es_",fieldname)) AS realfieldname';
-
-*/
 
 			} elseif ($select == 'REAL_TABLE_NAME') {
 				if ($serverType == 'postgresql') {
