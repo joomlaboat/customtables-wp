@@ -552,6 +552,11 @@ class database
 		return null;
 	}
 
+	public function getWhereClausePlaceholderValues(): array
+	{
+		return $this->placeholderValues ?? [];
+	}
+
 	protected static function sanitizeSelects(array $selectsRaw, string $realTableName): string
 	{
 		global $wpdb;
