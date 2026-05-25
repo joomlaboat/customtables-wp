@@ -309,12 +309,14 @@ class template
 		if ($ctWebsiteRoot !== '' and $ctWebsiteRoot[strlen($ctWebsiteRoot) - 1] !== '/')
 			$ctWebsiteRoot .= '/';
 
-		wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url($ctWebsiteRoot) . '";');
-		wp_add_inline_script('ct-edit-form-script', 'let ctFieldInputPrefix = "' . $this->enqueueList['FieldInputPrefix'] . '";');
-		wp_add_inline_script('ct-edit-form-script', 'let gmapdata = [];');
-		wp_add_inline_script('ct-edit-form-script', 'let gmapmarker = [];');
-		$wp_version_decimal = floatval(substr(get_bloginfo('version'), 0, 3));
-		wp_add_inline_script('ct-edit-form-script', 'const CTEditHelper = new CustomTablesEdit("WordPress",' . $wp_version_decimal . ');');
+		if (isset($this->enqueueList['FieldInputPrefix'])) {
+			wp_add_inline_script('ct-edit-form-script', 'let ctWebsiteRoot = "' . esc_url($ctWebsiteRoot) . '";');
+			wp_add_inline_script('ct-edit-form-script', 'let ctFieldInputPrefix = "' . $this->enqueueList['FieldInputPrefix'] . '";');
+			wp_add_inline_script('ct-edit-form-script', 'let gmapdata = [];');
+			wp_add_inline_script('ct-edit-form-script', 'let gmapmarker = [];');
+			$wp_version_decimal = floatval(substr(get_bloginfo('version'), 0, 3));
+			wp_add_inline_script('ct-edit-form-script', 'const CTEditHelper = new CustomTablesEdit("WordPress",' . $wp_version_decimal . ');');
+		}
 
 		// Add inline script after enqueuing the main script
 		if (isset($this->enqueueList['style']))
