@@ -53,7 +53,7 @@ Visit [ct4.us](https://ct4.us/) for more information, take a look at [wiki](http
 = 1.7.6 =
 - CSV Export limit removed
 - Virtual field excluded from default edit form layout
-- Image Galler excluded from default CSV layout
+- Image Gallery excluded from default CSV layout
 
 = 1.7.5 =
 - Security Update. Important.
