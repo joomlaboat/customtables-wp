@@ -58,10 +58,17 @@ class Save_file
 		} else {
 			if (defined('_JEXEC')) {
 				$temporaryFile = common::inputPostString($this->field->comesfieldname, null, 'create-edit-record');
+
+				$temporaryFile = str_replace(['/', '\\'], '', $temporaryFile);
+				$temporaryFile = str_replace('..', '', $temporaryFile);
+
 				if (!empty($temporaryFile))
 					$CompletePathToFile = CUSTOMTABLES_TEMP_PATH . $temporaryFile;
 
 				$fileName = common::inputPostString('com' . $this->field->realfieldname . '_filename', '', 'create-edit-record');
+				$fileName = str_replace(['/', '\\'], '', $fileName);
+				$fileName = str_replace('..', '', $fileName);
+
 			} elseif (defined('WPINC')) {
 				//Get new image
 				if (isset($_FILES[$this->field->comesfieldname])) {
@@ -259,7 +266,9 @@ class Save_file
 
 				if (defined('_JEXEC')) {
 					$file = common::inputPostString($this->field->comesfieldname, '');
-					$dst = CUSTOMTABLES_TEMP_PATH . 'decoded_' . basename($file['name']);
+					$file_name = 'decoded_' . basename($file['name']);
+
+					$dst = CUSTOMTABLES_TEMP_PATH . $file_name;
 					common::base64file_decode($CompletePathToFile, $dst);
 					$CompletePathToFile = $dst;
 				} else {
@@ -279,11 +288,28 @@ class Save_file
 				return null;
 
 			$mime = mime_content_type($CompletePathToFile);
-			$parts = explode('.', $fileName);
-			$fileExtension = end($parts);
-			if ($mime == 'application/zip' and $fileExtension != 'zip') {
+
+			$originalExtension = strtolower(
+				pathinfo($CompletePathToFile, PATHINFO_EXTENSION)// this is already uploaded and moved to tmp folder file with proper extension
+			);
+
+			$destinationExtension = strtolower(
+				pathinfo($fileName, PATHINFO_EXTENSION)
+			);
+
+			if ($destinationExtension !== $originalExtension) {
+
+				if (is_file($CompletePathToFile)) {
+					unlink($CompletePathToFile);
+				}
+
+				echo 'File extension mismatch';
+				return null;
+			}
+
+			if ($mime == 'application/zip' and $destinationExtension != 'zip') {
 				//could be docx, xlsx, pptx
-				$mime = FileUploader::checkZIP_File_X($CompletePathToFile, $fileExtension);
+				$mime = FileUploader::checkZIP_File_X($CompletePathToFile, $destinationExtension);
 			}
 
 			if (in_array($mime, $accepted_filetypes)) {
@@ -317,7 +343,7 @@ class Save_file
 		if (function_exists("transliterator_transliterate"))
 			$rawFileName = transliterator_transliterate("Any-Latin; Latin-ASCII;", $rawFileName);
 
-		$rawFileName = preg_replace("/[^\p{L}\d._]/u", "", $rawFileName);
+		$rawFileName = preg_replace("/[^\p{L}\d._-]/u", "", $rawFileName);
 
 		$fileNameParts = explode('.', $rawFileName);
 		$fileExtension = end($fileNameParts);
