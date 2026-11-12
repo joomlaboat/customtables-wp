@@ -54,11 +54,11 @@
 					'selected' => array())
 			);
 
-			$showPublished = $this->admin_layout_edit->params['showpublished'] ?? '';
+			$showPublished = $this->admin_layout_edit->params['showpublished'] ?? '1';
 
 			$options_escaped = '';
 
-			$options = ['0' => 'Show Published Only', '1' => 'Show Unpublished Only', '2' => 'Show Any'];
+			$options = ['0' => 'Show Published Only', '1' => 'Show Drafts Only', '2' => 'Show Any'];
 
 			foreach ($options as $key => $option) {
 				$options_escaped .= '<option value="' . esc_html($key) . '"';

@@ -34,7 +34,7 @@
 
 	<tr class="form-field form-required">
 		<th scope="row">
-			<label for="publishstatus">
+			<label for="mimetype">
 				<?php echo esc_html__('Output Format (MIME Type)', 'customtables'); ?>
 			</label>
 		</th>

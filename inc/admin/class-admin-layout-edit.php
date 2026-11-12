@@ -175,7 +175,7 @@ class Admin_Layout_Edit
 	 * // Generate a status selector with 'Unpublished' selected
 	 * $html = $this->get_publish_status_selector('publish_status', 0);
 	 */
-	function get_publish_status_selector(string $elementId, int $status = 0): string
+	function get_publish_status_selector(string $elementId, int $status = 1): string
 	{
 		$statuses = [1 => 'Published', 0 => 'Draft'];
 
