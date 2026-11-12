@@ -25,17 +25,17 @@
 			<?php echo $this->admin_layout_edit->get_publish_status_selector('publishstatus',
 				isset($this->admin_layout_edit->params['publishstatus']) ?
 					(int)$this->admin_layout_edit->params['publishstatus'] :
-					0
+					1
 			); ?>
 			<br/>
-			<span class="description">Sets the default publish status for newly created records. If none selected, inherits from parent layout or defaults to Unpublished.</span>
+			<span class="description">Sets the default publish status for newly created records. If none selected, inherits from parent layout or defaults to Published.</span>
 		</td>
 	</tr>
 
 	<tr class="form-field form-required">
 		<th scope="row">
 			<label for="publishstatus">
-				<?php echo esc_html__(' Output Format (MIME Type)', 'customtables'); ?>
+				<?php echo esc_html__('Output Format (MIME Type)', 'customtables'); ?>
 			</label>
 		</th>
 		<td>

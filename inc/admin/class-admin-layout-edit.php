@@ -177,7 +177,7 @@ class Admin_Layout_Edit
 	 */
 	function get_publish_status_selector(string $elementId, int $status = 0): string
 	{
-		$statuses = [1 => 'Published', 0 => 'Unpublished'];
+		$statuses = [1 => 'Published', 0 => 'Draft'];
 
 		// Start building the select element
 		$output = '<select id="' . $elementId . '" name="' . $elementId . '">';
