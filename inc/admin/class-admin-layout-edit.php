@@ -153,55 +153,10 @@ class Admin_Layout_Edit
 	}
 
 	/**
-	 * Generates an HTML select element for publish status selection.
-	 *
-	 * Creates a dropdown with Published/Draft options and an optional default "Select" option.
-	 * The status parameter determines which option is pre-selected.
-	 *
-	 * @since 1.4.2
-	 *
-	 * @param string $elementId  The ID and name to be used for the select element
-	 * @param ?int   $status    The currently selected status. Null for no selection, 1 for Published, 0 for Draft
-	 *
-	 * @return string HTML markup for the select element with status options
-	 *
-	 * @example
-	 * // Generate a status selector with no pre-selected value
-	 * $html = $this->get_publish_status_selector('publish_status', null);
-	 *
-	 * // Generate a status selector with 'Published' selected
-	 * $html = $this->get_publish_status_selector('publish_status', 1);
-	 *
-	 * // Generate a status selector with 'Draft' selected
-	 * $html = $this->get_publish_status_selector('publish_status', 0);
+	 * @param string $elementId
+	 * @param string $type
+	 * @return string
 	 */
-	function get_publish_status_selector(string $elementId, int $status = 1): string
-	{
-		$statuses = [1 => 'Published', 0 => 'Draft'];
-
-		// Start building the select element
-		$output = '<select id="' . $elementId . '" name="' . $elementId . '">';
-
-		// Add each role as an option
-		foreach ($statuses as $status_id => $status_label) {
-			// Check if this role should be selected
-			$is_selected = $status_id === $status ? ' selected' : '';
-
-			// Add the option element
-			$output .= sprintf(
-				'<option value="%d" %s>%s</option>',
-				esc_attr($status_id),
-				$is_selected,
-				esc_html($status_label)
-			);
-		}
-
-		// Close the select element
-		$output .= '</select>';
-
-		return $output;
-	}
-
 	function get_mimetype_selector(string $elementId, string $type = 'html'): string
 	{
 		$types = ['html' => 'HTML (text/html)', 'csv' => 'CSV (text/csv)', 'xml' => 'XML (application/xml)', 'json' => 'JSON (application/json)', 'txt'=>'Plain Text (text/plain)'];
