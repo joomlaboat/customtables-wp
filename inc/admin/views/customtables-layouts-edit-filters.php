@@ -54,7 +54,7 @@
 					'selected' => array())
 			);
 
-			$showPublished = $this->admin_layout_edit->params['showpublished'] ?? '1';
+			$showPublished = $this->admin_layout_edit->params['showpublished'] ?? '';
 
 			$options_escaped = '';
 

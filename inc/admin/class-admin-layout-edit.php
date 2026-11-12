@@ -155,13 +155,13 @@ class Admin_Layout_Edit
 	/**
 	 * Generates an HTML select element for publish status selection.
 	 *
-	 * Creates a dropdown with Published/Unpublished options and an optional default "Select" option.
+	 * Creates a dropdown with Published/Draft options and an optional default "Select" option.
 	 * The status parameter determines which option is pre-selected.
 	 *
 	 * @since 1.4.2
 	 *
 	 * @param string $elementId  The ID and name to be used for the select element
-	 * @param ?int   $status    The currently selected status. Null for no selection, 1 for Published, 0 for Unpublished
+	 * @param ?int   $status    The currently selected status. Null for no selection, 1 for Published, 0 for Draft
 	 *
 	 * @return string HTML markup for the select element with status options
 	 *
@@ -172,7 +172,7 @@ class Admin_Layout_Edit
 	 * // Generate a status selector with 'Published' selected
 	 * $html = $this->get_publish_status_selector('publish_status', 1);
 	 *
-	 * // Generate a status selector with 'Unpublished' selected
+	 * // Generate a status selector with 'Draft' selected
 	 * $html = $this->get_publish_status_selector('publish_status', 0);
 	 */
 	function get_publish_status_selector(string $elementId, int $status = 1): string
