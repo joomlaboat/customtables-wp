@@ -153,10 +153,52 @@ class Admin_Layout_Edit
 	}
 
 	/**
-	 * @param string $elementId
-	 * @param string $type
-	 * @return string
+	 * Generates an HTML select element for the default publish status of new records.
+	 *
+	 * Renders a dropdown with two options, Published (1) and Draft (0).
+	 * The option matching $status is pre-selected.
+	 *
+	 * @since 1.4.2
+	 *
+	 * @param string $elementId The ID and name of the select element.
+	 * @param int    $status    The selected status: 1 for Published (default), 0 for Draft.
+	 *
+	 * @return string HTML markup for the select element.
+	 *
+	 * @example
+	 * // 'Published' selected (default)
+	 * $html = $this->get_publish_status_selector('publishstatus');
+	 *
+	 * // 'Draft' selected
+	 * $html = $this->get_publish_status_selector('publishstatus', 0);
 	 */
+	function get_publish_status_selector(string $elementId, int $status = 1): string
+	{
+		$statuses = [1 => 'Published', 0 => 'Draft'];
+
+		// Start building the select element
+		$output = '<select id="' . $elementId . '" name="' . $elementId . '">';
+
+		// Add each role as an option
+		foreach ($statuses as $status_id => $status_label) {
+			// Check if this role should be selected
+			$is_selected = $status_id === $status ? ' selected' : '';
+
+			// Add the option element
+			$output .= sprintf(
+				'<option value="%d" %s>%s</option>',
+				esc_attr($status_id),
+				$is_selected,
+				esc_html($status_label)
+			);
+		}
+
+		// Close the select element
+		$output .= '</select>';
+
+		return $output;
+	}
+
 	function get_mimetype_selector(string $elementId, string $type = 'html'): string
 	{
 		$types = ['html' => 'HTML (text/html)', 'csv' => 'CSV (text/csv)', 'xml' => 'XML (application/xml)', 'json' => 'JSON (application/json)', 'txt'=>'Plain Text (text/plain)'];
